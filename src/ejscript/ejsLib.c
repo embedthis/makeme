@@ -50683,7 +50683,7 @@ static EjsUri *uri_resolve(Ejs *ejs, EjsUri *up, int argc, EjsObj **argv)
     uri = up->uri;
     target = toHttpUri(ejs, argv[0], 0);
     result = ejsCreateObj(ejs, ESV(Uri), 0);
-    uri = httpResolveUri(uri, 1, &target, 0);
+    uri = httpResolveUri(NULL, uri, target);
     if (up->uri == uri) {
         uri = httpCloneUri(uri, 0);
     }

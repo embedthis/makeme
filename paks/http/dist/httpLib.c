@@ -4273,7 +4273,7 @@ static void parseErrors(HttpRoute *route, cchar *key, MprJson *prop)
     int         ji;
 
     for (ITERATE_CONFIG(route, prop, child, ji)) {
-        httpAddRouteErrorDocument(route, (int) stoi(prop->name), prop->value);
+        httpAddRouteErrorDocument(route, (int) stoi(child->name), child->value);
     }
 }
 
@@ -4283,13 +4283,6 @@ static void parseFormatsResponse(HttpRoute *route, cchar *key, MprJson *prop)
     route->responseFormat = prop->value;
 }
 
-
-static void parseHandler(HttpRoute *route, cchar *key, MprJson *prop)
-{
-    if (httpSetRouteHandler(route, prop->value) < 0) {
-        httpParseError(route, "Cannot add handler \"%s\"", prop->value);
-    }
-}
 
 static void parseHeadersAdd(HttpRoute *route, cchar *key, MprJson *prop)
 {
@@ -4673,6 +4666,14 @@ static void parsePipelineFilters(HttpRoute *route, cchar *key, MprJson *prop)
         for (ITERATE_CONFIG(route, prop, child, ji)) {
             parsePipelineFilters(route, key, child);
         }
+    }
+}
+
+
+static void parsePipelineHandler(HttpRoute *route, cchar *key, MprJson *prop)
+{
+    if (httpSetRouteHandler(route, prop->value) < 0) {
+        httpParseError(route, "Cannot add handler \"%s\"", prop->value);
     }
 }
 
@@ -5284,14 +5285,6 @@ static void parseSslLogLevel(HttpRoute *route, cchar *key, MprJson *prop)
 }
 
 
-#if UNUSED
-static void parseSslProvider(HttpRoute *route, cchar *key, MprJson *prop)
-{
-    mprSetSslProvider(route->ssl, prop->value);
-}
-#endif
-
-
 static void parseSslRenegotiate(HttpRoute *route, cchar *key, MprJson *prop)
 {
     mprSetSslRenegotiate(route->ssl, (prop->type & MPR_JSON_TRUE) ? 1 : 0);
@@ -5563,7 +5556,6 @@ PUBLIC int httpInitParser()
     httpAddConfig("http.errors", parseErrors);
     httpAddConfig("http.formats", httpParseAll);
     httpAddConfig("http.formats.response", parseFormatsResponse);
-    httpAddConfig("http.handler", parseHandler);
     httpAddConfig("http.headers", httpParseAll);
     httpAddConfig("http.headers.add", parseHeadersAdd);
     httpAddConfig("http.headers.remove", parseHeadersRemove);
@@ -5605,6 +5597,7 @@ PUBLIC int httpInitParser()
     httpAddConfig("http.pattern", parsePattern);
     httpAddConfig("http.pipeline", httpParseAll);
     httpAddConfig("http.pipeline.filters", parsePipelineFilters);
+    httpAddConfig("http.pipeline.handler", parsePipelineHandler);
     httpAddConfig("http.pipeline.handlers", parsePipelineHandlers);
     httpAddConfig("http.prefix", parsePrefix);
     httpAddConfig("http.redirect", parseRedirect);
@@ -5632,9 +5625,6 @@ PUBLIC int httpInitParser()
     httpAddConfig("http.ssl.ciphers", parseSslCiphers);
     httpAddConfig("http.ssl.logLevel", parseSslLogLevel);
     httpAddConfig("http.ssl.key", parseSslKey);
-#if UNUSED
-    httpAddConfig("http.ssl.provider", parseSslProvider);
-#endif
     httpAddConfig("http.ssl.protocols", parseSslProtocols);
     httpAddConfig("http.ssl.renegotiate", parseSslRenegotiate);
     httpAddConfig("http.ssl.ticket", parseSslTicket);
@@ -5657,6 +5647,7 @@ PUBLIC int httpInitParser()
 #if DEPRECATED || 1
     httpAddConfig("app", parseApp);
     httpAddConfig("http.domain", parseName);
+    httpAddConfig("http.handler", parsePipelineHandler);
     httpAddConfig("http.limits.requestBody", parseLimitsRxBody);
     httpAddConfig("http.limits.responseBody", parseLimitsTxBody);
     httpAddConfig("http.limits.requestForm", parseLimitsRxForm);
@@ -5669,9 +5660,6 @@ PUBLIC int httpInitParser()
     httpAddConfig("http.server.ssl.certificate", parseSslCertificate);
     httpAddConfig("http.server.ssl.ciphers", parseSslCiphers);
     httpAddConfig("http.server.ssl.key", parseSslKey);
-#if UNUSED
-    httpAddConfig("http.server.ssl.provider", parseSslProvider);
-#endif
     httpAddConfig("http.server.ssl.protocols", parseSslProtocols);
     httpAddConfig("http.server.ssl.verify", httpParseAll);
     httpAddConfig("http.server.ssl.verify.client", parseSslVerifyClient);
@@ -8295,7 +8283,7 @@ static void errorRedirect(HttpConn *conn, cchar *uri)
             No response started and it is an internal redirect, so we can rerun the request.
             Set finalized to "cap" any output. processCompletion() in rx.c will rerun the request using the errorDocument.
          */
-        tx->errorDocument = uri;
+        tx->errorDocument = httpLink(conn, uri);
         tx->finalized = tx->finalizedOutput = tx->finalizedConnector = 1;
     }
 }
@@ -8888,8 +8876,7 @@ PUBLIC int httpHandleDirectory(HttpConn *conn)
     HttpTx      *tx;
     HttpRoute   *route;
     HttpUri     *req;
-    cchar       *index, *pathInfo; 
-    char        *path;
+    cchar       *index, *pathInfo, *path; 
     int         next;
 
     rx = conn->rx;
@@ -8920,6 +8907,12 @@ PUBLIC int httpHandleDirectory(HttpConn *conn)
             path = mprJoinPath(tx->filename, index);
             if (mprPathExists(path, R_OK)) {
                 break;
+            }
+            if (route->map && !(tx->flags & HTTP_TX_NO_MAP)) {
+                path = httpMapContent(conn, path);
+                if (mprPathExists(path, R_OK)) {
+                    break;
+                }
             }
             path = 0;
         }
@@ -9163,11 +9156,6 @@ static void printRoute(HttpRoute *route, int idx, bool full, int methodsLen, int
     cchar       *methods, *pattern, *target, *index;
     int         nextIndex;
 
-#if UNUSED
-    if (route->flags & HTTP_ROUTE_HIDDEN && !full) {
-        return;
-    }
-#endif
     auth = route->auth;
     methods = httpGetRouteMethods(route);
     methods = methods ? methods : "*";
@@ -13473,7 +13461,7 @@ PUBLIC int httpAddRouteFilter(HttpRoute *route, cchar *name, cchar *extensions, 
 
 PUBLIC int httpAddRouteHandler(HttpRoute *route, cchar *name, cchar *extensions)
 {
-    HttpStage   *handler, *prior;
+    HttpStage   *handler;
     char        *extlist, *word, *tok;
 
     assert(route);
@@ -13507,6 +13495,7 @@ PUBLIC int httpAddRouteHandler(HttpRoute *route, cchar *name, cchar *extensions)
                 } else if (*word == '\"' && word[1] == '\"') {
                     word = "";
                 }
+#if UNUSED
                 prior = mprLookupKey(route->extensions, word);
                 if (prior && prior != handler && *word) {
                     mprLog("warn http route", 0, "Route \"%s\" has multiple handlers defined for extension \"%s\". "
@@ -13515,6 +13504,9 @@ PUBLIC int httpAddRouteHandler(HttpRoute *route, cchar *name, cchar *extensions)
                 } else {
                     mprAddKey(route->extensions, word, handler);
                 }
+#else
+                mprAddKey(route->extensions, word, handler);
+#endif
                 word = stok(NULL, " \t\r\n", &tok);
             }
         }
@@ -14550,6 +14542,31 @@ PUBLIC void httpFinalizeRoute(HttpRoute *route)
 }
 
 
+PUBLIC cchar *httpGetRouteTop(HttpConn *conn)
+{
+    HttpRx  *rx;
+    char   *pp, *top;
+    int     count;
+
+    rx = conn->rx;
+    if (sstarts(rx->pathInfo, rx->route->prefix)) {
+        pp = &rx->pathInfo[rx->route->prefixLen];
+    } else {
+        pp = rx->pathInfo;
+    }
+    top = MPR->emptyString;
+    for (count = 0; *pp; pp++) {
+        if (*pp == '/' && count++ > 0) {
+            top = sjoin(top, "../", NULL);
+        }
+    }
+    if (*top) {
+        top[slen(top) - 1] = '\0';
+    }
+    return top;
+}
+
+
 /*
     Expect a template with embedded tokens of the form: "/${controller}/${action}/${other}"
     Understands the following aliases:
@@ -14572,8 +14589,7 @@ PUBLIC char *httpTemplate(HttpConn *conn, cchar *template, MprHash *options)
     buf = mprCreateBuf(-1, -1);
     for (cp = template; *cp; cp++) {
         if (cp == template && *cp == '~') {
-            mprPutStringToBuf(buf, route->prefix);
-
+            mprPutStringToBuf(buf, httpGetRouteTop(conn));
 #if DEPRECATED || 1
         } else if (cp == template && *cp == '|') {
             mprPutStringToBuf(buf, route->prefix);
@@ -14589,6 +14605,9 @@ PUBLIC char *httpTemplate(HttpConn *conn, cchar *template, MprHash *options)
                     mprPutStringToBuf(buf, value);
 
                 } else if ((value = mprReadJson(rx->params, key)) != 0) {
+                    mprPutStringToBuf(buf, value);
+
+                } else if ((value = mprLookupKey(route->vars, key)) != 0) {
                     mprPutStringToBuf(buf, value);
                 }
                 if (value == 0) {
@@ -20107,10 +20126,12 @@ PUBLIC void httpOmitBody(HttpConn *conn)
 }
 
 
+#if UNUSED
 static bool localEndpoint(cchar *host)
 {
     return smatch(host, "localhost") || smatch(host, "127.0.0.1") || smatch(host, "::1");
 }
+#endif
 
 
 /*
@@ -20120,10 +20141,13 @@ PUBLIC void httpRedirect(HttpConn *conn, int status, cchar *targetUri)
 {
     HttpTx          *tx;
     HttpRx          *rx;
-    HttpUri         *target, *base;
+    HttpUri         *base, *canonical;
+#if UNUSED
+    HttpUri         *target;
     HttpEndpoint    *endpoint;
-    cchar           *msg;
     char            *dir, *cp;
+#endif
+    cchar           *msg;
 
     assert(targetUri);
     rx = conn->rx;
@@ -20135,15 +20159,27 @@ PUBLIC void httpRedirect(HttpConn *conn, int status, cchar *targetUri)
         return;
     }
     tx->status = status;
-
-    /*
-        Expand the target for embedded tokens. Resolve relative to the current request URI
-        This may add "localhost" if the host is missing in the targetUri.
-     */
-    targetUri = httpLink(conn, targetUri);
     msg = httpLookupStatus(status);
 
+    canonical = conn->host->canonical;
+    if (canonical) {
+        base = httpCloneUri(rx->parsedUri, 0);
+        if (canonical->host) {
+            base->host = canonical->host;
+        }
+        if (canonical->port) {
+            base->port = canonical->port;
+        }
+    } else {
+        base = rx->parsedUri;
+    }
+    /*
+        Expand the target for embedded tokens. Resolve relative to the current request URI.
+     */
+    targetUri = httpUriToString(httpResolveUri(conn, base, httpLinkUri(conn, targetUri, 0)), 0);
+
     if (300 <= status && status <= 399) {
+#if UNUSED
         if (targetUri == 0) {
             targetUri = "/";
         }
@@ -20154,7 +20190,8 @@ PUBLIC void httpRedirect(HttpConn *conn, int status, cchar *targetUri)
             different scheme. So find a suitable local endpoint to supply the port for the scheme.
         */
         if (!target->port && (target->scheme && !smatch(target->scheme, base->scheme))) {
-            if (!target->host || smatch(base->host, target->host) || (localEndpoint(base->host) && localEndpoint(target->host))) {
+            if (!target->host || smatch(base->host, target->host) || 
+                (localEndpoint(base->host) && localEndpoint(target->host))) {
                 endpoint = smatch(target->scheme, "https") ? conn->host->secureEndpoint : conn->host->defaultEndpoint;
                 if (endpoint) {
                     target->port = endpoint->port;
@@ -20176,6 +20213,7 @@ PUBLIC void httpRedirect(HttpConn *conn, int status, cchar *targetUri)
         }
         target = httpCompleteUri(target, base);
         targetUri = httpUriToString(target, 0);
+#endif
         httpSetHeader(conn, "Location", "%s", targetUri);
         httpFormatResponse(conn,
             "<!DOCTYPE html>\r\n"
@@ -22107,58 +22145,60 @@ PUBLIC char *httpNormalizeUriPath(cchar *pathArg)
 }
 
 
-PUBLIC HttpUri *httpResolveUri(HttpUri *base, int argc, HttpUri **others, bool local)
+PUBLIC HttpUri *httpResolveUri(HttpConn *conn, HttpUri *base, HttpUri *other)
 {
-    HttpUri     *current, *other;
-    int         i;
+    HttpHost        *host;
+    HttpEndpoint    *endpoint;
+    HttpUri         *current;
 
-    if ((current = httpCloneUri(base, 0)) == 0) {
-        return 0;
+    if (!base || !base->valid) {
+        return other;
     }
-    if (!current->valid) {
-        return current;
+    if (!other || !other->valid) {
+        return base;
     }
-    if (local) {
-        current->host = 0;
-        current->scheme = 0;
-        current->port = 0;
-    }
+    current = httpCloneUri(base, 0);
+
     /*
         Must not inherit the query or reference
      */
     current->query = 0;
     current->reference = 0;
 
-    for (i = 0; i < argc && others; i++) {
-        other = others[i];
-        if (other->scheme && !smatch(current->scheme, other->scheme)) {
-            current->scheme = sclone(other->scheme);
-            /*
-                If the scheme is changed (test above), then accept an explict port.
-                If no port, then must not use the current port as the scheme has changed.
-             */
-            if (other->port) {
-                current->port = other->port;
-            } else if (current->port) {
-                current->port = 0;
-            }
-        }
-        if (other->host) {
-            current->host = sclone(other->host);
-        }
+    if (other->scheme && !smatch(current->scheme, other->scheme)) {
+        current->scheme = sclone(other->scheme);
+        /*
+            If the scheme is changed (test above), then accept an explict port.
+            If no port, then must not use the current port as the scheme has changed.
+         */
         if (other->port) {
             current->port = other->port;
+#if UNUSED
+        } else if (current->port) {
+            current->port = 0;
+#endif
+        } else {
+            host = conn ? conn->host : httpGetDefaultHost();
+            endpoint = smatch(current->scheme, "https") ? host->secureEndpoint : host->defaultEndpoint;
+            current->port = endpoint->port;
         }
-        if (other->path) {
-            trimPathToDirname(current);
-            httpJoinUriPath(current, current, other);
-        }
-        if (other->reference) {
-            current->reference = sclone(other->reference);
-        }
-        if (other->query) {
-            current->query = sclone(other->query);
-        }
+    }
+    if (other->host) {
+        current->host = sclone(other->host);
+    }
+    if (other->port) {
+        current->port = other->port;
+    }
+    if (other->path) {
+        trimPathToDirname(current);
+        httpJoinUriPath(current, current, other);
+        current->path = httpNormalizeUriPath(current->path);
+    }
+    if (other->reference) {
+        current->reference = sclone(other->reference);
+    }
+    if (other->query) {
+        current->query = sclone(other->query);
     }
     current->ext = mprGetPathExt(current->path);
     return current;
@@ -22169,9 +22209,11 @@ PUBLIC HttpUri *httpLinkUri(HttpConn *conn, cchar *target, MprHash *options)
 {
     HttpRoute       *route, *lroute;
     HttpRx          *rx;
-    HttpUri         *base, *uri, *canonical;
+    HttpUri         *uri;
     cchar           *routeName, *action, *controller, *originalAction, *tplate;
     char            *rest;
+
+    assert(conn);
 
     rx = conn->rx;
     route = rx->route;
@@ -22259,31 +22301,11 @@ PUBLIC HttpUri *httpLinkUri(HttpConn *conn, cchar *target, MprHash *options)
         }
     }
     target = httpTemplate(conn, tplate, options);
+
     if ((uri = httpCreateUri(target, 0)) == 0) {
         return 0;
     }
-    if (!uri->valid) {
-        return uri;
-    }
-    /*
-        This was changed from: httpCreateUri(rx->uri) to rx->parsedUri because we must extract the existing host and 
-        port from the prior request. The use case was appweb: 
-            /auth/form/login which redirects using: https:///auth/form/login on localhost:4443
-     */
-    canonical = conn->host->canonical;
-    if (canonical) {
-        base = httpCloneUri(rx->parsedUri, 0);
-        if (canonical->host) {
-            base->host = canonical->host;
-        }
-        if (canonical->port) {
-            base->port = canonical->port;
-        }
-    } else {
-        base = rx->parsedUri;
-    }
-    uri = httpResolveUri(base, 1, &uri, 0);
-    return httpNormalizeUri(uri);
+    return uri;
 }
 
 
@@ -22296,6 +22318,12 @@ PUBLIC char *httpLink(HttpConn *conn, cchar *target)
 PUBLIC char *httpLinkEx(HttpConn *conn, cchar *target, MprHash *options)
 {
     return httpUriToString(httpLinkUri(conn, target, options), 0);
+}
+
+
+PUBLIC char *httpLinkAbs(HttpConn *conn, cchar *target)
+{
+    return httpUriToString(httpResolveUri(conn, conn->rx->parsedUri, httpLinkUri(conn, target, 0)), 0);
 }
 
 
@@ -22396,7 +22424,7 @@ static void trimPathToDirname(HttpUri *uri)
 
 
 /*
-    Limited expansion of route names. Support ~/, |/ and ${app} at the start of the route name
+    Limited expansion of route names. Support ~ and ${app} at the start of the route name
  */
 static cchar *expandRouteName(HttpConn *conn, cchar *routeName)
 {
@@ -22404,10 +22432,10 @@ static cchar *expandRouteName(HttpConn *conn, cchar *routeName)
 
     route = conn->rx->route;
     if (routeName[0] == '~') {
-        return sjoin(route->prefix, &routeName[1], NULL);
+        return sjoin(httpGetRouteTop(conn), &routeName[1], NULL);
     }
     if (sstarts(routeName, "${app}")) {
-        return sjoin(route->prefix, &routeName[6], NULL);
+        return sjoin(httpGetRouteTop(conn), &routeName[6], NULL);
     }
 #if DEPRECATED || 1
     //  DEPRECATED in version 6
