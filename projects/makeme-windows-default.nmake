@@ -147,9 +147,7 @@ TARGETS               = $(TARGETS) build\$(CONFIG)\.extras-modified
 !IF "$(ME_COM_HTTP)" == "1"
 TARGETS               = $(TARGETS) build\$(CONFIG)\bin\http.exe
 !ENDIF
-!IF "$(ME_COM_SSL)" == "1"
 TARGETS               = $(TARGETS) build\$(CONFIG)\.install-certs-modified
-!ENDIF
 TARGETS               = $(TARGETS) build\$(CONFIG)\bin\libtestme.dll
 TARGETS               = $(TARGETS) build\$(CONFIG)\bin\me.exe
 TARGETS               = $(TARGETS) build\$(CONFIG)\bin\testme.exe
@@ -832,7 +830,6 @@ build\$(CONFIG)\bin\http.exe: $(DEPS_37)
 	"$(LD)" -nologo -out:$(BUILD)\bin\http.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS)  "$(BUILD)\obj\http.obj" $(LIBPATHS_37) $(LIBS_37) $(LIBS_37) $(LIBS)  $(LOG)
 !ENDIF
 
-!IF "$(ME_COM_SSL)" == "1"
 #
 #   install-certs
 #
@@ -859,7 +856,6 @@ build\$(CONFIG)\.install-certs-modified: $(DEPS_38)
 	copy /Y /B src\certs\samples\test.crt+modified build\$(CONFIG)\bin\test.crt $(LOG)
 	copy /Y /B src\certs\samples\test.key+modified build\$(CONFIG)\bin\test.key $(LOG)
 	copy /Y /B nul+modified build\$(CONFIG)\.install-certs-modified $(LOG)
-!ENDIF
 
 #
 #   testme.h
