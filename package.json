@@ -34,8 +34,8 @@
     ],
     "dependencies": {
         "certs": "~0.1",
-        "ejscript": "~2.6",
         "ejs-version": "~0.8",
+        "ejscript": "~2.6",
         "me-components": "~0.8",
         "me-installs": "~0.8",
         "me-make": "~0.1",
@@ -43,6 +43,7 @@
         "me-vstudio": "~0.8",
         "me-xcode": "~0.8",
         "mpr": "~6.1",
+        "mpr-mbedtls": "^0.3",
         "ssl": "~0.9"
     },
     "optionalDependencies": {

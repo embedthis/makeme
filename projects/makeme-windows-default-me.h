@@ -247,6 +247,9 @@
 #ifndef ME_COM_LINK
     #define ME_COM_LINK 1
 #endif
+#ifndef ME_COM_MBEDTLS
+    #define ME_COM_MBEDTLS 0
+#endif
 #ifndef ME_COM_MPR
     #define ME_COM_MPR 1
 #endif
