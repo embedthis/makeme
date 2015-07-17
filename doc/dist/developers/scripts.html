@@ -448,7 +448,7 @@ let data = Http.fetch('http://example.com/something.html')
             sessionStorage.setItem('scroll-top', $('.sidebar').scrollTop());
         });
         $(function() {
-            var url = '..developers/scripts.html';
+            var url = '../developers/scripts.html';
             var active = $('.sidebar a[href="' + url +'"]');
             active.addClass('active');
             $('.sidebar').scrollTop(sessionStorage.getItem('scroll-top'));

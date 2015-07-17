@@ -299,7 +299,7 @@ make -f projects/appweb-vxworks-default.mk
             sessionStorage.setItem('scroll-top', $('.sidebar').scrollTop());
         });
         $(function() {
-            var url = '..users/make.html';
+            var url = '../users/make.html';
             var active = $('.sidebar a[href="' + url +'"]');
             active.addClass('active');
             $('.sidebar').scrollTop(sessionStorage.getItem('scroll-top'));
