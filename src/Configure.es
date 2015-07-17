@@ -245,8 +245,6 @@ class Configure {
             let et = me.targets[name]
             if (!et) {
                 Target.create({ name: name, enable: false, type: 'component', diagnostic: 'Component not defined' })
-            } else if (et.configurable) {
-                configureComponent(et)
             }
         }
         /* Just for probe() which needs the context */
@@ -301,6 +299,12 @@ class Configure {
             target.enable = false
             target.diagnostic = '' + e
             vtrace('Omit', 'Component "' + target.name + '": ' + target.diagnostic)
+        }
+        for each (name in target.ifdef) {
+            let et = me.targets[name]
+            if (et.configurable) {
+                configureComponent(et)
+            }
         }
     }
 
