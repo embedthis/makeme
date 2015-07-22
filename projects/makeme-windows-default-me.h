@@ -205,7 +205,7 @@
 
 /* Profile */
 #ifndef ME_CONFIG_CMD
-    #define ME_CONFIG_CMD "me -d -q -platform windows-x86-default -configure . -gen nmake"
+    #define ME_CONFIG_CMD "me -d -q -platform windows-x86-default -configure . -gen vs"
 #endif
 #ifndef ME_MAKEME_PRODUCT
     #define ME_MAKEME_PRODUCT 1
