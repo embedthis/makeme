@@ -49,7 +49,7 @@ ME_COM_LINK           = 1
 ME_COM_MATRIXSSL      = 0
 !ENDIF
 !IF "$(ME_COM_MBEDTLS)" == ""
-ME_COM_MBEDTLS        = 0
+ME_COM_MBEDTLS        = 1
 !ENDIF
 !IF "$(ME_COM_MPR)" == ""
 ME_COM_MPR            = 1
@@ -223,6 +223,7 @@ clean:
 	if exist "build\$(CONFIG)\bin\libhttp.lib" del /Q "build\$(CONFIG)\bin\libhttp.lib"
 	if exist "build\$(CONFIG)\bin\libhttp.pdb" del /Q "build\$(CONFIG)\bin\libhttp.pdb"
 	if exist "build\$(CONFIG)\bin\libhttp.exp" del /Q "build\$(CONFIG)\bin\libhttp.exp"
+	if exist "build\$(CONFIG)\bin\libmbedtls.lib" del /Q "build\$(CONFIG)\bin\libmbedtls.lib"
 	if exist "build\$(CONFIG)\bin\libmpr.dll" del /Q "build\$(CONFIG)\bin\libmpr.dll"
 	if exist "build\$(CONFIG)\bin\libmpr.lib" del /Q "build\$(CONFIG)\bin\libmpr.lib"
 	if exist "build\$(CONFIG)\bin\libmpr.pdb" del /Q "build\$(CONFIG)\bin\libmpr.pdb"
@@ -239,6 +240,7 @@ clean:
 	if exist "build\$(CONFIG)\bin\libzlib.lib" del /Q "build\$(CONFIG)\bin\libzlib.lib"
 	if exist "build\$(CONFIG)\bin\libzlib.pdb" del /Q "build\$(CONFIG)\bin\libzlib.pdb"
 	if exist "build\$(CONFIG)\bin\libzlib.exp" del /Q "build\$(CONFIG)\bin\libzlib.exp"
+	if exist "build\$(CONFIG)\bin\libmpr-mbedtls.lib" del /Q "build\$(CONFIG)\bin\libmpr-mbedtls.lib"
 	if exist "build\$(CONFIG)\bin\testme.exe" del /Q "build\$(CONFIG)\bin\testme.exe"
 	if exist "build\$(CONFIG)\bin\testme.lib" del /Q "build\$(CONFIG)\bin\testme.lib"
 	if exist "build\$(CONFIG)\bin\testme.pdb" del /Q "build\$(CONFIG)\bin\testme.pdb"
@@ -321,7 +323,7 @@ DEPS_8 = $(DEPS_8) build\$(CONFIG)\inc\mpr.h
 build\$(CONFIG)\obj\mbedtls.obj: \
     src\mpr-mbedtls\mbedtls.c $(DEPS_8)
 	@echo .. [Compile] build\$(CONFIG)\obj\mbedtls.obj
-	"$(CC)" -c -Fo$(BUILD)\obj\mbedtls.obj -Fd$(BUILD)\obj\mbedtls.pdb $(CFLAGS) -D_FILE_OFFSET_BITS=64 $(IFLAGS) src\mpr-mbedtls\mbedtls.c $(LOG)
+	"$(CC)" -c -Fo$(BUILD)\obj\mbedtls.obj -Fd$(BUILD)\obj\mbedtls.pdb $(CFLAGS) -D_FILE_OFFSET_BITS=64 $(DFLAGS) $(IFLAGS) src\mpr-mbedtls\mbedtls.c $(LOG)
 
 !IF "$(ME_COM_SSL)" == "1"
 !IF "$(ME_COM_MBEDTLS)" == "1"
@@ -401,6 +403,9 @@ LIBS_14 = $(LIBS_14) libmbedtls.lib
 !IF "$(ME_COM_MBEDTLS)" == "1"
 LIBS_14 = $(LIBS_14) libmpr-mbedtls.lib
 !ENDIF
+!IF "$(ME_COM_MBEDTLS)" == "1"
+LIBS_14 = $(LIBS_14) libmbedtls.lib
+!ENDIF
 !IF "$(ME_COM_OPENSSL)" == "1"
 LIBS_14 = $(LIBS_14) libmpr-openssl.lib
 LIBPATHS_14 = $(LIBPATHS_14) -libpath:$(ME_COM_OPENSSL_PATH)
@@ -416,6 +421,9 @@ LIBPATHS_14 = $(LIBPATHS_14) -libpath:$(ME_COM_OPENSSL_PATH)
 !IF "$(ME_COM_OPENSSL)" == "1"
 LIBS_14 = $(LIBS_14) libssleay32.lib
 LIBPATHS_14 = $(LIBPATHS_14) -libpath:$(ME_COM_OPENSSL_PATH)
+!ENDIF
+!IF "$(ME_COM_MBEDTLS)" == "1"
+LIBS_14 = $(LIBS_14) libmpr-mbedtls.lib
 !ENDIF
 
 build\$(CONFIG)\bin\libmpr.dll: $(DEPS_14)
@@ -506,6 +514,9 @@ LIBS_22 = $(LIBS_22) libmbedtls.lib
 !IF "$(ME_COM_MBEDTLS)" == "1"
 LIBS_22 = $(LIBS_22) libmpr-mbedtls.lib
 !ENDIF
+!IF "$(ME_COM_MBEDTLS)" == "1"
+LIBS_22 = $(LIBS_22) libmbedtls.lib
+!ENDIF
 !IF "$(ME_COM_OPENSSL)" == "1"
 LIBS_22 = $(LIBS_22) libmpr-openssl.lib
 LIBPATHS_22 = $(LIBPATHS_22) -libpath:$(ME_COM_OPENSSL_PATH)
@@ -523,6 +534,9 @@ LIBS_22 = $(LIBS_22) libssleay32.lib
 LIBPATHS_22 = $(LIBPATHS_22) -libpath:$(ME_COM_OPENSSL_PATH)
 !ENDIF
 LIBS_22 = $(LIBS_22) libmpr.lib
+!IF "$(ME_COM_MBEDTLS)" == "1"
+LIBS_22 = $(LIBS_22) libmpr-mbedtls.lib
+!ENDIF
 !IF "$(ME_COM_PCRE)" == "1"
 LIBS_22 = $(LIBS_22) libpcre.lib
 !ENDIF
@@ -663,6 +677,9 @@ LIBS_33 = $(LIBS_33) libmbedtls.lib
 !IF "$(ME_COM_MBEDTLS)" == "1"
 LIBS_33 = $(LIBS_33) libmpr-mbedtls.lib
 !ENDIF
+!IF "$(ME_COM_MBEDTLS)" == "1"
+LIBS_33 = $(LIBS_33) libmbedtls.lib
+!ENDIF
 !IF "$(ME_COM_OPENSSL)" == "1"
 LIBS_33 = $(LIBS_33) libmpr-openssl.lib
 LIBPATHS_33 = $(LIBPATHS_33) -libpath:$(ME_COM_OPENSSL_PATH)
@@ -680,6 +697,9 @@ LIBS_33 = $(LIBS_33) libssleay32.lib
 LIBPATHS_33 = $(LIBPATHS_33) -libpath:$(ME_COM_OPENSSL_PATH)
 !ENDIF
 LIBS_33 = $(LIBS_33) libmpr.lib
+!IF "$(ME_COM_MBEDTLS)" == "1"
+LIBS_33 = $(LIBS_33) libmpr-mbedtls.lib
+!ENDIF
 !IF "$(ME_COM_PCRE)" == "1"
 LIBS_33 = $(LIBS_33) libpcre.lib
 !ENDIF
@@ -728,6 +748,9 @@ LIBS_35 = $(LIBS_35) libmbedtls.lib
 !IF "$(ME_COM_MBEDTLS)" == "1"
 LIBS_35 = $(LIBS_35) libmpr-mbedtls.lib
 !ENDIF
+!IF "$(ME_COM_MBEDTLS)" == "1"
+LIBS_35 = $(LIBS_35) libmbedtls.lib
+!ENDIF
 !IF "$(ME_COM_OPENSSL)" == "1"
 LIBS_35 = $(LIBS_35) libmpr-openssl.lib
 LIBPATHS_35 = $(LIBPATHS_35) -libpath:$(ME_COM_OPENSSL_PATH)
@@ -745,6 +768,9 @@ LIBS_35 = $(LIBS_35) libssleay32.lib
 LIBPATHS_35 = $(LIBPATHS_35) -libpath:$(ME_COM_OPENSSL_PATH)
 !ENDIF
 LIBS_35 = $(LIBS_35) libmpr.lib
+!IF "$(ME_COM_MBEDTLS)" == "1"
+LIBS_35 = $(LIBS_35) libmpr-mbedtls.lib
+!ENDIF
 !IF "$(ME_COM_PCRE)" == "1"
 LIBS_35 = $(LIBS_35) libpcre.lib
 !ENDIF
@@ -832,6 +858,9 @@ LIBS_40 = $(LIBS_40) libmbedtls.lib
 !IF "$(ME_COM_MBEDTLS)" == "1"
 LIBS_40 = $(LIBS_40) libmpr-mbedtls.lib
 !ENDIF
+!IF "$(ME_COM_MBEDTLS)" == "1"
+LIBS_40 = $(LIBS_40) libmbedtls.lib
+!ENDIF
 !IF "$(ME_COM_OPENSSL)" == "1"
 LIBS_40 = $(LIBS_40) libmpr-openssl.lib
 LIBPATHS_40 = $(LIBPATHS_40) -libpath:$(ME_COM_OPENSSL_PATH)
@@ -849,6 +878,9 @@ LIBS_40 = $(LIBS_40) libssleay32.lib
 LIBPATHS_40 = $(LIBPATHS_40) -libpath:$(ME_COM_OPENSSL_PATH)
 !ENDIF
 LIBS_40 = $(LIBS_40) libmpr.lib
+!IF "$(ME_COM_MBEDTLS)" == "1"
+LIBS_40 = $(LIBS_40) libmpr-mbedtls.lib
+!ENDIF
 !IF "$(ME_COM_PCRE)" == "1"
 LIBS_40 = $(LIBS_40) libpcre.lib
 !ENDIF
@@ -911,6 +943,9 @@ LIBS_43 = $(LIBS_43) libmbedtls.lib
 !IF "$(ME_COM_MBEDTLS)" == "1"
 LIBS_43 = $(LIBS_43) libmpr-mbedtls.lib
 !ENDIF
+!IF "$(ME_COM_MBEDTLS)" == "1"
+LIBS_43 = $(LIBS_43) libmbedtls.lib
+!ENDIF
 !IF "$(ME_COM_OPENSSL)" == "1"
 LIBS_43 = $(LIBS_43) libmpr-openssl.lib
 LIBPATHS_43 = $(LIBPATHS_43) -libpath:$(ME_COM_OPENSSL_PATH)
@@ -928,6 +963,9 @@ LIBS_43 = $(LIBS_43) libssleay32.lib
 LIBPATHS_43 = $(LIBPATHS_43) -libpath:$(ME_COM_OPENSSL_PATH)
 !ENDIF
 LIBS_43 = $(LIBS_43) libmpr.lib
+!IF "$(ME_COM_MBEDTLS)" == "1"
+LIBS_43 = $(LIBS_43) libmpr-mbedtls.lib
+!ENDIF
 !IF "$(ME_COM_PCRE)" == "1"
 LIBS_43 = $(LIBS_43) libpcre.lib
 !ENDIF
@@ -1141,6 +1179,9 @@ LIBS_53 = $(LIBS_53) libmbedtls.lib
 !IF "$(ME_COM_MBEDTLS)" == "1"
 LIBS_53 = $(LIBS_53) libmpr-mbedtls.lib
 !ENDIF
+!IF "$(ME_COM_MBEDTLS)" == "1"
+LIBS_53 = $(LIBS_53) libmbedtls.lib
+!ENDIF
 !IF "$(ME_COM_OPENSSL)" == "1"
 LIBS_53 = $(LIBS_53) libmpr-openssl.lib
 LIBPATHS_53 = $(LIBPATHS_53) -libpath:$(ME_COM_OPENSSL_PATH)
@@ -1158,6 +1199,9 @@ LIBS_53 = $(LIBS_53) libssleay32.lib
 LIBPATHS_53 = $(LIBPATHS_53) -libpath:$(ME_COM_OPENSSL_PATH)
 !ENDIF
 LIBS_53 = $(LIBS_53) libmpr.lib
+!IF "$(ME_COM_MBEDTLS)" == "1"
+LIBS_53 = $(LIBS_53) libmpr-mbedtls.lib
+!ENDIF
 !IF "$(ME_COM_PCRE)" == "1"
 LIBS_53 = $(LIBS_53) libpcre.lib
 !ENDIF
@@ -1225,6 +1269,9 @@ LIBS_56 = $(LIBS_56) libmbedtls.lib
 !IF "$(ME_COM_MBEDTLS)" == "1"
 LIBS_56 = $(LIBS_56) libmpr-mbedtls.lib
 !ENDIF
+!IF "$(ME_COM_MBEDTLS)" == "1"
+LIBS_56 = $(LIBS_56) libmbedtls.lib
+!ENDIF
 !IF "$(ME_COM_OPENSSL)" == "1"
 LIBS_56 = $(LIBS_56) libmpr-openssl.lib
 LIBPATHS_56 = $(LIBPATHS_56) -libpath:$(ME_COM_OPENSSL_PATH)
@@ -1242,6 +1289,9 @@ LIBS_56 = $(LIBS_56) libssleay32.lib
 LIBPATHS_56 = $(LIBPATHS_56) -libpath:$(ME_COM_OPENSSL_PATH)
 !ENDIF
 LIBS_56 = $(LIBS_56) libmpr.lib
+!IF "$(ME_COM_MBEDTLS)" == "1"
+LIBS_56 = $(LIBS_56) libmpr-mbedtls.lib
+!ENDIF
 !IF "$(ME_COM_PCRE)" == "1"
 LIBS_56 = $(LIBS_56) libpcre.lib
 !ENDIF
