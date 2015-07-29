@@ -6,7 +6,7 @@
 PRODUCT=makeme
 XCODE=/usr/bin/xcodebuild
 PROFILE=default
-BINARIES="ejs ejsc http me testme"
+BINARIES="makeme-ejs makeme-ejsc http me testme"
 LIBRARIES="libejs libhttp libmpr libpcre libtestme libzlib"
 
 # Just for VS
