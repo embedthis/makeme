@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+   <title>Class Loader</title>
+
+   <link rel="stylesheet" type="text/css" href="doc.css" />
+</head>
+
+<body>
+<div class='body'>
+
+<div class="content">
+
+<a name='top'></a>
+<h1 class='className'>Loader</h1>
+<div class='classBlock'>
+<table class='classHead' title='Loader'>
+   <tr><td><strong>Module</strong></td><td>embedthis.me</td></tr>
+   <tr><td><strong>Definition</strong></td><td> class Loader</td></tr>
+   <tr><td><strong>Inheritance</strong></td><td>Loader <img src='images/inherit.gif' alt='inherit'/> <a href='Object.html'>Object</a><tr><td><strong>Stability</strong></td><td>Prototype.</td></tr>
+       </td></tr>
+</table>
+
+<p class='classBrief'>The Loader class loads MakeMe files and creates the MakeMe Document Object Model (DOM).</p>
+
+</div>
+
+
+<hr />
+<a name='Properties'></a>
+<h2 class='classSection'>Properties</h2>
+<table class='itemTable' title='properties'>
+   <tr><th>Qualifiers</th><th>Property</th><th>Type</th><th width='95%'>Description</th></tr>
+<a name='BUILD'></a>
+   <tr><td nowrap align='center'>static const </td><td>BUILD</td><td><a href='Path.html'>Path</a></td><td>Some doc . </td></tr>
+<a name='MAIN'></a>
+   <tr><td nowrap align='center'>static const </td><td>MAIN</td><td><a href='Path.html'>Path</a></td><td>null </td></tr>
+<a name='PACKAGE'></a>
+   <tr><td nowrap align='center'>static const </td><td>PACKAGE</td><td><a href='Path.html'>Path</a></td><td>null </td></tr>
+<a name='PLATFORM'></a>
+   <tr><td nowrap align='center'>static const </td><td>PLATFORM</td><td><a href='Path.html'>Path</a></td><td>null </td></tr>
+<a name='START'></a>
+   <tr><td nowrap align='center'>static const </td><td>START</td><td><a href='Path.html'>Path</a></td><td>null </td></tr>
+<a name='Unix'></a>
+   <tr><td nowrap align='center'>static const </td><td>Unix</td><td>&nbsp;</td><td>null </td></tr>
+<a name='Windows'></a>
+   <tr><td nowrap align='center'>static const </td><td>Windows</td><td>&nbsp;</td><td>null </td></tr>
+<a name='localPlatform'></a>
+   <tr><td nowrap align='center'></td><td>localPlatform</td><td><a href='String.html'>String</a></td><td>null </td></tr>
+</table>
+
+<p class='inheritedLink'><a href='Object.html#Properties'><i>Inherited Properties</i></a></p>
+
+<hr />
+<a name='ClassMethods'></a>
+<h2 class='classSection'>Loader Class Methods</h2>
+<table class='apiIndex' title='methods'>
+   <tr><th>Qualifiers</th><th width='95%'>Method</th></tr>
+   <tr class='apiDef'><td class='apiType'>static </td><td><a href='#loading'><b>loading</b></a>(obj)</tr><tr class='apiBrief'><td>&nbsp;</td><td>null</td></tr>
+</table>
+
+<p class='inheritedLink'><a href='Object.html#InstanceMethods'><i>Inherited Methods</i></a></p>
+
+<hr />
+<a name='InstanceMethods'></a>
+<h2 class='classSection'>Loader Instance Methods</h2>
+<table class='apiIndex' title='methods'>
+   <tr><th>Qualifiers</th><th width='95%'>Method</th></tr>
+   <tr class='apiDef'><td class='apiType'></td><td><a href='#Loader'><b>Loader</b></a>()</tr><tr class='apiBrief'><td>&nbsp;</td><td>null</td></tr>
+   <tr class='apiDef'><td class='apiType'></td><td><a href='#applyCommandLine'><b>applyCommandLine</b></a>()</tr><tr class='apiBrief'><td>&nbsp;</td><td>Apply command line --with/--without --enable/--disable options.</td></tr>
+   <tr class='apiDef'><td class='apiType'></td><td><a href='#blendFile'><b>blendFile</b></a>(path: <a href='Path.html'>Path</a>): <a href='Void.html'>Void</a></tr><tr class='apiBrief'><td>&nbsp;</td><td>null</td></tr>
+   <tr class='apiDef'><td class='apiType'></td><td><a href='#blendModules'><b>blendModules</b></a>(obj)</tr><tr class='apiBrief'><td>&nbsp;</td><td>null</td></tr>
+   <tr class='apiDef'><td class='apiType'></td><td><a href='#blendObj'><b>blendObj</b></a>(obj): <a href='Object.html'>Object</a></tr><tr class='apiBrief'><td>&nbsp;</td><td>null</td></tr>
+   <tr class='apiDef'><td class='apiType'></td><td><a href='#checkVersion'><b>checkVersion</b></a>(path, obj)</tr><tr class='apiBrief'><td>&nbsp;</td><td>null</td></tr>
+   <tr class='apiDef'><td class='apiType'></td><td><a href='#createTarget'><b>createTarget</b></a>(properties): <a href='Target.html'>Target</a></tr><tr class='apiBrief'><td>&nbsp;</td><td>null</td></tr>
+   <tr class='apiDef'><td class='apiType'></td><td><a href='#expand'><b>expand</b></a>(str: <a href='String.html'>String</a>, options = expression): <a href='String.html'>String</a></tr><tr class='apiBrief'><td>&nbsp;</td><td>Expand tokens in a string.</td></tr>
+   <tr class='apiDef'><td class='apiType'></td><td><a href='#findPlugin'><b>findPlugin</b></a>(name, exceptions = true): <a href='Path.html'>Path</a></tr><tr class='apiBrief'><td>&nbsp;</td><td>null</td></tr>
+   <tr class='apiDef'><td class='apiType'></td><td><a href='#fixScripts'><b>fixScripts</b></a>(o, topnames)</tr><tr class='apiBrief'><td>&nbsp;</td><td>null</td></tr>
+   <tr class='apiDef'><td class='apiType'></td><td><a href='#getPlatformFiles'><b>getPlatformFiles</b></a>(path): <a href='Array.html'>Array</a></tr><tr class='apiBrief'><td>&nbsp;</td><td>null</td></tr>
+   <tr class='apiDef'><td class='apiType'></td><td><a href='#inheritCompSettings'><b>inheritCompSettings</b></a>(target, dep, inheritCompiler = false)</tr><tr class='apiBrief'><td>&nbsp;</td><td>null</td></tr>
+   <tr class='apiDef'><td class='apiType'></td><td><a href='#initPlatform'><b>initPlatform</b></a>(spec)</tr><tr class='apiBrief'><td>&nbsp;</td><td>null</td></tr>
+   <tr class='apiDef'><td class='apiType'></td><td><a href='#like'><b>like</b></a>(os)</tr><tr class='apiBrief'><td>&nbsp;</td><td>null</td></tr>
+   <tr class='apiDef'><td class='apiType'></td><td><a href='#loadFile'><b>loadFile</b></a>(path)</tr><tr class='apiBrief'><td>&nbsp;</td><td>null</td></tr>
+   <tr class='apiDef'><td class='apiType'></td><td><a href='#makeDirectoryGlobals'><b>makeDirectoryGlobals</b></a>(base: <a href='Path.html'>Path</a> = null)</tr><tr class='apiBrief'><td>&nbsp;</td><td>null</td></tr>
+   <tr class='apiDef'><td class='apiType'></td><td><a href='#makeExtensionGlobals'><b>makeExtensionGlobals</b></a>()</tr><tr class='apiBrief'><td>&nbsp;</td><td>null</td></tr>
+   <tr class='apiDef'><td class='apiType'></td><td><a href='#makeGlobals'><b>makeGlobals</b></a>(base: <a href='Path.html'>Path</a> = null)</tr><tr class='apiBrief'><td>&nbsp;</td><td>null</td></tr>
+   <tr class='apiDef'><td class='apiType'></td><td><a href='#readFile'><b>readFile</b></a>(path: <a href='Path.html'>Path</a>): <a href='Object.html'>Object</a></tr><tr class='apiBrief'><td>&nbsp;</td><td>null</td></tr>
+   <tr class='apiDef'><td class='apiType'></td><td><a href='#rebasePaths'><b>rebasePaths</b></a>(home: <a href='Path.html'>Path</a>, o: <a href='Object.html'>Object</a>, field: <a href='String.html'>String</a>)</tr><tr class='apiBrief'><td>&nbsp;</td><td>null</td></tr>
+   <tr class='apiDef'><td class='apiType'></td><td><a href='#rebaseTarget'><b>rebaseTarget</b></a>(target: <a href='Target.html'>Target</a>)</tr><tr class='apiBrief'><td>&nbsp;</td><td>null</td></tr>
+   <tr class='apiDef'><td class='apiType'></td><td><a href='#reset'><b>reset</b></a>()</tr><tr class='apiBrief'><td>&nbsp;</td><td>null</td></tr>
+   <tr class='apiDef'><td class='apiType'></td><td><a href='#runScript'><b>runScript</b></a>(event)</tr><tr class='apiBrief'><td>&nbsp;</td><td>null</td></tr>
+   <tr class='apiDef'><td class='apiType'></td><td><a href='#runScriptFromObj'><b>runScriptFromObj</b></a>(obj, event)</tr><tr class='apiBrief'><td>&nbsp;</td><td>null</td></tr>
+   <tr class='apiDef'><td class='apiType'></td><td><a href='#runScriptOnce'><b>runScriptOnce</b></a>(event)</tr><tr class='apiBrief'><td>&nbsp;</td><td>null</td></tr>
+   <tr class='apiDef'><td class='apiType'></td><td><a href='#samePlatform'><b>samePlatform</b></a>(p1, p2): <a href='Boolean.html'>Boolean</a></tr><tr class='apiBrief'><td>&nbsp;</td><td>null</td></tr>
+   <tr class='apiDef'><td class='apiType'></td><td><a href='#setPrefixes'><b>setPrefixes</b></a>()</tr><tr class='apiBrief'><td>&nbsp;</td><td>null</td></tr>
+</table>
+
+<p class='inheritedLink'><a href='Object.html#InstanceMethods'><i>Inherited Methods</i></a></p>
+
+<hr />
+<h2>Method Detail</h2>
+<a name='applyCommandLine'></a>
+<div class='api'>
+<div class='apiSig'>    applyCommandLine()
+</div>
+<div class='apiDetail'>
+<dl><dt>Description</dt></dd><dd>Apply command line --with/--without --enable/--disable options. </dd></dl>
+</div>
+</div>
+<hr />
+<a name='expand'></a>
+<div class='api'>
+<div class='apiSig'>    expand(str: <a href='String.html'>String</a>, options = expression): <a href='String.html'>String</a>
+</div>
+<div class='apiDetail'>
+<dl><dt>Description</dt></dd><dd>Expand tokens in a string. Tokens are represented by '<a href='#{field}''>{field}'</a> where field may contain '.'. For example {user.name}.
+ To preserve an <a href='#{token}'>{token}</a> unmodified, preceed the token with an extra ''. For example: ${token}.
+Calls String.expand to expand variables from the me and me.globals objects.</dd></dl>
+<dl><dt>Parameters</dt>
+<dd><table class='parameters' title='parameters'>
+<tr class='param'><td class='param'>str: <a href='String.html'>String</a> </td><td>Input string.</td></tr><tr class='param'><td class='param'>options </td><td>Control options object. [default: expression]</td></tr></table></dd>
+</dl><dl><dt>Options</dt>
+<dd><table class='parameters' title='options'>
+<td class='param'>missing</td><td>Set to a string to use for missing properties. Set to undefined or omit options to throw an exception for missing properties. Set missing to true to preserve undefined tokens as-is. This permits multi-pass expansions.</td></tr>
+<td class='param'>join</td><td>Character to use to join array elements. Defaults to space.</td></tr>
+</table></dd>
+</dl><dl><dt>Returns</dt>
+<dd>Expanded string.</dd></dl>
+</div>
+</div>
+<hr />
+<div class="terms">
+   <p class="terms">
+       <a href="https://embedthis.com/">       Embedthis Software LLC, 2003-2014. All rights reserved. Embedthis is a trademark of Embedthis Software LLC.</a>
+   </p>
+</div></div>
+</div>
+</body>
+</html>
