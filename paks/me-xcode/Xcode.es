@@ -404,6 +404,7 @@ class Xcode {
             } 
             let fid = makeid('ID_Frameworks:' + target.name)
             let libs = []
+            if (target.static) continue
             for each (item in target.libraries) {
                 let dep = me.targets['lib' + item]
                 if (dep && dep.type == 'lib') {
@@ -506,6 +507,11 @@ class Xcode {
             }
             let dep = me.targets[dname]
             if (dep && !result.contains(dep)) {
+/* UNUSED
+                if (target.static && dep.type == 'lib') {
+                    continue
+                }
+*/
                 getAllDeps(dep, result)
                 if (dep.enable && dep.xtarget) { 
                     result.push(dep)
@@ -902,14 +908,30 @@ class Xcode {
         }
         common_settings += '
                     /* Common Settings */
+                    COMBINE_HIDPI_IMAGES = YES;
     				ALWAYS_SEARCH_USER_PATHS = NO;
                     ONLY_ACTIVE_ARCH = YES;
                     CURRENT_PROJECT_VERSION = ${settings.compatible};
                     DYLIB_COMPATIBILITY_VERSION = "$(CURRENT_PROJECT_VERSION)";
                     DYLIB_CURRENT_VERSION = "$(CURRENT_PROJECT_VERSION)";
+
     				GCC_C_LANGUAGE_STANDARD = gnu99;
     				GCC_VERSION = ${COMPILER};
     				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+
+GCC_NO_COMMON_BLOCKS = YES;
+GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+GCC_WARN_UNDECLARED_SELECTOR = YES;
+CLANG_WARN_BOOL_CONVERSION = YES;
+CLANG_WARN_CONSTANT_CONVERSION = YES;
+CLANG_WARN_EMPTY_BODY = YES;
+CLANG_WARN_ENUM_CONVERSION = YES;
+CLANG_WARN_INT_CONVERSION = YES;
+CLANG_WARN_UNREACHABLE_CODE = YES;
+CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+ENABLE_STRICT_OBJC_MSGSEND = YES;
+ENABLE_TESTABILITY = YES;
+
                     LD_DYLIB_INSTALL_NAME = "@rpath/$(EXECUTABLE_PATH)";
     				MACOSX_DEPLOYMENT_TARGET = 10.7;
     				SDKROOT = macosx;
