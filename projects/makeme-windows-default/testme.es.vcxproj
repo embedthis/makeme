@@ -91,6 +91,9 @@
         <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ObjDir)\testme.es\</IntDir>
         <CustomBuildBeforeTargets Condition="'$(Configuration)|$(Platform)'=='Release|x64'">PreBuildEvent</CustomBuildBeforeTargets>
   </PropertyGroup>
+    <PropertyGroup>
+        <TargetName>testme</TargetName>
+    </PropertyGroup>
 
       <ItemDefinitionGroup>
       <Link>

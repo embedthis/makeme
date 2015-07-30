@@ -2,7 +2,7 @@
     "name": "mpr-mbedtls",
     "title": "MbedTLS support",
     "description": "MbedTLS Support for the MPR",
-    "version": "0.3.1",
+    "version": "0.3.2",
     "keywords": [
         "me",
         "ssl",

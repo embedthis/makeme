@@ -416,14 +416,7 @@ if not exist "$(IncDir)" md "$(IncDir)"
         me.OTOK = '$(OutDir)'
         me.UTOK = '$(UserRootDir)'
         me.VTOK = '$(VCTargetsPath)'
-        me.NAME = target.pname
-        if (!me.NAME) {
-            if (target.type == 'exe') {
-                me.NAME = Path(target.path ? target.path : target.name).basename.trimExt().name
-            } else {
-                me.NAME = target.name
-            }
-        }
+        me.NAME = target.type == 'exe' ? target.path.basename.trimExt().name : target.name
         me.OUTDIR = wpath(me.dir.out.relativeTo(base))
 
         output('
@@ -500,9 +493,11 @@ if not exist "$(IncDir)" md "$(IncDir)"
             }
         }
         output('  </PropertyGroup>')
-        if (target.pname) {
+
+        let name = target.path ? target.path.basename.trimExt().name : target.name
+        if (name != target.name) {
             output('    <PropertyGroup>
-        <TargetName>' + target.pname + '</TargetName>
+        <TargetName>' + name + '</TargetName>
     </PropertyGroup>')
         }
     }

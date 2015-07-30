@@ -1422,6 +1422,11 @@ public class Loader {
         } else {
             let type = target.type
             if (type == 'lib') {
+//  UNUSED
+if (target.libname) {
+    print("USING target.libname", target.name)
+}
+                //  MOB - remove libname here
                 name = target.libname || target.name
                 if (target.static) {
                     target.path = me.dir.bin.join(name).joinExt(me.ext.lib, true)

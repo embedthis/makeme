@@ -1,5 +1,5 @@
 /*
-    mbedtls.me -- MbedTLS Component for the MPR
+    mpr-mbedtls.me -- MbedTLS Component for the MPR
  */
 
 Me.load({
@@ -14,17 +14,23 @@ Me.load({
 
     targets: {
         mbedtls: {
-            description: 'MbedTLS Support',
-            libname:     'libmpr-mbedtls',
+            description:  'MbedTLS Support',
             configurable: true,
-            conflicts:    [ 'openssl', 'matrixssl', 'nanossl' ]
             ifdef:        [ 'ssl' ],
+            conflicts:    [ 'openssl', 'matrixssl', 'nanossl' ]
+            depends:      [ 'libmpr-mbedtls', 'libmbedtls' ],
+            location:     '${SRC}/mpr-mbedtls',
+        },
+
+        'libmpr-mbedtls': {
+            description:  'MPR MbedTLS Interface',
             type:         'lib',
             static:       true,
+            path:         '${BIN}/libmpr-mbedtls${ARLIB}',
+            ifdef:        [ 'mbedtls' ],
             sources:      [ '*.c' ],
             depends:      [ 'libmbedtls' ],
-            location:     '${SRC}/mpr-mbedtls',
-            '-compiler': [
+            '-compiler':  [
                 '-Wall',
                 '-Wshorten-64-to-32',
                 '-W3',

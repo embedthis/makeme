@@ -53526,7 +53526,7 @@ static EjsXML *createValueNode(Ejs *ejs, EjsXML *elt, EjsObj *value)
     /*
         Create a new text element
      */
-    if (str->value && str->value[0] != '\0') {
+    if (str->value[0] != '\0') {
         text = ejsCreateXML(ejs, EJS_XML_TEXT, N(NULL, NULL), elt, str);
         elt = ejsAppendToXML(ejs, elt, text);
     }

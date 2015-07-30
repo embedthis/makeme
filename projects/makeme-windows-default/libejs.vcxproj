@@ -121,7 +121,7 @@
 
       <ItemDefinitionGroup>
       <Link>
-        <AdditionalDependencies>libzlib.lib;libhttp.lib;libpcre.lib;libmpr.lib;mpr-mbedtls;libmbedtls.lib;%(AdditionalDependencies)</AdditionalDependencies>
+        <AdditionalDependencies>libzlib.lib;libhttp.lib;libpcre.lib;libmpr.lib;libmpr-mbedtls.lib;libmbedtls.lib;%(AdditionalDependencies)</AdditionalDependencies>
         <AdditionalLibraryDirectories>$(OutDir);build\$(Cfg)\bin;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       </Link>
 

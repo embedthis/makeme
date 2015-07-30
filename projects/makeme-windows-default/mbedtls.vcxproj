@@ -102,6 +102,9 @@
         <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ObjDir)\mbedtls\</IntDir>
         <CustomBuildBeforeTargets Condition="'$(Configuration)|$(Platform)'=='Release|x64'">PreBuildEvent</CustomBuildBeforeTargets>
   </PropertyGroup>
+    <PropertyGroup>
+        <TargetName>libmpr-mbedtls</TargetName>
+    </PropertyGroup>
   
       <ItemGroup>
     <ClCompile Include="..\..\src\mpr-mbedtls\mbedtls.c" />

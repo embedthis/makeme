@@ -66,6 +66,7 @@ public function ejsCompile(name: Path, ...files) {
     let settings = me.settings.ejscript
     let options = settings ? settings.compile : '--optimize 9'
     run(ejsc + ' --out ' + name + ' ' + options + ' ' + files.join(' '))
+    // print(ejsc + ' --out ' + name + ' ' + options + ' ' + files.join(' '))
     let ejsmod: Path = App.getenv('EJSMOD') || Cmd.locate('ejsmod')
     run(ejsmod + ' --cslots ' + name)
     trace('Compile', name)

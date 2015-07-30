@@ -1046,16 +1046,14 @@ ENABLE_TESTABILITY = YES;
             overridable += appendSetting(overridable, ts.compiler, 
                 ['GCC_WARN_UNUSED_VARIABLE', 'GCC_WARN_UNUSED_FUNCTION', 'GCC_WARN_UNUSED_LABEL'], 'unused-result')
             overridable += appendSetting(overridable, ts.compiler, ['GCC_WARN_INHIBIT_ALL_WARNINGS'], '-w')
+
+            let pname = Path(target.path ? target.path : target.name).basename.trimExt().name || target.name
             if (target.type == 'lib' && (target.static || me.settings.static)) {
                 overridable += '\t\t\t\tEXECUTABLE_EXTENSION = a;\n'
             }
             /*
-                Set the name using the basename of the target path
+                target.path may end in "/" so basename may be empty. Use ".name" to convert to a string which is falsy
              */
-            let pname = target.pname
-            if (!pname) {
-                pname = Path(target.path ? target.path : target.name).basename.trimExt().name || target.name
-            }
             output(section.expand({PNAME: pname, TNAME: target.name, TARGET_DEBUG: tdid, TARGET_RELEASE: trid, 
                 OVERRIDABLE_SETTINGS: overridable,
                 DEBUG_SETTINGS: prepareSettings(base, ts, true),

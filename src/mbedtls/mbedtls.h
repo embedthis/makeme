@@ -3274,6 +3274,7 @@ int threading_set_alt( int (*mutex_init)( threading_mutex_t * ),
                        int (*mutex_unlock)( threading_mutex_t * ) );
 #endif /* POLARSSL_THREADING_ALT_C */
 
+#if defined(POLARSSL_THREADING_C)
 /*
  * The function pointers for mutex_init, mutex_free, mutex_ and mutex_unlock
  *
@@ -3283,6 +3284,7 @@ extern int (*polarssl_mutex_init)( threading_mutex_t *mutex );
 extern int (*polarssl_mutex_free)( threading_mutex_t *mutex );
 extern int (*polarssl_mutex_lock)( threading_mutex_t *mutex );
 extern int (*polarssl_mutex_unlock)( threading_mutex_t *mutex );
+#endif
 
 #ifdef __cplusplus
 }

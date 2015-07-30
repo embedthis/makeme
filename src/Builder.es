@@ -823,7 +823,7 @@ public class Builder {
                         Convert to a canonical form without a leading 'lib'.
                      */
                     let lpath
-                    let libname = dep.libname || dep.name 
+                    let libname = dep.path.basename.trimExt() || dep.name
                     if (dep.static) {
                         if (libname.startsWith('lib')) {
                             lpath = libname.replace(/^lib/, '')
