@@ -933,7 +933,7 @@ ENABLE_STRICT_OBJC_MSGSEND = YES;
 ENABLE_TESTABILITY = YES;
 
                     LD_DYLIB_INSTALL_NAME = "@rpath/$(EXECUTABLE_PATH)";
-    				MACOSX_DEPLOYMENT_TARGET = 10.7;
+    				MACOSX_DEPLOYMENT_TARGET = 10.10;
     				SDKROOT = macosx;
 
                     OUT_DIR = "${OUT}";
