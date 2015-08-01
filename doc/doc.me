@@ -12,7 +12,7 @@ Me.load({
                 let src = me.dir.src.join('src')
                 let docmod = Path('').temp().replaceExt('mod')
                 let files = Path('../src').files('*.es')
-                files.push('../paks/ejs-version/Version.es')
+                files.push('../paks/ejs.version/Version.es')
                 run(bin.join('ejsc') + ' --doc --bind --out ' + docmod + ' ' + files.join(' '))
                 let edir = Path('dist/ref/api')
                 rmdir([edir.join('*.html'), edir.join('*.css'), edir.join('images/*')])
