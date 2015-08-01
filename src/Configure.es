@@ -302,7 +302,7 @@ class Configure {
         }
         for each (name in target.ifdef) {
             let et = me.targets[name]
-            if (et.configurable) {
+            if (et && et.configurable) {
                 configureComponent(et)
             }
         }
