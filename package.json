@@ -34,7 +34,7 @@
     ],
     "dependencies": {
         "certs": "~0.1",
-        "ejs-version": "~0.8",
+        "ejs.version": "~0.8",
         "ejscript": "~2.6",
         "me-components": "~0.8",
         "me-installs": "~0.8",

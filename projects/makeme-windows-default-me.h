@@ -69,9 +69,6 @@
 #ifndef ME_EJS_ONE_MODULE
     #define ME_EJS_ONE_MODULE 1
 #endif
-#ifndef ME_EJSCRIPT_COMPILE
-    #define ME_EJSCRIPT_COMPILE "--optimize 9"
-#endif
 #ifndef ME_EJSCRIPT_DB
     #define ME_EJSCRIPT_DB 1
 #endif

@@ -748,7 +748,7 @@ DEPS_36 = $(DEPS_36) build\$(CONFIG)\bin\makeme-ejsc.exe
 build\$(CONFIG)\bin\ejs.mod: $(DEPS_36)
 	cd src\ejscript
 	@echo .. [Compile] ejs.mod
-	"../../$(BUILD)/bin/makeme-ejsc" --out "../../$(BUILD)/bin/ejs.mod" --optimize 9 --bind --require null ejs.es
+	"../../$(BUILD)/bin/makeme-ejsc" --out "../../$(BUILD)/bin/ejs.mod"  --bind --require null ejs.es
 	cd ..\..
 !ENDIF
 
@@ -773,7 +773,7 @@ DEPS_38 = $(DEPS_38) build\$(CONFIG)\bin\ejs.mod
 build\$(CONFIG)\bin\ejs.testme.mod: $(DEPS_38)
 	cd src\tm
 	@echo .. [Compile] ejs.testme.mod
-	"../../$(BUILD)/bin/makeme-ejsc" --optimize 9 --out "../../$(BUILD)/bin/ejs.testme.mod" --optimize 9 ejs.testme.es
+	"../../$(BUILD)/bin/makeme-ejsc"  --out "../../$(BUILD)/bin/ejs.testme.mod" --optimize 9 ejs.testme.es
 	cd ..\..
 
 #
@@ -967,14 +967,14 @@ DEPS_49 = $(DEPS_49) src\MakeMe.es
 DEPS_49 = $(DEPS_49) src\Me.es
 DEPS_49 = $(DEPS_49) src\Script.es
 DEPS_49 = $(DEPS_49) src\Target.es
-DEPS_49 = $(DEPS_49) paks\ejs-version\Version.es
+DEPS_49 = $(DEPS_49) paks\ejs.version\Version.es
 !IF "$(ME_COM_EJSCRIPT)" == "1"
 DEPS_49 = $(DEPS_49) build\$(CONFIG)\bin\ejs.mod
 !ENDIF
 
 build\$(CONFIG)\bin\me.mod: $(DEPS_49)
 	@echo .. [Compile] me.mod
-	"./$(BUILD)/bin/makeme-ejsc" --optimize 9 --out "./$(BUILD)/bin/me.mod" --optimize 9 src/Builder.es src/Loader.es src/MakeMe.es src/Me.es src/Script.es src/Target.es paks/ejs-version/Version.es
+	"./$(BUILD)/bin/makeme-ejsc"  --out "./$(BUILD)/bin/me.mod" --optimize 9 src/Builder.es src/Loader.es src/MakeMe.es src/Me.es src/Script.es src/Target.es paks/ejs.version/Version.es
 
 #
 #   pakrun
@@ -1142,7 +1142,7 @@ DEPS_54 = $(DEPS_54) build\$(CONFIG)\bin\ejs.mod
 build\$(CONFIG)\bin\testme.mod: $(DEPS_54)
 	cd src\tm
 	@echo .. [Compile] testme.mod
-	"../../$(BUILD)/bin/makeme-ejsc" --optimize 9 --out "../../$(BUILD)/bin/testme.mod" --optimize 9 testme.es
+	"../../$(BUILD)/bin/makeme-ejsc"  --out "../../$(BUILD)/bin/testme.mod" --optimize 9 testme.es
 	cd ..\..
 
 #

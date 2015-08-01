@@ -731,7 +731,7 @@ $(BUILD)/bin/ejs.mod: $(DEPS_43)
 	( \
 	cd src/ejscript; \
 	echo '   [Compile] ejs.mod' ; \
-	"../../$(BUILD)/bin/makeme-ejsc" --out "../../$(BUILD)/bin/ejs.mod" --optimize 9 --bind --require null ejs.es ; \
+	"../../$(BUILD)/bin/makeme-ejsc" --out "../../$(BUILD)/bin/ejs.mod"  --bind --require null ejs.es ; \
 	)
 endif
 
@@ -757,7 +757,7 @@ $(BUILD)/bin/ejs.testme.mod: $(DEPS_45)
 	( \
 	cd src/tm; \
 	echo '   [Compile] ejs.testme.mod' ; \
-	"../../$(BUILD)/bin/makeme-ejsc" --optimize 9 --out "../../$(BUILD)/bin/ejs.testme.mod" --optimize 9 ejs.testme.es ; \
+	"../../$(BUILD)/bin/makeme-ejsc"  --out "../../$(BUILD)/bin/ejs.testme.mod" --optimize 9 ejs.testme.es ; \
 	)
 
 ifeq ($(ME_COM_EJSCRIPT),1)
@@ -905,14 +905,14 @@ DEPS_51 += src/MakeMe.es
 DEPS_51 += src/Me.es
 DEPS_51 += src/Script.es
 DEPS_51 += src/Target.es
-DEPS_51 += paks/ejs-version/Version.es
+DEPS_51 += paks/ejs.version/Version.es
 ifeq ($(ME_COM_EJSCRIPT),1)
     DEPS_51 += $(BUILD)/bin/ejs.mod
 endif
 
 $(BUILD)/bin/me.mod: $(DEPS_51)
 	echo '   [Compile] me.mod' ; \
-	"./$(BUILD)/bin/makeme-ejsc" --optimize 9 --out "./$(BUILD)/bin/me.mod" --optimize 9 src/Builder.es src/Loader.es src/MakeMe.es src/Me.es src/Script.es src/Target.es paks/ejs-version/Version.es
+	"./$(BUILD)/bin/makeme-ejsc"  --out "./$(BUILD)/bin/me.mod" --optimize 9 src/Builder.es src/Loader.es src/MakeMe.es src/Me.es src/Script.es src/Target.es paks/ejs.version/Version.es
 
 #
 #   pakrun
@@ -1071,7 +1071,7 @@ $(BUILD)/bin/testme.mod: $(DEPS_55)
 	( \
 	cd src/tm; \
 	echo '   [Compile] testme.mod' ; \
-	"../../$(BUILD)/bin/makeme-ejsc" --optimize 9 --out "../../$(BUILD)/bin/testme.mod" --optimize 9 testme.es ; \
+	"../../$(BUILD)/bin/makeme-ejsc"  --out "../../$(BUILD)/bin/testme.mod" --optimize 9 testme.es ; \
 	)
 
 #

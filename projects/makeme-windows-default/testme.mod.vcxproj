@@ -103,7 +103,7 @@
 
       <CustomBuildStep>
         <Command>cd ..\..\src\tm
-"../../build/windows-x86-default/bin/makeme-ejsc" --optimize 9 --out "../../build/windows-x86-default/bin/testme.mod" --optimize 9 testme.es
+"../../build/windows-x86-default/bin/makeme-ejsc"  --out "../../build/windows-x86-default/bin/testme.mod" --optimize 9 testme.es
 cd ..\..\projects\makeme-windows-default</Command>
         <Outputs>$(BinDir)\testme.mod</Outputs>
       </CustomBuildStep>

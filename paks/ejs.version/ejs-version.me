@@ -1,0 +1,19 @@
+/*
+    ejs.version.me - MakeMe file 
+ */
+
+Me.load({
+    targets: {
+        'ejs.version': {
+            goals:   [ 'pak-build' ],
+            depends: [ 'ejs.version.mod' ],
+            action: `ejsInstall('ejs.version')`
+        },
+
+        'ejs.version.mod': {
+            files: [ 'Version.es' ],
+            uses:    [ 'libejs', 'ejs.mod' ],
+            action: `ejsCompile(TARGET.name, TARGET.files)`,
+        },
+    },
+})

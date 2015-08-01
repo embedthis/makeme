@@ -1,4 +1,4 @@
-ejs-version
+ejs.version
 ===
 
 This software is distributed under the GPL open source license.
