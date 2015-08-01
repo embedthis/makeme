@@ -212,6 +212,7 @@ public class MakeMe {
         }
         if (main.exists) {
             throw 'Cannot find suitable ' + start + '.\nRun "me configure" first.'
+
         } else if (options.gen != 'start' && options.gen != 'main') {
             throw 'Cannot find suitable ' + start + '.\nRun "me --gen start" to create stub start.me'
         }
