@@ -658,7 +658,10 @@ public class Builder {
         } else {
             let mapped = []
             for each (let lib:Path in libs) {
-                mapped.push('-l' + lib.trimExt().relative.toString().replace(/^lib/, ''))
+                if (lib.extension == me.ext.shlib || lib.extension == me.ext.shlib) {
+                    lib = lib.trimExt()
+                }
+                mapped.push('-l' + lib.relative.toString().replace(/^lib/, ''))
             }
             libs = mapped
         }
@@ -823,7 +826,10 @@ public class Builder {
                         Convert to a canonical form without a leading 'lib'.
                      */
                     let lpath
-                    let libname = dep.path.basename.trimExt() || dep.name
+                    let libname = dep.path.basename.trimExt() || Path(dep.name)
+                    if (libname.extension == me.ext.shlib || libname.extension == me.ext.shlib) {
+                        libname = libname.trimExt()
+                    }
                     if (dep.static) {
                         if (libname.startsWith('lib')) {
                             lpath = libname.replace(/^lib/, '')
@@ -1236,35 +1242,40 @@ public class Builder {
         if (makeme.generating) {
             return target.generate !== false
         }
+        if (!target.path) {
+            if (target.scripts && target.scripts.build) {
+                return true
+            }
+        }
         if (options.rebuild) {
             return true
         }
-        if (!target.path) {
-            return true
-        }
         let path = target.modify || target.path
-        if (!path.modified) {
-            whyRebuild(target.name, 'Rebuild', path + ' is missing.')
+        let name = path || target.name
+        let modified = path ? path.modified : Date()
+
+        if (path && !path.exists) {
+            whyRebuild(name, 'Rebuild', path + ' is missing.')
             return true
         }
         for each (file in target.files) {
             if (file.isDir) {
                 for each (f in file.files('**')) {
-                     if (f.modified > path.modified) {
-                        whyRebuild(path, 'Rebuild', 'file ' + f + ' has been modified.')
+                     if (f.modified > modified) {
+                        whyRebuild(name, 'Rebuild', 'file ' + f + ' has been modified.')
                         if (options.why && options.verbose) {
                             print(f, f.modified)
-                            print(path, path.modified)
+                            print(name, path, modified)
                         }
                         return true
                     }
                 }
             } else {
-                if (file.modified > path.modified) {
-                    whyRebuild(path, 'Rebuild', 'file ' + file + ' has been modified.')
+                if (file.modified > modified) {
+                    whyRebuild(name, 'Rebuild', 'file ' + file + ' has been modified.')
                     if (options.why && options.verbose) {
                         print(file, file.modified)
-                        print(path, path.modified)
+                        print(name, path, modified)
                     }
                     return true
                 }
@@ -1279,11 +1290,11 @@ public class Builder {
                     if (target.uses.contains(dname.toString())) {
                         continue
                     }
-                    whyRebuild(path, 'Rebuild', 'missing dependency ' + dname)
+                    whyRebuild(name, 'Rebuild', 'missing dependency ' + dname)
                     return true
                 }
-                if (dname.modified > path.modified) {
-                    whyRebuild(path, 'Rebuild', 'dependency ' + dname + ' has been modified.')
+                if (dname.modified > modified) {
+                    whyRebuild(name, 'Rebuild', 'dependency ' + dname + ' has been modified.')
                     return true
                 }
                 return false
@@ -1296,11 +1307,12 @@ public class Builder {
                     let sub = getDep(sname)
                     if (sub && sub.enable && sub.name != target.name) {
                         if (stale(sub)) {
-                            whyRebuild(path, 'Rebuild', 'dependent target ' + sname + ' is stale, for "' + dname + '"')
+                            whyRebuild(name, 'Rebuild', 'dependent target ' + sname + ' is stale, for "' + dname + '"')
                             return true
                         }
-                        if (sub.path && sub.path.modified > path.modified) {
-                            whyRebuild(path, 'Rebuild', 'dependent target ' + sname + ' has been modified, for "' + dname + '"')
+                        if (sub.path && sub.path.modified > modified) {
+                            whyRebuild(name, 'Rebuild', 'dependent target ' + sname + ' has been modified, for "' + 
+                                dname + '"')
                             return true
                         }
                     }
@@ -1310,7 +1322,7 @@ public class Builder {
                     continue
                 }
                 if (!file.exists) {
-                    whyRebuild(path, 'Rebuild', 'missing ' + file + ' for "' + dname + '"')
+                    whyRebuild(name, 'Rebuild', 'missing ' + file + ' for "' + dname + '"')
                     return true
                 }
 
@@ -1319,8 +1331,8 @@ public class Builder {
                 if (!file) {
                     continue
                 }
-                if (file.modified > path.modified) {
-                    whyRebuild(path, 'Rebuild', 'dependent ' + file + ' has been modified.')
+                if (file.modified > modified) {
+                    whyRebuild(name, 'Rebuild', 'dependent ' + file + ' has been modified.')
                     return true
                 }
             }
