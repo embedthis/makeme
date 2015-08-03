@@ -95,6 +95,17 @@
         <TargetName>ejs</TargetName>
     </PropertyGroup>
 
+      <ItemDefinitionGroup>
+        
+
+      <CustomBuildStep>
+        <Command>cd ..\..\src\ejscript
+"../../build/windows-x86-default/bin/makeme-ejsc" --out "../../build/windows-x86-default/bin/ejs.mod"  --bind --require null ejs.es
+cd ..\..\projects\makeme-windows-default</Command>
+        <Outputs>$(BinDir)\ejs.mod</Outputs>
+      </CustomBuildStep>
+  </ItemDefinitionGroup>
+
     <ItemGroup>
       <ProjectReference Include="ejsc.vcxproj">
       <Project>75a3c39b-7cd5-473d-8aa0-e3c369ab6b33</Project>

@@ -95,6 +95,18 @@
         <TargetName>ejs.testme</TargetName>
     </PropertyGroup>
 
+      <ItemDefinitionGroup>
+        
+
+      <CustomBuildStep>
+        <Command>cd ..\..\src\tm
+if exist $(BinDir)\ejs.testme.es del /Q $(BinDir)\ejs.testme.es
+copy /Y ejs.testme.es $(BinDir)\ejs.testme.es
+cd ..\..\projects\makeme-windows-default</Command>
+        <Outputs>$(BinDir)\ejs.testme.es</Outputs>
+      </CustomBuildStep>
+  </ItemDefinitionGroup>
+
   <Import Project="$(VCTargetsPath)Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

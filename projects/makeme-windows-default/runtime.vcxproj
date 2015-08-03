@@ -95,6 +95,24 @@
         <TargetName></TargetName>
     </PropertyGroup>
 
+      <ItemDefinitionGroup>
+        
+
+      <CustomBuildStep>
+        <Command>cd ..\..\src
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y master-main.me $(BinDir)
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y master-start.me $(BinDir)
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y simple.me $(BinDir)
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y standard.me $(BinDir)
+cd ..\projects\makeme-windows-default</Command>
+        <Outputs>$(BinDir)</Outputs>
+      </CustomBuildStep>
+  </ItemDefinitionGroup>
+
   <Import Project="$(VCTargetsPath)Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
