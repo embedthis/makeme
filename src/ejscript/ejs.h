@@ -667,7 +667,6 @@ struct EjsFunction;
 struct EjsGC;
 struct EjsHelpers;
 struct EjsIntern;
-struct EjsMem;
 struct EjsNames;
 struct EjsModule;
 struct EjsNamespace;

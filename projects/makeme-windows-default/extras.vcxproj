@@ -95,23 +95,6 @@
         <TargetName></TargetName>
     </PropertyGroup>
 
-      <ItemDefinitionGroup>
-      <Link>
-        <AdditionalDependencies>;%(AdditionalDependencies)</AdditionalDependencies>
-        <AdditionalLibraryDirectories>$(OutDir);;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      </Link>
-
-      <CustomBuildStep>
-        <Command>cd ..\..
-if exist $(BinDir) del /Q $(BinDir)
-copy /Y src\Configure.es $(BinDir)
-if exist $(BinDir) del /Q $(BinDir)
-copy /Y src\Generate.es $(BinDir)
-cd projects\makeme-windows-default</Command>
-        <Outputs>$(BinDir)</Outputs>
-      </CustomBuildStep>
-  </ItemDefinitionGroup>
-
   <Import Project="$(VCTargetsPath)Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

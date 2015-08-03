@@ -543,16 +543,18 @@ if not exist "$(IncDir)" md "$(IncDir)"
     }
 
     function projLink(base, target) {
-        me.LIBS = target.libraries ? builder.mapLibs(target, target.libraries - me.targets.compiler.libraries).join(';') : ''
-        me.LIBPATHS = target.libpaths ? target.libpaths.map(function(p) wpath(p)).join(';') : ''
-        output('
+        if (target.type == 'exe' || target.type == 'lib') {
+            me.LIBS = target.libraries ? builder.mapLibs(target, target.libraries - me.targets.compiler.libraries).join(';') : ''
+            me.LIBPATHS = target.libpaths ? target.libpaths.map(function(p) wpath(p)).join(';') : ''
+            output('
       <ItemDefinitionGroup>
       <Link>
         <AdditionalDependencies>${LIBS};%(AdditionalDependencies)</AdditionalDependencies>
         <AdditionalLibraryDirectories>$(OutDir);${LIBPATHS};%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       </Link>')
-        projCustomBuildStep(base, target)
-        output('  </ItemDefinitionGroup>')
+            projCustomBuildStep(base, target)
+            output('  </ItemDefinitionGroup>')
+        }
     }
 
     /*

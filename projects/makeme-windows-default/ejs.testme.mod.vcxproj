@@ -95,20 +95,6 @@
         <TargetName>ejs.testme</TargetName>
     </PropertyGroup>
 
-      <ItemDefinitionGroup>
-      <Link>
-        <AdditionalDependencies>libejs.lib;libzlib.lib;libhttp.lib;libpcre.lib;libmpr.lib;libmpr-mbedtls.lib;libmbedtls.lib;%(AdditionalDependencies)</AdditionalDependencies>
-        <AdditionalLibraryDirectories>$(OutDir);build\$(Cfg)\bin;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      </Link>
-
-      <CustomBuildStep>
-        <Command>cd ..\..\src\tm
-"../../build/windows-x86-default/bin/makeme-ejsc"  --out "../../build/windows-x86-default/bin/ejs.testme.mod" --optimize 9 ejs.testme.es
-cd ..\..\projects\makeme-windows-default</Command>
-        <Outputs>$(BinDir)\ejs.testme.mod</Outputs>
-      </CustomBuildStep>
-  </ItemDefinitionGroup>
-
   <Import Project="$(VCTargetsPath)Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

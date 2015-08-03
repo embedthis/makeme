@@ -95,20 +95,6 @@
         <TargetName>me</TargetName>
     </PropertyGroup>
 
-      <ItemDefinitionGroup>
-      <Link>
-        <AdditionalDependencies>libejs.lib;libzlib.lib;libhttp.lib;libpcre.lib;libmpr.lib;libmpr-mbedtls.lib;libmbedtls.lib;%(AdditionalDependencies)</AdditionalDependencies>
-        <AdditionalLibraryDirectories>$(OutDir);build\$(Cfg)\bin;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      </Link>
-
-      <CustomBuildStep>
-        <Command>cd ..\..
-"./build/windows-x86-default/bin/makeme-ejsc"  --out "./build/windows-x86-default/bin/me.mod" --optimize 9 src/Builder.es src/Loader.es src/MakeMe.es src/Me.es src/Script.es src/Target.es paks/ejs.version/Version.es
-cd projects\makeme-windows-default</Command>
-        <Outputs>$(BinDir)\me.mod</Outputs>
-      </CustomBuildStep>
-  </ItemDefinitionGroup>
-
   <Import Project="$(VCTargetsPath)Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

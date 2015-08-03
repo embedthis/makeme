@@ -95,21 +95,6 @@
         <TargetName>testme</TargetName>
     </PropertyGroup>
 
-      <ItemDefinitionGroup>
-      <Link>
-        <AdditionalDependencies>;%(AdditionalDependencies)</AdditionalDependencies>
-        <AdditionalLibraryDirectories>$(OutDir);;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      </Link>
-
-      <CustomBuildStep>
-        <Command>cd ..\..\src\tm
-if exist $(BinDir)\testme.es del /Q $(BinDir)\testme.es
-copy /Y testme.es $(BinDir)\testme.es
-cd ..\..\projects\makeme-windows-default</Command>
-        <Outputs>$(BinDir)\testme.es</Outputs>
-      </CustomBuildStep>
-  </ItemDefinitionGroup>
-
   <Import Project="$(VCTargetsPath)Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
