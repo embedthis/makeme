@@ -783,7 +783,10 @@ module embedthis.me.script {
                 /*
                     src/paks/NAME
                  */
-                search.push(me.dir.paks.join(component, objdir))
+                let dir = me.dir.paks.join(component, objdir)
+                if (dir.exists) {
+                    search.push(me.dir.paks.join(component, objdir))
+                }
             }
             /*
                 ~/.paks/NAME/NEWEST-VERSION
