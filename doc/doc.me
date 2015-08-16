@@ -6,6 +6,8 @@ Me.load({
 
     targets: {
         api: {
+            /* Disabled because the API is internal only */
+            enable: false,
             action: `
                 trace('Generate', 'Script library documentation')
                 let bin = Cmd.locate('ejsmod').dirname
