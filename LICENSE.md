@@ -28,11 +28,9 @@ WARRANTY. IN PARTICULAR, NEITHER THE AUTHOR NOR LUCENT MAKES ANY REPRESENTATION
 OR WARRANTY OF ANY KIND CONCERNING THE MERCHANTABILITY OF THIS SOFTWARE OR ITS 
 FITNESS FOR ANY PARTICULAR PURPOSE.
 
-### EST License
+### MbedTLS License
 
-The optional EST SSL stack includes code from TropicSSL.
-
-TropicSSL - [BSD License](http://opensource.org/licenses/BSD-2-Clause
+MbedTLS - [GPL License](http://www.gnu.org/licenses/gpl-2.0.html)
 
 ### Perl Regular Expressions License
 
