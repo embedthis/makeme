@@ -14,7 +14,6 @@ for /l %%v in (14, -1, 9) do (
     IF EXIST "%PROGRAMFILES%\Microsoft Visual Studio %%v.0\VC\vcvarsall.bat" call "%PROGRAMFILES%\Microsoft Visual Studio %%v.0\VC\vcvarsall.bat" %1
     IF EXIST "%PROGRAMFILES%\Microsoft Visual Studio %%v.0\VC\vcvarsall.bat" goto :done
 )
-VS=
 :DONE
 
 echo Using Visual Studio %VS%.0
