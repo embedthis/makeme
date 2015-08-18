@@ -39,7 +39,9 @@ Me.load({
                         Path(App.getenv('HOME') + '/WindRiver').files('vxworks-*')
                     path = probe('target/h/vxWorks.h', {search: search.sort().reverse()})
                 }
-
+                if (!path) {
+                    throw 'Cannot find VxWorks installation'
+                }
                 env.WIND_BASE = path
                 env.WIND_HOME = path.dirname
 
@@ -61,6 +63,9 @@ Me.load({
                 /* VxWorks 6.9 needs to fix: get_feature error on liblmapi.so */
                 env.LD_LIBRARY_PATH = env.WIND_HOME + '/lmapi-5.0/' + env.WIND_HOST_TYPE + '/lib'
 
+                if (!path.contains('-')) {
+                    throw 'Unexpected VxWorks path. Should be of the format: "vxworks-version".\nPath is ' + path
+                }
                 let version: String = path.basename.toString().split('-')[1]
                 let major: Number = version.split('.')[0] cast Number
                 let vsearch
