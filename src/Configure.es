@@ -553,7 +553,7 @@ class Configure {
                 target.diagnostic = 'Pre-loaded component'
 
             } else if (target.withpath) {
-                pak = target.withpath.join(target.name + '.me')
+                pak = Path(target.withpath).join(target.name + '.me')
                 if (pak.exists) {
                     loader.blendFile(pak)
                     target.path = target.withpath
