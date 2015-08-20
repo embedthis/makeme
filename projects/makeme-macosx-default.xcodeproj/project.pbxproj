@@ -1976,7 +1976,6 @@ cd ..
 ../paks/me-components/link.me,
 ../paks/me-components/rc.me,
 ../paks/me-components/testme.me,
-../paks/me-components/vxworks.old,
 ../paks/me-installs/Installs.es,
 ../paks/me-installs/installs.me,
 ../paks/me-installs/manifest.me,
@@ -2012,7 +2011,6 @@ cd ..
 	cp paks/me-components/link.me build/macosx-x64-default/bin/paks/me-components/link.me
 	cp paks/me-components/rc.me build/macosx-x64-default/bin/paks/me-components/rc.me
 	cp paks/me-components/testme.me build/macosx-x64-default/bin/paks/me-components/testme.me
-	cp paks/me-components/vxworks.old build/macosx-x64-default/bin/paks/me-components/vxworks.old
 	mkdir -p \"build/macosx-x64-default/bin/paks/me-installs\"
 	cp paks/me-installs/Installs.es build/macosx-x64-default/bin/paks/me-installs/Installs.es
 	cp paks/me-installs/installs.me build/macosx-x64-default/bin/paks/me-installs/installs.me

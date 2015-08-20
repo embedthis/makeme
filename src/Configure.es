@@ -186,14 +186,21 @@ class Configure {
         let obj = loader.readFile(main)
         let settings = obj.settings
         /*
-            If generating, don't configure other platforms
+            Configure other platforms only if not generating
          */
         if (settings && settings.platforms && !options.gen) {
             if (!(settings.platforms is Array)) {
                 settings.platforms = [settings.platforms]
             }
             settings.platforms = settings.platforms.transform(function(e) e == 'local' ? loader.localPlatform : e)
+            if (options.nolocal) {
+                settings.platforms.removeElements('local', loader.localPlatform)
+            }
             platforms = (settings.platforms + platforms).unique()
+        }
+        if (options.nocross) {
+            /* Does not really make sense to do this -- but here for completeness */
+            platforms = [loader.localPlatform]
         }
         if (platforms.length == 0) {
             platforms.push(loader.localPlatform)
@@ -217,6 +224,9 @@ class Configure {
             createPlatformFile()
             createMeHeader()
             postConfig()
+            if (options.nocross) {
+                break
+            }
         }
         App.chdir(home)
         if (!options.gen) {

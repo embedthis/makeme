@@ -79,6 +79,7 @@ public class MakeMe {
             out: { range: String },
             more: {alias: 'm'},
             nocross: {},
+            nolocal: {},
             pre: { range: String, separator: Array },
             platform: { range: String, separator: Array },
             pre: { },
@@ -239,7 +240,6 @@ public class MakeMe {
             App.exit(0)
         }
         let localPlatform = Config.OS + '-' + Config.CPU + '-' + (options.release ? 'release' : 'debug')
-
         if (options.showPlatform) {
             me = Me()
             let platforms = loader.readFile(Loader.START).platforms || [localPlatform]
@@ -533,7 +533,8 @@ public class MakeMe {
             '  --keep                                    # Keep intermediate files\n' +
             '  --log logSpec                             # Save errors to a log file\n' +
             '  --more                                    # Pass output through "more"\n' +
-            '  --nocross                                 # Build natively\n' +
+            '  --nocross                                 # Build natively only\n' +
+            '  --nolocal                                 # Build cross only\n' +
             '  --overwrite                               # Overwrite existing files\n' +
             '  --out path                                # Save output to a file\n' +
             '  --platform os-arch-profile                # Build for specified platform\n' +

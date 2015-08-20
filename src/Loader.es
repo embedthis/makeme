@@ -677,12 +677,21 @@ public class Loader {
             platforms = loadObj.platforms
             if (platforms) {
                 for each (platform in platforms) {
+                    let local = null
                     if (platform == 'local') {
-                        platform = localPlatform
+                        local = localPlatform
                     } else if (platform == 'local-debug') {
-                        platform = Config.OS + '-' + Config.CPU + '-debug'
+                        local = Config.OS + '-' + Config.CPU + '-debug'
                     } else if (platform == 'local-release') {
-                        platform = Config.OS + '-' + Config.CPU + '-release'
+                        local = Config.OS + '-' + Config.CPU + '-release'
+                    }
+                    if (local) {
+                        if (options.nolocal) {
+                            continue
+                        }
+                        platform = local
+                    } else if (options.nocross) {
+                        continue
                     }
                     files.push(BUILD.join(platform, PLATFORM))
                 }
