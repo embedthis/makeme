@@ -220,27 +220,9 @@ class Make {
      */
     function environment() {
         let found
-        if (me.platform.os == 'windows') {
-            var winsdk = (me.targets.winsdk && me.targets.winsdk.path) ? 
-                me.targets.winsdk.path.windows.name.replace(/.*Program Files.*Microsoft/, '$$(PROGRAMFILES)\\Microsoft') :
-                '$(PROGRAMFILES)\\Microsoft SDKs\\Windows\\v6.1'
-            var vs = (me.targets.compiler && me.targets.compiler.dir) ? 
-                me.targets.compiler.dir.windows.name.replace(/.*Program Files.*Microsoft/, '$$(PROGRAMFILES)\\Microsoft') :
-                '$(PROGRAMFILES)\\Microsoft Visual Studio 9.0'
-            if (generating == 'make') {
-                /* Not used */
-                genWriteLine('VS             := ' + '$(VSINSTALLDIR)')
-                genWriteLine('VS             ?= ' + vs)
-                genWriteLine('SDK            := ' + '$(WindowsSDKDir)')
-                genWriteLine('SDK            ?= ' + winsdk)
-                genWriteLine('\nexport         SDK VS')
-            }
-        }
         for (let [key,value] in me.env) {
             if (me.platform.os == 'windows') {
-                value = value.map(function(item)
-                    item.replace(me.targets.compiler.dir, '$(VS)').replace(me.targets.winsdk.path, '$(SDK)')
-                )
+                value = value.map(function(item) item.replace(me.targets.compiler.dir, '$(VS)'))
             }
             if (value is Array) {
                 value = value.join(App.SearchSeparator)

@@ -7,7 +7,18 @@ Me.load({
         lib: {
             description: 'Library Archive Tool',
             path: function (target) {
-                let path: Path = target.withpath || ((me.platform.like == 'windows') ? 'lib.exe' : 'ar')
+                let path: Path
+                if (target.withpath) {
+                    path = target.withpath
+                } else {
+                    if (me.platform.like == 'windows') {
+                        path = 'lib.exe'
+                    } else if (me.platform.os == 'vxworks') {
+                        path = 'ar' + me.targets.compiler.vxarch
+                    } else {
+                        path = 'ar'
+                    }
+                }
                 if (!me.options.gen) {
                     path = probe(path, { fullpath: true, search: me.targets.compiler.search, default: path })
                 }

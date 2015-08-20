@@ -27,7 +27,6 @@ ME_COM_OSDEP          ?= 1
 ME_COM_PCRE           ?= 1
 ME_COM_SSL            ?= 1
 ME_COM_VXWORKS        ?= 0
-ME_COM_WINSDK         ?= 1
 ME_COM_ZLIB           ?= 1
 
 ME_COM_OPENSSL_PATH   ?= "/usr/lib"
@@ -46,7 +45,7 @@ ifeq ($(ME_COM_EJSCRIPT),1)
 endif
 
 CFLAGS                += -fPIC -w
-DFLAGS                += -D_REENTRANT -DPIC $(patsubst %,-D%,$(filter ME_%,$(MAKEFLAGS))) -DME_COM_COMPILER=$(ME_COM_COMPILER) -DME_COM_EJSCRIPT=$(ME_COM_EJSCRIPT) -DME_COM_HTTP=$(ME_COM_HTTP) -DME_COM_LIB=$(ME_COM_LIB) -DME_COM_MATRIXSSL=$(ME_COM_MATRIXSSL) -DME_COM_MBEDTLS=$(ME_COM_MBEDTLS) -DME_COM_MPR=$(ME_COM_MPR) -DME_COM_NANOSSL=$(ME_COM_NANOSSL) -DME_COM_OPENSSL=$(ME_COM_OPENSSL) -DME_COM_OSDEP=$(ME_COM_OSDEP) -DME_COM_PCRE=$(ME_COM_PCRE) -DME_COM_SSL=$(ME_COM_SSL) -DME_COM_VXWORKS=$(ME_COM_VXWORKS) -DME_COM_WINSDK=$(ME_COM_WINSDK) -DME_COM_ZLIB=$(ME_COM_ZLIB) 
+DFLAGS                += -D_REENTRANT -DPIC $(patsubst %,-D%,$(filter ME_%,$(MAKEFLAGS))) -DME_COM_COMPILER=$(ME_COM_COMPILER) -DME_COM_EJSCRIPT=$(ME_COM_EJSCRIPT) -DME_COM_HTTP=$(ME_COM_HTTP) -DME_COM_LIB=$(ME_COM_LIB) -DME_COM_MATRIXSSL=$(ME_COM_MATRIXSSL) -DME_COM_MBEDTLS=$(ME_COM_MBEDTLS) -DME_COM_MPR=$(ME_COM_MPR) -DME_COM_NANOSSL=$(ME_COM_NANOSSL) -DME_COM_OPENSSL=$(ME_COM_OPENSSL) -DME_COM_OSDEP=$(ME_COM_OSDEP) -DME_COM_PCRE=$(ME_COM_PCRE) -DME_COM_SSL=$(ME_COM_SSL) -DME_COM_VXWORKS=$(ME_COM_VXWORKS) -DME_COM_ZLIB=$(ME_COM_ZLIB) 
 IFLAGS                += "-I$(BUILD)/inc"
 LDFLAGS               += 
 LIBPATHS              += -L$(BUILD)/bin
@@ -814,12 +813,14 @@ endif
 #
 DEPS_47 += src/Configure.es
 DEPS_47 += src/Generate.es
+DEPS_47 += src/vcvars.bat
 
 $(BUILD)/.extras-modified: $(DEPS_47)
 	@echo '      [Copy] $(BUILD)/bin'
 	mkdir -p "$(BUILD)/bin"
 	cp src/Configure.es $(BUILD)/bin/Configure.es
 	cp src/Generate.es $(BUILD)/bin/Generate.es
+	cp src/vcvars.bat $(BUILD)/bin/vcvars.bat
 	touch "$(BUILD)/.extras-modified"
 
 ifeq ($(ME_COM_HTTP),1)
@@ -925,8 +926,6 @@ DEPS_52 += paks/me-components/lib.me
 DEPS_52 += paks/me-components/link.me
 DEPS_52 += paks/me-components/rc.me
 DEPS_52 += paks/me-components/testme.me
-DEPS_52 += paks/me-components/vxworks.me
-DEPS_52 += paks/me-components/winsdk.me
 DEPS_52 += paks/me-installs/Installs.es
 DEPS_52 += paks/me-installs/installs.me
 DEPS_52 += paks/me-installs/manifest.me
@@ -957,8 +956,6 @@ $(BUILD)/.pakrun-modified: $(DEPS_52)
 	cp paks/me-components/link.me $(BUILD)/bin/paks/me-components/link.me
 	cp paks/me-components/rc.me $(BUILD)/bin/paks/me-components/rc.me
 	cp paks/me-components/testme.me $(BUILD)/bin/paks/me-components/testme.me
-	cp paks/me-components/vxworks.me $(BUILD)/bin/paks/me-components/vxworks.me
-	cp paks/me-components/winsdk.me $(BUILD)/bin/paks/me-components/winsdk.me
 	mkdir -p "$(BUILD)/bin/paks/me-installs"
 	cp paks/me-installs/Installs.es $(BUILD)/bin/paks/me-installs/Installs.es
 	cp paks/me-installs/installs.me $(BUILD)/bin/paks/me-installs/installs.me
@@ -1227,8 +1224,6 @@ installBinary: $(DEPS_60)
 	cp paks/me-components/rc.me $(ME_VAPP_PREFIX)/bin/paks/me-components/rc.me ; \
 	cp paks/me-components/README.md $(ME_VAPP_PREFIX)/bin/paks/me-components/README.md ; \
 	cp paks/me-components/testme.me $(ME_VAPP_PREFIX)/bin/paks/me-components/testme.me ; \
-	cp paks/me-components/vxworks.me $(ME_VAPP_PREFIX)/bin/paks/me-components/vxworks.me ; \
-	cp paks/me-components/winsdk.me $(ME_VAPP_PREFIX)/bin/paks/me-components/winsdk.me ; \
 	mkdir -p "$(ME_VAPP_PREFIX)/bin/paks/me-installs" ; \
 	cp paks/me-installs/Installs.es $(ME_VAPP_PREFIX)/bin/paks/me-installs/Installs.es ; \
 	cp paks/me-installs/installs.me $(ME_VAPP_PREFIX)/bin/paks/me-installs/installs.me ; \

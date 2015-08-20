@@ -7,7 +7,18 @@ Me.load({
         link: {
             description: 'Link Editor Program',
             path: function(target) {
-                let path: Path = target.withpath || ((me.platform.like == 'windows') ? 'link.exe' : 'ld')
+                let path: Path
+                if (target.withpath) {
+                    path = target.withpath
+                } else {
+                    if (me.platform.like == 'windows') {
+                        path = 'link.exe'
+                    } else if (me.platform.os == 'vxworks') {
+                        path = 'ld' + me.targets.compiler.vxarch
+                    } else {
+                        path = 'ld'
+                    }
+                }
                 if (me.options.gen) {
                     if (me.platform.dev == 'windows-x86' && me.platform.arch == 'x64') {
                         if (!path.dirname.join('cvtres.exe').exists) {

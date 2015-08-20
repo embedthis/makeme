@@ -28,9 +28,6 @@ public class Builder {
     /** Current goal */
     public var goal: String
 
-    /** Local platform string of the form OS-ARCH-PROFILE */
-    public var localPlatform: String
-
     /** Top-level targets to build */
     public var topTargets: Array
 
@@ -912,9 +909,6 @@ public class Builder {
                     /* Replacement may contain $(VS) */
                     if (!me.targets.compiler.vsdir.contains('$')) {
                         value = value.replace(/\$\(VS\)/g, me.targets.compiler.vsdir)
-                    }
-                    if (!me.targets.winsdk.path.contains('$')) {
-                        value = value.replace(/\$\(SDK\)/g, me.targets.winsdk.path)
                     }
                 }
                 if (env[key] && (key == 'PATH' || key == 'INCLUDE' || key == 'LIB')) {

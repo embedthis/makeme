@@ -57,9 +57,10 @@ Me.load({
                     permissions: 0755,
 
                 }, {
-                    from:       '${targets.compiler.vsdir}/VC/redist/${platform.arch}/Microsoft.VC${targets.compiler.crt}.CRT/msvcr${targets.compiler.crt}.dll',
+                    from:       '${targets.compiler.crt}',
                     to:         '${abin}',
                     enable:     "me.platform.os == 'windows' && !makeme.generating",
+                    permissions: 0755,
 
                 }, {
                     from:        '${BIN}/removeFiles${EXE}',

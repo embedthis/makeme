@@ -5,6 +5,8 @@ Me.load({
     targets: {
         compiler: {
             description: 'C/C++ Compiler',
+            loaded: true,
+            enable: true,
             config: function (target) {
                 let results = {}, settings
                 if (me.options.gen) {
@@ -38,9 +40,9 @@ Me.load({
                 setCompilerOptions(results, settings)
                 return results
             },
-            discovers: [ 'vxworks', 'winsdk' ],
-        },
-    },
+            discovers: [ 'vxworks' ],
+        }
+    }
 })
 
 
@@ -59,13 +61,19 @@ function sortVersions(list, i, j)
 
 function findWindowsCompiler(results) {
     let search
-    let vsdir: Path
+    let vsdir: Path?
+    let vcvars: Path?
     let path: Path? = me.targets.compiler.withpath
+    let env = {}
+    let version = 0
 
     /*
-        Test here because may come here when cross generating
+        May come here when cross generating
      */
-    if (Config.OS == 'windows') {
+    if (Config.OS != 'windows') {
+        path = 'cl.exe'
+        vsdir = Path('$(VS)')
+    } else {
         /*
             The VS bin+lib directories contain 32 bit compilers and libraries
             The native VS 64 bit versions are under bin/amd64 and lib/x64
@@ -75,95 +83,186 @@ function findWindowsCompiler(results) {
             Also: http://blogs.msdn.com/b/david.wang/archive/2006/03/26/howto-detect-process-bitness.aspx
             Note: With VS 2013 (12), MS removed the 64 bit compilers from the express editions.
          */
-        search = me.dir.programFiles32.files('Microsoft Visual Studio*/VC/*in').sort(sortVersions).reverse()
-        if (!search || search.length == 0) {
-            throw 'Cannot find Visual Studio installation'
-        }
-        if (me.platform.arch == 'x64') {
-            if (Config.CPU == 'x64') {
-                /* Running on a 64 bit */
-                search = search.map(function(e) Path(e).join('amd64'))
-                if (!probe(path || 'cl.exe', {fullpath: true, search: search, exceptions: false})) {
-                    throw 'Missing 64 bit compiler. To select 32 bit compiler, run:\n' +
-                          'configure --with platform windows-x86 --nocross'
-                }
+        if (path) {
+            vsdir = path
+            vcvars = path.join('VC/vcvarsall.bat')
+        } else {
+            vsdir = App.getenv('VSINSTALLDIR')
+            if (vsdir) {
+                vcvars = vsdir.join('VC/vcvarsall.bat')
             } else {
-                /* Cross compile for 64 bits on 32 bits */
-                search = search.map(function(e) Path(e).join('x86_amd64'))
+                let pf = me.dir.programFiles32
+                for each (v in [14, 13, 12, 11, 10, 9]) {
+                    vcvars = pf.join('Microsoft Visual Studio ' + v + '.0/VC/vcvarsall.bat')
+                    if (vcvars.exists) {
+                        break
+                    }
+                    vcvars = null
+                }
+                if (vcvars) {
+                    vsdir = vcvars.parent.parent
+                }
             }
         }
-    }
-    let definitions, vsbin, vslib, version
-    if (Config.OS != 'windows') {
-        path = 'cl.exe'
-        vsdir = Path('$(VS)')
-        vsbin = vsdir.join('VC/bin'),
-        vslib = vsdir.join('VC/lib')
-        version = '0'
-    } else {
-        path = probe(path || 'cl.exe', {fullpath: true, search: search})
-        vsbin = path.dirname
-        vsdir = (me.platform.arch == 'x64') ? vsbin.parent.parent.parent : vsbin.parent.parent
-        if (me.platform.arch == 'x64') {
-            vslib = vsbin.join('../../lib/amd64').normalize
-        } else {
-            vslib = vsbin.join('../lib').normalize
+        if (!vcvars || !vcvars.exists) {
+            throw 'Cannot find Visual Studio installation'
         }
-        version = vsdir.name.match(/\d*\.\d/)[0]
-        definitions = [ 'ME_VISUAL_STUDIO_VERSION="' + version + '"' ]
+        let cmd = new Cmd
+        let arch = me.platform.arch
+        if (arch == 'x64') {
+            arch = (Config.CPU == 'x86') ? 'x86_amd64' : 'amd64'
+        } else if (arch == 'x86') {
+            arch = (Config.CPU == 'x64') ? 'amd64_x86' : 'x86'
+        } else if (arch == 'arm') {
+            arch = (Config.CPU == 'x86') ? 'x86_arm' : 'amd64_arm'
+        } else if (arch == 'arm') {
+            throw 'Unsupported architecture ' + arch
+        }
+        cmd.start([me.dir.me.join('vcvars.bat'), vcvars, arch])
+        let required = {
+            'LIB': true,
+            'INCLUDE': true,
+            'PATH': true,
+            'VSINSTALLDIR': true,
+            'WindowsSdkDir': true,
+            'WindowsSdkLibVersion': true,
+        }
+        for each (line in cmd.readLines()) {
+            let [key,value] = line.split('=')
+            if (required[key]) {
+                env[key] = value
+            }
+        }
+        search = env.PATH.split(';').map(function(e) Path(e))
+        path = probe(path || 'cl.exe', {fullpath: true, search: search})
     }
-
-    env = {}
-    env.PATH = [
-        vsbin,
-        vsdir.join('Common7/IDE'),
-        vsdir.join('Common7/Tools'),
-        vsdir.join('SDK/v3.5/bin'),
-        vsdir.join('VC/VCPackages'),
-    ]
-    env.INCLUDE = [
-        vsdir.join('VC/INCLUDE')
-    ]
-    env.LIB = [ vslib ]
-
-    results.path = path
-    results.env = env
-    results.definitions = definitions
-    results.version = version
-    results.crt = version.replace('.', '')
-    results.vsdir = vsdir
-    results.search = search
-
-    return results
+    version = vsdir.name.match(/\d*\.\d/)[0]
+    let cver = version.replace('.', '')
+    let crt = vsdir.join('VC/redist', me.platform.arch, 
+        'Microsoft.VC' + cver + '.CRT', (version < 14 ? 'msvcr' : 'vcruntime') + cver + '.dll')
+    blend(results, {
+        path: path,
+        env: env,
+        search: search,
+        vsdir: vsdir,
+        version: version,
+        crt: crt,
+    })
 }
 
 
 function findVxCompiler(results) {
     let path: Path? = me.targets.compiler.withpath
     let platform = me.platform
-    if (!path) {
-        if (platform.arch.match(/^i386$|^i486$$/)) {
-            path = 'cc386'
-        } else if (platform.arch.match(/^i[56]86$|^pentium$|^x86$/)) {
-            path = 'ccpentium'
-        } else if (platform.arch.match(/^ppc/)) {
-            path = 'ccppc'
-        } else if (platform.arch.match(/^xscale|^arm/)) {
-            path = 'ccarm'
-        } else if (platform.arch.match(/^68/)) {
-            path = 'cc68k'
-        } else if (platform.arch.match(/^sh/)) {
-            path = 'ccsh'
-        } else if (platform.arch.match(/^mips$/)) {
-            path = 'ccmips'
-        } else {
-            throw 'Unsupported CPU architecture: ' + platform.arch
+    let includes, vxarch, search, vxdir
+
+    let env = {}
+    if (me.options.gen) {
+        env.WIND_HOME = '$(WIND_BASE)/..'
+        path = target.path = Path('$(WIND_BASE)')
+        return {
+            path:     path,
+            includes: [ path.join('target/h'), path.join('target/h/wrn/coreip') ]
+            env:      env,
         }
     }
-    results.path = probe(path, {fullpath: true, search: me.targets.vxworks.search})
-    return results
-}
+    /*
+        Search for WorkBench/Tornado in common places
+     */
+    search = []
+    let base = App.getenv('WIND_BASE')
+    if (base) {
+        search += [base]
+    }
+    if (Config.OS == 'windows') {
+        for each (drive in (FileSystem.drives() - ['A', 'B'])) {
+            search += Path(drive + ':/').files('WindRiver/vxworks-*')
+        }
+    }
+    search += Path('/WindRiver').files('vxworks-*') +
+              Path('/usr/src/WindRiver').files('vxworks-*') +
+              Path(App.getenv('HOME') + '/WindRiver').files('vxworks-*')
+    vxdir = probe('target/h/vxWorks.h', {search: search.sort().reverse()})
+    if (!vxdir.contains('-')) {
+        throw 'Unexpected VxWorks path. Should be of the format: "vxworks-version".\nPath is ' + vxdir
+    }
 
+    let version: String = vxdir.basename.toString().split('-')[1]
+    let major: Number = version.split('.')[0] cast Number
+    env.WIND_BASE = vxdir
+    env.WIND_HOME = vxdir.dirname
+    if (Config.OS == 'windows') {
+        env.WIND_HOST_TYPE = 'x86-win32'
+    } else if (Config.OS == 'linux') {
+        if (vxdir.join('host/x86-linux').exists) {
+            env.WIND_HOST_TYPE = 'x86-linux'
+        } else if (vxdir.join('host/x86-linux2').exists) {
+            env.WIND_HOST_TYPE = 'x86-linux2'
+        } else {
+            throw 'Cannot determine the WIND_HOST_TYPE'
+        }
+    } else if (Config.OS == 'solaris') {
+        env.WIND_HOST_TYPE = 'solaris2'
+    }
+    /* VxWorks 6.9 needs to fix: get_feature error on liblmapi.so */
+    env.LD_LIBRARY_PATH = env.WIND_HOME + '/lmapi-5.0/' + env.WIND_HOST_TYPE + '/lib'
+
+    let vxsearch
+    if (major >= 6) {
+        env.WIND_HOME = vxdir.dirname
+        env.WIND_GNU_PATH = vxdir.dirname.files('gnu/*-' + vxdir.basename).sort().reverse()[0]
+        vxsearch = [
+            env.WIND_GNU_PATH.join(env.WIND_HOST_TYPE, 'bin'),
+            env.WIND_GNU_PATH.join(env.WIND_HOST_TYPE, me.platform.arch + '-wrs-vxworks/bin'),
+            env.WIND_BASE.join('host', env.WIND_HOST_TYPE, 'bin'),
+            env.WIND_BASE.join('/host/resource/hutils/tcl'),
+            env.WIND_HOME.files('workbench*/foundation/' + env.WIND_HOST_TYPE + '/bin').sort().reverse()[0],
+        ]
+    } else {
+        env.WIND_HOME = vxdir
+        env.WIND_GNU_PATH = ''
+        vxsearch = [
+            env.WIND_BASE.join('host', env.WIND_HOST_TYPE, 'bin'),
+            env.WIND_BASE.join('/host/resource/hutils/tcl'),
+            env.WIND_HOME.files('workbench*/foundation/' + env.WIND_HOST_TYPE + '/bin').sort().reverse()[0],
+        ]
+    }
+    env.DIST = 'WindRiver'
+    env.DIST_VER = version
+
+    if (platform.arch.match(/^i386$|^i486$$/)) {
+        vxarch = '386'
+    } else if (platform.arch.match(/^i[56]86$|^pentium$|^x86$/)) {
+        vxarch = 'pentium'
+    } else if (platform.arch.match(/^ppc/)) {
+        vxarch = 'ppc'
+    } else if (platform.arch.match(/^xscale|^arm/)) {
+        vxarch = 'arm'
+    } else if (platform.arch.match(/^68/)) {
+        vxarch = '68k'
+    } else if (platform.arch.match(/^sh/)) {
+        vxarch = 'sh'
+    } else if (platform.arch.match(/^mips$/)) {
+        vxarch = 'mips'
+    } else {
+        throw 'Unsupported CPU architecture: ' + platform.arch
+    }
+    if (!path) {
+        path = 'cc' + vxarch
+    }
+    path = probe(path, {fullpath: true, search: vxsearch})
+
+    includes = [ vxdir.join('target/h'), vxdir.join('target/h/wrn/coreip') ]
+
+    blend(results, {
+        path:     path,
+        vxdir:    vxdir,
+        vxarch:   vxarch,
+        env:      env,
+        includes: includes,
+        search:   vxsearch,
+    })
+}
 
 function findPosixCompiler(results) {
     let path: Path? = me.targets.compiler.withpath || ((me.platform.os == 'macosx') ? 'clang' : 'gcc')
@@ -220,12 +319,16 @@ function setCompilerOptions(results, settings) {
 
     makeme.loader.blendObj({ settings: { compiler: settings }})
 
-    results.compiler =  [ ]
-    results.defines =   [ ]
-    results.includes =  [ me.dir.inc ]
-    results.linker =    [ ]
-    results.libpaths =  [ me.dir.bin ]
-    results.libraries = [ ]
+    results.compiler ||=  []
+    results.defines ||=  []
+    results.linker ||= []
+    results.includes ||=  []
+    results.includes.push(me.dir.inc)
+    results.libpaths ||=  []
+    results.libpaths.push(me.dir.bin)
+    results.libpaths ||=  []
+    results.libpaths.push(me.dir.bin)
+    results.libraries ||= [ ]
 
     if (settings.warnUnused) {
         results.compiler.push('-Wno-unused-result')
@@ -306,7 +409,9 @@ function setCompilerOptions(results, settings) {
             /* Don't use mips global pointer */
             results.compiler.push('-G 0')
         }
+/* UNUSED
         results.includes += me.targets.vxworks.includes
+*/
         results.libraries.push('gcc')
         results.linker.push('-Wl,-r')
 

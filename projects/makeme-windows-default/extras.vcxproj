@@ -104,6 +104,8 @@ if exist $(BinDir) del /Q $(BinDir)
 copy /Y src\Configure.es $(BinDir)
 if exist $(BinDir) del /Q $(BinDir)
 copy /Y src\Generate.es $(BinDir)
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y src\vcvars.bat $(BinDir)
 cd projects\makeme-windows-default</Command>
         <Outputs>$(BinDir)</Outputs>
       </CustomBuildStep>
