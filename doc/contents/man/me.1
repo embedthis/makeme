@@ -21,6 +21,7 @@ me \- MakeMe -- Utility to make and manage programs and products
     \fB--import\fR
     \fB--keep\fR
     \fB--log logSpec\fR
+    \fB--nolocal\fR
     \fB--nocross\fR
     \fB--out path\fR
     \fB--overwrite\fR
@@ -378,10 +379,11 @@ an alias for '--log stderr:2'.
 
 .TP
 \fB\--nocross\fR
-Don't cross-build, rather build natively for the development system. This is useful when configuring for a platform
-that can build and run natively on the development system. For example: Linux 64-bit systems can run 32-bit applications, 
-so 'me --nocross --platform linux-x86 configure' may be able to directly target the 32-bit platform without cross-building.
-Note: Products that require the building and execution of local tools MUST be able to run those tools on the development system. 
+Don't cross-build. Build only for the local development system.
+
+.TP
+\fB\--nolocal\fR
+Don't build for the local development system. Build only for the cross platforms.
 
 .TP
 \fB\--out path\fR
@@ -393,8 +395,7 @@ Overwrite existing files.
 
 .TP
 \fB\--platform os-arch\fR
-Add a platform to build for cross-compilation. Multiple platforms can be added. You may use 'local' for the local
-platform. Options specified after the platform apply to the prior platform. For example: 
+Add a platform to build for cross-compilation. Multiple platforms can be added. You may use 'local' for the local platform. Options specified after the platform apply to the prior platform. For example: 
 
     me --platform linux-x86 --without all --platform linux-arm --with ejscript configure
 

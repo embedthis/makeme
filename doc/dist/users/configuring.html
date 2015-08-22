@@ -257,44 +257,58 @@ the form <em>--set KEY=VALUE</em>. For example:
         configuring. Run this from a writable directory and reference the read-only source tree via the
         <em>-config</em> switch. MakeMe will create the start.me, platform output directory and the platform.me file.
         Thereafter run <em>me</em> from the writable directory for all operations.</p>
+
         <a name="cross"></a>
         <h2>Configuring for Cross-Compiling</h2>
-        <p>To build a product for platform different to that of the local system is called cross compiling.
-        Sometimes this cross compiling is just for a different instruction set (say x64 instead of x86). Other times
-        it is for a completely different operating system and/or CPU architecture. In such cases a cross-compiler
-        may be required to build for the target platform.</p>
-        <p>MakeMe supports cross compiling via the <em>me --platform OS-ARCH-PROFILE configure</em> switch. This adds a
-        platform to the list of platforms to be made when building. Multiple platforms may be specified and the
-        <em>local</em> platform alias may be used for the local development platform.</p>
+        <p>To build a product for platform different to that of the local system is called <em>cross compiling</em>. Sometimes this compiling is just for a different instruction set (say x64 instead of x86). Other times it is for a completely different operating system and/or CPU architecture.</p>
+
+        <p>MakeMe supports cross compiling via the <em>configure --platform OS-ARCH-PROFILE</em> option. This adds a platform to the list of platforms to be made when building. Multiple platforms may be specified and the <em>local</em> platform alias may be used for the local development platform.</p>
+
         <p>The ARCH componenty may contain a specific CPU to tune for. This is specified as a <em>:CPU</em> suffix 
         to the ARCH field. Some operating systems such as VxWorks, require a CPU specifier. For example:</p>
-        <pre class="ui code segment">me --platform vxworks-arm:arm7tdmi-debug -configure .</pre>
-        <p>Some products require local building to make tools that are required to build for any platform. These
-        products add a "platforms: ['local']" property to their settings collection in the main.me file. This
-        automatically adds the local platform to the platforms list and is the same as adding <em>--platform local</em> on
-        the command line when configuring.</p>
-            <pre class="ui code segment">me --platform windows-x64-debug -configure .</pre>
-        <p>This will create a windows-x64-debug.me configuration file and a start.me that references it. The platform
-        switch does not need to be restated after configuration and will be ignored.</p>
+        <code>me --platform vxworks-arm:arm7tdmi-debug -configure .</code>
+
+        <p>This will create a vxworks-arm/platform.me configuration file and a <em>start.me</em> that references it. The platform switch does not need to be restated after configuration and will be ignored.</p>
+
+        <p>Note the configuration options apply to the preceding platform. If no preceding platform, the option applies to the local platform. For example:</p>
+        <code>configure -with ejscript -platform linux-arm-debug -without ejscript</code>
+        <p>This will build with the Ejscript package for the local development system, and without Ejscript for the target.</p>
+
+        <h3>Building 32-bit Applications</h3>
+        <p>Some products require local building to make the tools that are required to build for a target platform. These products add a "platforms: ['local']" property to their settings collection in the <em>main.me</em> file. This automatically adds the local platform to the platforms list and is the same as adding <em>--platform local</em> on the command line when configuring.</p>
+
+        <p>If your local system can execute binaries for the specified platform, MakeMe will suppress adding an extra pass for the local system. For example: if you want to build a Windows 32-bit application on a Windows 64-bit system, you can specify <em>--platform windows-x86</em>. MakeMe will realize that your system can also execute 32-bit binaries and will suppress also building for 64-bit.</p>
+
         <h3>Environment Variables</h3>
-        <p>MakeMe has default command paths and command flags for the compiler, linker and other tools. These can be
-        overridden by providing environment variables containing alternate flags to use. </p>
-        <p>Use the variables AR, CC and LD to specify the path to the archiver, compiler and linker tools.
-        Use CFLAGS to provide compiler flags, DFLAGS for
-        pre-processor definitions, IFLAGS for compiler include paths and LDFLAGS for linker flags.</p>
-        <p>If these flags are
-        provided to MakeMe when building, they apply to that run only. If the flags are provide when configuring, they are
-        saved in the generated platform build file and apply to all subsequent runs.
-        For example:
-            <pre class="ui code segment">CC=/path/to/compiler CFLAGS=-w me configure</pre>
+        <p>When compiling, you may need to inform <b>configure</b> about your cross-compilation tool chain and where it is located.  MakeMe will do its best to discover the installed SDKs and cross tool chain and will look in well known directories to locate the compiler, linker, libraries and other required tools. If <em>me</em> cannot locate the tool chain, you can supply the tool chain details via environment variables.</p>
+
+        <p>MakeMe has default command paths and command flags for the compiler, linker and other tools. These can be overridden by providing environment variables containing alternate flags to use.</p>
+        <p>Use the variables AR, CC and LD to specify the path to the archiver, compiler and linker tools. Use CFLAGS to provide compiler flags, DFLAGS for pre-processor definitions, IFLAGS for compiler include paths and LDFLAGS for linker flags.</p>
+        <p>If these flags are provided to MakeMe when building, they apply to that run only. If the flags are provide when configuring, they are saved in the generated platform build file and apply to all subsequent runs. For example:</p>
+        <code>CC=/path/to/compiler CFLAGS=-w me configure</code>
+
+        <h3>Specifying Compiler and SDK Versions</h3>
+        <p>By default, MakeMe will use the latest version of a compiler to build an application. However, when building for Windows or VxWorks, you can force MakeMe to use a specific version of Visual Studio or VxWorks by setting the VSINSTALLDIR and WIND_BASE environment variables.</p>
+
+        <p>For example: if you have Visual Studio 2013 (12) and Visual Studio 2015 (14) installed, you can force MakeMe to build with Visual Studio 2013 by setting the <em>VSINSTALLDIR</em> environment variable. Note: this variable is defined by the Visual Studio <em>vcvarsall.bat</em> script.</p>
+
+        <code>VSINSTALLDIR="c:/Program Files/Microsoft Visual Studio 12.0" ./configure</code>
+
+        <p>To build with a specific version of WindRiver VxWorks, use the <em>WIND_BASE</em> environment variable. Note: this variable is defined by the WindRiver <em>wrenv.sh</em> script.</p>
+
+        <code>WIND_BASE="Z:/WindRiver/vxworks-x86" ./configure --platform vxworks-x86</code>
+
         <a name="useful"></a>
         <h2>Useful Configure Commands</h2>
         <p>Show commands as they are executed:</p>
         <pre class="ui code segment">me --show</pre>
+
         <p>To dump the entire configuration into a single MakeMe file. This is great for debugging.</p>
-        <pre class="ui code segment">configure --dump</pre>
+        <pre class="ui code segment">me dump</pre>
+
         <p>To learn more, read about <a href="debugging.html">Debugging a Build</a>.</p>
         <a name="customize-me"></a> 
+
         <h2>Customize.me</h2>
         <p>Instead of manually specifying settings to configure, you can create a <em>customize.me</em> file that 
         will be loaded after the <em>main.me</em> and all referenced MakeMe files are fully loaded. 
@@ -304,8 +318,8 @@ the form <em>--set KEY=VALUE</em>. For example:
         <pre class="ui code segment">
 {
     customize: [
-        'custom.me',
-    ],
+        'custom.me'
+    ]
 }</pre>
 
     </div>
@@ -339,6 +353,19 @@ the form <em>--set KEY=VALUE</em>. For example:
     </script> 
 
         
+    <script>
+        (function() {
+            var r = new XMLHttpRequest();
+            r.onreadystatechange = function() {
+                if (r.readyState >= 3 && r.status == 200) {
+                    window.location.reload();
+                }
+            }
+            r.open("GET", "/reload-service", true);
+            r.send();
+        })();
+    </script>
+    
 
 </body>
 </html>

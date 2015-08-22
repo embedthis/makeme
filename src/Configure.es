@@ -196,7 +196,11 @@ class Configure {
             if (options.nolocal) {
                 settings.platforms.removeElements('local', loader.localPlatform)
             }
-            platforms = (settings.platforms + platforms).unique()
+            if (loader.canExecute(settings.platforms[0])) {
+                loader.localPlatform = settings.platforms[0]
+            } else {
+                platforms = (settings.platforms + platforms).unique()
+            }
         }
         if (options.nocross) {
             /* Does not really make sense to do this -- but here for completeness */
@@ -393,7 +397,8 @@ class Configure {
     function createStartFile(platforms) {
         trace('Create', Loader.START)
         let profile = makeme.options.release ? 'release' : 'debug'
-        platforms = platforms.transform(function(p) p == loader.localPlatform ? 'local-' + profile : p)
+        platforms = platforms.transform(function(p) p == (Config.OS + '-' + Config.CPU + '-' + profile) ? 
+            'local-' + profile : p)
         let pstr = serialize(platforms, {pretty: true, indent: 4, commas: true, nulls: false, quotes: false})
         pstr = pstr.replace(/^/mg, '    ').trimStart(' ')
         let cmdline = 'me ' + App.args.slice(1).join(' ')

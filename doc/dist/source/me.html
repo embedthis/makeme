@@ -164,39 +164,36 @@
     <div class="content">
 
             <h1>Building with MakeMe</h1>
-            
+
             <p>This document describes the process to build the software from source using MakeMe.
                 First make sure you have read the <a href="overview.html">Building Overview</a> to prepare your build
                 environment. </p>
 
             <p>The procedure for building with MakeMe is the same for all supported platforms.</p>
-            
+
             <a name="download"></a>
             <h3>Download MakeMe</h3>
-            <p>You can download MakeMe from the 
+            <p>You can download MakeMe from the
             <a href="https://embedthis.com/downloads/makeme/download.html">Embedthis MakeMe Download</a> download site.
             Packaged installations are provided for Windows and Mac. For Linux, use the source distribution.
             Read <a href="../start/index.html">Installing MakeMe</a> for details.</p>
-            
+
             <a id="configuring"></a>
             <h3>Configuring</h3>
-            <p>Before building with MakeMe, you need to do a one-time <em>configuration</em> step.
-            This customizes the software to select features, options and third-party packages available on your system. 
-            The <em>configure</em> shell script simply invokes <em>me configure</em> and passes all command 
-            line options to <em>me</em>. On windows, you should use <em>me configure</em> instead 
-            unless you have cygwin installed.</p>
-            <pre class="ui code segment">me configure</pre> 
-           
+            <p>Before building with MakeMe, you need to do a one-time <em>configuration</em> step. This customizes the software to select features, options and third-party packages available on your system. The <em>configure</em> shell script simply invokes <em>me configure</em> and passes all command line options to <em>me</em>.</p>
+            <code>me configure</code>
+
             <h3>Running Configure</h3>
             <p>You may run the configure script with no options to accept the defaults &mdash; this is a good
-            starting point:</p> 
+            starting point:</p>
             <pre class="ui code segment">configure</pre>
+
             <p>You may also supply options to tailor the build:
             <pre class="ui code segment">
 configure --release --without all
 </pre>
-            <p>The <em>--release</em> switch instructs MakeMe to build an optimized production release. 
-            The <em>--without all</em> switch will disable non-essential features and components to create 
+            <p>The <em>--release</em> switch instructs MakeMe to build an optimized production release.
+            The <em>--without all</em> switch will disable non-essential features and components to create
             a minimal build.</p>
 
             <p>During configuration, MakeMe will create:</p>
@@ -210,7 +207,7 @@ configure --release --without all
             is the build profile name, typically "debug" or "release". For example: linux-x86-debug.</p>
 
             <p>The generated MakeMe files are readable Javascript files that contain the settings to control the build
-            when MakeMe is run. When compiling, source code may include the <em>me.h</em> header to read the 
+            when MakeMe is run. When compiling, source code may include the <em>me.h</em> header to read the
             MakeMe configuration.</p>
 
             <h2>Configure Options</h2>
@@ -262,15 +259,10 @@ configure --release --without all
                 <tbody>
                 <tr>
                     <td class="nowrap">--platform OS-ARCH-PROFILE</td>
-                    <td><p>Specify the target platform for which to build. For example "-platform linux-arm-debug". 
-                        Supported operating systems are: freebsd, linux, macosx, vxworks and windows. 
-                        Supported architectures are: arm, mips, ppc, x64 or x86.</p>
-                        <p>If the -platform option is omitted, the local system is added as the target platform.  You may
-                        use the 'local' alias to indicate the local platform.  Multiple platforms may be specified. </p>
-                        <p>The ARCH component may specify a CPU instance to tune for. The CPU setting is used
-                        in a -DCPU=VALUE compiler define. For example: "-platform linux-arm:arm7tdmi-debug".</p>
-                        <p>NOTE: the platform switch is not a typical configure --host argument. i.e. The second 
-                        component is a system architecture and not a distribution name.</p>
+                    <td><p>Specify the target platform for which to build. For example "-platform linux-arm-debug". Supported operating systems are: freebsd, linux, macosx, vxworks and windows. Supported architectures are: arm, mips, ppc, x64 or x86.</p> 
+                    <p>If the -platform option is omitted, the local system is added as the target platform. You may use the 'local' alias to indicate the local platform.  Multiple platforms may be specified. </p> 
+                    <p>The ARCH component may specify a CPU instance to tune for. The CPU setting is used in a -DCPU=VALUE compiler define. For example: "-platform linux-arm:arm7tdmi-debug".</p> 
+                    <p>NOTE: the platform switch is not a typical configure --host argument. i.e. The second component is a system architecture and not a distribution name.</p>
                     </td>
                 </tr>
             </tbody>
@@ -326,18 +318,19 @@ configure --with openssl=/usr/src/openssl
             <pre class="ui code segment">me</pre>
 
             <h3>Packages</h3>
-            <p>For a list of the available packages on your system that can be selected via configure, run 
+            <p>For a list of the available packages on your system that can be selected via configure, run
             <pre class="ui code segment">configure --help</pre>
             <p>This will display the MakeMe command options followed by a list of configurable features and components.</p>
 
-            <p>You may also find additional packages for download from the 
+            <p>You may also find additional packages for download from the
             <a href="https://embedthis.com/catalog/">Pak Catalog</a>. These are packages that can be installed via the
             <a href="https://embedthis.com/pak/">Pak</a> program. Once installed, configure can be run to enable the
             package.</p>
 
             <h3>Environment Variables</h3>
-            <p>When cross compiling, certain environment variables may be passed to the configure script and on to 
-            <em>me</em> to configure the compiler and linker paths and flags. </p>
+            <p>When cross compiling, certain environment variables may be passed to the configure script and on to
+            <em>me</em> to configure the compiler and linker paths and flags. See more details below
+                in the <a href="#cross">Cross Compiling</a> section.</p>
             <table title="env" class="ui table Segment">
                 <thead>
                     <tr>
@@ -374,28 +367,39 @@ configure --with openssl=/usr/src/openssl
                     <td>LDFLAGS</td>
                     <td>Linker flags. E.g. -Ldir to specify a non-standard directory for libraries.</td>
                 </tr>
+                <tr>
+                    <td>VSINSTALLDIR</td>
+                    <td>Directory to the version of Visual Studio to use. By default, MakeMe will use the most recent installed version.</td>
+                </tr>
+                <tr>
+                    <td>WIND_BASE</td>
+                    <td>Directory to the version of WindRiver VxWorks. By default, MakeMe will use the most recent installed version of the same architecture as specified platform architecture.</td>
+                </tr>
                 </tbody>
             </table>
             <h2>Examples</h2>
-            <pre class="ui code segment">
-CC=/opt/bin/ccarm configure
-</pre>
-            
-            <h3>MakeMe Configure Examples</h3>
             <p>Here are some useful configure command options.</p>
-            <p>To configure for building outside a source tree. This supports building from source from a 
+            <p>To configure to build with the <em>ccarm</em> compiler.</p>
+            <code>CC=/opt/bin/ccarm ./configure</code>
+
+            <p>To configure for building outside a source tree. This supports building from source from a
                 read-only file system.</p>
-            <pre class="ui code segment">configure --configure /path/to/source</pre>
+            <code>configure --configure /path/to/source</code>
+
             <p>To configure for a debug build with debug symbols:</p>
+            <code>configure --debug</code>
+
             <p>To configure without TLS/SSL:</p>
-            <pre class="ui code segment">configure --without ssl</pre>
-            <p>To configure using PHP from a specific source location:</p>
-            <pre class="ui code segment">configure --with php=/path/to/php-source</pre>
+            <code>configure --without ssl</code>
+
+            <p>To configure using OpenSSL from a specific source location:</p>
+            <code>configure --with openssl=/path/to/openssl-source</code>
+
             <p>To configure to build for 32-bit X86 (when on a 64-bit system):</p>
-            <pre class="ui code segment">configure --platform linux-x86-debug</pre>
-            
+            <code>configure --platform linux-x86-debug</code>
+
             <p>To display all configure options, use <em>configure --help</em>. This is the example output for the
-Appweb product</p>.
+Appweb product.</p>
 <pre class="ui code segment">configure --help
 Usage: me [options] [targets|goals] ...
   Options:
@@ -476,7 +480,7 @@ Components (--with NAME, --without NAME):
             <h3>Useful MakeMe options and targets</h3>
             <p>Here are some useful MakeMe examples:</p>
             <pre class="ui code segment">me --show     # Show actual commands while building
-me --why      # Show why each target is or is not being built 
+me --why      # Show why each target is or is not being built
 me dump       # Dump the combined MakeMe configuration in one file
 me rebuild    # Rebuild all targets
 me clean      # Clean all built targets
@@ -506,64 +510,71 @@ sudo me uninstall
 </pre>
             <a id="cross"></a>
             <h2>Cross Compiling</h2>
-            <p>To build a product for platform different to that of the local system is called <em>cross compiling</em>.
-            Sometimes this compiling is just for a different instruction set (say x64 instead of x86). Other
-            times, it is for a completely different operating system and/or CPU architecture. In such cases a
-            cross-compiler is typically required to build for the target platform.</p>
-            <p>MakeMe supports cross compiling via the <em>-platform PLATFORM</em> MakeMe configure option. 
-            This option adds a platform to the list of platforms to be made. Multiple platforms may be
-            specified and the 'local' platform alias may be used for the local development platform.</p>
-            <pre class="ui code segment">me -platform linux-arm-debug -configure . </pre>
-            <p>This will create a windows-x64.me configuration file and a start.es that references it. The
-            platform switch does not need to be restated after configuration.</p>
-            <h3>Platforms</h3>
-            <p>A platform specification is of the form OS-ARCH-PROFILE, where the
-            supported operating systems are: freebsd, linux, macosx, vxworks and windows. The ARCH field is
-            one of arm, mips, ppc, x64 or x86. X64 is the AMD/Intel 64-bit instruction set and x86 is the Intel X86
-            Pentium instruction set. You may also use i386 or i686 for specific Intel X86 instruction sets.</p>
-            <p>The ARCH field may contain an optional CPU field to specify a CPU to tune for. This is specified as a
-            <em>:CPU</em> suffix for the ARCH field.</p>
-            <p>Note the configuration options apply to the preceding platform. If not preceding platform, the option applies
+            <p>To build a product for platform different to that of the local system is called <em>cross compiling</em>. Sometimes this compiling is just for a different instruction set (say x64 instead of x86). Other times, it is for a completely different operating system and/or CPU architecture. </p>
+
+            <p>MakeMe supports cross compiling via the <em>configure -platform PLATFORM</em> option. This adds a platform to the list of platforms to be made. Multiple platforms may be specified and the 'local' platform alias may be used for the local development platform.</p>
+
+            <h3>Specifying the Target Platform</h3>
+            <p>A platform specification is of the form OS-ARCH-PROFILE, where the supported operating systems are: freebsd, linux, macosx, vxworks and windows. The ARCH field is one of arm, mips, ppc, x64 or x86. X64 is the AMD/Intel 64-bit instruction set and x86 is the Intel X86 Pentium instruction set. You may also use i386 or i686 for specific Intel X86 instruction sets.</p>
+
+            <p>The ARCH componenty may contain a specific CPU to tune for. This is specified as a <em>:CPU</em> suffix to the ARCH field. Some operating systems such as VxWorks, require a CPU specifier. For example:</p> 
+            <code>me --platform vxworks-arm:arm7tdmi-debug -configure .</code>
+
+            <p>This will create a vxworks-arm/platform.me configuration file and a <em>start.me</em> that references it. The platform switch does not need to be restated after configuration and will be ignored.</p>
+
+            <p>Note the configuration options apply to the preceding platform. If no preceding platform, the option applies
             to the local platform. For example:</p>
-            <pre class="ui code segment">configure -with ejscript -platform linux-arm-debug -without ejscript</pre>
-            <p>This will build with the Ejscript package for the local development system, and without Ejscript for 
-            the target.</p>
+            <code>configure -with ejscript -platform linux-arm-debug -without ejscript</code>
+            <p>This will build with the Ejscript package for the local development system, and without Ejscript for the target.</p>
+
+            <h3>Building 32-bit Applications</h3>
+            <p>Some products require local building to make the tools that are required to build for a target platform. These products add a "platforms: ['local']" property to their settings collection in the <em>main.me</em> file. This automatically adds the local platform to the platforms list and is the same as adding <em>--platform local</em> on the command line when configuring.</p>
+
+            <p>If your local system can execute binaries for the specified platform, MakeMe will suppress adding an extra pass for the local system. For example: if you want to build a Windows 32-bit application on a Windows 64-bit system, you can specify <em>--platform windows-x86</em>. MakeMe will realize that your system can also execute 32-bit binaries and will suppress also building for 64-bit.</p>
 
             <h3>Environment Variables</h3>
-            <p>When cross compiling, you may need to inform <b>configure</b> about your cross-compilation tool chain and
-            where it is located.  MakeMe will do its best to discover the installed SDKs and cross tool chain and 
-            will look in well known directories to locate the compiler, linker, libraries and other required tools. 
-            If <em>me</em> cannot locate the tool chain, you can supply the tool chain details via environment variables.</p>
+            <p>When compiling, you may need to inform <b>configure</b> about your cross-compilation tool chain and where it is located.  MakeMe will do its best to discover the installed SDKs and cross tool chain and will look in well known directories to locate the compiler, linker, libraries and other required tools. If MakeMe cannot locate the tool chain, you can supply the tool chain details via environment variables.</p>
 
-            <p>The variables: CC, CFLAGS, DFLAGS, IFLAGS LD and LDFLAGS may be be used to define and configure the 
-            cross-compilation tool chain. For example, here is a cross-compilation <b>configure</b> command line to 
-            create a debug build for Linux on ARM7:</p>
+            <p>Use the variables AR, CC and LD to specify the path to the archiver, compiler and linker tools. Use CFLAGS to provide compiler flags, DFLAGS for pre-processor definitions, IFLAGS for compiler include paths and LDFLAGS for linker flags. If these flags are provided to MakeMe when building, they apply to that run only. If the flags are provide when configuring, they are saved in the generated platform build file and apply to all subsequent runs. For example:</p>
+            <code>CC=/path/to/compiler CFLAGS=-w configure</code>
+
+            <p>Note that on Unix systems, the compiler is used for linking.</p>
+
+            <p>Here is a cross-compilation <b>configure</b> command line to create a debug build for Linux on ARM7 using a specific compiler version.</p>
             <pre class="ui code segment">
 CC=/opt/bin/cc.exe \
-LD=/opt/bin/cc.exe \
 CFLAGS=-I/opt/include \
-configure --debug --platform linux-arm:arm7tdi-debug
+./configure --debug --platform linux-arm:arm7tdi-debug
 </pre>
 
+            <h3>Specifying Compiler and SDK Versions</h3>
+            <p>By default, MakeMe will use the latest version of a compiler to build an application. However, when building for Windows or VxWorks, you can force MakeMe to use a specific version of Visual Studio or VxWorks by setting the VSINSTALLDIR and WIND_BASE environment variables.</p>
+
+            <p>For example: if you have Visual Studio 2013 (12) and Visual Studio 2015 (14) installed, you can force MakeMe to build with Visual Studio 2013 by setting the <em>VSINSTALLDIR</em> environment variable. This is most easily done by running the Visual Studio <em>vcvarsall.bat</em> script supplied with Visual Studio.</p>
+
+            <code>"c:\Program Files (x86)\Microsoft Visual Studio 12.0 VC\vcvarsall.bat" x86
+configure
+make</code>
+            <p>If building Windows using Cygwin, you can pass the VSINSTALLDIR variable directly into configure.</p>
+            <code>VSINSTALLDIR="c:/Program Files/Microsoft Visual Studio 12.0" ./configure</code>
+
             <h3>VxWorks</h3>
-            <p>Before building for VxWorks, you must define the WIND_* environment variables via the
-            <em>wrenv.sh</em> script provided with VxWorks. This defines the WIND_BASE, WIND_HOST_TYPE and other 
-            required environment variables.</p>
+            <p>Before building for VxWorks, you must define the WIND environment variables via the WindRiver <em>wrenv.sh</em> script provided with VxWorks. This defines the WIND_BASE, WIND_HOST_TYPE and other required environment variables.</p>
             <p>The command below runs wrenv.sh and defines the WIND variables in the current shell's environment.</p>
-            <pre class="ui code segment">eval `/path/to/WindRiver/wrenv.sh -p vxworks-6.8 -o print_env -f sh`</pre>
+            <code>eval `/path/to/WindRiver/wrenv.sh -p vxworks-6.8 -o print_env -f sh`</code>
             <p>Once defined, you can invoke configure.</p>
-            <code>configure --debug --platform vxworks-x86</code>
+            <code>configure --platform vxworks-x86</code>
 
             <h2>Create an Installable Release</h2>
             <p>After building, MakeMe can create installable packages of the software:</p>
             <pre class="ui code segment">me package</pre>
             <p>The release packages are placed under the <em>build/*/img</em> directory.</p>
-           
+
            <h2>Deploying</h2>
-            <p>If you are embedding into another application or installing to a target device, you can deploy the 
+            <p>If you are embedding into another application or installing to a target device, you can deploy the
             required software files to a staging directory.</p>
             <pre class="ui code segment">me --sets core,lib deploy /tmp/deployed</pre>
-            <p>This will copy the core and library files to the <em>deploy</em> directory under the platform 
+            <p>This will copy the core and library files to the <em>deploy</em> directory under the platform
             output directory.</p>
 
     </div>
@@ -597,6 +608,19 @@ configure --debug --platform linux-arm:arm7tdi-debug
     </script> 
 
         
+    <script>
+        (function() {
+            var r = new XMLHttpRequest();
+            r.onreadystatechange = function() {
+                if (r.readyState >= 3 && r.status == 200) {
+                    window.location.reload();
+                }
+            }
+            r.open("GET", "/reload-service", true);
+            r.send();
+        })();
+    </script>
+    
 
 </body>
 </html>

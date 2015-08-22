@@ -239,10 +239,9 @@ public class MakeMe {
             usage()
             App.exit(0)
         }
-        let localPlatform = Config.OS + '-' + Config.CPU + '-' + (options.release ? 'release' : 'debug')
         if (options.showPlatform) {
             me = Me()
-            let platforms = loader.readFile(Loader.START).platforms || [localPlatform]
+            let platforms = loader.readFile(Loader.START).platforms || [loader.localPlatform]
             print(platforms[0].replace('local-', Config.OS + '-' + Config.CPU + '-'))
             App.exit(0)
         }
@@ -329,19 +328,21 @@ public class MakeMe {
         /*
             The --set|unset|with|without switches apply to the previous --platform switch
          */
-        let platform = localPlatform
+        let platform = loader.localPlatform
         let poptions
         options.platforms = {}
         if (options.depth) {
-            poptions = options.platforms[localPlatform] ||= {}
+            poptions = options.platforms[platform] ||= {}
             poptions.enable ||= []
             poptions.enable.push('depth=' + options.depth)
         }
-
         for (i = 1; i < App.args.length; i++) {
             let arg = App.args[i]
             if (arg == '--platform' || arg == '-platform') {
                 platform = verifyPlatform(App.args[++i])
+                if (!platform.match(/\w*-\w*-\w*/)) {
+                    throw 'Bad platform: ' + platform
+                }
                 poptions = options.platforms[platform] ||= {}
             } else if (arg == '--with' || arg == '-with') {
                 poptions = options.platforms[platform] ||= {}

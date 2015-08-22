@@ -84,24 +84,24 @@ function findWindowsCompiler(results) {
             Note: With VS 2013 (12), MS removed the 64 bit compilers from the express editions.
          */
         if (path) {
-            vsdir = path
-            vcvars = path.join('VC/vcvarsall.bat')
-        } else {
+            vsdir = path.name.match(/.*Visual Studio \d*.\d/)[0]
+        }
+        if (!vsdir) {
             vsdir = App.getenv('VSINSTALLDIR')
-            if (vsdir) {
-                vcvars = vsdir.join('VC/vcvarsall.bat')
-            } else {
-                let pf = me.dir.programFiles32
-                for each (v in [14, 13, 12, 11, 10, 9]) {
-                    vcvars = pf.join('Microsoft Visual Studio ' + v + '.0/VC/vcvarsall.bat')
-                    if (vcvars.exists) {
-                        break
-                    }
-                    vcvars = null
+        }
+        if (vsdir) {
+            vcvars = vsdir.join('VC/vcvarsall.bat')
+        } else {
+            let pf = me.dir.programFiles32
+            for each (v in [14, 13, 12, 11, 10, 9]) {
+                vcvars = pf.join('Microsoft Visual Studio ' + v + '.0/VC/vcvarsall.bat')
+                if (vcvars.exists) {
+                    break
                 }
-                if (vcvars) {
-                    vsdir = vcvars.parent.parent
-                }
+                vcvars = null
+            }
+            if (vcvars) {
+                vsdir = vcvars.parent.parent
             }
         }
         if (!vcvars || !vcvars.exists) {
@@ -134,12 +134,14 @@ function findWindowsCompiler(results) {
             }
         }
         search = env.PATH.split(';').map(function(e) Path(e))
-        path = probe(path || 'cl.exe', {fullpath: true, search: search})
+
+        path ||= probe(path || 'cl.exe', {fullpath: true, search: search})
     }
     version = vsdir.name.match(/\d*\.\d/)[0]
     let cver = version.replace('.', '')
     let crt = vsdir.join('VC/redist', me.platform.arch, 
         'Microsoft.VC' + cver + '.CRT', (version < 14 ? 'msvcr' : 'vcruntime') + cver + '.dll')
+
     blend(results, {
         path: path,
         env: env,
@@ -154,43 +156,52 @@ function findWindowsCompiler(results) {
 function findVxCompiler(results) {
     let path: Path? = me.targets.compiler.withpath
     let platform = me.platform
-    let includes, vxarch, search, vxdir
-
+    let vxdir: Path?
+    let includes, vxarch, search
     let env = {}
-    if (me.options.gen) {
-        env.WIND_HOME = '$(WIND_BASE)/..'
-        path = target.path = Path('$(WIND_BASE)')
-        return {
-            path:     path,
-            includes: [ path.join('target/h'), path.join('target/h/wrn/coreip') ]
-            env:      env,
+
+    if (path) {
+        let gpath = path.name.match(/.*WindRiver.*gnu.*vxworks-\d*.\d*/)[0]
+        if (!gpath) {
+            throw 'Cannot parse compiler path ' + path
         }
-    }
-    /*
-        Search for WorkBench/Tornado in common places
-     */
-    search = []
-    let base = App.getenv('WIND_BASE')
-    if (base) {
-        search += [base]
-    }
-    if (Config.OS == 'windows') {
-        for each (drive in (FileSystem.drives() - ['A', 'B'])) {
-            search += Path(drive + ':/').files('WindRiver/vxworks-*')
+        let vver = gpath.match(/vxworks-\d*.\d*/)
+        if (!vver) {
+            throw 'Cannot parse compiler path vxworks version ' + gpath
         }
+        vxdir = Path(path.name.match(/.*WindRiver/)[0]).join(vver)
     }
-    search += Path('/WindRiver').files('vxworks-*') +
-              Path('/usr/src/WindRiver').files('vxworks-*') +
-              Path(App.getenv('HOME') + '/WindRiver').files('vxworks-*')
-    vxdir = probe('target/h/vxWorks.h', {search: search.sort().reverse()})
+    if (!vxdir) {
+        vxdir = App.getenv('WIND_BASE')
+    }
+    if (vxdir) {
+        search = [vxdir]
+    } else {
+        /*
+            Search for WorkBench/Tornado in common places
+         */
+        search = []
+        if (Config.OS == 'windows') {
+            for each (drive in (FileSystem.drives() - ['A', 'B'])) {
+                search += Path(drive + ':/').files('WindRiver/vxworks-*')
+            }
+        }
+        search += Path('/WindRiver').files('vxworks-*') +
+                  Path('/usr/src/WindRiver').files('vxworks-*') +
+                  Path(App.getenv('HOME') + '/WindRiver').files('vxworks-*')
+        vxdir = probe('target/h/vxWorks.h', {search: search.sort().reverse()})
+    }
     if (!vxdir.contains('-')) {
         throw 'Unexpected VxWorks path. Should be of the format: "vxworks-version".\nPath is ' + vxdir
     }
-
+    if (!vxdir.exists) {
+        throw 'Cannot find vxdir ' + vxdir
+    }
     let version: String = vxdir.basename.toString().split('-')[1]
     let major: Number = version.split('.')[0] cast Number
     env.WIND_BASE = vxdir
     env.WIND_HOME = vxdir.dirname
+
     if (Config.OS == 'windows') {
         env.WIND_HOST_TYPE = 'x86-win32'
     } else if (Config.OS == 'linux') {

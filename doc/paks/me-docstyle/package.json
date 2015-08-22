@@ -1,7 +1,7 @@
 {
     "name": "me-docstyle",
     "description": "Documentation Style",
-    "version": "0.8.9",
+    "version": "0.9.1",
     "keywords": [
         "me"
     ],
@@ -33,7 +33,7 @@
         "exp-less": "~0.2",
         "exp-reload": "~0.2",
         "jquery": "~x.*",
-        "semantic-ui": "~1.9"
+        "semantic-ui": "~2.0"
     },
     "files": [
         "contents",

@@ -28,7 +28,7 @@ public class Loader {
 
     function Loader() {
         options = makeme.options
-        localPlatform = Config.OS + '-' + Config.CPU + '-' + (options.release ? 'release' : 'debug')
+        localPlatform = options.local || (Config.OS + '-' + Config.CPU + '-' + (options.release ? 'release' : 'debug'))
         reset()
     }
 
@@ -669,6 +669,20 @@ public class Loader {
         }
     }
 
+    public function canExecute(platform) {
+        let [os, arch, profile] = platform.split('-')
+        if (os == Config.OS) {
+            if (arch == Config.CPU) {
+                return true
+            }
+            if ((os == 'windows' || os == 'linux' || os == 'macosx') &&
+                (arch == 'x86' && Config.CPU == 'x64')) {
+                return true
+            }
+        }
+        return false
+    }
+
     public function getPlatformFiles(path): Array {
         let files = []
         if (path.exists) {
@@ -676,14 +690,20 @@ public class Loader {
             checkVersion(path, loadObj);
             platforms = loadObj.platforms
             if (platforms) {
+                if (platforms.length == 1) {
+                    if (canExecute(platforms[0])) {
+                        localPlatform = platforms[0]
+                    }
+                }
                 for each (platform in platforms) {
                     let local = null
+                    let [os, arch, profile ] = localPlatform.split('-')
                     if (platform == 'local') {
                         local = localPlatform
                     } else if (platform == 'local-debug') {
-                        local = Config.OS + '-' + Config.CPU + '-debug'
+                        local = os + '-' + arch + '-debug'
                     } else if (platform == 'local-release') {
-                        local = Config.OS + '-' + Config.CPU + '-release'
+                        local = os + '-' + arch + '-release'
                     }
                     if (local) {
                         if (options.nolocal) {

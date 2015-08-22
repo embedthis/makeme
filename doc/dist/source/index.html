@@ -162,8 +162,10 @@
 
             <div class="ui icon blue message">
                 <i class="ok circle icon"></i>
-                <div class="header">For projects designed with MakeMe</div>
-                <p>These instructions describe how to build your project from source.</p>
+                <div class="content">
+                    <div class="header">For projects designed with MakeMe</div>
+                    <p>These instructions describe how to build your project from source.</p>
+                </div>
             </div>
 
             <p>The project you are about to build has used MakeMe to generate the necessary MakeMe, IDE and Make files
@@ -233,6 +235,19 @@
     </script> 
 
         
+    <script>
+        (function() {
+            var r = new XMLHttpRequest();
+            r.onreadystatechange = function() {
+                if (r.readyState >= 3 && r.status == 200) {
+                    window.location.reload();
+                }
+            }
+            r.open("GET", "/reload-service", true);
+            r.send();
+        })();
+    </script>
+    
 
 </body>
 </html>

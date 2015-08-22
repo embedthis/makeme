@@ -5,22 +5,12 @@
     ],
 }
             <h2>Building with an IDE</h2>
-            <p>This document describes the process to build the software from source using an IDE project.
-                First make sure you have read the <a href="overview.html">Building Overview</a> to prepare your build
-                environment. </p>
+            <p>This document describes the process to build the software from source using an IDE project. First make sure you have read the <a href="overview.html">Building Overview</a> to prepare your build environment. </p>
             
-            <p>MakeMe can generate Visual Studio and Xcode projects that provide easy access for building and debugging.
-            The generated IDE projects will build the software in a default setting and are somewhat limited in 
-            their configurability.</p>
+            <p>MakeMe can generate Visual Studio and Xcode projects that provide easy access for building and debugging. The generated IDE projects will build the software in a default setting and are somewhat limited in their configurability.</p>
 
             <h2>Building with Visual Studio on Windows</h2>
-            <p>To build a Visual Studio project, 
-            run Visual Studio 2010 or later (The Express editions are fine to use). Then open the relevant
-            <em>projects/NAME-windows.sln</em> solution project. Select Build Solution to build. 
-            Don't forget to set the right exectuable as the startup project.</p>
+            <p>To build a Visual Studio project, run Visual Studio 2013 or later. Then open the relevant <em>projects/NAME-windows.sln</em> solution project. Select Build Solution to build. You may need to upgrade the projects in later Visual Studio releases. Don't forget to set the right exectuable as the startup project before running the application.</p>
 
             <h2>Building with Xcode on MAC OS X</h2>
-            <p>To build with the Xcode on Mac OSX, run Xcode and open the
-            <em>projects/NAME-macosx.xcodeproj</em> project. Then select the <em>Product -&gt; Build</em> menu option
-            to build the software. To debug, you will need to create use <em>Product -&gt; Edit</em> Scheme to set 
-            the executable to run under the Info tab, and define the working directory under the Options tab.</p>
+            <p>To build with the Xcode on Mac OSX, run Xcode 6.4 or later and open the <em>projects/NAME-macosx.xcodeproj</em> project. Then select the <em>Product -&gt; Build</em> menu option to build the software. To debug, you will need to create use <em>Product -&gt; Edit</em> Scheme to set the executable to run under the Info tab, and define the working directory under the Options tab.</p>

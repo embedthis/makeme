@@ -76,11 +76,11 @@
                 </tr>
                 <tr>
                     <td>--nocross</td>
-                    <td>Don't cross-build, rather build natively for the development system. This is useful when
-                        configuring for a platform that can build and run natively on the development system. For
-                        example: Linux 64-bit systems can run 32-bit applications, so <br/>
-                        <em>me --nocross --platform linux-x86 configure</em> <br/>
-                        can directly target the 32-bit platform without cross-building.</td>
+                    <td>Don't cross-build. Build only for the development system.</td>
+                </tr>
+                <tr>
+                    <td>--nolocal</td>
+                    <td>Don't build for the development system. Build only for the cross platform targets.</td>
                 </tr>
                 <tr>
                     <td>--out path</td>
