@@ -107,6 +107,10 @@
     <ClCompile Include="..\..\src\tm\testme.c" />
   </ItemGroup>
 
+      <ItemGroup>
+    <ClInclude Include="$(IncDir)\testme.h" />
+  </ItemGroup>
+
       <ItemDefinitionGroup>
         
 
@@ -114,6 +118,13 @@
         <AdditionalDependencies>libejs.lib;libzlib.lib;libhttp.lib;libpcre.lib;libmpr.lib;libmpr-mbedtls.lib;libmbedtls.lib;%(AdditionalDependencies)</AdditionalDependencies>
         <AdditionalLibraryDirectories>$(OutDir);build\$(Cfg)\bin;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       </Link>
+
+      <CustomBuildStep>
+        <Command>cd ..\..\src\tm
+copy /Y /B testme.h $(IncDir)
+cd ..\..\projects\makeme-windows-default</Command>
+        <Outputs>$(BinDir)\testme.exe</Outputs>
+      </CustomBuildStep>
   </ItemDefinitionGroup>
 
     <ItemGroup>
