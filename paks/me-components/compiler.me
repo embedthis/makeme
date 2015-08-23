@@ -428,7 +428,6 @@ function setCompilerOptions(results, settings) {
 
     } else if (platform.os == 'windows') {
         results.compiler.push('-nologo', '-GR-', '-W3')
-        results.defines.push('_REENTRANT', '_MT')
         results.libraries.push('ws2_32.lib', 'advapi32.lib', 'user32.lib', 'kernel32.lib', 'oldnames.lib', 'shell32.lib')
         results.linker.push('-nologo', '-incremental:no')
         if (me.settings.debug) {
