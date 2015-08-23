@@ -13,8 +13,8 @@ class Make {
     var loader: Loader
     var options: Object
 
-    public var minimalCflags = [ 
-        '-O2', '-O', '-w', '-g', '-Wall', '-Wno-deprecated-declarations', '-Wno-unused-result', 
+    public var minimalCflags = [
+        '-O2', '-O', '-w', '-g', '-Wall', '-Wno-deprecated-declarations', '-Wno-unused-result',
         '-Wshorten-64-to-32', '-Wunreachable-code', '-mtune=generic']
 
     var targetsToClean = { exe: true, file: true, lib: true, obj: true }
@@ -82,7 +82,7 @@ class Make {
         Object.sortProperties(me.targets)
 
         /*
-            Emit ME_COM_* definitions 
+            Emit ME_COM_* definitions
          */
         for each (let target in me.targets) {
             if (!target.configurable) {
@@ -203,7 +203,7 @@ class Make {
         genWriteLine('')
 
         /*
-            Compute the dflags 
+            Compute the dflags
          */
         let dflags = ''
         for (let [name, target] in me.targets) {
@@ -220,9 +220,27 @@ class Make {
      */
     function environment() {
         let found
+        if (me.platform.os == 'windows') {
+            var winsdk = (me.targets.winsdk && me.targets.winsdk.path) ?
+                me.targets.winsdk.path.windows.name.replace(/.*Program Files.*Microsoft/, '$$(PROGRAMFILES)\\Microsoft') :
+                '$(PROGRAMFILES)\\Microsoft SDKs\\Windows\\v6.1'
+            var vs = (me.targets.compiler && me.targets.compiler.dir) ?
+                me.targets.compiler.dir.windows.name.replace(/.*Program Files.*Microsoft/, '$$(PROGRAMFILES)\\Microsoft') :
+                '$(PROGRAMFILES)\\Microsoft Visual Studio 9.0'
+            if (generating == 'make') {
+                /* Not used */
+                genWriteLine('VS             := ' + '$(VSINSTALLDIR)')
+                genWriteLine('VS             ?= ' + vs)
+                genWriteLine('SDK            := ' + '$(WindowsSDKDir)')
+                genWriteLine('SDK            ?= ' + winsdk)
+                genWriteLine('\nexport         SDK VS')
+            }
+        }
         for (let [key,value] in me.env) {
             if (me.platform.os == 'windows') {
-                value = value.map(function(item) item.replace(me.targets.compiler.dir, '$(VS)'))
+                value = value.map(function(item)
+                    item.replace(me.targets.compiler.dir, '$(VS)').replace(me.targets.winsdk.path, '$(SDK)')
+                )
             }
             if (value is Array) {
                 value = value.join(App.SearchSeparator)
@@ -232,7 +250,7 @@ class Make {
                     value = '$(' + key + ');' + value
                 } else if (key == 'PATH') {
                     value = value + ';$(' + key + ')'
-                } 
+                }
             }
             if (generating == 'make') {
                 genWriteLine('export %-14s ?= %s' % [key, value])
@@ -316,7 +334,7 @@ class Make {
         trace('Generate', 'project file: ' + base.relative + '.mk')
         let path = base.joinExt('mk')
         genOpen(path)
-        genWriteLine('#\n#   ' + path.basename + ' -- Makefile to build ' + 
+        genWriteLine('#\n#   ' + path.basename + ' -- Makefile to build ' +
             me.settings.title + ' for ' + me.platform.os + '\n#\n')
         loader.runScript('pregen')
         genWriteLine('NAME                  := ' + me.settings.name)
@@ -349,9 +367,9 @@ class Make {
         }
         cflags += ' -w'
         genWriteLine('CFLAGS                += ' + cflags.trim())
-        genWriteLine('DFLAGS                += ' + mappings.defines.replace(/-DME_DEBUG */, '') + 
+        genWriteLine('DFLAGS                += ' + mappings.defines.replace(/-DME_DEBUG */, '') +
             ' $(patsubst %,-D%,$(filter ME_%,$(MAKEFLAGS))) ' + dflags)
-        genWriteLine('IFLAGS                += "' + 
+        genWriteLine('IFLAGS                += "' +
             repvar(me.targets.compiler.includes.map(function(path) '-I' + reppath(path.relative)).join(' ')) + '"')
         let linker = me.targets.compiler.linker.map(function(s) "'" + s + "'").join(' ')
         let ldflags = repvar(linker).replace(/\$ORIGIN/g, '$$$$ORIGIN').replace(/'-g' */, '')
@@ -427,7 +445,7 @@ class Make {
         let mappings = makeme.generate.mappings
         let path = base.joinExt('nmake')
         genOpen(path)
-        genWriteLine('#\n#   ' + path.basename + ' -- Makefile to build ' + me.settings.title + 
+        genWriteLine('#\n#   ' + path.basename + ' -- Makefile to build ' + me.settings.title +
             ' for ' + me.platform.os + '\n#\n')
         loader.runScript('pregen')
         genWriteLine('NAME                  = ' + me.settings.name)
@@ -464,7 +482,7 @@ class Make {
         genWriteLine('RC                    = rc')
         genWriteLine('CFLAGS                = ' + mappings.compiler)
         genWriteLine('DFLAGS                = ' + mappings.defines + ' ' + dflags)
-        genWriteLine('IFLAGS                = ' + 
+        genWriteLine('IFLAGS                = ' +
             repvar(me.targets.compiler.includes.map(function(path) '-I' + reppath(path)).join(' ')))
         genWriteLine('LDFLAGS               = ' + repvar(mappings.linker).replace(/-machine:x86/, '-machine:$$(ARCH)'))
         genWriteLine('LIBPATHS              = ' + repvar(mappings.libpaths).replace(/\//g, '\\'))
@@ -540,7 +558,7 @@ class Make {
         cflags += ' -w'
         genWriteLine('CFLAGS="' + cflags.trim() + '"')
         genWriteLine('DFLAGS="' + mappings.defines + '"')
-        genWriteLine('IFLAGS="' + 
+        genWriteLine('IFLAGS="' +
             repvar(me.targets.compiler.includes.map(function(path) '-I' + path.relative).join(' ')) + '"')
         genWriteLine('LDFLAGS="' + repvar(mappings.linker).replace(/\$ORIGIN/g, '\\$$ORIGIN') + '"')
         genWriteLine('LIBPATHS="' + repvar(mappings.libpaths) + '"')
@@ -549,9 +567,9 @@ class Make {
         genWriteLine('[ ! -x ${BUILD}/bin ] && ' + 'mkdir -p ${BUILD}/bin\n')
         genWriteLine('[ ! -x ${BUILD}/obj ] && ' + 'mkdir -p ${BUILD}/obj\n')
         if (me.dir.inc.join('me.h').exists) {
-            genWriteLine('[ ! -f ${BUILD}/inc/me.h ] && ' + 
+            genWriteLine('[ ! -f ${BUILD}/inc/me.h ] && ' +
                 'cp projects/' + me.settings.name + '-${OS}-${PROFILE}-me.h ${BUILD}/inc/me.h')
-            genWriteLine('if ! diff ${BUILD}/inc/me.h projects/' + me.settings.name + 
+            genWriteLine('if ! diff ${BUILD}/inc/me.h projects/' + me.settings.name +
                 '-${OS}-${PROFILE}-me.h >/dev/null ; then')
         }
         genWriteLine('\tcp projects/' + me.settings.name + '-${OS}-${PROFILE}-me.h ${BUILD}/inc/me.h')
@@ -648,7 +666,7 @@ class Make {
                     '    echo -e "Download from: https://embedthis.com/downloads/me/download.ejs." >&2\n' +
                     '    echo -e "Or skip configuring and make a standard build using \\"make\\".\\n" >&2\n' +
                     '    exit 255\n' +
-                'fi\n' + 
+                'fi\n' +
                 'me configure "$@"'
             trace(cfg.exists ? 'Overwrite' : 'Create', cfg)
             cfg.write(data)
@@ -956,7 +974,7 @@ class Make {
         if (generating == 'make' | generating == 'sh' || generating == 'xcode') {
             sh = target['generate-sh']
         }
-        cmd = target['generate-' + kind + '-' + me.platform.os] || target['generate-' + kind] || 
+        cmd = target['generate-' + kind + '-' + me.platform.os] || target['generate-' + kind] ||
             target['generate-make-' + me.platform.os] || target['generate-make'] || sh || ''
         if (!cmd && target.generate is String) {
             cmd = target.generate
@@ -973,7 +991,7 @@ class Make {
                 /* TODO - alternative would be to pipe cmd into a shell */
                 cmd = cmd.trim().replace(/\n/mg, ' ; \\\n')
             }
-        } 
+        }
 
         cmd = '' + cmd
         if (generating == 'sh') {
@@ -1232,7 +1250,7 @@ class Make {
         if (found) {
             genWriteLine('')
             if (command.contains('$(LIBS)')) {
-                command = command.replace('$(LIBS)', 
+                command = command.replace('$(LIBS)',
                     '$(LIBPATHS_' + nextID + ') $(LIBS_' + nextID + ') $(LIBS_' + nextID + ') $(LIBS)')
             } else {
                 command += ' $(LIBPATHS_' + nextID + ') $(LIBS_' + nextID + ') $(LIBS_' + nextID + ')'
@@ -1346,7 +1364,7 @@ class Make {
     Copyright (c) Embedthis Software. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
-    You may use the Embedthis Open Source license or you may acquire a 
+    You may use the Embedthis Open Source license or you may acquire a
     commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
     this software for full details and other copyrights.
