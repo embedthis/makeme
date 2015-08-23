@@ -7,38 +7,184 @@
 #ifndef _h_TESTME
 #define _h_TESTME 1
 
-/********************************** Includes **********************************/
+/*********************************** Includes *********************************/
 
-#include    "osdep.h"
+#ifdef _WIN32
+    #undef   _CRT_SECURE_NO_DEPRECATE
+    #define  _CRT_SECURE_NO_DEPRECATE 1
+    #undef   _CRT_SECURE_NO_WARNINGS
+    #define  _CRT_SECURE_NO_WARNINGS 1
+    #define  _WINSOCK_DEPRECATED_NO_WARNINGS 1
+    #include <winsock2.h>
+    #include <windows.h>
+#else
+    #include <unistd.h>
+#endif
+
+#include <stdarg.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/types.h>
 
 /*********************************** Defines **********************************/
 
-#define TM_LINE(s)              #s
-#define TM_LINE2(s)             TM_LINE(s)
-#define TM_LINE3                TM_LINE2(__LINE__)
-#define TM_LOC                  __FILE__ "@" TM_LINE3
-#define TM_SHORT_NAP            (5 * 1000)
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#define TM_MAX_BUFFER           4096
+
+#define TM_LINE(s)             #s
+#define TM_LINE2(s)            TM_LINE(s)
+#define TM_LINE3               TM_LINE2(__LINE__)
+#define TM_LOC                 __FILE__ "@" TM_LINE3
+#define TM_SHORT_NAP           (5 * 1000)
 
 #define tassert(E)             ttest(TM_LOC, #E, (E) != 0)
 #define tfail(E)               ttest(TM_LOC, "assertion failed", 0)
 #define ttrue(E)               ttest(TM_LOC, #E, (E) != 0)
 #define tfalse(E)              ttest(TM_LOC, #E, (E) == 0)
 
-PUBLIC void tdebug(cchar *fmt, ...);
-PUBLIC int tdepth();
-PUBLIC cchar *tget(cchar *key, cchar *def);
-PUBLIC int tgeti(cchar *key, int def);
-PUBLIC bool thas(cchar *key);
-PUBLIC void tinfo(cchar *fmt, ...);
-PUBLIC void tset(cchar *key, cchar *value);
-PUBLIC void tskip();
-PUBLIC bool ttest(cchar *loc, cchar *expression, bool success);
-PUBLIC void tverbose(cchar *fmt, ...);
-PUBLIC void twrite(cchar *fmt, ...);
+#ifdef assert
+    #undef assert
+    #define assert(E)          ttest(TM_LOC, #E, (E) != 0)
+#endif
+
+void tdebug(const char *fmt, ...)
+{
+    va_list     ap;
+    char        buf[TM_MAX_BUFFER];
+
+    va_start(ap, fmt);
+    vsnprintf(buf, sizeof(buf), fmt, ap);
+    va_end(ap);
+    printf("debug %s\n", buf);
+}
+
+
+int tdepth()
+{
+    const char   *value;
+
+    if ((value = getenv("TM_DEPTH")) != 0) {
+        return atoi(value);
+    }
+    return 0;
+}
+
+
+const char *tget(const char *key, const char *def)
+{
+    const char   *value;
+
+    if ((value = getenv(key)) != 0) {
+        return value;
+    } else {
+        return def;
+    }
+}
+
+
+int tgeti(const char *key, int def)
+{
+    const char   *value;
+
+    if ((value = getenv(key)) != 0) {
+        return atoi(value);
+    } else {
+        return def;
+    }
+}
+
+
+int thas(const char *key)
+{
+    return tgeti(key, 0);
+}
+
+
+void tinfo(const char *fmt, ...)
+{
+    va_list     ap;
+    char        buf[TM_MAX_BUFFER];
+
+    va_start(ap, fmt);
+    vsnprintf(buf, sizeof(buf), fmt, ap);
+    va_end(ap);
+    printf("info %s\n", buf);
+}
+
+
+void tset(const char *key, const char *value)
+{
+#if _WIN32
+    char    buf[TM_MAX_BUFFER];
+    sprintf_s(buf, sizeof(buf), "%s=%s", key, value);
+    putenv(buf);
+#else
+    setenv(key, value, 1);
+#endif
+    printf("set %s %s\n", key, value);
+}
+
+
+void tskip()
+{
+    printf("skip\n");
+}
+
+
+int ttest(const char *loc, const char *expression, int success)
+{
+    if (success) {
+        printf("pass in %s for \"%s\"\n", loc, expression);
+    } else {
+        printf("fail in %s for \"%s\"\n", loc, expression);
+        if (getenv("TESTME_SLEEP")) {
+#if _WIN32
+            DebugBreak();
+#else
+            sleep(60);
+#endif
+        } else if (getenv("TESTME_STOP")) {
+#if _WIN32
+            DebugBreak();
+#else
+            abort();
+#endif
+        }
+    }
+    return success;
+}
+
+
+void tverbose(const char *fmt, ...)
+{
+    va_list     ap;
+    char        buf[TM_MAX_BUFFER];
+
+    va_start(ap, fmt);
+    vsnprintf(buf, sizeof(buf), fmt, ap);
+    va_end(ap);
+    printf("verbose %s\n", buf);
+}
+
+
+void twrite(const char *fmt, ...)
+{
+    va_list     ap;
+    char        buf[TM_MAX_BUFFER];
+
+    va_start(ap, fmt);
+    vsnprintf(buf, sizeof(buf), fmt, ap);
+    va_end(ap);
+    printf("write %s\n", buf);
+}
 
 #ifdef __cplusplus
 }
 #endif
+
 #endif /* _h_TESTME */
 
 /*

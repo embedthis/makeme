@@ -522,22 +522,17 @@ enumerable class TestMe {
         let mefile = tm.join(name).joinExt('me')
         if (!mefile.exists) {
             let libraries = env.libraries ? env.libraries.split(/ /) : []
-            libraries.push(Path('testme'))
             libraries = serialize(libraries).replace(/"/g, "'")
-            let inc = cfg.join('inc').portable
             let linker = '[]'
             if (Config.OS != 'windows') {
-                linker = "[ '-Wl,-rpath," + bin + "', '-Wl,-rpath," + App.exeDir.portable + "']"
+                linker = "[ '-Wl,-rpath," + bin + "']"
             }
             let instructions = `
 Me.load({
-    configure: {
-        requires: [ 'testme' ]
-    },
     defaults: {
         '+defines': [ 'BIN="` + bin + `"' ],
-        '+includes': [ '` + inc + `' ],
-        '+libpaths': [ '` + bin + `', '` + App.exeDir.portable + `' ],
+        '+includes': [ '` + cfg.join('inc').portable + `', '` + App.exeDir.parent.join('inc').portable + `' ],
+        '+libpaths': [ '` + bin + `' ],
         '+libraries': ` + libraries + `,
         '+linker': ` + linker + `,
     },
@@ -545,7 +540,6 @@ Me.load({
         ` + name + `: {
             type: 'exe',
             sources: [ '` + name + `.c' ],
-            depends: [ 'testme' ],
         }
     }
 })

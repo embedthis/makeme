@@ -4,16 +4,11 @@
 
 Me.load({
     targets: {
-        libtestme: {
-            type: 'lib',
-            headers: [ '*.h' ],
-            sources: [ 'libtestme.c' ],
-        },
-
         testme: {
             type: 'exe',
             path: '${BIN}/testme${EXE}',
             sources: [ 'testme.c' ],
+            headers: [ '*.h' ],
             static: false,
             active: true,
             depends: [ 'libejs', 'testme.mod', 'ejs.testme.mod' ],
