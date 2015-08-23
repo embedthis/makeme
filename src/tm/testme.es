@@ -377,9 +377,12 @@ enumerable class TestMe {
                 return true
             }
         }
-        if (options.compile && !file.exension == 'set') {
-            /* Must continue processing setup files */
-            return true
+        if (options.compile) {
+            if (file.extension != 'set') {
+                /* Must continue processing setup files */
+                trace('Build', file)
+                return true
+            }
         }
         let prior = this.failedCount
         if (command) {
