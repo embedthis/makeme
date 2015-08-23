@@ -362,7 +362,7 @@ class InstallsInner {
     }
 
     public function installBinary() {
-        if (me.options.deploy && me.platforms.length > 1 && !me.platform.cross) {
+        if (me.options.deploy && me.settings.platforms.length > 1 && !me.platform.cross) {
             trace('Skip', 'Deploy for ' + me.platform.name)
             return
         }
