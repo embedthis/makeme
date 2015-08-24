@@ -7,7 +7,7 @@ PRODUCT=makeme
 XCODE=/usr/bin/xcodebuild
 PROFILE=default
 BINARIES="makeme-ejs makeme-ejsc http me testme"
-LIBRARIES="libejs libhttp libmpr libpcre libtestme libzlib"
+LIBRARIES="libejs libhttp libmpr libpcre libzlib"
 
 # Just for VS
 unset TEMP TMP
