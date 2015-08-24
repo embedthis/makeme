@@ -109,7 +109,6 @@ module ejs.testme {
             let address: Uri = Uri(options.address || tget('TM_HTTP') || App.config.uris.http).complete()
             let cmd = new Cmd
             blend(options, {detach: true})
-            //  tinfo("Command", Cmd.locate(cmdline.split(' ')[0]))
             cmd.start(cmdline, options)
             cmd.finalize()
             let pid = cmd.pid

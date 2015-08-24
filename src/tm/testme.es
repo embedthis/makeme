@@ -10,11 +10,17 @@ enumerable class TestMe {
 
     var cfg: Path?                          //  Path to configuration outputs directory
     var bin: Path                           //  Path to bin directory
-    var depth: Number = 1                   //  Test level. Higher levels mean deeper testing.
+    var top: Path                           //  Path to top of source tree
+    var topTest: Path                       //  Path to top of test tree
+    var original: Path                      //  Original current directory
+    var mebin: Path                         //  Directory containing "me"
+
+    //  DEPRECATE remove topDir, topTestDir
     var topDir: Path                        //  Path to top of source tree
     var topTestDir: Path                    //  Path to top of test tree
-    var originalDir: Path                   //  Original current directory
-    var mebin: Path                         //  Directory containing "me"
+
+    var depth: Number = 1                   //  Test level. Higher levels mean deeper testing.
+
     var keepGoing: Boolean = false          //  Continue on errors 
     var topEnv: Object = {}                 //  Global env to pass to tests
     var filters: Array = []                 //  Filter tests by pattern x.y.z... 
@@ -106,14 +112,14 @@ enumerable class TestMe {
         options = args.options
         filters += args.rest
 
-        originalDir = App.dir
+        original = App.dir
         if (options.chdir) {
-            topTestDir = options.chdir
+            topTest = options.chdir
         }
-        App.chdir(topTestDir)
-        if (originalDir != App.dir) {
+        App.chdir(topTest)
+        if (original != App.dir) {
             trace('Chdir', App.dir)
-            let current = originalDir.relativeTo(App.dir)
+            let current = original.relativeTo(App.dir)
             if (filters.length > 0) {
                 filters.transform(function(f) current.join(f))
             } else {
@@ -170,16 +176,16 @@ enumerable class TestMe {
     function TestMe() {
         program = Path(App.args[0]).basename
         if ((path = searchUp('package.json')) != null) {
-            topDir = path.dirname.absolute
+            top = path.dirname.absolute
             try {
-                if (topDir.join('start.me')) {
-                    cfg = topDir.join('build', Cmd.run('me --showPlatform', {dir: topDir}).trim())
+                if (top.join('start.me')) {
+                    cfg = top.join('build', Cmd.run('me --showPlatform', {dir: top}).trim())
                 }
             } catch {}
             if (!cfg) {
-                cfg = topDir.join('build').files(Config.OS + '-' + Config.CPU + '-*').sort()[0]
+                cfg = top.join('build').files(Config.OS + '-' + Config.CPU + '-*').sort()[0]
                 if (!cfg) {
-                    let hdr = topDir.files('build/*/inc/me.h').sort()[0]
+                    let hdr = top.files('build/*/inc/me.h').sort()[0]
                     if (hdr) {
                         cfg = hdr.trimEnd('/inc/me.h')
                     }
@@ -190,13 +196,16 @@ enumerable class TestMe {
                 parseMeConfig(cfg.join('inc/me.h'))
             }
         } else {
-            topDir = App.dir
+            top = App.dir
         }
         if ((path = searchUp('TOP.es.set')) != null) {
-            topTestDir = path.dirname.absolute.portable
+            topTest = path.dirname.absolute.portable
         } else {
-            topTestDir = topDir
+            topTest = top
         }
+        //  DEPRECATE
+        topDir = top
+        topTestDir = topTest
     }
 
     function setupEnv() {
@@ -233,7 +242,7 @@ enumerable class TestMe {
 
         blend(topEnv, {
             TM_TOP: topDir, 
-            TM_TOP_TEST: topTestDir, 
+            TM_TOP_TEST: topTest, 
             //  DEPRECATE
             TM_CFG: cfg, 
             TM_OUT: cfg, 
