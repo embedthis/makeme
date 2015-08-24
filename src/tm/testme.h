@@ -120,7 +120,7 @@ void tset(const char *key, const char *value)
 #if _WIN32
     char    buf[TM_MAX_BUFFER];
     sprintf_s(buf, sizeof(buf), "%s=%s", key, value);
-    putenv(buf);
+    _putenv(buf);
 #else
     setenv(key, value, 1);
 #endif
