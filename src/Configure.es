@@ -197,7 +197,7 @@ class Configure {
             if (options.nolocal) {
                 settings.platforms.removeElements('local', loader.localPlatform)
             }
-            if (loader.canExecute(platforms[0]) && platforms.length == 1) {
+            if (platforms.length == 1 && loader.canExecute(platforms[0])) {
                 /*
                     Special case. Only one platform specified by the user and it is executable on this system.
                  */
