@@ -187,6 +187,7 @@ class Configure {
         let settings = obj.settings
         /*
             Configure other platforms only if not generating
+            settings.platforms has mandatory platforms like 'local'
          */
         if (settings && settings.platforms && !options.gen) {
             if (!(settings.platforms is Array)) {
@@ -196,7 +197,10 @@ class Configure {
             if (options.nolocal) {
                 settings.platforms.removeElements('local', loader.localPlatform)
             }
-            if (loader.canExecute(settings.platforms[0])) {
+            if (loader.canExecute(platforms[0]) && platforms.length == 1) {
+                /*
+                    Special case. Only one platform specified by the user and it is executable on this system.
+                 */
                 loader.localPlatform = settings.platforms[0]
             } else {
                 platforms = (settings.platforms + platforms).unique()
