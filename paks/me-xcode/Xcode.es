@@ -893,12 +893,14 @@ class Xcode {
             }
             for each (item in target.includes) {
                 if (item.contains('$(')) {
-                    defs.push(item.replace(/\$\(([^\)]*)\).*/, '$1') + ' = "";\n')
+                    let key = item.replace(/\$\(([^\)]*)\).*/, '$1')
+                    defs.push(key + ' = "' + (App.getenv(key) || '') + '";\n')
                 }
             }
             for each (item in target.libpaths) {
                 if (item.contains('$(')) {
-                    defs.push(item.replace(/\$\(([^\)]*)\).*/, '$1') + ' = "";\n')
+                    let key = item.replace(/\$\(([^\)]*)\).*/, '$1')
+                    defs.push(key + ' = "' + (App.getenv(key) || '') + '";\n')
                 }
             }
         }
