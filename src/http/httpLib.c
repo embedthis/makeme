@@ -3430,6 +3430,8 @@ PUBLIC HttpConn *httpRequest(cchar *method, cchar *uri, cchar *data, char **err)
     if (data) {
         len = slen(data);
         if (httpWriteBlock(conn->writeq, data, len, HTTP_BLOCK) != len) {
+            mprRemoveRoot(conn);
+            httpDestroyConn(conn);
             *err = sclone("Cannot write request body data");
             return 0;
         }
@@ -14558,9 +14560,11 @@ PUBLIC void httpFinalizeRoute(HttpRoute *route)
     if (mprGetListLength(route->indexes) == 0) {
         mprAddItem(route->indexes,  sclone("index.html"));
     }
+#if UNUSED
     if (!mprLookupKey(route->extensions, "")) {
         httpAddRouteHandler(route, "fileHandler", "");
     }
+#endif
     httpAddRoute(route->host, route);
 }
 

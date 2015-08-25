@@ -36993,10 +36993,14 @@ static bool waitForState(EjsHttp *hp, int state, MprTicks timeout, int throw)
                 if (timeout > 0) {
                     httpError(conn, HTTP_CODE_REQUEST_TIMEOUT, "Request timed out");
                 }
+            } else if (rc == MPR_ERR_NOT_READY) {
+                httpError(conn, HTTP_CODE_COMMS_ERROR, "Connection not ready / reset");
+            } else if (rc == MPR_ERR_BAD_STATE) {
+                httpError(conn, HTTP_CODE_COMMS_ERROR, "Connection in bad state");
             } else {
                 httpError(conn, HTTP_CODE_NO_RESPONSE, "Client request error");
             }
-            /* Retry */
+            break;
         }
         rx = conn->rx;
         if (rx) {
