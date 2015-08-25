@@ -420,9 +420,6 @@ function setCompilerOptions(results, settings) {
             /* Don't use mips global pointer */
             results.compiler.push('-G 0')
         }
-/* UNUSED
-        results.includes += me.targets.vxworks.includes
-*/
         results.libraries.push('gcc')
         results.linker.push('-Wl,-r')
 
@@ -430,7 +427,7 @@ function setCompilerOptions(results, settings) {
         results.compiler.push('-nologo', '-GR-', '-W3')
         results.libraries.push('ws2_32.lib', 'advapi32.lib', 'user32.lib', 'kernel32.lib', 'oldnames.lib', 'shell32.lib')
         results.linker.push('-nologo', '-incremental:no')
-        if (me.settings.static) {
+        if (me.settings.single) {
             if (me.settings.debug) {
                 results.compiler.push('-Zi', '-Od', '-MTd')
                 results.linker.push('-debug')
