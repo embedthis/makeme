@@ -955,7 +955,7 @@ public class Builder {
                     trace('Error', msg)
                 }
             } else {
-                throw msg
+                throw '\nCommand failure: ' + cmd.error
             }
         } else if (copt.filter) {
             if (!copt.noshow) {
