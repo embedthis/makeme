@@ -57,7 +57,7 @@ class Xcode {
         project(base)
         sourcesBuildPhase(base)
         targetDependencies(base)
-        projectConfigSection(base)
+        projectConfigSection(base, name)
         targetConfigSection()
         term()
     }
@@ -882,7 +882,7 @@ class Xcode {
         return result
     }
 
-    function projectConfigSection(base) {
+    function projectConfigSection(base, name) {
         /*
             Extract $(VAR) defintiions in includes and libpaths
          */
@@ -894,13 +894,15 @@ class Xcode {
             for each (item in target.includes) {
                 if (item.contains('$(')) {
                     let key = item.replace(/\$\(([^\)]*)\).*/, '$1')
-                    defs.push(key + ' = "' + (App.getenv(key) || '') + '";\n')
+                    let value = (name.endsWith('-mine') ? App.getenv(key) : '') || ''
+                    defs.push(key + ' = "' + value + '";\n')
                 }
             }
             for each (item in target.libpaths) {
                 if (item.contains('$(')) {
                     let key = item.replace(/\$\(([^\)]*)\).*/, '$1')
-                    defs.push(key + ' = "' + (App.getenv(key) || '') + '";\n')
+                    let value = (name.endsWith('-mine') ? App.getenv(key) : '') || ''
+                    defs.push(key + ' = "' + value + '";\n')
                 }
             }
         }
