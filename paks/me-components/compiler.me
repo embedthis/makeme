@@ -430,11 +430,20 @@ function setCompilerOptions(results, settings) {
         results.compiler.push('-nologo', '-GR-', '-W3')
         results.libraries.push('ws2_32.lib', 'advapi32.lib', 'user32.lib', 'kernel32.lib', 'oldnames.lib', 'shell32.lib')
         results.linker.push('-nologo', '-incremental:no')
-        if (me.settings.debug) {
-            results.compiler.push('-Zi', '-Od', '-MDd')
-            results.linker.push('-debug')
+        if (me.settings.static) {
+            if (me.settings.debug) {
+                results.compiler.push('-Zi', '-Od', '-MTd')
+                results.linker.push('-debug')
+            } else {
+                results.compiler.push('-O2', '-MT')
+            }
         } else {
-            results.compiler.push('-O2', '-MD')
+            if (me.settings.debug) {
+                results.compiler.push('-Zi', '-Od', '-MDd')
+                results.linker.push('-debug')
+            } else {
+                results.compiler.push('-O2', '-MD')
+            }
         }
         results.subsystem = {
             exe: 'console',
