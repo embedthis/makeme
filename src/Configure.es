@@ -463,7 +463,7 @@ class Configure {
             target.enable = target.enable.call(me, target)
 
         } else if (target.enable && !(target.enable is Boolean)) {
-            let script = expand(target.enable)
+            let script = loader.expand(target.enable)
             vtrace('Run', 'Component eval enable expression for: ' + target.name)
             if (!eval(script)) {
                 target.enable = false
