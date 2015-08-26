@@ -945,9 +945,9 @@ public class Builder {
         if (cmd.status != 0) {
             let msg
             if (!cmd.error || cmd.error == '') {
-                msg = 'Command failure: ' + response + '\nCommand: ' + command
+                msg = response + '\nCommand failure: ' + response + '\nCommand: ' + command
             } else {
-                msg = 'Command failure: ' + cmd.error + '\n' + response + '\nCommand: ' + command
+                msg = response + '\nCommand failure: ' + cmd.error + '\n' + response + '\nCommand: ' + command
             }
             //  DEPRECATED - continue, nonstop, continueOnErrors
             if (copt.nostop || copt.nonstop || copt.continueOnErrors || options['continue']) {
@@ -955,7 +955,7 @@ public class Builder {
                     trace('Error', msg)
                 }
             } else {
-                throw '\nCommand failure: ' + cmd.error
+                throw response + '\nCommand failure: ' + cmd.error
             }
         } else if (copt.filter) {
             if (!copt.noshow) {
@@ -963,11 +963,11 @@ public class Builder {
                     if (!(copt.filter is RegExp)) {
                         copt.filter = RegExp(copt.filter, "g")
                     }
-                    if (cmd.error && !copt.filter.test(cmd.error)) {
-                        App.errorStream.write(cmd.error)
-                    }
                     if (response && !copt.filter.test(response)) {
                         prints(response)
+                    }
+                    if (cmd.error && !copt.filter.test(cmd.error)) {
+                        App.errorStream.write(cmd.error)
                     }
                 }
             }
