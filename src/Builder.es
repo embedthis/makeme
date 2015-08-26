@@ -1014,7 +1014,11 @@ public class Builder {
                 if (options.rethrow) {
                     throw e
                 } else {
-                    App.log.error('Error with target: ' + target.name + '\nCommand: ' + item.script + '\n' + e + '\n')
+                    if (options.show) {
+                        App.log.error('Error with target: ' + target.name + '\nCommand: ' + item.script + '\n' + e + '\n')
+                    } else {
+                        App.log.error('Error with target: ' + target.name + '\n\n' + e + '\n')
+                    }
                     throw "Exiting"
                 }
             } finally {

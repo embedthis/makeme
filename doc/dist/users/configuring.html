@@ -177,6 +177,7 @@ me configure "$@"</pre>
             <li>me -configure .</li>
         </ul>
         <p>Note that MakeMe switches can be prefixed with either a double "<em>--</em>" or a single "<em>-</em>" dashes.</p>
+
         <h2>Configuration Outputs</h2>
         <p>When configuring, MakeMe will determine the capabilities of your system and create a several files and 
         directories. These include:</p>
@@ -274,9 +275,9 @@ the form <em>--set KEY=VALUE</em>. For example:
         <code>configure -with ejscript -platform linux-arm-debug -without ejscript</code>
         <p>This will build with the Ejscript package for the local development system, and without Ejscript for the target.</p>
 
-        <h3>Building 32-bit Applications</h3>
-        <p>Some products require local building to make the tools that are required to build for a target platform. These products add a "platforms: ['local']" property to their settings collection in the <em>main.me</em> file. This automatically adds the local platform to the platforms list and is the same as adding <em>--platform local</em> on the command line when configuring.</p>
+        <p>Some products require local building to make the tools that are required to build for a target platform. This necessitates two build passes: one for the local system and one for the target. These products add a <em>platforms: ['local']</em> property to their <em>settings</em> collection in the <em>main.me</em> file. This automatically adds the local platform to the platforms list and is the same as adding <em>--platform local</em> on the command line when configuring.</p>
 
+        <h3>Building 32-bit Applications</h3>
         <p>If your local system can execute binaries for the specified platform, MakeMe will suppress adding an extra pass for the local system. For example: if you want to build a Windows 32-bit application on a Windows 64-bit system, you can specify <em>--platform windows-x86</em>. MakeMe will realize that your system can also execute 32-bit binaries and will suppress also building for 64-bit.</p>
 
         <h3>Environment Variables</h3>
@@ -353,6 +354,19 @@ the form <em>--set KEY=VALUE</em>. For example:
     </script> 
 
         
+    <script>
+        (function() {
+            var r = new XMLHttpRequest();
+            r.onreadystatechange = function() {
+                if (r.readyState >= 3 && r.status == 200) {
+                    window.location.reload();
+                }
+            }
+            r.open("GET", "/reload-service", true);
+            r.send();
+        })();
+    </script>
+    
 
 </body>
 </html>
