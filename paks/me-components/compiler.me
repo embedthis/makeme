@@ -115,7 +115,7 @@ function findWindowsCompiler(results) {
             arch = (Config.CPU == 'x64') ? 'amd64_x86' : 'x86'
         } else if (arch == 'arm') {
             arch = (Config.CPU == 'x86') ? 'x86_arm' : 'amd64_arm'
-        } else if (arch == 'arm') {
+        } else {
             throw 'Unsupported architecture ' + arch
         }
         cmd.start([me.dir.me.join('vcvars.bat'), vcvars, arch])
