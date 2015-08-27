@@ -128,9 +128,16 @@ void tset(const char *key, const char *value)
 }
 
 
-void tskip()
+void tskip(const char *fmt, ...)
 {
-    printf("skip\n");
+    va_list     ap;
+    char        buf[TM_MAX_BUFFER];
+
+    va_start(ap, fmt);
+    vsnprintf(buf, sizeof(buf), fmt, ap);
+    va_end(ap);
+
+    printf("skip %s\n", buf);
 }
 
 
