@@ -11,7 +11,8 @@ Me.load({
             static: true,
             headers: [ '*.h' ],
             depends: [ 'osdep' ],
-            sources: [ 'mbedtlsLib.c' ],
+            sources: [ 'mbedtls.c' ],
+            defines: [ '-DMBEDTLS_USER_CONFIG_FILE=\"embedtls.h\"' ],
             '-compiler': [
                 '-Wall',
                 '-Wshorten-64-to-32',

@@ -1,12 +1,12 @@
 {
     "name": "mbedtls",
-    "version": "1.3.11",
+    "version": "2.1.0",
     "pak": {
         "import": true,
         "origin": "ARMmbed/mbedtls"
     },
     "description": "MbedTLS Source Code",
-    "license": "GPLv2",
+    "license": "Apache",
     "keywords": [
         "mbedtls",
         "ssl",
@@ -15,7 +15,7 @@
     "repository": {
         "type": "git",
         "url": "git://github.com/ARMmbed/mbedtls.git",
-        "patch": "https://github.com/embedthis/patch-mbedtls/archive/1.3.11.tar.gz"
+        "patch": "https://github.com/embedthis/patch-mbedtls/archive/2.1.0.tar.gz"
     },
     "files": [
         "dist/"
