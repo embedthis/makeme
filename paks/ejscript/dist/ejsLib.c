@@ -35954,16 +35954,15 @@ static EjsPot *http_headers(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **argv)
  */
 static EjsObj *http_info(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **argv)
 {
-    EjsObj  *obj;
-    char    *key, *next, *value;
+    cchar   *state;
 
+    if (!waitForResponseHeaders(hp)) {
+        return 0;
+    }
     if (hp->conn && hp->conn->sock) {
-        obj = ejsCreateEmptyPot(ejs);
-        for (key = stok(mprGetSocketState(hp->conn->sock), ",", &next); key; key = stok(NULL, ",", &next)) {
-            ssplit(key, "=", &value);
-            ejsSetPropertyByName(ejs, obj, EN(key), ejsCreateStringFromAsc(ejs, value));
+        if ((state = mprGetSocketState(hp->conn->sock)) != 0) {
+            return ejsDeserialize(ejs, ejsCreateStringFromAsc(ejs, state));
         }
-        return obj;
     }
     return ESV(null);
 }
@@ -36587,9 +36586,12 @@ static EjsHttp *startHttpRequest(Ejs *ejs, EjsHttp *hp, char *method, int argc, 
     hp->responseCache = 0;
     hp->requestContentCount = 0;
     mprFlushBuf(hp->responseContent);
-
     if (argc >= 1 && !ejsIs(ejs, argv[0], Null)) {
         uriObj = (EjsUri*) argv[0];
+        if (!ejsIsDefined(ejs, uriObj)) {
+            ejsThrowArgError(ejs, "URL is not defined");
+            return 0;
+        }
         hp->uri = httpUriToString(uriObj->uri, HTTP_COMPLETE_URI);
     }
     if (argc == 2 && ejsIs(ejs, argv[1], Array)) {
