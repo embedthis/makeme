@@ -1,7 +1,7 @@
 {
     "name": "makeme",
     "description": "Embedthis MakeMe",
-    "version": "0.9.4",
+    "version": "0.10.0",
     "keywords": [
         "me",
         "makeme",
@@ -47,7 +47,7 @@
         "ssl": "~0.9"
     },
     "optionalDependencies": {
-        "mpr-openssl": "~0.3"
+        "mpr-openssl": "~0.4"
     },
     "devDependencies": {
         "pak": ">=0.11.0"

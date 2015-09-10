@@ -1177,12 +1177,16 @@ public class Builder {
 
         } else if (target.type == 'obj') {
             tv.CFLAGS = (target.compiler) ? target.compiler.join(' ') : ''
-            tv.DEFINES = target.defines.map(function(e) '-D' + e).join(' ')
             if (makeme.generating) {
-                /* Use abs paths to reppath can substitute as much as possible */
+                /* 
+                    Back quote quotes
+                    Use abs paths to reppath can substitute as much as possible 
+                 */
+                tv.DEFINES = target.defines.map(function(e) '-D' + e.replace(/"/g, '\\"')).join(' ')
                 tv.INCLUDES = (target.includes) ? target.includes.map(function(p) '"-I' + p + '"') : ''
             } else {
                 /* Use relative paths to shorten trace output */
+                tv.DEFINES = target.defines.map(function(e) '-D' + e).join(' ')
                 tv.INCLUDES = (target.includes) ? target.includes.map(function(p) '"-I' + p.compact(base).portable + '"') : ''
             }
             tv.PDB = tv.OUTPUT.replaceExt('pdb')

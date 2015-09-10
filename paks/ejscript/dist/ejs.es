@@ -9747,7 +9747,7 @@ module ejs {
                     } else if (operation == 'append') {
                         if (options.divider) {
                             if (options.divider == true) {
-                                contents.push('\n\n/********* Start of file ' + src + ' ************/\n\n')
+                                contents.push('\n\n/********* Start of file ' + src.relative + ' ************/\n\n')
                             } else {
                                 contents.push(expand(options.divider, item))
                             }

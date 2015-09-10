@@ -819,7 +819,7 @@ class Make {
         Build symbols file for windows libraries
      */
     function generateSym(target) {
-        throw "Not supported to generate sym targets yet"
+        throw 'Not supported to generate sym targets yet'
     }
 
     /*
