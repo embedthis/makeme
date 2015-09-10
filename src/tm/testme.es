@@ -220,6 +220,7 @@ enumerable class TestMe {
 
         /*
             TODO - remove this code when ejscript 3 is released
+            The testme.mod is not needed for ejscript 3
          */
         needTestMeMod = true
         let package = topDir.join('package.json')
@@ -228,16 +229,16 @@ enumerable class TestMe {
             if (p.name.startsWith('ejs.') ||
                (p.name == 'ejscript' && p.version[0] >= '3') ||
                (p.pak && p.pak.testejs == '3')) {
-                ejsVersion = Cmd.run('ejs -V').trim()
+                ejsVersion = Cmd.run('makeme-ejs -V').trim()
                 if (ejsVersion[0] < '3') {
                     throw 'Cannot run unit tests with old ejs: ' + Cmd.locate('ejs')
                 }
                 needTestMeMod = false
             }
         }
-        let ejsVer = Cmd.run('ejs -V').trim()
+        let ejsVer = Cmd.run('makeme-ejs -V').trim()
         if (needTestMeMod && ejsVer[0] >= '3') {
-            throw 'This product requires ejs 2.x to run unit tests. Ejs ' + Cmd.locate('ejs')
+            throw 'This product requires makeme-ejs 2.x to run unit tests. Ejs ' + Cmd.locate('makeme-ejs')
         }
 
         blend(topEnv, {
@@ -810,6 +811,9 @@ try {
     tm.runAllTests()
 } catch (e) { 
     App.log.error(e)
+    tm.failedCount++
+    tm.summary()
+    tm.exit()
 }
 tm.summary()
 tm.exit()
