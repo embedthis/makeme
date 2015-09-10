@@ -100,7 +100,7 @@
 
       <CustomBuildStep>
         <Command>cd ..\..\src\ejscript
-"../../build/windows-x86-default/bin/makeme-ejsc" --out "../../build/windows-x86-default/bin/ejs.mod"  --bind --require null ejs.es
+"../../build/windows-x86-default/bin/makeme-ejsc" --out "../../build/windows-x86-default/bin/ejs.mod" --debug --bind --require null ejs.es
 cd ..\..\projects\makeme-windows-default</Command>
         <Outputs>$(BinDir)\ejs.mod</Outputs>
       </CustomBuildStep>

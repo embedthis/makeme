@@ -372,15 +372,16 @@ if not exist "$(IncDir)" md "$(IncDir)"
     function projHeader(base, target) {
         me.SUBSYSTEM = (target.rule == 'gui') ? 'Windows' : 'Console'
         me.INC = target.includes ? target.includes.map(function(path) wpath(path.relativeTo(base))).join(';') : ''
+        me.DEF = target.defines ? target.defines.join(';') : ''
         output('<?xml version="1.0" encoding="utf-8"?>
     <Project DefaultTargets="Build" ToolsVersion="${TOOLS_VERSION}" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">')
         if (target.type == 'lib' || target.type == 'exe') {
             output('
       <ItemDefinitionGroup>
         <ClCompile>
+          <PreprocessorDefinitions>${DEF};%(PreprocessorDefinitions)</PreprocessorDefinitions>
           <AdditionalIncludeDirectories>${INC};%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>')
             output('    </ClCompile>')
-
             output('    <Link>
           <AdditionalDependencies>ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
           <AdditionalLibraryDirectories>$(OutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
