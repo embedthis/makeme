@@ -110,8 +110,8 @@ class InstallsInner {
                 } else if (item.enable === false) {
                     enable = false
                 }
-                if (enable && App.uid != 0 && item.root && me.installing && !makeme.generating) {
-                    trace('Skip', 'Must be root to copy ' + name)
+                if (enable && App.uid != 0 && item.root && (me.installing || me.uninstalling) && !makeme.generating) {
+                    trace('Skip', 'Must be root ' + name)
                     skip(name, 'Must be administrator')
                     enable = false
                 }
@@ -185,7 +185,7 @@ class InstallsInner {
                                 }
                             }
                         }
-                        if (me.installing) {
+                        if (me.installing || me.uninstalling) {
                             checkRoot(manifest)
                         }
                         if (!prefixes[pname].exists) {
@@ -228,7 +228,7 @@ class InstallsInner {
 
     function setupPrefixes(kind, package) {
         let prefixes = {}
-        if (me.installing) {
+        if (me.installing || me.uninstalling) {
             prefixes = me.prefixes.clone()
             prefixes.staging = me.prefixes.app
             prefixes.media = prefixes.app
@@ -384,6 +384,7 @@ class InstallsInner {
     }
 
     public function uninstallBinary() {
+        me.uninstalling = true
         let [manifest, package, prefixes] = setupInstall('binary', true)
         let name = (me.platform.os == 'windows') ? me.settings.title : me.settings.name
         if (package) {
@@ -438,6 +439,28 @@ class InstallsInner {
             }
             updateLatestLink()
             removeDir(me.prefixes.app, {empty: true})
+
+            if (!makeme.generating) {
+                let sets = me.options.sets  || package.sets
+                for each (let set in sets) {
+                    let set = manifest.sets[set]
+                    for each (item in set) {
+                        if (item.symlink) {
+                            let from = item.from
+                            if (!(from is Array)) from = [from]
+                            for each (file in from) {
+                                let path = Path(item.symlink).join(file)
+                                path = makeme.loader.expand(path)
+                                for each (link in Path('/').files(path)) {
+                                    if (link.isLink) {
+                                        safeRemove(link)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 

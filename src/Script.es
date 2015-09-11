@@ -46,6 +46,7 @@ var sysdirs = {
     '/var/tmp': true,
     '/': true,
 }
+
 /*  KEEP
     Common system directories for safeRemove
     Property white-list for Path.operate
@@ -542,12 +543,16 @@ public function safeCopy(from: Path, to: Path) {
 /**
     Safely remove a directory. This protects against removing some major system directories.
  */
-public function safeRemove(dir: Path) {
-    if (sysdirs[dir]) {
-        App.log.error("prevent removal of", dir)
+public function safeRemove(path: Path) {
+    if (sysdirs[path]) {
+        App.log.error("Prevent removal of", path)
         return
     }
-    dir.removeAll()
+    if (path.isDir) {
+        path.removeAll()
+    } else {
+        path.remove()
+    }
 }
 
 /**
