@@ -35,6 +35,11 @@ FITNESS FOR ANY PARTICULAR PURPOSE.
 [JQuery](http://jquery.org/license/) - [MIT](http://opensource.org/licenses/MIT)
 
 
+### MbedTLS License
+
+MbedTLS - [Apache](http://www.apache.org/licenses/LICENSE-2.0)
+
+
 ### Perl Regular Expressions License
 
 [PCRE License - BSD 2 Clause](http://opensource.org/licenses/BSD-2-Clause)

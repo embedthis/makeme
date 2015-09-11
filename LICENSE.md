@@ -30,7 +30,7 @@ FITNESS FOR ANY PARTICULAR PURPOSE.
 
 ### MbedTLS License
 
-MbedTLS - [GPL License](http://www.gnu.org/licenses/gpl-2.0.html)
+MbedTLS - [Apache](http://www.apache.org/licenses/LICENSE-2.0)
 
 ### Perl Regular Expressions License
 
