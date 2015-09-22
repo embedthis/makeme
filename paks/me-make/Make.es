@@ -91,7 +91,6 @@ class Make {
             let name = target.name
             if (needed[name]) {
                 let enable = target.enable
-// TEMP - generate ssl targets disabled. Need a generic way to do this.
                 if (me.platform.os == 'windows' || me.platform.os == 'vxworks') {
                     if (target.name == 'ssl' || target.name == 'openssl') {
                         enable = false
