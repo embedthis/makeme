@@ -479,10 +479,12 @@ function compile(cc: Path, command: String, contents: String = null): Boolean {
             command += ' -c ' + file
         }
         let cc = 'cc'
+        let cflags = ''
         if (me.platform.cross) {
             cc = App.getenv('CC') || cc
+            cflags = App.getenv('CFLAGS') + ' '
         }
-        command = '' + cc + ' -Werror -Wall ' + command
+        command = '' + cc + ' -Werror -Wall ' + cflags + command
         strace('Compile', command)
         strace('Program', contents)
         cmd = new Cmd
