@@ -310,6 +310,27 @@ img.shadow {
   border-radius: 7px;
   box-shadow: 5px 5px 9px #999999;
 }
+div.questions ul,
+div.answers ul {
+  color: #31699C;
+  margin: 0;
+}
+div.questions ul li,
+div.answers ul li {
+  padding-bottom: 4px;
+}
+div.questions h2,
+div.answers h2,
+div.questions h3,
+div.answers h3 {
+  margin: 12px 0 8px 0;
+}
+div.questions .question,
+div.answers .question {
+  font-weight: bold;
+  font-size: 1.1em;
+  margin: 16px 0 10px 0;
+}
 @media (min-width: 900px) {
   .mobile-only {
     display: none !important;
