@@ -10275,8 +10275,8 @@ module ejs {
         /**
             Create a regular expression object that can be used to process strings.
             @param pattern The pattern to associated with this regular expression.
-            @param flags "g" for global match, "i" to ignore case, "m" match over multiple lines, "y" for sticky match.
-                "s" so that "." will match all characters.
+            @param flags "g" for global match, "i" to ignore case, "m" match over multiple lines (may also need to use "s"),
+                "y" for sticky match, "s" so that "." will match all characters.
          */
         native function RegExp(pattern: String, flags: String? = null)
 
@@ -12113,8 +12113,8 @@ module ejs {
         native function get mimeType(): String?
 
         /** 
-            Normalized URI by removing all redundant and invalid URI components. Set to a URI with "segment/.." 
-            and "./" components removed. The value will not be converted to an absolute URI nor will it map character case.
+            Normalized URI by removing all redundant and invalid URI components. Redundant segments with "./" and 
+            "../" will be removed including leading "../" segments.
          */
         native function get normalize(): Uri
 
