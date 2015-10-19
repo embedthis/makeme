@@ -5,11 +5,12 @@ A complete, integrated JavaScript environment.
 
 Licensing
 ---
+
 See LICENSE.md for details.
 
 ### To Read Documentation:
 
-  See http://embedthis.com/ejscript/doc/index.html
+  See https://embedthis.com/ejscript/doc/
 
 ### To Build:
 
@@ -36,7 +37,7 @@ directory in your PATH. This is under OS-ARCH-PROFILE/bin.
 
 Resources
 ---
-  - [Ejscript web site](http://embedthis.com/ejscript/)
+  - [Ejscript web site](https://embedthis.com/ejscript/)
   - [Embedthis web site](https://embedthis.com/)
   - [Ejscript GitHub repository](http://github.com/embedthis/ejscript)
 
