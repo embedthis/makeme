@@ -841,7 +841,10 @@ public class Loader {
         loadPackage(path)
         blendObj(obj)
         if (obj.main) {
+            /* Must preserve the original settings and blend over main */
+            let settings = me.settings.clone(true)
             blendFile(obj.main)
+            blend(me.settings, settings)
         }
         makeGlobals()
 
