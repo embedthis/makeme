@@ -366,7 +366,7 @@ class Make {
         }
         cflags += ' -w'
         genWriteLine('CFLAGS                += ' + cflags.trim())
-        genWriteLine('DFLAGS                += ' + mappings.defines.replace(/-DME_DEBUG */, '') +
+        genWriteLine('DFLAGS                += ' + mappings.defines.replace(/-DME_DEBUG +/, '') +
             ' $(patsubst %,-D%,$(filter ME_%,$(MAKEFLAGS))) ' + dflags)
         genWriteLine('IFLAGS                += "' +
             repvar(me.targets.compiler.includes.map(function(path) '-I' + reppath(path.relative)).join(' ')) + '"')

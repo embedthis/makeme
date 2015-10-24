@@ -838,6 +838,7 @@ class Xcode {
             defines.push('ME_DEBUG')
         } else {
             defines.removeElements('DEBUG')
+            defines.push('ME_DEBUG=0')
         }
         if (defines.length > 0) {
             options.defines = '\t\t\t\tGCC_PREPROCESSOR_DEFINITIONS = (\n' + 

@@ -351,7 +351,9 @@ function setCompilerOptions(results, settings) {
         results.libraries.push('rt')
     }
     if (settings.debug) {
-        results.defines.push('ME_DEBUG')
+        results.defines.push('ME_DEBUG=1')
+    } else {
+        results.defines.push('ME_DEBUG=0')
     }
     if (platform.like == 'unix') {
         /* Always include dl so that dlsym can be used even in static programs */
