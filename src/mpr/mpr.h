@@ -5591,7 +5591,7 @@ typedef struct MprModule {
     char            *name;              /**< Unique module name */
     char            *path;              /**< Module library filename */
     char            *entry;             /**< Module library init entry point */
-    void            *moduleData;        /**< Module specific data - must be alloced data */
+    void            *moduleData;        /**< Module specific data - not managed */
     void            *handle;            /**< O/S shared library load handle */
     MprTime         modified;           /**< When the module file was last modified */
     MprTicks        lastActivity;       /**< When the module was last used */
@@ -9693,6 +9693,7 @@ typedef struct Mpr {
 
     char            *emptyString;           /**< "" string */
     char            *oneString;             /**< "1" string */
+    char            *rootString;            /**< "/" string */
 #if ME_WIN_LIKE
     HINSTANCE       appInstance;            /**< Application instance (windows) */
 #endif
