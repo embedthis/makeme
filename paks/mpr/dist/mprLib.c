@@ -17223,9 +17223,6 @@ static void manageModule(MprModule *mp, int flags)
         mprMark(mp->name);
         mprMark(mp->path);
         mprMark(mp->entry);
-#if UNUSED
-        mprMark(mp->moduleData);
-#endif
     }
 }
 
@@ -17669,11 +17666,7 @@ PUBLIC char *mprGetAbsPath(cchar *path)
         path = ".";
     }
     fs = mprLookupFileSystem(path);
-#if ME_ROM && UNUSED
-    result =  mprNormalizePath(path);
-    mprMapSeparators(result, defaultSep(fs));
-    return result;
-#elif CYGWIN
+#if CYGWIN
     {
         ssize   len;
         /*
@@ -21078,21 +21071,11 @@ static MprRomInode *lookup(MprRomFileSystem *rfs, cchar *path)
             break;
         }
     }
-#if UNUSED
-    /*
-        Skip over the leading "/"
-     */
-    if (*path == '/') {
-        path++;
-    }
-    return (MprRomInode*) mprLookupKey(rfs->fileIndex, path);
-#else
     if (path[0] == '/') {
         return (MprRomInode*) mprLookupKey(rfs->fileIndex, path);
     } else {
         return (MprRomInode*) mprLookupKey(rfs->fileIndex, mprJoinPath(mprGetCurrentPath(), path));
     }
-#endif
 }
 
 

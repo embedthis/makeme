@@ -3752,25 +3752,24 @@ static void blendMode(HttpRoute *route, MprJson *config)
     mode = mprGetJson(route->config, "pak.mode");
     if (!mode) {
         mode = mprGetJson(config, "pak.mode");
-        if (!mode) {
-            mode = sclone("debug");
+    }
+    if (mode) {
+        if ((route->debug = smatch(mode, "debug")) != 0) {
+            httpSetRouteShowErrors(route, 1);
+            route->keepSource = 1;
         }
-    }
-    route->mode = mode;
-    if ((route->debug = smatch(mode, "debug")) != 0) {
-        httpSetRouteShowErrors(route, 1);
-        route->keepSource = 1;
-    }
-    /*
-        Http uses top level modes
-        Pak uses top level pak.modes
-     */
-    if ((modeObj = mprGetJsonObj(config, sfmt("modes.%s", mode))) == 0) {
-        modeObj = mprGetJsonObj(config, sfmt("pak.modes.%s", mode));
-    }
-    if (modeObj) {
-        mprBlendJson(route->config, modeObj, MPR_JSON_OVERWRITE);
-        httpParseAll(route, 0, modeObj);
+        /*
+            Http uses top level modes
+            Pak uses top level pak.modes
+         */
+        if ((modeObj = mprGetJsonObj(config, sfmt("modes.%s", mode))) == 0) {
+            modeObj = mprGetJsonObj(config, sfmt("pak.modes.%s", mode));
+        }
+        if (modeObj) {
+            mprBlendJson(route->config, modeObj, MPR_JSON_OVERWRITE);
+            httpParseAll(route, 0, modeObj);
+        }
+        route->mode = mode;
     }
 }
 
@@ -5911,9 +5910,9 @@ static void connTimeout(HttpConn *conn, MprEvent *mprEvent)
             msg = sfmt("%s exceeded parse headers timeout of %lld sec", prefix, limits->requestParseTimeout  / 1000);
             event = "timeout.parse";
 
-#if UNUSED
-        /* Too noisy */
+#if KEEP
         } else if (conn->timeout == HTTP_INACTIVITY_TIMEOUT) {
+            /* Too noisy */
             msg = sfmt("%s exceeded inactivity timeout of %lld sec", prefix, limits->inactivityTimeout / 1000);
             event = "timeout.inactivity";
 #endif
