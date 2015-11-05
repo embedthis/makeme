@@ -833,11 +833,16 @@ class Xcode {
             options.libpaths = '\n\t\t\t\tLIBRARY_SEARCH_PATHS = (\n' + 
                 o.libpaths.map(function(f) '\t\t\t\t\t"' + smartPath(f, base) + '",').join('\n') + '\n\t\t\t\t\t"$(inherited)"\n\t\t\t\t);'
         }
+        /*
+            DEBUG set by me-components/compiler
+         */
         let defines = o.defines.clone()
+        defines.removeElements('ME_DEBUG')
+        defines.removeElements('ME_DEBUG=0')
+        defines.removeElements('ME_DEBUG=1')
         if (debug) {
-            defines.push('ME_DEBUG')
+            defines.push('ME_DEBUG=1')
         } else {
-            defines.removeElements('DEBUG')
             defines.push('ME_DEBUG=0')
         }
         if (defines.length > 0) {

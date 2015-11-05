@@ -350,7 +350,7 @@ function setCompilerOptions(results, settings) {
     if (settings.hasLibRt) {
         results.libraries.push('rt')
     }
-    if (settings.debug) {
+    if (me.settings.debug) {
         results.defines.push('ME_DEBUG=1')
     } else {
         results.defines.push('ME_DEBUG=0')
