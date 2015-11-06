@@ -404,7 +404,11 @@ class Xcode {
             } 
             let fid = makeid('ID_Frameworks:' + target.name)
             let libs = []
-            if (target.static) continue
+/* UNUSED
+            if (target.static) {
+                continue
+            }
+*/
             for each (item in target.libraries) {
                 let dep = me.targets['lib' + item]
                 if (dep && dep.type == 'lib') {
@@ -507,11 +511,6 @@ class Xcode {
             }
             let dep = me.targets[dname]
             if (dep && !result.contains(dep)) {
-/* UNUSED
-                if (target.static && dep.type == 'lib') {
-                    continue
-                }
-*/
                 getAllDeps(dep, result)
                 if (dep.enable && dep.xtarget) { 
                     result.push(dep)

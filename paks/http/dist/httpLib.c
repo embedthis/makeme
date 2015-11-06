@@ -3808,10 +3808,6 @@ PUBLIC int httpLoadConfig(HttpRoute *route, cchar *path)
         }
         route->mode = mode;
         if ((route->debug = smatch(route->mode, "debug")) != 0) {
-#if UNUSED
-            /* Some customers may ship with debug */
-            route->flags |= HTTP_ROUTE_SHOW_ERRORS;
-#endif
             route->keepSource = 1;
         }
     }
@@ -7903,11 +7899,6 @@ static bool validateEndpoint(HttpEndpoint *endpoint)
         host = httpGetDefaultHost();
         httpAddHostToEndpoint(endpoint, host);
     }
-#if UNUSED
-    if (!host->name) {
-        httpSetHostName(host, sfmt("%s:%d", endpoint->ip, endpoint->port));
-    }
-#endif
     for (nextRoute = 0; (route = mprGetNextItem(host->routes, &nextRoute)) != 0; ) {
         if (!route->handler && !mprLookupKey(route->extensions, "")) {
             httpAddRouteHandler(route, "fileHandler", "");
