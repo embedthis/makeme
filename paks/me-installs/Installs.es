@@ -144,7 +144,7 @@ class InstallsInner {
                         let data = makeme.loader.expand(item.write)
                         if (makeme.generating) {
                             data = data.replace(/\n/g, '\\n')
-                            genScript("echo '" + data + "' >" + item.to)
+                            genScript("echo -e '" + data + "' >" + item.to)
                         } else {
                             strace('Create', item.to)
                             item.to.write(data)
