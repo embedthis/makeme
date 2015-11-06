@@ -175,7 +175,7 @@ enumerable class TestMe {
 
     function TestMe() {
         program = Path(App.args[0]).basename
-        if ((path = searchUp('package.json')) != null) {
+        if ((path = searchUp('configure')) != null) {
             top = path.dirname.absolute
             try {
                 if (top.join('start.me')) {
