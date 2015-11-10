@@ -1,1 +1,324 @@
-<!DOCTYPE html><html lang="en"><head><title>Command Line</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta charset="utf-8"><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"><meta name="description" content="Embedthis MakeMe -- Fast, modern replacement for make and autoconf."><link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700|Open+Sans:300italic,400,300,700' rel='stylesheet' type='text/css'><link href='https://fonts.googleapis.com/css?family=Julius+Sans+One' rel='stylesheet' type='text/css'><link href="../images/favicon.ico" rel="shortcut icon"><link href="../lib/semantic-ui/semantic.min.css" rel="stylesheet" type="text/css"><link href="../css/all.min.css" rel="stylesheet" type="text/css"><link href="../css/api.min.css" rel="stylesheet" type="text/css"><body class="show-sidebar"><div class="sidebar"><div class="ui large left vertical inverted labeled menu"><div class="item"><a href="../index.html" class="logo">MakeMe Docs</a></div><div class="item"><a href="../index.html"><b>General</b></a><div class="menu"><a class="item" href="../index.html">MakeMe Overview</a> <a class="item" href="../users/features.html">MakeMe Features</a> <a class="item" href="https://embedthis.com/makeme/download.html">Download</a> <a class="item" href="../licensing/index.html">Licensing</a></div></div><div class="item"><a href="../start/index.html"><b>Getting Started</b></a><div class="menu"><a class="item" href="../start/installing.html">Installing MakeMe</a> <a class="item" href="../start/linux.html">Installing for Linux</a> <a class="item" href="../start/mac.html">Installing for Mac OS X</a> <a class="item" href="../start/windows.html">Installing for Windows</a> <a class="item" href="../start/releaseNotes.html">Release Notes</a></div></div><div class="item"><a href="../users/index.html"><b>User's Guide</b></a><div class="menu"><a class="item" href="../users/using.html">Using MakeMe</a> <a class="item" href="../users/configuring.html">Running Configure</a> <a class="item" href="../users/debugging.html">Debugging a Build</a> <a class="item" href="../users/make.html">Using Generated Makefiles</a> <a class="item" href="../users/cross.html">Cross-Compiling</a></div></div><div class="item"><a href="../developers/index.html">Developer's Guide</a><div class="menu"><a class="item" href="../developers/compiling.html">Compiling Sources</a> <a class="item" href="../developers/libraries.html">Creating Libraries</a> <a class="item" href="../developers/executables.html">Creating Executables</a> <a class="item" href="../developers/scripts.html">Build Scripts</a> <a class="item" href="../developers/copying.html">Copying Files</a> <a class="item" href="../developers/configurable.html">Configurable Projects</a> <a class="item" href="../developers/plugins.html">MakeMe Plugins</a> <a class="item" href="../developers/generating.html">Generating</a> <a class="item" href="../developers/samples.html">Samples</a></div></div><div class="item"><a href="../ref/index.html">Reference Guide</a><div class="menu"><a class="item" href="../ref/syntax.html">File Syntax</a> <a class="item" href="../ref/dom.html">MakeMe DOM</a> <a class="item" href="../ref/processing.html">File Processing</a> <a class="item" href="../ref/commandline.html">Command Line</a> <a class="item" href="../ref/events.html">Events</a> <a class="item" href="../ref/targets.html">Targets</a> <a class="item" href="../man/me.html">Manual Page</a> <a class="item" href="http://embedthis.com/ejscript/doc/ref/api/ejscript/index.html">Language Reference</a> <a class="item" href="http://embedthis.com/ejscript/doc/index.html">Ejscript Documentation</a></div></div><div class="item"><a href="../developers/project.html">Project Resources</a><div class="menu"><a class="item" href="http://goo.gl/umR6dt">Official MakeMe News</a> <a class="item" href="https://embedthis.com/makeme/">MakeMe Web Site</a> <a class="item" href="https://github.com/embedthis/me">Source Code Repository</a> <a class="item" href="https://github.com/embedthis/me/issues">Project Issue Database</a> <a class="item" href="https://github.com/embedthis/me/releases">Change Log</a> <a class="item" href="https://github.com/embedthis/me/milestones">Roadmap</a> <a class="item" href="https://embedthis.com/developers/contributors.html">Contributors Agreement</a></div></div><div class="item"><a href="../source/index.html">Built with MakeMe</a><div class="menu"><a class="item" href="../source/overview.html">Building Overview</a> <a class="item" href="../source/make.html">Building with Make</a> <a class="item" href="../source/me.html">Building with MakeMe</a> <a class="item" href="../source/ide.html">Building with an IDE</a></div></div><div class="item"><b>Links</b><div class="menu"><a class="item" href="https://embedthis.com/">Embedthis Web Site</a> <a class="item" href="https://embedthis.com/blog/">Embedthis Blog</a> <a class="item" href="http://twitter.com/mobstream">Twitter</a></div></div></div></div><div class="ui inverted masthead"><div class="ui fixed inverted menu"><div class="ui sidebar-launch button"><i class="icon list layout"></i></div><div class="right menu"><a class="item" href="https://embedthis.com/">Embedthis</a> <a class="item" href="https://embedthis.com/makeme/">MakeMe Site</a> <span class="desktop-only"><a class="item" href="http://goo.gl/ojHSM2">MakeMe News</a> <a class="item" href="https://github.com/embedthis/me">Repository</a> <a class="item" href="https://embedthis.com/blog/">Blog</a> <a class="item" href="https://twitter.com/mobstream">Twitter</a></span></div></div><div class="ui breadcrumb"><a class="section" href="../">Home</a><div class="divider">/</div><a class="section" href="index.html">Reference Guide</a><div class="divider">/</div><a class="active section" href="commandline.html">Command Line</a></div><iframe class="version desktop-only" src="../version.html"></iframe></div><div class="content"><h2>Command Options</h2><p>MakeMe is a command line tool that is invoked as:</p><pre class="ui code segment">Usage: me [options] [targets|actions] ...</pre><p>MakeMe command line options can be prefixed with either a single or double minus, i.e. <em>-switch</em> or <em>--switch</em>.</p><table title="options" class="ui table class"><thead><tr><th class="five wide">Option<th>Description<tbody><tr><td>--benchmark<td>Measure the elapsed time to run MakeMe.<tr><td>--configure path-to-source<td><p>Configure the project to prepare for building. This configures MakeMe for building the project based on the instructions specified in a <em>'main.me</em> located in the specified path source tree. When run, 'me' will create a platform configuration MakeMe file, a build output directory and me.h header. The configuration directory is of the form: OS-ARCH-PROFILE where OS may be freebsd, linux, macosx, solaris, vxworks, windows and ARCH is arm, mips, ppc, x64 or x86. PROFILE is typically set to debug or release. For example: <em>macosx-x86_64-debug</em> The configuration MakeMe file omits the PROFILE. For example: <em>linux-x86.me</em>.</p><p>MakeMe will use the settings.required and settings.optional properties in the main.me for a list of packages to use. When configuring, MakeMe will search for these packages and will create definitions in the configuration MakeMe file for later use.</p><tr><td>--continue<td>Continue to build despite any build errors. Normal operation is to stop building if any build errors are encountered.<tr><td>--debug<td>Same as --profile debug<tr><td>--diagnose<td>Run MakeMe with stack backtrace display on errors.<tr><td>--dump<td>Dump the aggregate MakeMe configuration into a single dump MakeMe file.<tr><td>--file filename<td>Use the alternate named file instead of start.me or main.me.<tr><td>--force<td>Override warnings and proceed with the operation.<tr><td class="nowrap">--gen [make|nmake|sh|vs|xcode]<td>Generate project files for the current platform. This will generate project files under the <em>projects</em> directory. The projects are based on the current configuration. If cross-generating projects, you will typically need to also use -configure.<tr><td>--keep<td>Keep some intermediate build files. This is currently used by some documentation generation targets.<tr><td>--log logName[:logLevel]<td>Specify a file to log internal execution messages. MakeMe will log execution related trace to the log file. The log level specifies the desired verbosity of output. Level 0 is the least verbose and level 9 is the most. The <em>-v</em> switch is an alias for <em>--log stderr:2</em>.<tr><td>--nocross<td>Don't cross-build. Build only for the development system.<tr><td>--nolocal<td>Don't build for the development system. Build only for the cross platform targets.<tr><td>--out path<td>Save MakeMe trace output to a file instead of displaying to the console.<tr><td>--platform os-arch<td><p>Add a platform to build for cross-compilation. Multiple platforms can be added. You may use <em>local</em> for the local platform. Options specified after the platform apply to the prior platform. For example:</p><p>me --platform linux-x86 --without all --platform linux-arm --with ejscript configure</p><tr><td class="nowrap">--profile [debug|release|...]<td>Use the specified profile when building. This options is provided once when configuring and the result is saved in the plat- form.profile property in the configuration MakeMe file. Custom profiles can be added to the main.me or start.me files.<tr><td>--quiet<td>Quiet operation. Suppresses output trace.<tr><td>--set key=value<td>Set a settings property to a given value. For example: <em>me -set version=1.0</em> will update the settings.version property. Use this when running <em>me configure</em> to persist your changes in the configuration MakeMe file.<tr><td>--show<td>Show the actual commands executed by MakeMe.<tr><td>--static<td>Build using static linking instead of creating shared libraries.<tr><td>--rebuild<td>Rebuild the specified targets. Can also use <em>me rebuild</em>.<tr><td>--release<td>Select the release profile. Same as --profile release.<tr><td>--unset key=value<td>Clear a settings property. Use this when running <em>me configure</em> to persist your changes in the configuration MakeMe file.<tr><td>--version<td>Print the ejs command version and exit.<tr><td>--verbose<td>Run in verbose mode with more trace about MakeMe activities.<tr><td>--with NAME[=path]<td>Build with the named configurable component located at the optional path. If the path is omitted, a search is performed for the component at default locations.<tr><td>--without NAME<td>Build without the named component.</table></div><div class="terms ui basic center aligned segment"><p>&copy; Embedthis Software, 2003-2015. All rights reserved.</p></div><script src="../lib/jquery/jquery.min.js"></script><script src="../lib/semantic-ui/semantic.min.js"></script><script src="../scripts/sidebar.min.js"></script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Command Line</title>
+    
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+    <meta name="description" content="Embedthis MakeMe -- Fast, modern replacement for make and autoconf.">
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700|Open+Sans:300italic,400,300,700' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Julius+Sans+One' rel='stylesheet' type='text/css'>
+    
+    <link href="../images/favicon.ico" rel="shortcut icon">
+    <link href="../lib/semantic-ui/semantic.min.css" rel="stylesheet" type="text/css">
+    <link href="../css/all.min.css" rel="stylesheet" type="text/css">
+    <link href="../css/api.min.css" rel="stylesheet" type="text/css">
+    
+
+
+<body class="show-sidebar">
+        
+    <div class="sidebar">
+        <div class="ui large left vertical inverted labeled menu">
+            <div class="item">
+                <a href="../index.html" class="logo">MakeMe Docs</a>
+            </div>
+            <div class="item">
+                <a href="../index.html">
+                    <b>General</b>
+                </a>
+                <div class="menu">
+                    <a class="item" href="../index.html">MakeMe Overview</a>
+                    <a class="item" href="../users/features.html">MakeMe Features</a>
+                    <a class="item" href="https://embedthis.com/makeme/download.html">Download</a> 
+                    <a class="item" href="../licensing/index.html">Licensing</a>
+                </div>
+            </div>
+            <div class="item">
+                <a href="../start/index.html">
+                    <b>Getting Started</b>
+                </a>
+                <div class="menu">
+                    <a class="item" href="../start/installing.html">Installing MakeMe</a>
+                    <a class="item" href="../start/linux.html">Installing for Linux</a>
+                    <a class="item" href="../start/mac.html">Installing for Mac OS X</a>
+                    <a class="item" href="../start/windows.html">Installing for Windows</a>
+                    <a class="item" href="../start/releaseNotes.html">Release Notes</a>
+                </div>
+            </div>
+            <div class="item">
+                <a href="../users/index.html"><b>User's Guide</b></a>
+                <div class="menu">
+                    <a class="item" href="../users/using.html">Using MakeMe</a>
+                    <a class="item" href="../users/configuring.html">Running Configure</a>
+                    <a class="item" href="../users/debugging.html">Debugging a Build</a>
+                    <a class="item" href="../users/make.html">Using Generated Makefiles</a>
+                    <a class="item" href="../users/cross.html">Cross-Compiling</a>
+                </div>
+            </div>
+            <div class="item">
+                <a href="../developers/index.html">Developer's Guide</a>
+                <div class="menu">
+                    <a class="item" href="../developers/compiling.html">Compiling Sources</a>
+                    <a class="item" href="../developers/libraries.html">Creating Libraries</a>
+                    <a class="item" href="../developers/executables.html">Creating Executables</a>
+                    <a class="item" href="../developers/scripts.html">Build Scripts</a>
+                    <a class="item" href="../developers/copying.html">Copying Files</a>
+                    <a class="item" href="../developers/configurable.html">Configurable Projects</a>
+                    <a class="item" href="../developers/plugins.html">MakeMe Plugins</a>
+                    <a class="item" href="../developers/generating.html">Generating</a>
+                    <a class="item" href="../developers/samples.html">Samples</a>
+                </div>
+            </div>
+            <div class="item">
+                <a href="../ref/index.html">Reference Guide</a>
+                <div class="menu">
+                    <a class="item" href="../ref/syntax.html">File Syntax</a>
+                    <a class="item" href="../ref/dom.html">MakeMe DOM</a>
+
+                    <a class="item" href="../ref/processing.html">File Processing</a>
+                    <a class="item" href="../ref/commandline.html">Command Line</a>
+                    <a class="item" href="../ref/events.html">Events</a>
+                    <a class="item" href="../ref/targets.html">Targets</a>
+                    <a class="item" href="../man/me.html">Manual Page</a>
+                    <a class="item" href="http://embedthis.com/ejscript/doc/ref/api/ejscript/index.html">
+                        Language Reference</a>
+                    <a class="item" href="http://embedthis.com/ejscript/doc/index.html">Ejscript Documentation</a>
+                </div>
+            </div>
+            <div class="item">
+                <a href="../developers/project.html">Project Resources</a>
+                <div class="menu">
+                    <a class="item" href="http://goo.gl/umR6dt">Official MakeMe News</a>
+                    <a class="item" href="https://embedthis.com/makeme/">MakeMe Web Site</a>
+                    <a class="item" href="https://github.com/embedthis/me">Source Code Repository</a>
+                    <a class="item" href="https://github.com/embedthis/me/issues">Project Issue Database</a>
+                    <a class="item" href="https://github.com/embedthis/me/releases">Change Log</a>
+                    <a class="item" href="https://github.com/embedthis/me/milestones">Roadmap</a>
+                    <a class="item" href="https://embedthis.com/developers/contributors.html">Contributors Agreement</a>
+                </div>
+            </div>
+            <div class="item">
+                <a href="../source/index.html">Built with MakeMe</a>
+                <div class="menu">
+                    <a class="item" href="../source/overview.html">Building Overview</a>
+                    <a class="item" href="../source/make.html">Building with Make</a>
+                    <a class="item" href="../source/me.html">Building with MakeMe</a>
+                    <a class="item" href="../source/ide.html">Building with an IDE</a>
+                </div>
+            </div>
+            <div class="item">
+                <b>Links</b>
+                <div class="menu">
+                    <a class="item" href="https://embedthis.com/">Embedthis Web Site</a>
+                    <a class="item" href="https://embedthis.com/blog/">Embedthis Blog</a>
+                    <a class="item" href="http://twitter.com/mobstream">Twitter</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+    <div class="ui inverted masthead">
+         
+        <div class="ui fixed inverted menu">
+            <div class="ui sidebar-launch button">
+                <i class="icon list layout"></i>
+            </div>
+            <div class="right menu">
+                 
+                    <a class="item" href="https://embedthis.com/">Embedthis</a>
+                    <a class="item" href="https://embedthis.com/makeme/">MakeMe Site</a>
+                    <span class="desktop-only">
+                        <a class="item" href="http://goo.gl/ojHSM2">MakeMe News</a>
+                        <a class="item" href="https://github.com/embedthis/me">Repository</a>
+                        <a class="item" href="https://embedthis.com/blog/">Blog</a>
+                        <a class="item" href="https://twitter.com/mobstream">Twitter</a>
+                    </span>
+
+            </div>
+        </div>
+        
+        <div class="ui breadcrumb">
+            <a class="section" href="../">Home</a>
+            
+            <div class="divider">/</div>
+            <a class="section" href="index.html">
+                Reference Guide
+            </a>
+            
+            
+            <div class="divider">/</div>
+            <a class="active section" href="commandline.html">Command Line</a>
+            
+        </div>
+        
+        <iframe class="version desktop-only" src="../version.html"></iframe>
+
+    </div>
+    <div class="content">
+
+        <h2>Command Options</h2>
+        <p>MakeMe is a command line tool that is invoked as:</p>
+        <pre class="ui code segment">Usage: me [options] [targets|actions] ...</pre>
+        <p>MakeMe command line options can be prefixed with either a single or double minus, i.e. <em>-switch</em> or
+        <em>--switch</em>.</p>
+        <table title="options" class="ui table class">
+            <thead>
+                <tr>
+                    <th class="five wide">Option
+                    <th>Description
+            
+            <tbody>
+                <tr>
+                    <td>--benchmark
+                    <td>Measure the elapsed time to run MakeMe.
+                
+                <tr>
+                    <td>--configure path-to-source
+                    <td><p>Configure the project to prepare for building. This configures MakeMe for building the project
+                        based on the instructions specified in a <em>'main.me</em> located in the specified path source
+                        tree.  When run, 'me' will create a platform configuration MakeMe file, a build output directory and
+                        me.h header. The configuration directory is of the form: OS-ARCH-PROFILE where OS may be
+                        freebsd, linux, macosx, solaris, vxworks, windows and ARCH is arm, mips, ppc, x64 or x86.
+                        PROFILE is typically set to debug or release. For example: <em>macosx-x86_64-debug</em> The
+                        configuration MakeMe file omits the PROFILE. For example: <em>linux-x86.me</em>.</p>
+                        <p>MakeMe will use the settings.required and settings.optional properties in the main.me for a
+                        list of packages to use. When configuring, MakeMe will search for these packages and will
+                        create definitions in the configuration MakeMe file for later use.</p>
+                    
+                
+                    <tr><td>--continue
+                        <td>Continue to build despite any build errors. Normal operation is to stop building if any
+                            build errors are encountered.
+                
+                <tr>
+                    <td>--debug
+                    <td>Same as --profile debug
+                
+                <tr>
+                    <td>--diagnose
+                    <td>Run MakeMe with stack backtrace display on errors.
+                
+                <tr>
+                    <td>--dump 
+                    <td>Dump the aggregate MakeMe configuration into a single dump MakeMe file.
+                
+                <tr>
+                    <td>--file filename
+                    <td>Use the alternate named file instead of start.me or main.me.
+                
+                <tr>
+                    <td>--force
+                    <td>Override warnings and proceed with the operation.
+                
+                <tr>
+                    <td class="nowrap">--gen [make|nmake|sh|vs|xcode]
+                    <td>Generate project files for the current platform. This will generate project files under
+                        the <em>projects</em> directory. The projects are based on the current configuration. If
+                        cross-generating projects, you will typically need to also use -configure.
+                
+                <tr>
+                    <td>--keep 
+                    <td>Keep some intermediate build files. This is currently used by some documentation generation
+                        targets. 
+                <tr>
+                    <td>--log logName[:logLevel]
+                    <td>Specify a file to log internal execution messages. MakeMe will log execution related trace to the
+                        log file. The log level specifies the desired verbosity of output. Level 0 is the least verbose
+                        and level 9 is the most. The <em>-v</em> switch is an alias for <em>--log stderr:2</em>.
+                
+                <tr>
+                    <td>--nocross
+                    <td>Don't cross-build. Build only for the development system.
+                
+                <tr>
+                    <td>--nolocal
+                    <td>Don't build for the development system. Build only for the cross platform targets.
+                
+                <tr>
+                    <td>--out path
+                    <td>Save MakeMe trace output to a file instead of displaying to the console.
+                
+                <tr>
+                    <td>--platform os-arch
+                    <td><p>Add a platform to build for cross-compilation. Multiple platforms can be added. You may use
+                        <em>local</em> for the local platform. Options specified after the platform apply to the prior
+                        platform. For example:</p>
+                        <p>me --platform linux-x86 --without all --platform linux-arm --with ejscript configure</p>
+                
+                <tr>
+                    <td class="nowrap">--profile [debug|release|...]
+                    <td>Use the specified profile when building. This options is provided once when configuring and the
+                        result is saved in the plat- form.profile property in the configuration MakeMe file. Custom
+                        profiles can be added to the main.me or start.me files. 
+                
+                <tr>
+                    <td>--quiet
+                    <td>Quiet operation. Suppresses output trace.
+                
+                <tr>
+                    <td>--set key=value
+                    <td>Set a settings property to a given value. For example: <em>me -set version=1.0</em> will update the
+                        settings.version property. Use this when running <em>me configure</em> to persist your 
+                        changes in the configuration MakeMe file.
+                
+                <tr>
+                    <td>--show 
+                    <td>Show the actual commands executed by MakeMe.
+                
+                <tr>
+                    <td>--static 
+                    <td>Build using static linking instead of creating shared libraries.
+                
+                <tr>
+                    <td>--rebuild
+                    <td>Rebuild the specified targets. Can also use <em>me rebuild</em>.
+                
+                <tr>
+                    <td>--release
+                    <td>Select the release profile. Same as --profile release.
+                
+                <tr>
+                    <td>--unset key=value
+                    <td>Clear a settings property. Use this when running <em>me configure</em> to persist your changes in
+                        the configuration MakeMe file. 
+                
+                <tr>
+                    <td>--version
+                    <td>Print the ejs command version and exit.
+                
+                <tr>
+                    <td>--verbose
+                    <td>Run in verbose mode with more trace about MakeMe activities.
+                
+                <tr>
+                    <td>--with NAME[=path]
+                    <td>Build with the named configurable component located at the optional path. 
+                        If the path is omitted, a search is performed for the component at default locations.
+                
+                <tr>
+                    <td>--without NAME
+                    <td>Build without the named component.
+                
+            
+        </table>
+
+    </div>
+    <div class="terms ui basic center aligned segment">
+        <p>&copy; Embedthis Software, 2003-2015. All rights reserved.</p>
+    </div>
+
+    <script src="../lib/jquery/jquery.min.js"></script>
+    <script src="../lib/semantic-ui/semantic.min.js"></script>
+    <script src="../scripts/sidebar.min.js"></script>
+     
+
+        
+
+
+

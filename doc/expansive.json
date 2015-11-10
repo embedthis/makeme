@@ -21,7 +21,10 @@
                 "usemin": true,
                 "usemap": false
             },
-            "gzip": true
+            "gzip": true,
+            "html": {
+                "options": "--remove-comments --conservative-collapse --prevent-attributes-escaping --remove-empty-attributes --remove-optional-tags"
+            }
         }
     },
     "debug": {

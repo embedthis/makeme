@@ -1,12 +1,263 @@
-<!DOCTYPE html><html lang="en"><head><title>Generating</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta charset="utf-8"><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"><meta name="description" content="Embedthis MakeMe -- Fast, modern replacement for make and autoconf."><link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700|Open+Sans:300italic,400,300,700' rel='stylesheet' type='text/css'><link href='https://fonts.googleapis.com/css?family=Julius+Sans+One' rel='stylesheet' type='text/css'><link href="../images/favicon.ico" rel="shortcut icon"><link href="../lib/semantic-ui/semantic.min.css" rel="stylesheet" type="text/css"><link href="../css/all.min.css" rel="stylesheet" type="text/css"><link href="../css/api.min.css" rel="stylesheet" type="text/css"><body class="show-sidebar"><div class="sidebar"><div class="ui large left vertical inverted labeled menu"><div class="item"><a href="../index.html" class="logo">MakeMe Docs</a></div><div class="item"><a href="../index.html"><b>General</b></a><div class="menu"><a class="item" href="../index.html">MakeMe Overview</a> <a class="item" href="../users/features.html">MakeMe Features</a> <a class="item" href="https://embedthis.com/makeme/download.html">Download</a> <a class="item" href="../licensing/index.html">Licensing</a></div></div><div class="item"><a href="../start/index.html"><b>Getting Started</b></a><div class="menu"><a class="item" href="../start/installing.html">Installing MakeMe</a> <a class="item" href="../start/linux.html">Installing for Linux</a> <a class="item" href="../start/mac.html">Installing for Mac OS X</a> <a class="item" href="../start/windows.html">Installing for Windows</a> <a class="item" href="../start/releaseNotes.html">Release Notes</a></div></div><div class="item"><a href="../users/index.html"><b>User's Guide</b></a><div class="menu"><a class="item" href="../users/using.html">Using MakeMe</a> <a class="item" href="../users/configuring.html">Running Configure</a> <a class="item" href="../users/debugging.html">Debugging a Build</a> <a class="item" href="../users/make.html">Using Generated Makefiles</a> <a class="item" href="../users/cross.html">Cross-Compiling</a></div></div><div class="item"><a href="../developers/index.html">Developer's Guide</a><div class="menu"><a class="item" href="../developers/compiling.html">Compiling Sources</a> <a class="item" href="../developers/libraries.html">Creating Libraries</a> <a class="item" href="../developers/executables.html">Creating Executables</a> <a class="item" href="../developers/scripts.html">Build Scripts</a> <a class="item" href="../developers/copying.html">Copying Files</a> <a class="item" href="../developers/configurable.html">Configurable Projects</a> <a class="item" href="../developers/plugins.html">MakeMe Plugins</a> <a class="item" href="../developers/generating.html">Generating</a> <a class="item" href="../developers/samples.html">Samples</a></div></div><div class="item"><a href="../ref/index.html">Reference Guide</a><div class="menu"><a class="item" href="../ref/syntax.html">File Syntax</a> <a class="item" href="../ref/dom.html">MakeMe DOM</a> <a class="item" href="../ref/processing.html">File Processing</a> <a class="item" href="../ref/commandline.html">Command Line</a> <a class="item" href="../ref/events.html">Events</a> <a class="item" href="../ref/targets.html">Targets</a> <a class="item" href="../man/me.html">Manual Page</a> <a class="item" href="http://embedthis.com/ejscript/doc/ref/api/ejscript/index.html">Language Reference</a> <a class="item" href="http://embedthis.com/ejscript/doc/index.html">Ejscript Documentation</a></div></div><div class="item"><a href="../developers/project.html">Project Resources</a><div class="menu"><a class="item" href="http://goo.gl/umR6dt">Official MakeMe News</a> <a class="item" href="https://embedthis.com/makeme/">MakeMe Web Site</a> <a class="item" href="https://github.com/embedthis/me">Source Code Repository</a> <a class="item" href="https://github.com/embedthis/me/issues">Project Issue Database</a> <a class="item" href="https://github.com/embedthis/me/releases">Change Log</a> <a class="item" href="https://github.com/embedthis/me/milestones">Roadmap</a> <a class="item" href="https://embedthis.com/developers/contributors.html">Contributors Agreement</a></div></div><div class="item"><a href="../source/index.html">Built with MakeMe</a><div class="menu"><a class="item" href="../source/overview.html">Building Overview</a> <a class="item" href="../source/make.html">Building with Make</a> <a class="item" href="../source/me.html">Building with MakeMe</a> <a class="item" href="../source/ide.html">Building with an IDE</a></div></div><div class="item"><b>Links</b><div class="menu"><a class="item" href="https://embedthis.com/">Embedthis Web Site</a> <a class="item" href="https://embedthis.com/blog/">Embedthis Blog</a> <a class="item" href="http://twitter.com/mobstream">Twitter</a></div></div></div></div><div class="ui inverted masthead"><div class="ui fixed inverted menu"><div class="ui sidebar-launch button"><i class="icon list layout"></i></div><div class="right menu"><a class="item" href="https://embedthis.com/">Embedthis</a> <a class="item" href="https://embedthis.com/makeme/">MakeMe Site</a> <span class="desktop-only"><a class="item" href="http://goo.gl/ojHSM2">MakeMe News</a> <a class="item" href="https://github.com/embedthis/me">Repository</a> <a class="item" href="https://embedthis.com/blog/">Blog</a> <a class="item" href="https://twitter.com/mobstream">Twitter</a></span></div></div><div class="ui breadcrumb"><a class="section" href="../">Home</a><div class="divider">/</div><a class="section" href="index.html">Developer's Guide</a><div class="divider">/</div><a class="active section" href="generating.html">Generating</a></div><iframe class="version desktop-only" src="../version.html"></iframe></div><div class="content"><h1>Generating IDE Projects and Makefiles</h1><p>MakeMe can generate generate complete project files for building using: make, nmake, Visual Studio, Xcode or plain shell scripts. The generated Makefiles or projects are clean, regular and easy to understand or modify.</p><p>This document describes how to generate Makefiles and IDE projects using MakeMe. If you wish to learn how to use MakeMe generated Makefiles, read the <a href="../users/make.html">Using Generated Makefiles</a> guide.</p><a name="targets"></a><h2>Targets</h2><p>When MakeMe generates a Makefile or IDE project, it translates the each MakeMe target onto a project or target in the Makefile or IDE. In Make, MakeMe targets become Make targets. In Visual Studio, MakeMe targets become projects. The result is a completely native Makefile or IDE project that executes at optimal speed while faithfully representing the project.</p><a id="makefiles"></a><h2>Makefiles</h2><p>The Makefiles generated by MakeMe are flat, meaning that no recursion is used. The entire project is expressed as one Makefile. This is desirable because the Makefiles are much simpler to read, understand and modify, and they run fast.</p><p>The Makefiles include definitions at the top that can be overridden by specifying Makefile variables on the make command line. There are variables for the compiler, linker, compiler flags, output directory and installation prefixes, Here is a sample of the Makefile variables:</p><pre class="ui code segment">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Generating</title>
+    
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+    <meta name="description" content="Embedthis MakeMe -- Fast, modern replacement for make and autoconf.">
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700|Open+Sans:300italic,400,300,700' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Julius+Sans+One' rel='stylesheet' type='text/css'>
+    
+    <link href="../images/favicon.ico" rel="shortcut icon">
+    <link href="../lib/semantic-ui/semantic.min.css" rel="stylesheet" type="text/css">
+    <link href="../css/all.min.css" rel="stylesheet" type="text/css">
+    <link href="../css/api.min.css" rel="stylesheet" type="text/css">
+    
+
+
+<body class="show-sidebar">
+        
+    <div class="sidebar">
+        <div class="ui large left vertical inverted labeled menu">
+            <div class="item">
+                <a href="../index.html" class="logo">MakeMe Docs</a>
+            </div>
+            <div class="item">
+                <a href="../index.html">
+                    <b>General</b>
+                </a>
+                <div class="menu">
+                    <a class="item" href="../index.html">MakeMe Overview</a>
+                    <a class="item" href="../users/features.html">MakeMe Features</a>
+                    <a class="item" href="https://embedthis.com/makeme/download.html">Download</a> 
+                    <a class="item" href="../licensing/index.html">Licensing</a>
+                </div>
+            </div>
+            <div class="item">
+                <a href="../start/index.html">
+                    <b>Getting Started</b>
+                </a>
+                <div class="menu">
+                    <a class="item" href="../start/installing.html">Installing MakeMe</a>
+                    <a class="item" href="../start/linux.html">Installing for Linux</a>
+                    <a class="item" href="../start/mac.html">Installing for Mac OS X</a>
+                    <a class="item" href="../start/windows.html">Installing for Windows</a>
+                    <a class="item" href="../start/releaseNotes.html">Release Notes</a>
+                </div>
+            </div>
+            <div class="item">
+                <a href="../users/index.html"><b>User's Guide</b></a>
+                <div class="menu">
+                    <a class="item" href="../users/using.html">Using MakeMe</a>
+                    <a class="item" href="../users/configuring.html">Running Configure</a>
+                    <a class="item" href="../users/debugging.html">Debugging a Build</a>
+                    <a class="item" href="../users/make.html">Using Generated Makefiles</a>
+                    <a class="item" href="../users/cross.html">Cross-Compiling</a>
+                </div>
+            </div>
+            <div class="item">
+                <a href="../developers/index.html">Developer's Guide</a>
+                <div class="menu">
+                    <a class="item" href="../developers/compiling.html">Compiling Sources</a>
+                    <a class="item" href="../developers/libraries.html">Creating Libraries</a>
+                    <a class="item" href="../developers/executables.html">Creating Executables</a>
+                    <a class="item" href="../developers/scripts.html">Build Scripts</a>
+                    <a class="item" href="../developers/copying.html">Copying Files</a>
+                    <a class="item" href="../developers/configurable.html">Configurable Projects</a>
+                    <a class="item" href="../developers/plugins.html">MakeMe Plugins</a>
+                    <a class="item" href="../developers/generating.html">Generating</a>
+                    <a class="item" href="../developers/samples.html">Samples</a>
+                </div>
+            </div>
+            <div class="item">
+                <a href="../ref/index.html">Reference Guide</a>
+                <div class="menu">
+                    <a class="item" href="../ref/syntax.html">File Syntax</a>
+                    <a class="item" href="../ref/dom.html">MakeMe DOM</a>
+
+                    <a class="item" href="../ref/processing.html">File Processing</a>
+                    <a class="item" href="../ref/commandline.html">Command Line</a>
+                    <a class="item" href="../ref/events.html">Events</a>
+                    <a class="item" href="../ref/targets.html">Targets</a>
+                    <a class="item" href="../man/me.html">Manual Page</a>
+                    <a class="item" href="http://embedthis.com/ejscript/doc/ref/api/ejscript/index.html">
+                        Language Reference</a>
+                    <a class="item" href="http://embedthis.com/ejscript/doc/index.html">Ejscript Documentation</a>
+                </div>
+            </div>
+            <div class="item">
+                <a href="../developers/project.html">Project Resources</a>
+                <div class="menu">
+                    <a class="item" href="http://goo.gl/umR6dt">Official MakeMe News</a>
+                    <a class="item" href="https://embedthis.com/makeme/">MakeMe Web Site</a>
+                    <a class="item" href="https://github.com/embedthis/me">Source Code Repository</a>
+                    <a class="item" href="https://github.com/embedthis/me/issues">Project Issue Database</a>
+                    <a class="item" href="https://github.com/embedthis/me/releases">Change Log</a>
+                    <a class="item" href="https://github.com/embedthis/me/milestones">Roadmap</a>
+                    <a class="item" href="https://embedthis.com/developers/contributors.html">Contributors Agreement</a>
+                </div>
+            </div>
+            <div class="item">
+                <a href="../source/index.html">Built with MakeMe</a>
+                <div class="menu">
+                    <a class="item" href="../source/overview.html">Building Overview</a>
+                    <a class="item" href="../source/make.html">Building with Make</a>
+                    <a class="item" href="../source/me.html">Building with MakeMe</a>
+                    <a class="item" href="../source/ide.html">Building with an IDE</a>
+                </div>
+            </div>
+            <div class="item">
+                <b>Links</b>
+                <div class="menu">
+                    <a class="item" href="https://embedthis.com/">Embedthis Web Site</a>
+                    <a class="item" href="https://embedthis.com/blog/">Embedthis Blog</a>
+                    <a class="item" href="http://twitter.com/mobstream">Twitter</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+    <div class="ui inverted masthead">
+         
+        <div class="ui fixed inverted menu">
+            <div class="ui sidebar-launch button">
+                <i class="icon list layout"></i>
+            </div>
+            <div class="right menu">
+                 
+                    <a class="item" href="https://embedthis.com/">Embedthis</a>
+                    <a class="item" href="https://embedthis.com/makeme/">MakeMe Site</a>
+                    <span class="desktop-only">
+                        <a class="item" href="http://goo.gl/ojHSM2">MakeMe News</a>
+                        <a class="item" href="https://github.com/embedthis/me">Repository</a>
+                        <a class="item" href="https://embedthis.com/blog/">Blog</a>
+                        <a class="item" href="https://twitter.com/mobstream">Twitter</a>
+                    </span>
+
+            </div>
+        </div>
+        
+        <div class="ui breadcrumb">
+            <a class="section" href="../">Home</a>
+            
+            <div class="divider">/</div>
+            <a class="section" href="index.html">
+                Developer's Guide
+            </a>
+            
+            
+            <div class="divider">/</div>
+            <a class="active section" href="generating.html">Generating</a>
+            
+        </div>
+        
+        <iframe class="version desktop-only" src="../version.html"></iframe>
+
+    </div>
+    <div class="content">
+
+
+        <h1>Generating IDE Projects and Makefiles</h1>
+        <p>MakeMe can generate generate complete project files for building using: make, nmake, Visual Studio, Xcode or
+        plain shell scripts. The generated Makefiles or projects are clean, regular and easy to understand or modify.</p>
+       
+        <p>This document describes how to generate Makefiles and IDE projects using MakeMe. If you wish to
+        learn how to use MakeMe generated Makefiles, read the <a href="../users/make.html">Using Generated 
+            Makefiles</a> guide.</p>
+
+        <a name="targets"></a>
+        <h2>Targets</h2>
+        <p>When MakeMe generates a Makefile or IDE project, it translates the each MakeMe target onto a project or target 
+        in the Makefile or IDE. In Make, MakeMe targets become Make targets. In Visual Studio, MakeMe targets 
+        become projects. The result is a completely native Makefile or IDE project that executes at optimal speed 
+        while faithfully representing the project.</p>
+       
+        <a id="makefiles"></a>
+        <h2>Makefiles</h2>
+        <p>The Makefiles generated by MakeMe are flat, meaning that no recursion is used. The entire project
+        is expressed as one Makefile. This is desirable because the Makefiles are much simpler to read, understand and
+        modify, and they run fast.</p>
+        <p>The Makefiles include definitions at the top that can be overridden by specifying Makefile variables on the make
+        command line. There are variables for the compiler, linker, compiler flags, output directory and installation 
+        prefixes, Here is a sample of the Makefile variables:</p>
+
+        <pre class="ui code segment">
 CC      ?= /usr/bin/gcc
 LD      ?= /usr/bin/ld
 CONFIG  ?= $(OS)-$(ARCH)-$(PROFILE)
-</pre><p>To override, set the relevant Makefile variable in the environment. Note: this must be supplied each time Make is invoked.</p><pre class="ui code segment">
+</pre>
+        <p>To override, set the relevant Makefile variable in the environment. Note: this must be supplied each time Make 
+            is invoked.</p>
+
+        <pre class="ui code segment">
 CC=/usr/bin/ccache/gcc make
-</pre><p>On Linux (Unix), these may also be provided on the make command line. But for Windows, they must be provided via the environment.</p><p>The definitions are made available to source files during compilation via the generated <em>me.h</em> header file. Make variables provided via the environment are converted into preprocessor definitions and override the default values in me.h. The me.h header is constructed in such a way to allow overriding by command line preprocessor definitions. For example:</p><pre class="ui code segment">
+</pre>
+
+        <p>On Linux (Unix), these may also be provided on the make command line. But for Windows, they must be provided
+        via the environment.</p>
+        <p>The definitions are made available to source files during compilation via the generated <em>me.h</em> 
+        header file.  Make variables provided via the environment are converted into preprocessor definitions and 
+        override the default values in me.h. The me.h header is
+        constructed in such a way to allow overriding by command line preprocessor definitions. For example:</p>
+
+<pre class="ui code segment">
 ME_EXT_SSL=0 make
-</pre><p>This will override the me.h definition and will disable the use of SSL.</p><a id="windows"></a><h2>Windows Makefiles</h2><p>The Windows Makefiles that MakeMe generates are similar to Unix Makefiles, except they are designed to work with Windows Nmake. The generated code will run natively without requiring a Unix emulator like cygwin.</p><a id="vs"></a><h2>Visual Studio Projects</h2><p>For Visual Studio, MakeMe creates a Visual Studio sub-projects are created for each MakeMe executable, library, script or file target. This may seem like a lot of projects, but the organization is simple and maps MakeMe dependencies well onto Visual Studio project dependencies.</p><p>MakeMe generates a solution file which includes all the generated projects. MakeMe creates Visual Studio project property files for the product, debug and release builds and for X86 and X64 architectures. This enables changed property file settings to be easily inherited by all projects.</p><a id="xcode"></a><h2>Xcode Projects</h2><p>For Xcode, MakeMe creates an Xcode project with targets for each MakeMe executable, library, script or file target. The MakeMe dependencies are mapped onto Xcode target dependencies.</p><a id="shell"></a><h2>Shell Projects</h2><p>A shell project is just a simple straight line set of commands to build the product.</p><a id="generate"></a><h2>Generating</h2><p>MakeMe uses the <em>--gen</em> command line option to specify the projects to build.<pre class="ui code segment">me --platform macosx-x64-debug -configure . -gen xcode,make</pre></p><p>This will generate an Xcode project and a Makefile for MAC OSX. Arguments to -gen are: make, nmake, shell, vs, xcode, for: Make, Windows Nmake, Shell script, Visual Studio project and Xcode project.</p><p>MakeMe is capable of cross-generating projects for non-native platforms. For example: you can generate an Xcode project for Mac OS X on a Windows system, or generate Windows Visual Studio Projects on a Mac.</p><p>When generating for a non-local platform, you must select the <em>-configure .</em> option. If generating for the local platform, you do not need to reconfigure.</p><p>You should choose a unique profile name ("debug" in the example above). The platform output products directory will contain this name and if you are building via MakeMe, Makefile and/or IDE, it is important to keep the various output products directories separate. This is because some IDEs will add incompatible compiler options that will not interoperate with builds by Make or MakeMe.</p><a id="generate-targets"></a><h2>Generating Targets</h2><p>MakeMe can automatically create equivalent Makefile and IDE project commands for compiling objects, exporting headers, building libraries, executables and copy file targets. You do not need to specify any additional information, MakeMe will translate the current MakeMe targets appropriately for each generated project. But for custom actions, MakeMe needs some guidance.</p><a id="generate-actions"></a><h2>Generating from Custom Actions</h2><p>MakeMe provides a suite of <em>generate</em> properties that are useful to explicitly provide the code to emit into the generated Makefile or project file. For example:</p><pre class="ui code segment">
+</pre>
+        <p>This will override the me.h definition and will disable the use of SSL.</p>
+
+        <a id="windows"></a>
+        <h2>Windows Makefiles</h2>
+        <p>The Windows Makefiles that MakeMe generates are similar to Unix Makefiles, except they are designed to work with
+        Windows Nmake. The generated code will run natively without requiring a Unix emulator like cygwin. </p>
+        <a id="vs"></a>
+        <h2>Visual Studio Projects</h2>
+        <p>For Visual Studio, MakeMe creates a Visual Studio sub-projects are created for each MakeMe executable,
+        library, script or file target. This may seem like a lot of projects, but the organization is simple and maps
+        MakeMe dependencies well onto Visual Studio project dependencies.</p>
+        <p>MakeMe generates a solution file which includes all the generated projects. MakeMe creates Visual Studio project
+        property files for the product, debug and release builds and for X86 and X64 architectures. This enables changed
+        property file settings to be easily inherited by all projects.</p>
+        <a id="xcode"></a>
+        <h2>Xcode Projects</h2>
+        <p>For Xcode, MakeMe creates an Xcode project with targets for each MakeMe executable,
+        library, script or file target. The MakeMe dependencies are mapped onto Xcode target dependencies.</p>
+        <a id="shell"></a>
+        <h2>Shell Projects</h2>
+        <p>A shell project is just a simple straight line set of commands to build the product.</p>
+        
+        <a id="generate"></a>
+        <h2>Generating</h2>
+        <p>MakeMe uses the <em>--gen</em> command line option to specify the projects to build. 
+        <pre class="ui code segment">me --platform macosx-x64-debug -configure . -gen xcode,make</pre>
+        </p><p>This will generate an Xcode project and a Makefile for MAC OSX. Arguments to -gen are: make, nmake, shell, vs,
+        xcode, for: Make, Windows Nmake, Shell script, Visual Studio project and Xcode project.</p>
+        <p>MakeMe is capable of cross-generating projects for non-native platforms. For example: you can generate an 
+        Xcode project for Mac OS X on a Windows system, or generate Windows Visual Studio Projects on a Mac.</p>
+        <p>When generating for a non-local platform, you must select the <em>-configure .</em> option. If generating
+        for the local platform, you do not need to reconfigure.</p>
+        <p>You should choose a unique profile name ("debug" in the example above).  The platform output products directory
+        will contain this name and if you are building via MakeMe, Makefile and/or IDE, it is important to keep the various
+        output products directories separate. This is because some IDEs will add incompatible compiler options that will not
+        interoperate with builds by Make or MakeMe.</p>
+        <a id="generate-targets"></a>
+        <h2>Generating Targets</h2>
+        <p>MakeMe can automatically create equivalent Makefile and IDE project commands for compiling objects, exporting
+        headers, building libraries, executables and copy file targets. You do not need to specify any additional
+        information, MakeMe will translate the current MakeMe targets appropriately for each generated project.
+        But for custom actions, MakeMe needs some guidance. </p>
+        
+        <a id="generate-actions"></a>
+        <h2>Generating from Custom Actions</h2>
+        <p>MakeMe provides a suite of <em>generate</em> properties that are useful to explicitly provide the code to 
+        emit into the generated Makefile or project file. For example: </p>
+
+        <pre class="ui code segment">
 stest: {
     build:            "print('Script to run at build time')",
     'generate-sh':    "echo Script to run in shell script projects",
@@ -17,10 +268,54 @@ stest: {
     'generate-linux': "echo Script to run on Linux",
     'generate':       "echo Script to run anywhere else",
 }
-</pre><p>When generating, MakeMe examines each target for the presence of <em>generate</em> properties. It tests for these properties in the order below (from the most specific to the least specific):<ol><li>generate-PROJECT-EXACT-TYPE</li><li>generate-PROJECT-COMPATIBLE-TYPE</li><li>generate-OS</li><li>generate</li></ol></p><p>The EXACT-TYPE means that the exact project type will have highest priority. For example: if generating Xcode, if a <em>generate-xcode</em> property exists, it will take precedence. The COMPATIBLE-TYPE means that if the exact type match is not present, a compatible generation property may be used. The compatible options are: for Xcode, a generate-sh will be acceptable. Similarly, if generating a Visual Studio project, a generate-nmake will be acceptable.</p><p>If the exact and compatible generate properties are not present, MakeMe checks if a platform specific property is present. For example: <em>generate-linux</em> can be used to provide a script for Linux Makefiles.</p><p>If none of these options are present, MakeMe checks for a generic <em>generate</em> property.</p><a id="conditional"></a><h2>Generating Conditional Makefiles</h2><p>MakeMe can generate conditional Makefiles where the list of targets to build may be modified at run-time depending on Make environment variables. These variables override default values defined in the platform makefile and/or the product <em>me.h</em> configuration header. For example:<pre class="ui code segment">$ <b>ME_EXT_EST=0</b> make</pre></p><p>This will disable use of the EST (Embedded Security Transport SSL).</p><p>The <em>ifdef</em> target property is used to specify what components are required by a target before it will be built.<pre class="ui code segment">
+</pre>
+        <p>When generating, MakeMe examines each target for the presence of <em>generate</em> properties. It tests for these
+        properties in the order below (from the most specific to the least specific):
+        <ol>
+            <li>generate-PROJECT-EXACT-TYPE</li>
+            <li>generate-PROJECT-COMPATIBLE-TYPE</li>
+            <li>generate-OS</li>
+            <li>generate</li>
+        </ol> 
+        </p><p>The EXACT-TYPE means that the exact project type will have highest priority. For example: if generating Xcode,
+        if a <em>generate-xcode</em> property exists, it will take precedence. The COMPATIBLE-TYPE means that if the exact
+        type match is not present, a compatible generation property may be used. The compatible options are:
+        for Xcode, a generate-sh will be acceptable. Similarly, if generating a Visual Studio project, a generate-nmake will
+        be acceptable.</p>
+        <p>If the exact and compatible generate properties are not present, MakeMe checks if a platform specific property is
+        present. For example: <em>generate-linux</em> can be used to provide a script for Linux Makefiles.</p>
+        <p>If none of these options are present, MakeMe checks for a generic <em>generate</em> property.</p>
+        <a id="conditional"></a>
+        <h2>Generating Conditional Makefiles</h2>
+        <p>MakeMe can generate conditional Makefiles where the list of targets to build may be modified at run-time depending
+        on Make environment variables. These variables override default values defined in the platform makefile and/or the
+        product <em>me.h</em> configuration header.  For example:
+        <pre class="ui code segment">$ <b>ME_EXT_EST=0</b> make</pre>
+        </p><p>This will disable use of the EST (Embedded Security Transport SSL).</p>
+        <p>The <em>ifdef</em> target property is used to specify what components are required by a target before it 
+        will be built. 
+<pre class="ui code segment">
 rocket: {
     type: 'exe'
     sources: '*.c',
     ifdef: [ 'ssl' ],
 },
-</pre></p><p>Only if the ssl component is enabled, will the generated Makefile build the rocket target.</p><h2>Learn More</h2><p>To learn more, read some actual <a href="samples.html">MakeMe Samples</a>.</p></div><div class="terms ui basic center aligned segment"><p>&copy; Embedthis Software, 2003-2015. All rights reserved.</p></div><script src="../lib/jquery/jquery.min.js"></script><script src="../lib/semantic-ui/semantic.min.js"></script><script src="../scripts/sidebar.min.js"></script>
+</pre>
+        </p><p>Only if the ssl component is enabled, will the generated Makefile build the rocket target.</p>
+        <h2>Learn More</h2>
+        <p>To learn more, read some actual <a href="samples.html">MakeMe Samples</a>.</p>
+
+    </div>
+    <div class="terms ui basic center aligned segment">
+        <p>&copy; Embedthis Software, 2003-2015. All rights reserved.</p>
+    </div>
+
+    <script src="../lib/jquery/jquery.min.js"></script>
+    <script src="../lib/semantic-ui/semantic.min.js"></script>
+    <script src="../scripts/sidebar.min.js"></script>
+     
+
+        
+
+
+
