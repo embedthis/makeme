@@ -7901,6 +7901,15 @@ static bool validateEndpoint(HttpEndpoint *endpoint)
     if ((host = mprGetFirstItem(endpoint->hosts)) == 0) {
         host = httpGetDefaultHost();
         httpAddHostToEndpoint(endpoint, host);
+
+    } else {
+        /*
+            Move default host to the end of the list so virtual hosts will match first
+         */
+        if (!host->name && mprGetListLength(endpoint->hosts) > 1) {
+            mprRemoveItem(endpoint->hosts, host);
+            mprAddItem(endpoint->hosts, host);
+        }
     }
     for (nextRoute = 0; (route = mprGetNextItem(host->routes, &nextRoute)) != 0; ) {
         if (!route->handler && !mprLookupKey(route->extensions, "")) {
@@ -20430,8 +20439,10 @@ static void setHeaders(HttpConn *conn, HttpPacket *packet)
         if (--conn->keepAliveCount > 0) {
             assert(conn->keepAliveCount >= 1);
             httpAddHeaderString(conn, "Connection", "Keep-Alive");
-            httpAddHeader(conn, "Keep-Alive", "timeout=%lld, max=%d", conn->limits->inactivityTimeout / 1000,
-                conn->keepAliveCount);
+            if (!(route->flags & HTTP_ROUTE_STEALTH)) {
+                httpAddHeader(conn, "Keep-Alive", "timeout=%lld, max=%d", conn->limits->inactivityTimeout / 1000,
+                    conn->keepAliveCount);
+            }
         } else {
             /* Tell the peer to close the connection */
             httpAddHeaderString(conn, "Connection", "close");
@@ -20507,7 +20518,7 @@ PUBLIC bool httpSetFilename(HttpConn *conn, cchar *filename, int flags)
     }
     mprGetPathInfo(filename, info);
     if (info->valid) {
-        tx->etag = sfmt("\"%llx\"", (int64) info->inode + (int64) info->size + (int64) info->mtime);
+        tx->etag = sfmt("\"%llx-%llx-%llx\"", (int64) info->inode, (int64) info->size, (int64) info->mtime);
     }
     tx->filename = sclone(filename);
 
