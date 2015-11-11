@@ -3810,9 +3810,7 @@ PUBLIC int httpLoadConfig(HttpRoute *route, cchar *path)
             mode = mprGetJson(config, "pak.mode");
         }
         route->mode = mode;
-        if ((route->debug = smatch(route->mode, "debug")) != 0) {
-            route->keepSource = 1;
-        }
+        route->debug = smatch(route->mode, "debug");
     }
     if (route->config) {
         mprBlendJson(route->config, config, MPR_JSON_COMBINE);
@@ -4197,6 +4195,7 @@ static void parseCanonicalName(HttpRoute *route, cchar *key, MprJson *prop)
     }
 }
 
+
 /*
     condition: '[!] auth'
     condition: '[!] condition'
@@ -4378,12 +4377,6 @@ static void parseIndexes(HttpRoute *route, cchar *key, MprJson *prop)
     for (ITERATE_CONFIG(route, prop, child, ji)) {
         httpAddRouteIndex(route, child->value);
     }
-}
-
-
-static void parseKeep(HttpRoute *route, cchar *key, MprJson *prop)
-{
-    route->keepSource = (prop->type & MPR_JSON_TRUE) ? 1 : 0;
 }
 
 
@@ -5454,12 +5447,6 @@ static void parseTrace(HttpRoute *route, cchar *key, MprJson *prop)
 }
 
 
-static void parseUpdate(HttpRoute *route, cchar *key, MprJson *prop)
-{
-    route->update = (prop->type & MPR_JSON_TRUE) ? 1 : 0;
-}
-
-
 static void parseXsrf(HttpRoute *route, cchar *key, MprJson *prop)
 {
     httpSetRouteXsrf(route, (prop->type & MPR_JSON_TRUE) ? 1 : 0);
@@ -5577,7 +5564,6 @@ PUBLIC int httpInitParser()
     httpAddConfig("http.home", parseHome);
     httpAddConfig("http.hosts", parseHosts);
     httpAddConfig("http.indexes", parseIndexes);
-    httpAddConfig("http.keep", parseKeep);
     httpAddConfig("http.languages", parseLanguages);
     httpAddConfig("http.limits", parseLimits);
     httpAddConfig("http.limits.buffer", parseLimitsBuffer);
@@ -5652,7 +5638,6 @@ PUBLIC int httpInitParser()
     httpAddConfig("http.timeouts.request", parseTimeoutsRequest);
     httpAddConfig("http.timeouts.session", parseTimeoutsSession);
     httpAddConfig("http.trace", parseTrace);
-    httpAddConfig("http.update", parseUpdate);
     httpAddConfig("http.xsrf", parseXsrf);
 
 #if DEPRECATED || 1
@@ -12690,16 +12675,11 @@ PUBLIC HttpRoute *httpCreateRoute(HttpHost *host)
     route->defaultLanguage = sclone("en");
     route->home = route->documents = mprGetCurrentPath();
     route->flags = HTTP_ROUTE_STEALTH;
-#if ME_DEBUG
-    route->keepSource = 1;
-#endif
-
 #if FUTURE
     /* Enable in version 6 */
     route->flags |= HTTP_ROUTE_ENV_ESCAPE;
     route->envPrefix = sclone("CGI_");
 #endif
-    route->update = 1;
     route->host = host;
     route->http = HTTP;
     route->lifespan = ME_MAX_CACHE_DURATION;
@@ -12793,7 +12773,6 @@ PUBLIC HttpRoute *httpCreateInheritedRoute(HttpRoute *parent)
     route->indexes = parent->indexes;
     route->inputStages = parent->inputStages;
     route->json = parent->json;
-    route->keepSource = parent->keepSource;
     route->languages = parent->languages;
     route->lifespan = parent->lifespan;
     route->limits = parent->limits;
@@ -12821,7 +12800,6 @@ PUBLIC HttpRoute *httpCreateInheritedRoute(HttpRoute *parent)
     route->targetRule = parent->targetRule;
     route->tokens = parent->tokens;
     route->trace = parent->trace;
-    route->update = parent->update;
     route->updates = parent->updates;
     route->vars = parent->vars;
     route->workers = parent->workers;
@@ -14215,12 +14193,6 @@ PUBLIC void httpSetRouteUploadDir(HttpRoute *route, cchar *dir)
     httpSetDir(route, "UPLOAD", dir);
 }
 #endif
-
-
-PUBLIC void httpSetRouteUpdate(HttpRoute *route, bool on)
-{
-    route->update = on;
-}
 
 
 PUBLIC void httpSetRouteWorkers(HttpRoute *route, int workers)
@@ -16287,7 +16259,9 @@ static bool parseIncoming(HttpConn *conn)
     }
     start = mprGetBufStart(packet->content);
     while (*start == '\r' || *start == '\n') {
-        mprGetCharFromBuf(packet->content);
+        if (mprGetCharFromBuf(packet->content) < 0) {
+            break;
+        }
         start = mprGetBufStart(packet->content);
     }
     /*

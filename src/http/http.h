@@ -4523,8 +4523,6 @@ typedef struct HttpRoute {
     cchar           *clientConfig;          /**< Configuration to send to the client */
 
     bool            error: 1;               /**< Parse or runtime error */
-    bool            keepSource: 1;          /**< Preserve generated source */
-    bool            update: 1;              /**< Auto-update modified ESP source */
     bool            debug: 1;               /**< Application running in debug mode */
     bool            ignoreEncodingErrors: 1;/**< Ignore UTF8 encoding errors */
     bool            json: 1;                /**< Response format is json */
@@ -5371,6 +5369,15 @@ PUBLIC void httpSetRouteAuth(HttpRoute *route, HttpAuth *auth);
 PUBLIC void httpSetRouteAutoDelete(HttpRoute *route, bool on);
 
 /**
+    Define whether updating a request may compile from source 
+    @param route Route to modify
+    @param on Set to true to enable
+    @ingroup HttpRoute
+    @stability Prototype
+ */
+PUBLIC void httpSetRouteCompile(HttpRoute *route, bool on);
+
+/**
     Set the connector to use for a route
     @param route Route to modify
     @param name Connector name to use for this route
@@ -5379,17 +5386,6 @@ PUBLIC void httpSetRouteAutoDelete(HttpRoute *route, bool on);
     @stability Evolving
  */
 PUBLIC int httpSetRouteConnector(HttpRoute *route, cchar *name);
-
-/**
-    Make session cookies that are visible to javascript.
-    @description If not visible, cookies will be created with httponly. This helps reduce the XSS risk as
-    Javascripts cannot read the session cookie.
-    @param route Route to modify
-    @param visible Set to true to create session cookies that are visible to Javascript.
-    @ingroup HttpRoute
-    @stability Prototype
-  */
-PUBLIC void httpSetRouteSessionVisibility(HttpRoute *route, bool visible);
 
 /**
     Set route data
@@ -5605,6 +5601,17 @@ PUBLIC void httpSetRouteScript(HttpRoute *route, cchar *script, cchar *scriptPat
  */
 PUBLIC void httpSetRouteServerPrefix(HttpRoute *route, cchar *prefix);
 #endif
+
+/**
+    Make session cookies that are visible to javascript.
+    @description If not visible, cookies will be created with httponly. This helps reduce the XSS risk as
+    Javascripts cannot read the session cookie.
+    @param route Route to modify
+    @param visible Set to true to create session cookies that are visible to Javascript.
+    @ingroup HttpRoute
+    @stability Prototype
+  */
+PUBLIC void httpSetRouteSessionVisibility(HttpRoute *route, bool visible);
 
 /**
     Define whether to show errors to the client
