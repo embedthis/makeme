@@ -5934,7 +5934,7 @@ PUBLIC int ejsLoadModules(Ejs *ejs, cchar *search, MprList *require);
     @return Path name to the module
     @ingroup EjsModule
  */
-PUBLIC char *ejsSearchForModule(Ejs *ejs, cchar *name, int minVer, int maxVer);
+PUBLIC cchar *ejsSearchForModule(Ejs *ejs, cchar *name, int minVer, int maxVer);
 
 /**
     Set the module search path

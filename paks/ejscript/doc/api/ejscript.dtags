@@ -2053,10 +2053,10 @@
       <arglist>(Ejs *ejs, cchar *search, MprList *require)</arglist>
     </member>
     <member kind="function">
-      <type>char *</type>
+      <type>cchar *</type>
       <name>ejsSearchForModule</name>
       <anchorfile>group___ejs_module.html</anchorfile>
-      <anchor>gabc0fbad25c55fca2b65754050f462eff</anchor>
+      <anchor>gaf5832f71a4c2ed1ff07bc81f2ddc000a</anchor>
       <arglist>(Ejs *ejs, cchar *name, int minVer, int maxVer)</arglist>
     </member>
     <member kind="function">
