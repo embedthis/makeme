@@ -12743,9 +12743,11 @@ PUBLIC HttpRoute *httpCreateRoute(HttpHost *host)
         route->limits = mprMemdup(http->serverLimits ? http->serverLimits : http->clientLimits, sizeof(HttpLimits));
     }
     route->mimeTypes = MPR->mimeTypes;
+#if UNUSED
     if ((route->mimeTypes = mprCreateMimeTypes("mime.types")) == 0) {
         route->mimeTypes = MPR->mimeTypes;
     }
+#endif
     definePathVars(route);
     return route;
 }
@@ -13355,9 +13357,6 @@ PUBLIC void httpMapFile(HttpConn *conn)
     }
     filename = mprJoinPath(conn->rx->route->documents, filename);
     filename = httpMapContent(conn, filename);
-#if ME_ROM
-    filename = mprGetRelPath(filename, NULL);
-#endif
     httpSetFilename(conn, filename, 0);
 }
 
