@@ -16310,7 +16310,19 @@ module ejs.tar {
                 }
                 let data: ByteArray?
                 let links = {}
-                while ((data = archive.readBytes(BlockSize)) != null && data[0]) {
+                while ((data = archive.readBytes(BlockSize)) != null) {
+                    if (data[0] == 0) {
+                        /* EOF is two null blocks - just test for one */
+                        let eof = true
+                        for (i in BlockSize) {
+                            if (data[i] != 0) {
+                                eof = false
+                            }
+                        }
+                        if (eof) {
+                            break
+                        }
+                    }
                     let header = new TarHeader(options)
                     header.parse(data)
                     let filename = header.path
