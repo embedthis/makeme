@@ -3,7 +3,7 @@
 #
 
 NAME                  := makeme
-VERSION               := 0.10.2
+VERSION               := 0.10.3
 PROFILE               ?= default
 ARCH                  ?= $(shell uname -m | sed 's/i.86/x86/;s/x86_64/x64/;s/arm.*/arm/;s/mips.*/mips/')
 CC_ARCH               ?= $(shell echo $(ARCH) | sed 's/x86/i686/;s/x64/x86_64/')
@@ -1195,6 +1195,12 @@ installBinary: $(DEPS_60)
 	chmod 755 "$(ME_BIN_PREFIX)" ; \
 	rm -f "$(ME_BIN_PREFIX)/http" ; \
 	ln -s "$(ME_VAPP_PREFIX)/bin/http" "$(ME_BIN_PREFIX)/http" ; \
+	cp $(BUILD)/bin/vcvars.bat $(ME_VAPP_PREFIX)/bin/vcvars.bat ; \
+	chmod 755 "$(ME_VAPP_PREFIX)/bin/vcvars.bat" ; \
+	mkdir -p "$(ME_BIN_PREFIX)" ; \
+	chmod 755 "$(ME_BIN_PREFIX)" ; \
+	rm -f "$(ME_BIN_PREFIX)/vcvars.bat" ; \
+	ln -s "$(ME_VAPP_PREFIX)/bin/vcvars.bat" "$(ME_BIN_PREFIX)/vcvars.bat" ; \
 	mkdir -p "$(ME_VAPP_PREFIX)/bin" ; \
 	cp $(BUILD)/bin/libejs.so $(ME_VAPP_PREFIX)/bin/libejs.so ; \
 	cp $(BUILD)/bin/libhttp.so $(ME_VAPP_PREFIX)/bin/libhttp.so ; \
