@@ -1162,7 +1162,7 @@ public class Loader {
         }
         if (o[field] is Array) {
             for (let [key,value] in o[field]) {
-                if (!value.startsWith('${') && !value.startsWith('$(')) {
+                if ((!value.startsWith('${') && !value.startsWith('$(')) || value.startsWith('${OS}')) {
                     if (value.endsWith('/')) {
                         o[field][key] = Path(home.join(value) + '/')
                     } else {
