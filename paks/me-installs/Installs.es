@@ -205,6 +205,9 @@ class InstallsInner {
             me.globals.adoc = prefixes.vapp.join('doc')
             me.globals.ainc = prefixes.vapp.join('inc')
         }
+        if (me.options.verbose) {
+            dump("Globals", me.globals)
+        }
     }
 
     function setupManifest(kind, package, prefixes) {
@@ -294,7 +297,7 @@ class InstallsInner {
         if (package) {
             trace('Create', me.settings.title + ' Binary')
             let files = deploy(manifest, package)
-            makeFiles(prefixes.vapp, prefixes.root, files, prefixes)
+            makeFiles(prefixes.vapp ? prefixes.vapp : prefixes.app, prefixes.root, files, prefixes)
             /* Do Tar first as native package will add files */
             makeTarInstall(prefixes)
             makeNativeInstall(prefixes)
@@ -378,7 +381,7 @@ class InstallsInner {
                 }
             }
             files = deploy(manifest, package) 
-            makeFiles(prefixes.vapp, prefixes.root, files, me.prefixes)
+            makeFiles(prefixes.vapp ? prefixes.vapp : prefixes.app, prefixes.root, files, me.prefixes)
         }
         delete me.installing
     }
@@ -392,7 +395,7 @@ class InstallsInner {
             if (!makeme.generating) {
                 trace('Uninstall', me.settings.title)
             }
-            let fileslog = me.prefixes.vapp.join('files.log')
+            let fileslog = me.prefixes.vapp ? me.prefixes.vapp.join('files.log') : me.prefixes.app.join('files.log')
 
             if (makeme.generating) {
                 for each (n in ['web', 'spool', 'cache', 'log']) {
@@ -402,7 +405,7 @@ class InstallsInner {
                 }
                 removeDir(me.prefixes.vapp)
             } else {
-                if (fileslog.exists) {
+                if (fileslog && fileslog.exists) {
                     for each (let file: Path in fileslog.readLines()) {
                         if (!file.isDir) {
                             removeFile(file)
@@ -437,7 +440,9 @@ class InstallsInner {
                 }
                 removeDir(prefix, {empty: true})
             }
-            updateLatestLink()
+            if (me.prefixes.vapp != me.prefixes.app) {
+                updateLatestLink()
+            }
             removeDir(me.prefixes.app, {empty: true})
 
             if (!makeme.generating) {
