@@ -10873,13 +10873,11 @@ PUBLIC int mprWaitForSingleIO(int fd, int mask, MprTicks timeout)
         mprLog("error mpr event", 0, "Epoll returned %d, errno %d", rc, errno);
 
     } else if (rc > 0) {
-        if (rc > 0) {
-            if ((events[0].events & (EPOLLIN | EPOLLERR | EPOLLHUP)) && (mask & MPR_READABLE)) {
-                result |= MPR_READABLE;
-            }
-            if ((events[0].events & (EPOLLOUT | EPOLLHUP)) && (mask & MPR_WRITABLE)) {
-                result |= MPR_WRITABLE;
-            }
+        if ((events[0].events & (EPOLLIN | EPOLLERR | EPOLLHUP)) && (mask & MPR_READABLE)) {
+            result |= MPR_READABLE;
+        }
+        if ((events[0].events & (EPOLLOUT | EPOLLHUP)) && (mask & MPR_WRITABLE)) {
+            result |= MPR_WRITABLE;
         }
     }
     return result;
@@ -13030,7 +13028,9 @@ static MprJson *jsonParse(MprJsonParser *parser, MprJson *obj)
 static void eatRestOfComment(MprJsonParser *parser)
 {
     cchar   *cp;
+    int     startLine;
 
+    startLine = parser->lineNumber;
     cp = parser->input;
     if (*cp == '/') {
         for (cp++; *cp && *cp != '\n'; cp++) {}
@@ -13042,7 +13042,11 @@ static void eatRestOfComment(MprJsonParser *parser)
                 parser->lineNumber++;
             }
         }
-        cp += 2;
+        if (*cp) {
+            cp += 2;
+        } else {
+            mprSetJsonError(parser, "Cannot find end of comment started on line %d", startLine);
+        }
     }
     parser->input = cp;
 }
@@ -18320,7 +18324,7 @@ static cchar *getNextPattern(cchar *pattern, cchar **nextPat, bool *dwild)
     relativeTo  - Relative files are relative to this directory.
     path        - Directory to search. Will be a physical directory path.
     pattern     - Search pattern with optional wildcards.
-    exclude     - Exclusion pattern (not currently implemented as there is no API to pass in an exluded pattern).
+    exclude     - Exclusion pattern
 
     As this routine recurses, 'relativeTo' does not change, but path and pattern will.
  */
@@ -28114,7 +28118,7 @@ PUBLIC int mprGetRandomBytes(char *buf, int length, bool block)
     int     i;
 
     for (i = 0; i < length; i++) {
-        buf[i] = (char) (mprGetTime() >> i);
+        buf[i] = (char) (rand() & 0xff);
     }
     return 0;
 }

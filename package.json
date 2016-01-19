@@ -1,7 +1,7 @@
 {
     "name": "makeme",
     "description": "Embedthis MakeMe",
-    "version": "0.10.3",
+    "version": "0.10.4",
     "keywords": [
         "me",
         "makeme",
@@ -37,7 +37,7 @@
         "ejs.version": "~0.8",
         "ejscript": "~2.7",
         "me-components": "~0.8",
-        "me-installs": "~0.8",
+        "me-installs": "~0.9",
         "me-make": "~0.1",
         "me-os": "~0.8",
         "me-vstudio": "~0.8",

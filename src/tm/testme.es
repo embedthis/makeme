@@ -550,7 +550,7 @@ Me.load({
         '+linker': ` + linker + `,
     },
     targets: {
-        ` + name + `: {
+        "` + name + `": {
             type: 'exe',
             sources: [ '` + name + `.c' ],
         }
