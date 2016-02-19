@@ -163,6 +163,10 @@ class InstallsInner {
                     if (item.postPerform) {
                         item.postPerform.call(me.dir.top, item.from, item.to, item)
                     }
+                } catch (e) {
+                    print(e)
+                    print('WARNING: error with item:')
+                    dump(item)
                 }
                 App.chdir(prior)
             }
