@@ -20,6 +20,7 @@ var sysdirs = {
     '/etc': true,
     '/home': true,
     '/opt': true,
+    '/opt/bin': true,
     '/sbin': true,
     '/tmp': true,
     '/usr': true,
@@ -275,7 +276,8 @@ public function copyFiles(from, to: Path, topOptions = {}, base = null) {
                 copyFile(from, to, control)
             }
             if (control.symlink && me.platform.like == 'unix') {
-                linkFile(to, Path(makeme.loader.expand(control.symlink)).join(to.basename), control)
+                linkFile(to, Path(makeme.loader.expand(control.symlink)).join(to.basename), 
+                    blend({symlink: true}, control))
             }
             return true
         }
@@ -325,7 +327,7 @@ function foldLines(path: Path) {
     @param options See $copy() for supported options.
 */
 public function linkFile(src: Path, dest: Path, options = {}) {
-    makeDirectory(dest.parent, options)
+    makeDirectory(dest.parent, options.symlink ? {} : options)
     if (!makeme.generating) {
         if (!options.dry) {
             strace('Remove', 'rm -f', dest)
