@@ -465,7 +465,6 @@ public class MakeMe {
      */
     function unknownArg(argv, i) {
         let map = {
-            prefix: 'root',
             bindir: 'bin',
             libdir: 'lib',
             includedir: 'inc',

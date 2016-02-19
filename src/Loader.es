@@ -1386,6 +1386,7 @@ public class Loader {
                 me.prefixes = {}
                 settings.prefixes ||= 'debian-prefixes'
                 global.blend(me.prefixes, me[settings.prefixes])
+                prefixes = me.prefixes
             }
         }
         if (options.prefix) {
@@ -1396,7 +1397,7 @@ public class Loader {
                     prefixes[prefix] = Path(path)
                 } else {
                     /* Map --prefix=/opt to --prefix base=/opt */
-                    prefixes.root = Path(prefix)
+                    prefixes.base = Path(prefix)
                 }
                 if (prefix == 'root') {
                     for (let [key,value] in prefixes) {
