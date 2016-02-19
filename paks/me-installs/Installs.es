@@ -600,7 +600,9 @@ class InstallsInner {
             packageWindows(prefixes)
             break
         case 'linux':
-            packageUbuntu(prefixes)
+            if (me.dir.top.join('installs/linux').exists) {
+                packageUbuntu(prefixes)
+            }
             break
         default:
             trace('Info', 'Cannot create native package for ' + me.platform.os)
