@@ -1,12 +1,12 @@
-Package: ${settings.product}
+Package: ${settings.name}
 Version: ${settings.version}
 Section: devel
 Priority: optional
 Architecture: ${platform.mappedCpu}
 Depends: libc6
-Provides: bit
-Replaces: bit
-Conflicts: bit
+Provides: makeme
+Replaces: makeme
+Conflicts: makeme
 Installed-Size: 10
 Maintainer: Embedthis Development <dev@embedthis.com>
 Description: Embedthis Bit
