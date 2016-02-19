@@ -13142,6 +13142,21 @@ static int gettok(MprJsonParser *parser)
                 c = *parser->input;
                 if (c == '*' || c == '/') {
                     eatRestOfComment(parser);
+                } else if (parser->state == MPR_JSON_STATE_NAME || parser->state == MPR_JSON_STATE_VALUE) {
+                    for (cp = parser->input; *cp; cp++) {
+                        if (*cp == '\\' && cp[1] == '/') {
+                            mprPutCharToBuf(parser->buf, '/');
+                        } else if (*cp == '/') {
+                            parser->tokid = JTOK_REGEXP;
+                            parser->input = cp + 1;
+                            break;
+                        } else {
+                            mprPutCharToBuf(parser->buf, *cp);
+                        }
+                    }
+                    if (*cp != '/') {
+                        mprSetJsonError(parser, "Missing closing slash for regular expression");
+                    }
                 } else {
                     mprSetJsonError(parser, "Unexpected input");
                 }
@@ -13153,6 +13168,7 @@ static int gettok(MprJsonParser *parser)
 
             case '"':
             case '\'':
+            case '`':
                 /*
                     Quoted strings: names or values
                     This parser is tolerant of embedded, unquoted control characters
@@ -13167,6 +13183,8 @@ static int gettok(MprJsonParser *parser)
                                 mprPutCharToBuf(parser->buf, '\'');
                             } else if (*cp == '"') {
                                 mprPutCharToBuf(parser->buf, '"');
+                            } else if (*cp == '`') {
+                                mprPutCharToBuf(parser->buf, '`');
                             } else if (*cp == '/') {
                                 mprPutCharToBuf(parser->buf, '/');
                             } else if (*cp == '"') {
@@ -13254,8 +13272,10 @@ static int gettok(MprJsonParser *parser)
                         parser->tokid = JTOK_UNDEFINED;
                     } else if (sfnumber(value)) {
                         parser->tokid = JTOK_NUMBER;
+#if UNUSED
                     } else if (*value == '/' && value[slen(value) - 1] == '/' && parser->tolerant) {
                         parser->tokid = JTOK_REGEXP;
+#endif
                     } else {
                         parser->tokid = JTOK_STRING;
                     }
@@ -13441,7 +13461,7 @@ PUBLIC void mprFormatJsonValue(MprBuf *buf, int type, cchar *value, int flags)
         if (value == 0) {
             mprPutStringToBuf(buf, "null");
         } else if (type & MPR_JSON_REGEXP) {
-            mprPutToBuf(buf, "\"/%s/\"", value);
+            mprPutToBuf(buf, "/%s/", value);
         } else {
             mprPutStringToBuf(buf, value);
         }
@@ -13456,6 +13476,8 @@ PUBLIC void mprFormatJsonValue(MprBuf *buf, int type, cchar *value, int flags)
         mprPutStringToBuf(buf, value);
         break;
     case MPR_JSON_REGEXP:
+        mprPutToBuf(buf, "/%s/", value);
+        break;
     case MPR_JSON_STRING:
     default:
         mprFormatJsonString(buf, value);
@@ -13826,7 +13848,7 @@ static char *splitExpression(char *property, int *operator, char **value)
         *vp++ = '\0';
         i = sspn(vp, seps);
         vp += i;
-        if (*vp == '\'' || *vp == '"') {
+        if (*vp == '\'' || *vp == '"' || *vp == '`') {
             for (end = &vp[1]; *end; end++) {
                 if (*end == '\\' && end[1]) {
                     end++;
@@ -16397,7 +16419,7 @@ PUBLIC int mprGetError()
 /*
     Set the mapped (portable, Posix) error code
  */
-PUBLIC void mprSetError(error)
+PUBLIC void mprSetError(int error)
 {
 #if !ME_WIN_LIKE
     mprSetOsError(error);
