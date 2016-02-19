@@ -1,4 +1,4 @@
-Embedthis O/S Dependent Layer
+O/S Dependent Layer
 ===
 
 Licensing

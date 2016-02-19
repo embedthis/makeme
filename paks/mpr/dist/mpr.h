@@ -5080,8 +5080,7 @@ PUBLIC MprList *mprGetPathFiles(cchar *dir, int flags);
         This call returns a list of filenames.
     @description Get the list of files in a directory and return a list. The pattern list may contain
     wild cards: "?" Matches any single character, "*" matches zero or more characters of the file or directory, 
-    "**"/ matches zero or more directories, "**" matches zero or more files or directories,
-    and a trailing "/" matches directories only.
+    "**"/ matches zero or more directories, "**" matches zero or more files or directories.
     An exclusion pattern may be specified to apply to subsequent patterns by appending with "!".
     @param path Directory to list.
     @param pattern Wild card pattern to match.
