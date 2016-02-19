@@ -115,7 +115,10 @@ class InstallsInner {
                     skip(name, 'Must be administrator')
                     enable = false
                 }
-                if (enable) {
+                if (!enable) {
+                    continue
+                }
+                try {
                     if (!item.from && item.prePerform) {
                         item.prePerform.call(me.dir.top, item.from, item.to, item)
                     }
@@ -399,8 +402,7 @@ class InstallsInner {
             if (!makeme.generating) {
                 trace('Uninstall', me.settings.title)
             }
-            let fileslog = me.prefixes.vapp ? me.prefixes.vapp.join('files.log') : me.prefixes.app.join('files.log')
-
+            let fileslog = prefixes.vapp ? prefixes.vapp.join('files.log') : prefixes.app.join('files.log')
             if (makeme.generating) {
                 for each (n in ['web', 'spool', 'cache', 'log']) {
                     if (package.prefixes.contains(n)) {
@@ -506,7 +508,8 @@ class InstallsInner {
         let generic = me.dir.rel.join(me.settings.name + '-' + fmt + '.tgz')
         generic.remove()
         zname.link(generic)
-        me.dir.rel.join('md5-' + me.platform.vname + '-' + fmt + '.tgz.txt').write(md5(zname.readString()))
+        let sumline = md5(zname.readString()) + ' ' + zname.basename + '\n'
+        me.dir.rel.join('md5-' + me.platform.vname + '-' + fmt + '.tgz.txt').write(sumline)
         trace('Package', generic.relativeTo(me.dir.top))
     }
 
@@ -580,7 +583,8 @@ class InstallsInner {
         tar.create(files)
         Zlib.compress(name, zname)
         name.remove()
-        me.dir.rel.join('md5-' + base).joinExt('tgz.txt', true).write(md5(zname.readString()))
+        let sumline = md5(zname.readString()) + ' ' + zname.basename + '\n'
+        me.dir.rel.join('md5-' + base).joinExt('tgz.txt', true).write(sumline)
         let generic = me.dir.rel.join(me.settings.name + '-tar' + '.tgz')
         generic.remove()
         zname.link(generic)
@@ -594,6 +598,9 @@ class InstallsInner {
             break
         case 'windows':
             packageWindows(prefixes)
+            break
+        case 'linux':
+            packageUbuntu(prefixes)
             break
         default:
             trace('Info', 'Cannot create native package for ' + me.platform.os)
@@ -694,7 +701,8 @@ class InstallsInner {
                 run('pkgutil --check-signature ' + outfile, {filter: true})
             }
         }
-        me.dir.rel.join('md5-' + base).joinExt('pkg.txt', true).write(md5(outfile.readString()))
+        let sumline = md5(outfile.readString()) + ' ' + outfile.basename + '\n'
+        me.dir.rel.join('md5-' + base).joinExt('pkg.txt', true).write(sumline)
     }
 
     function packageFedora(prefixes) {
@@ -756,7 +764,8 @@ class InstallsInner {
         run(pmaker + ' -ba --target ' + cpu + ' ' + spec.basename, {dir: RPM.join('SPECS'), filter: true})
         let rpmfile = RPM.join('RPMS', cpu, [s.name, s.version].join('-')).joinExt(cpu + '.rpm', true)
         rpmfile.rename(outfile)
-        me.dir.rel.join('md5-' + base).joinExt('rpm.txt', true).write(md5(outfile.readString()))
+        let sumline = md5(outfile.readString()) + ' ' + outfile.basename + '\n'
+        me.dir.rel.join('md5-' + base).joinExt('rpm.txt', true).write(outline)
         App.putenv('HOME', home)
     }
 
@@ -785,7 +794,8 @@ class InstallsInner {
         let outfile = me.dir.rel.join(base).joinExt('deb', true)
         trace('Package', outfile)
         run(pmaker + ' --build ' + DEBIAN.dirname + ' ' + outfile, {filter: true})
-        me.dir.rel.join('md5-' + base).joinExt('deb.txt', true).write(md5(outfile.readString()))
+        let sumline = md5(outfile.readString()) + ' ' + outfile.basename + '\n'
+        me.dir.rel.join('md5-' + base).joinExt('deb.txt', true).write(sumline)
     }
 
     function packageWindows(prefixes) {
@@ -844,13 +854,14 @@ class InstallsInner {
         let zipfile = outfile.joinExt('zip', true)
         zipfile.remove()
         run(['zip', '-q', zipfile.basename, outfile.basename], {dir: me.dir.rel, filter: true})
-        me.dir.rel.join('md5-' + base).joinExt('exe.zip.txt', true).write(md5(zipfile.readString()))
+        let sumline = md5(zipfile.readString()) + ' ' + zipfile.basename + '\n'
+        me.dir.rel.join('md5-' + base).joinExt('exe.zip.txt', true).write(sumline)
         outfile.remove()
     }
 
     public function checkInstalled() {
         let result = []
-        for each (key in ['app', 'vapp', 'bin']) {
+        for each (key in ['app', 'vapp', 'etc', 'bin']) {
             let prefix = me.prefixes[key]
             if (!prefix.exists) {
                 result.push(prefix)
