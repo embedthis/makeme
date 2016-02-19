@@ -170,6 +170,11 @@ Me.load({
 
         uninstall: {
             depends: [ 'all', 'stop' ],
+            home: '${TOP}',
+            generate: true,
+        },
+
+        uninstallBinary: {
             action: `
                 require embedthis.me
                 makeme.loader.blendFile('${ORIGIN}/manifest.me')
