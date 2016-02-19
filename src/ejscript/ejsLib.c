@@ -42759,9 +42759,11 @@ static EjsObj *makePathDir(Ejs *ejs, EjsPath *fp, int argc, EjsObj **argv)
         /* Not a directory */
         return ESV(false);
 
+#if UNUSED
     } else if (attributes) {
         /* Existing, but attributes supplied. So set the attributes */
         ejsSetPathAttributes(ejs, fp->value, attributes);
+#endif
     }
     return ESV(true);
 }
