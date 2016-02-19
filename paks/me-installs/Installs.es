@@ -684,6 +684,7 @@ class InstallsInner {
                 ' --discard-forks --out ' + outfile)
         } else {
             copyFiles(opak.join('distribution.xml'), staging, {patch: true})
+if (false) {
             let sign = ''
             if (App.uid == 0) {
                 sign += '--sign "Developer ID Installer: ' + s.company + '"'
@@ -702,6 +703,7 @@ class InstallsInner {
             if (sign) {
                 run('pkgutil --check-signature ' + outfile, {filter: true})
             }
+}
         }
         let sumline = md5(outfile.readString()) + ' ' + outfile.basename + '\n'
         me.dir.rel.join('md5-' + base).joinExt('pkg.txt', true).write(sumline)
@@ -843,7 +845,7 @@ class InstallsInner {
 
         /* Sign */
         let cert = 'c:/crt/signing.pfx'
-        if (Path(cert).exists) {
+        if (false && Path(cert).exists) {
             let pass = Path('c:/crt/signing.pass').readString().trim()
             trace('Sign', outfile)
             let sign = Cmd.locate('signtool.exe', me.targets.compiler.search)
