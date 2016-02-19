@@ -142,7 +142,7 @@
     #define ME_TUNE "speed"
 #endif
 #ifndef ME_VERSION
-    #define ME_VERSION "0.10.3"
+    #define ME_VERSION "0.10.4"
 #endif
 
 /* Prefixes */
@@ -162,7 +162,7 @@
     #define ME_APP_PREFIX "/usr/local/lib/makeme"
 #endif
 #ifndef ME_VAPP_PREFIX
-    #define ME_VAPP_PREFIX "/usr/local/lib/makeme/0.10.3"
+    #define ME_VAPP_PREFIX "/usr/local/lib/makeme/0.10.4"
 #endif
 #ifndef ME_BIN_PREFIX
     #define ME_BIN_PREFIX "/usr/local/bin"
@@ -195,7 +195,7 @@
     #define ME_CACHE_PREFIX "/var/spool/makeme/cache"
 #endif
 #ifndef ME_SRC_PREFIX
-    #define ME_SRC_PREFIX "makeme-0.10.3"
+    #define ME_SRC_PREFIX "makeme-0.10.4"
 #endif
 
 /* Suffixes */
@@ -237,10 +237,10 @@
     #define ME_MINOR_VERSION 10
 #endif
 #ifndef ME_PATCH_VERSION
-    #define ME_PATCH_VERSION 3
+    #define ME_PATCH_VERSION 4
 #endif
 #ifndef ME_VNUM
-    #define ME_VNUM 80003
+    #define ME_VNUM 80004
 #endif
 
 /* Components */
