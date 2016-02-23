@@ -1315,6 +1315,12 @@ class Make {
                     } else {
                         genWriteLine('DEPS_' + nextID + ' += ' + d)
                     }
+                } else if (dname == 'compile') {
+                    if (me.platform.os == 'windows') {
+                        genWriteLine('DEPS_' + nextID + ' = $(DEPS_' + nextID + ') ' + d)
+                    } else {
+                        genWriteLine('DEPS_' + nextID + ' += ' + d)
+                    }
                 }
                 genTargetDepItems(target, dep.uses)
                 if (dep.type == 'component' && dep.depends.length > 0) {
