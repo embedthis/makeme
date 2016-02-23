@@ -1134,7 +1134,7 @@ $(BUILD)/bin/testme.es: $(DEPS_56)
 
 installPrep: $(DEPS_57)
 	if [ "`id -u`" != 0 ] ; \
-	then echo "Must run as root. Rerun with "sudo"" ; \
+	then echo "Must run as root. Rerun with sudo." ; \
 	exit 255 ; \
 	fi
 
