@@ -367,7 +367,7 @@ class InstallsInner {
 
     function checkRoot(manifest = { root: true }) {
         if (!makeme.generating && me.prefixes.root.same('/') && manifest.root && App.uid != 0 && Config.OS != 'windows') {
-            throw 'Must run as root. Use "sudo me install"'
+            throw 'Must run as root. Use "sudo me install".'
         }
     }
 
@@ -684,10 +684,10 @@ class InstallsInner {
                 ' --discard-forks --out ' + outfile)
         } else {
             copyFiles(opak.join('distribution.xml'), staging, {patch: true})
-if (false) {
             let sign = ''
-            if (App.uid == 0) {
-                sign += '--sign "Developer ID Installer: ' + s.company + '"'
+            let signas = s.signas || s.company
+            if (App.uid == 0 && signas) {
+                sign += '--sign "Developer ID Installer: ' + signas + '"'
             }
             run('pkgbuild --quiet --install-location / ' + 
                 '--root ' + staging.join(s.name + '-' + s.version, 'contents') + ' ' + 
@@ -703,7 +703,6 @@ if (false) {
             if (sign) {
                 run('pkgutil --check-signature ' + outfile, {filter: true})
             }
-}
         }
         let sumline = md5(outfile.readString()) + ' ' + outfile.basename + '\n'
         me.dir.rel.join('md5-' + base).joinExt('pkg.txt', true).write(sumline)
@@ -800,6 +799,8 @@ if (false) {
         run(pmaker + ' --build ' + DEBIAN.dirname + ' ' + outfile, {filter: true})
         let sumline = md5(outfile.readString()) + ' ' + outfile.basename + '\n'
         me.dir.rel.join('md5-' + base).joinExt('deb.txt', true).write(sumline)
+        /* This is done instead by the farm when posting the image */
+        // run('dpkg-sig -k ' + KEY ' --sign builder ' + outfile)
     }
 
     function packageWindows(prefixes) {
@@ -845,7 +846,7 @@ if (false) {
 
         /* Sign */
         let cert = 'c:/crt/signing.pfx'
-        if (false && Path(cert).exists) {
+        if (Path(cert).exists) {
             let pass = Path('c:/crt/signing.pass').readString().trim()
             trace('Sign', outfile)
             let sign = Cmd.locate('signtool.exe', me.targets.compiler.search)
