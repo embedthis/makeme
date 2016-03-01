@@ -1163,10 +1163,16 @@ public class Loader {
         if (o[field] is Array) {
             for (let [key,value] in o[field]) {
                 if ((!value.startsWith('${') && !value.startsWith('$(')) || value.startsWith('${OS}')) {
+                    let exclude = ''
+                    if (value.startsWith('!')) {
+                        exclude = '!'
+                        value = value.name.slice(1)
+                    }
+                    let path = Path(exclude + home.join(value))
                     if (value.endsWith('/')) {
-                        o[field][key] = Path(home.join(value) + '/')
+                        o[field][key] = Path(path + '/')
                     } else {
-                        o[field][key] = home.join(value)
+                        o[field][key] = path
                     }
                 }
                 /* Comment to balance } */
