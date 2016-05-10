@@ -35,7 +35,6 @@
     ],
     "dependencies": {
         "http": "~6.2",
-        "mbedtls": "~2.1",
         "mpr": "~6.2",
         "osdep": "~0.9",
         "pcre": "~1.0",

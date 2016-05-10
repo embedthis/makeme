@@ -5223,7 +5223,7 @@ module ejs {
         @spec ejs
         @example blend(dest, src, { overwrite: true, deep: true, functions: false, subclasses: true })
      */
-    native function blend(dest: Object, src: Object, options = null): Object
+    native function blend(dest: Object, src: Object?, options = null): Object
 
     // TODO - should cache be a Path
     /** 
@@ -14607,7 +14607,8 @@ module ejs.db.mapper {
                 cache(this, {query: "*"})
          */
         static function cache(model = null, options: Object = {}): Void {
-            _caching = App.config.cache.database.enable
+
+            _caching = App.config.cache.database && App.config.cache.database.enable
             if (!_caching) {
                 return
             }
