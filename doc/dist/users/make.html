@@ -2,22 +2,23 @@
 <html lang="en">
 <head>
     <title>Using Generated Makefiles</title>
-    
+    <!-- Copyright Embedthis Software. All Rights Reserved. -->
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-    <meta name="description" content="Embedthis MakeMe -- Fast, modern replacement for make and autoconf.">
-    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700|Open+Sans:300italic,400,300,700' rel='stylesheet' type='text/css'>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <meta name="description" content="Embedthis MakeMe -- Fast, modern replacement for make and autoconf." />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700|Open+Sans:300italic,400,300,700'
+        rel='stylesheet' type='text/css'>
     <link href='https://fonts.googleapis.com/css?family=Julius+Sans+One' rel='stylesheet' type='text/css'>
     
-    <link href="../images/favicon.ico" rel="shortcut icon">
-    <link href="../lib/semantic-ui/semantic.min.css" rel="stylesheet" type="text/css">
-    <link href="../css/all.min.css" rel="stylesheet" type="text/css">
-    <link href="../css/api.min.css" rel="stylesheet" type="text/css">
+    <link href="../images/favicon.ico" rel="shortcut icon" />
+    <link href="../lib/semantic-ui/semantic.min.css" rel="stylesheet" type="text/css" />
+    <link href="../css/all.min.css" rel="stylesheet" type="text/css" />
+    <link href="../css/api.min.css" rel="stylesheet" type="text/css" />
     
 
-
+</head>
 <body class="show-sidebar">
         
     <div class="sidebar">
@@ -77,7 +78,9 @@
                 <div class="menu">
                     <a class="item" href="../ref/syntax.html">File Syntax</a>
                     <a class="item" href="../ref/dom.html">MakeMe DOM</a>
-
+<!--
+                    <a class="item" href="../ref/api/index.html">MakeMe API</a>
+-->
                     <a class="item" href="../ref/processing.html">File Processing</a>
                     <a class="item" href="../ref/commandline.html">Command Line</a>
                     <a class="item" href="../ref/events.html">Events</a>
@@ -177,7 +180,7 @@
    [Compile] src/deps/mpr/mprLib.c
       [Link] libmpr
 </pre>
-            </p><p>Note the output is simplified so that build errors and compiler warnings are more obvious. If you wish to
+            <p>Note the output is simplified so that build errors and compiler warnings are more obvious. If you wish to
             see the full compiler, linker and other build commands, include the <em>SHOW=1</em> option:
 <pre class="ui code segment">$ make <b>SHOW=1</b>
        [Run] make --no-print-directory -f projects/appweb-macosx-default.mk all
@@ -194,7 +197,7 @@ macosx-x64-default/obj/mprLib.o -lpthread -lm -ldl
 </pre>
             <a name="platform"></a>
             <h2>Platform Makefiles</h2>
-            </p><p>MakeMe eschews creating Makefiles that will work on all the possible platforms, rather it generates
+            <p>MakeMe eschews creating Makefiles that will work on all the possible platforms, rather it generates
                 dedicated, simple, fast, non-recursive Makefiles that run quickly and simply for the dominant platforms: 
                Linux, Mac OSX, Windows, and BSD. There is one Makefile for each platform. Developers can then easily 
                extend for other platforms if required.</p>
@@ -215,18 +218,18 @@ make -f projects/appweb-macosx-default.mk all
             <h3>Windows Nmake</h3>
             <p>MakeMe can generate a Makefile for Nmake which is the Windows variant of Make. This has a <em>.nmake</em>
             extension. 
-            </p><p>To build on Windows with nmake, you need to define the Visual Studio environment variables (via the
+            <p>To build on Windows with nmake, you need to define the Visual Studio environment variables (via the
             Visual Studio <em>vsvarsall.bat</em> and then type:
             <pre class="ui code segment">$ <b>make</b>
 nmake -f projects\appweb-windows.nmake
 </pre>
             <a name="modifying"></a>
             <h2>Modifying Makefile Defaults</h2>
-            </p><p>Generated Makefiles to not require the use of a configure program and provide a limited means of 
+            <p>Generated Makefiles to not require the use of a configure program and provide a limited means of 
             tailoring the build by suppling configuration options directly to <em>make</em>. These options override 
            default values defined in the platform makefile. For example:
             <pre class="ui code segment">$ <b>ME_EXT_EST=0</b> make</pre>
-            </p><p>On linux and unix, you can supply the overrides as environment variables or on the make command line. 
+            <p>On linux and unix, you can supply the overrides as environment variables or on the make command line. 
             On Windows, you must supply the overrides as environment variables only.</p>
             <p>Configurable components are enabled by setting their corresponing ME_EXT_<em>NAME</em> option to 1. 
             Disable by setting to zero. Some components require a path to locate their libraries and headers. 
@@ -267,7 +270,7 @@ make -f projects/appweb-vxworks-default.mk ARCH=x86 PROFILE=debug
             <h3>Specifying a Tool Chain</h3>
             <p>You may need to specify where Make can locate your cross-compiler and other tools.
             You can supply these via the make variables: CC, CFLAGS, DFLAGS, IFLAGS, LD and LDFLAGS. 
-            </p><p>For example:</p>
+            <p>For example:</p>
             <pre class="ui code segment">CC=/opt/bin/ccarm.exe \
 LD=/opt/bin/ccarm.exe \
 ARCH=arm \
@@ -289,5 +292,5 @@ make -f projects/appweb-vxworks-default.mk
 
         
 
-
-
+</body>
+</html>

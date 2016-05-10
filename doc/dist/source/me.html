@@ -2,22 +2,23 @@
 <html lang="en">
 <head>
     <title>Building with MakeMe</title>
-    
+    <!-- Copyright Embedthis Software. All Rights Reserved. -->
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-    <meta name="description" content="Embedthis MakeMe -- Fast, modern replacement for make and autoconf.">
-    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700|Open+Sans:300italic,400,300,700' rel='stylesheet' type='text/css'>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <meta name="description" content="Embedthis MakeMe -- Fast, modern replacement for make and autoconf." />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700|Open+Sans:300italic,400,300,700'
+        rel='stylesheet' type='text/css'>
     <link href='https://fonts.googleapis.com/css?family=Julius+Sans+One' rel='stylesheet' type='text/css'>
     
-    <link href="../images/favicon.ico" rel="shortcut icon">
-    <link href="../lib/semantic-ui/semantic.min.css" rel="stylesheet" type="text/css">
-    <link href="../css/all.min.css" rel="stylesheet" type="text/css">
-    <link href="../css/api.min.css" rel="stylesheet" type="text/css">
+    <link href="../images/favicon.ico" rel="shortcut icon" />
+    <link href="../lib/semantic-ui/semantic.min.css" rel="stylesheet" type="text/css" />
+    <link href="../css/all.min.css" rel="stylesheet" type="text/css" />
+    <link href="../css/api.min.css" rel="stylesheet" type="text/css" />
     
 
-
+</head>
 <body class="show-sidebar">
         
     <div class="sidebar">
@@ -77,7 +78,9 @@
                 <div class="menu">
                     <a class="item" href="../ref/syntax.html">File Syntax</a>
                     <a class="item" href="../ref/dom.html">MakeMe DOM</a>
-
+<!--
+                    <a class="item" href="../ref/api/index.html">MakeMe API</a>
+-->
                     <a class="item" href="../ref/processing.html">File Processing</a>
                     <a class="item" href="../ref/commandline.html">Command Line</a>
                     <a class="item" href="../ref/events.html">Events</a>
@@ -191,7 +194,7 @@
             <pre class="ui code segment">
 configure --release --without all
 </pre>
-            </p><p>The <em>--release</em> switch instructs MakeMe to build an optimized production release.
+            <p>The <em>--release</em> switch instructs MakeMe to build an optimized production release.
             The <em>--without all</em> switch will disable non-essential features and components to create
             a minimal build.</p>
 
@@ -215,97 +218,97 @@ configure --release --without all
             <table title="options" class="ui table Segment">
                 <thead>
                     <tr>
-                        <th class="four wide">Option
-                        <th>Description
-                    
-                
+                        <th class="four wide">Option</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
                 <tbody>
                 <tr>
-                    <td>--debug
-                    <td>Build a debug build. This builds a development, non-optimized build with debug symbols.
-                
+                    <td>--debug</td>
+                    <td>Build a debug build. This builds a development, non-optimized build with debug symbols.</td>
+                </tr>
                 <tr>
-                    <td>--help
-                    <td>Display the <em>me</em> program usage help.
-                
+                    <td>--help</td>
+                    <td>Display the <em>me</em> program usage help.</td>
+                </tr>
                 <tr>
-                    <td class="nowrap">--set KEY=VALUE
+                    <td class="nowrap">--set KEY=VALUE</td>
                     <td>Set the value of a property in the MakeMe <em>settings</em> collection. For example: "--set
-                        mpr.tracing=false".
-                
+                        mpr.tracing=false".</td>
+                </tr>
                 <tr>
-                    <td>--quiet, -q
-                    <td>Run quietly without progress trace.
-                
+                    <td>--quiet, -q</td>
+                    <td>Run quietly without progress trace.</td>
+                </tr>
                 <tr>
-                    <td>--release
-                    <td>Build a release build. This builds an optimized, production-ready build of the software.
-                
+                    <td>--release</td>
+                    <td>Build a release build. This builds an optimized, production-ready build of the software.</td>
+                </tr>
                 <tr>
-                    <td>--verbose, -v
-                    <td>Run verbosely and emit more detailed progress trace.
-                
-                
+                    <td>--verbose, -v</td>
+                    <td>Run verbosely and emit more detailed progress trace.</td>
+                </tr>
+                </tbody>
             </table>
             <h3>Cross Compiling</h3>
             <table title="types" class="ui table Segment">
                 <thead>
                     <tr>
-                        <th class="four wide">Option
-                        <th>Description
-                    
-                
+                        <th class="four wide">Option</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
                 <tbody>
                 <tr>
-                    <td class="nowrap">--platform OS-ARCH-PROFILE
+                    <td class="nowrap">--platform OS-ARCH-PROFILE</td>
                     <td><p>Specify the target platform for which to build. For example "-platform linux-arm-debug". Supported operating systems are: freebsd, linux, macosx, vxworks and windows. Supported architectures are: arm, mips, ppc, x64 or x86.</p> 
                     <p>If the -platform option is omitted, the local system is added as the target platform. You may use the 'local' alias to indicate the local platform.  Multiple platforms may be specified. </p> 
                     <p>The ARCH component may specify a CPU instance to tune for. The CPU setting is used in a -DCPU=VALUE compiler define. For example: "-platform linux-arm:arm7tdmi-debug".</p> 
                     <p>NOTE: the platform switch is not a typical configure --host argument. i.e. The second component is a system architecture and not a distribution name.</p>
-                    
-                
-            
+                    </td>
+                </tr>
+            </tbody>
             </table>
             <h3>Feature Options</h3>
             <table title="options" class="ui table Segment">
                 <thead>
                     <tr>
-                        <th class="four wide">Option
-                        <th>Description
-                    
-                
+                        <th class="four wide">Option</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
                 <tbody>
                 <tr>
-                    <td class="nowrap">--without all
-                    <td>Disable all non-essential possible packages.
-                
+                    <td class="nowrap">--without all</td>
+                    <td>Disable all non-essential possible packages.</td>
+                </tr>
                 <tr>
-                    <td class="nowrap">--set tune=MODE
+                    <td class="nowrap">--set tune=MODE</td>
                     <td>Tune the build to optimize for "size", "speed". You can also select "balanced" for a balance
-                    between speed and size. (Default is size).
-                
-                
+                    between speed and size. (Default is size).</td>
+                </tr>
+                </tbody>
             </table>
             <h3>Optional Packages</h3>
             <table title="packages" class="ui table Segment">
                 <thead>
                     <tr>
-                        <th class="four wide">Option
-                        <th>Description
-                    
-                
+                        <th class="four wide">Option</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
                 <tbody>
                 <tr>
-                    <td class="nowrap">--with PACKAGE[=dir]
+                    <td class="nowrap">--with PACKAGE[=dir]</td>
                     <td>Specify if a PACKAGE should be included in the build. The optional directory is the path to
                         the source distribution of the package. If the directory is omitted, <em>me</em> will search the
-                        local system for the package in well known places.
-                
+                        local system for the package in well known places.</td>
+                </tr>
                 <tr>
-                    <td>--without PACKAGE
-                    <td>Do not include the PACKAGE in the build.
-                
-                
+                    <td>--without PACKAGE</td>
+                    <td>Do not include the PACKAGE in the build.</td>
+                </tr>
+                </tbody>
             </table>
             <h3>Example Use</h3>
             <pre class="ui code segment">
@@ -313,13 +316,13 @@ configure --with openssl=/usr/src/openssl
 </pre>
             <a id="building"></a>
             <h2>Building with MakeMe</h2>
-            </p><p>After configuring, you may proceed to build the source code by typing:</p>
+            <p>After configuring, you may proceed to build the source code by typing:</p>
             <pre class="ui code segment">me</pre>
 
             <h3>Packages</h3>
             <p>For a list of the available packages on your system that can be selected via configure, run
             <pre class="ui code segment">configure --help</pre>
-            </p><p>This will display the MakeMe command options followed by a list of configurable features and components.</p>
+            <p>This will display the MakeMe command options followed by a list of configurable features and components.</p>
 
             <p>You may also find additional packages for download from the
             <a href="https://embedthis.com/catalog/">Pak Catalog</a>. These are packages that can be installed via the
@@ -333,48 +336,48 @@ configure --with openssl=/usr/src/openssl
             <table title="env" class="ui table Segment">
                 <thead>
                     <tr>
-                        <th>Variable
-                        <th>Description
-                    
-                
+                        <th>Variable</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
                 <tbody>
                 <tr>
-                    <td>AR
-                    <td>Path to the archiver program to use to archive libraries for the target system.
-                
+                    <td>AR</td>
+                    <td>Path to the archiver program to use to archive libraries for the target system.</td>
+                </tr>
                 <tr>
-                    <td>CC
-                    <td>Path to the C/C++ compiler to use to compile for the target system.
-                
+                    <td>CC</td>
+                    <td>Path to the C/C++ compiler to use to compile for the target system.</td>
+                </tr>
                 <tr>
-                    <td>CFLAGS
-                    <td>Compiler control flags.
-                
+                    <td>CFLAGS</td>
+                    <td>Compiler control flags.</td>
+                </tr>
                 <tr>
-                    <td>DFLAGS
-                    <td>Compiler preprocessor defines.
-                
+                    <td>DFLAGS</td>
+                    <td>Compiler preprocessor defines.</td>
+                </tr>
                 <tr>
-                    <td>IFLAGS
-                    <td>Include directory options.
-                
+                    <td>IFLAGS</td>
+                    <td>Include directory options.</td>
+                </tr>
                 <tr>
-                    <td>LD
-                    <td>Path to the linker program to link objects for the target system.
-                
+                    <td>LD</td>
+                    <td>Path to the linker program to link objects for the target system.</td>
+                </tr>
                 <tr>
-                    <td>LDFLAGS
-                    <td>Linker flags. E.g. -Ldir to specify a non-standard directory for libraries.
-                
+                    <td>LDFLAGS</td>
+                    <td>Linker flags. E.g. -Ldir to specify a non-standard directory for libraries.</td>
+                </tr>
                 <tr>
-                    <td>VSINSTALLDIR
-                    <td>Directory to the version of Visual Studio to use. By default, MakeMe will use the most recent installed version.
-                
+                    <td>VSINSTALLDIR</td>
+                    <td>Directory to the version of Visual Studio to use. By default, MakeMe will use the most recent installed version.</td>
+                </tr>
                 <tr>
-                    <td>WIND_BASE
-                    <td>Directory to the version of WindRiver VxWorks. By default, MakeMe will use the most recent installed version of the same architecture as specified platform architecture.
-                
-                
+                    <td>WIND_BASE</td>
+                    <td>Directory to the version of WindRiver VxWorks. By default, MakeMe will use the most recent installed version of the same architecture as specified platform architecture.</td>
+                </tr>
+                </tbody>
             </table>
             <h2>Examples</h2>
             <p>Here are some useful configure command options.</p>
@@ -588,5 +591,5 @@ make</code>
 
         
 
-
-
+</body>
+</html>

@@ -2,22 +2,23 @@
 <html lang="en">
 <head>
     <title>Building with Make</title>
-    
+    <!-- Copyright Embedthis Software. All Rights Reserved. -->
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-    <meta name="description" content="Embedthis MakeMe -- Fast, modern replacement for make and autoconf.">
-    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700|Open+Sans:300italic,400,300,700' rel='stylesheet' type='text/css'>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <meta name="description" content="Embedthis MakeMe -- Fast, modern replacement for make and autoconf." />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700|Open+Sans:300italic,400,300,700'
+        rel='stylesheet' type='text/css'>
     <link href='https://fonts.googleapis.com/css?family=Julius+Sans+One' rel='stylesheet' type='text/css'>
     
-    <link href="../images/favicon.ico" rel="shortcut icon">
-    <link href="../lib/semantic-ui/semantic.min.css" rel="stylesheet" type="text/css">
-    <link href="../css/all.min.css" rel="stylesheet" type="text/css">
-    <link href="../css/api.min.css" rel="stylesheet" type="text/css">
+    <link href="../images/favicon.ico" rel="shortcut icon" />
+    <link href="../lib/semantic-ui/semantic.min.css" rel="stylesheet" type="text/css" />
+    <link href="../css/all.min.css" rel="stylesheet" type="text/css" />
+    <link href="../css/api.min.css" rel="stylesheet" type="text/css" />
     
 
-
+</head>
 <body class="show-sidebar">
         
     <div class="sidebar">
@@ -77,7 +78,9 @@
                 <div class="menu">
                     <a class="item" href="../ref/syntax.html">File Syntax</a>
                     <a class="item" href="../ref/dom.html">MakeMe DOM</a>
-
+<!--
+                    <a class="item" href="../ref/api/index.html">MakeMe API</a>
+-->
                     <a class="item" href="../ref/processing.html">File Processing</a>
                     <a class="item" href="../ref/commandline.html">Command Line</a>
                     <a class="item" href="../ref/events.html">Events</a>
@@ -188,7 +191,7 @@ nmake -f projects\NAME-windows.nmake
 </pre>
             <a name="modifying"></a>
             <h3>Modifying the Makefile Defaults</h3>
-            </p><p>You do not use a <em>configure</em> program when building via Make, that is used only for building 
+            <p>You do not use a <em>configure</em> program when building via Make, that is used only for building 
             with MakeMe. Rather, you supply configuration options directly to Make. These options override default 
             values defined by the projects/NAME-OS-default.mk makefile and by the projects/NAME-OS-debug-me.h file. 
             For example, to disable use of SQLite:</p>
@@ -281,7 +284,7 @@ $ sudo make <b>ME_COM_PHP=1 ME_COM_PHP_PATH=/usr/src/php</b> install</pre>
             <pre class="ui code segment">
 make -f projects/NAME-vxworks-default.mk ARCH=arm PROFILE=debug
 </pre>
-            </p><p>When make runs, it places the output products (executables, libraries and objects) in a platform-specific 
+            <p>When make runs, it places the output products (executables, libraries and objects) in a platform-specific 
             output directory. This is named using the form: OS-ARCH-PROFILE. For example: vxworks-arm-debug. In this 
             manner, make can be invoked multiple times, once for each target platform and the results will be captured
             in separate platform output directories. Some of the supported architectures for the ARCH field are:
@@ -297,7 +300,7 @@ make -f projects/NAME-vxworks-default.mk ARCH=arm PROFILE=debug
             <h3>Specifying a Tool Chain</h3>
             <p>You may need to specify where Make can locate your cross-compiler and other tools.
             You can supply these via the make variables: CC, CFLAGS, DFLAGS, IFLAGS, LD and LDFLAGS. 
-            </p><p>For example:</p>
+            <p>For example:</p>
             <pre class="ui code segment">
 make CC=/opt/bin/ccarm.exe LD=/opt/bin/ccarm.exe ARCH=arm PROFILE=release
     -f projects/NAME-vxworks-default.mk 
@@ -341,5 +344,5 @@ make CC=/opt/bin/ccarm.exe LD=/opt/bin/ccarm.exe ARCH=arm PROFILE=release
 
         
 
-
-
+</body>
+</html>

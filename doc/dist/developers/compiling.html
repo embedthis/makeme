@@ -2,22 +2,23 @@
 <html lang="en">
 <head>
     <title>Compiling Sources</title>
-    
+    <!-- Copyright Embedthis Software. All Rights Reserved. -->
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-    <meta name="description" content="Embedthis MakeMe -- Fast, modern replacement for make and autoconf.">
-    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700|Open+Sans:300italic,400,300,700' rel='stylesheet' type='text/css'>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <meta name="description" content="Embedthis MakeMe -- Fast, modern replacement for make and autoconf." />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700|Open+Sans:300italic,400,300,700'
+        rel='stylesheet' type='text/css'>
     <link href='https://fonts.googleapis.com/css?family=Julius+Sans+One' rel='stylesheet' type='text/css'>
     
-    <link href="../images/favicon.ico" rel="shortcut icon">
-    <link href="../lib/semantic-ui/semantic.min.css" rel="stylesheet" type="text/css">
-    <link href="../css/all.min.css" rel="stylesheet" type="text/css">
-    <link href="../css/api.min.css" rel="stylesheet" type="text/css">
+    <link href="../images/favicon.ico" rel="shortcut icon" />
+    <link href="../lib/semantic-ui/semantic.min.css" rel="stylesheet" type="text/css" />
+    <link href="../css/all.min.css" rel="stylesheet" type="text/css" />
+    <link href="../css/api.min.css" rel="stylesheet" type="text/css" />
     
 
-
+</head>
 <body class="show-sidebar">
         
     <div class="sidebar">
@@ -77,7 +78,9 @@
                 <div class="menu">
                     <a class="item" href="../ref/syntax.html">File Syntax</a>
                     <a class="item" href="../ref/dom.html">MakeMe DOM</a>
-
+<!--
+                    <a class="item" href="../ref/api/index.html">MakeMe API</a>
+-->
                     <a class="item" href="../ref/processing.html">File Processing</a>
                     <a class="item" href="../ref/commandline.html">Command Line</a>
                     <a class="item" href="../ref/events.html">Events</a>
@@ -164,7 +167,7 @@
 
         <h2>Compiling Sources</h2>
         <p>MakeMe compiles source files by building library or executable targets that specify the sources to be compiled. 
-        </p><p>For example, this target will compile the sources in the current directory and create a shared library containing
+        <p>For example, this target will compile the sources in the current directory and create a shared library containing
         the compiled objects.</p>
 <pre class="ui code segment">
 targets {
@@ -175,7 +178,7 @@ targets {
 }
 </pre>
         <p>MakeMe expands the <em>sources</em> property and creates objects targets at run-time for each of the corresponding sources.
-        </p><p>MakeMe also creates targets for any include files referenced by the sources.  If the source file is updated, it will
+        <p>MakeMe also creates targets for any include files referenced by the sources.  If the source file is updated, it will
         be recompiled and library rebuilt when MakeMe is next run. If any of the included headers are updated, the source file
         and library will similarly be rebuilt.</p>
         <p>Source targets are related to their library target via a <em>depends</em> property. The 
@@ -235,7 +238,7 @@ libname: {
     headers: [ '*.h' ],
 }
 </pre>
-        </p><p>This will create targets at run-time for all headers in the current directory. These targets will copy the
+        <p>This will create targets at run-time for all headers in the current directory. These targets will copy the
         headers (if modified) to the <em>inc</em> directory for the platform. The standard MakeMe compile rules will then
         resolve the headers from the inc directory.</p>
         <a name="resources"></a>
@@ -254,7 +257,7 @@ appwebMonitor: {
     <b>resources: [ 'windows/appwebMonitor.rc' ]</b>,
 },
 </pre>
-        </p><p>This will use the Windows resource compiler <em>rc</em> to compile the resource and then link into the
+        <p>This will use the Windows resource compiler <em>rc</em> to compile the resource and then link into the
         executable.</p>
         <a name="options"></a>
         <h2>Compiler Options</h2>
@@ -286,19 +289,19 @@ mylib: {
     ],
 },
 </pre>
-        </p><p>Here are the supported properties</p>
+        <p>Here are the supported properties</p>
         <table title="properties" class="full">
             <thead>
-                <tr><th>Property<th>Purpose
-            
+                <tr><th>Property</th><th>Purpose</th>
+            </thead>
             <tbody>
-                <tr><td>includes<td>Directories to search for headers
-                <tr><td>compiler<td>Compiler options
-                <tr><td>defines<td>Compiler pre-processor defines
-                <tr><td>libraries<td>Libraries to link with when linking
-                <tr><td>libpaths<td>Directories to search for libraries
-                <tr><td>linker<td>Linker flags
-            
+                <tr><td>includes</td><td>Directories to search for headers</td>
+                <tr><td>compiler</td><td>Compiler options</td>
+                <tr><td>defines</td><td>Compiler pre-processor defines</td>
+                <tr><td>libraries</td><td>Libraries to link with when linking</td>
+                <tr><td>libpaths</td><td>Directories to search for libraries</td>
+                <tr><td>linker</td><td>Linker flags</td>
+            </tbody>
         </table>
         <p>Use a "<em>+</em>"" prefix when defining array values. This adds the values to the existing property set. Use
         <em>-</em> to remove a value from the existing definition. Use a an "<em>=</em>" prefix to replace existing values. </p>
@@ -332,7 +335,7 @@ defaults: {
 },
 </pre>
         <h3>Private Inheritance</h3>
-        </p><p>Similar to the defaults collection, you can specify properties that are inherited only by targets in
+        <p>Similar to the defaults collection, you can specify properties that are inherited only by targets in
         the same MakeMe file. To do this, create an <em>internal</em> collection.
         <pre class="ui code segment">
 internal: {
@@ -340,14 +343,14 @@ internal: {
 },
 </pre>
         <h2>Explicit Inheritance</h2>
-        </p><p>Sometimes you have a some settings that must be inherited by a subset of targets that are not in the same
+        <p>Sometimes you have a some settings that must be inherited by a subset of targets that are not in the same
         MakeMe file. MakeMe allows a target to specify a collection of settings from which to inherit via the
         <em>inherit</em> property. For example:
 <pre class="ui code segment">
 <b>'shared-settings': {
     '+defines': [ 'NUMBER=42' ],
 },</b></pre>
-        </p><p>These shared settings can be in any MakeMe file.</p>
+        <p>These shared settings can be in any MakeMe file.</p>
 <pre class="ui code segment">
 rocket {
     <b>inherit: ['shared-settings']</b>,
@@ -400,5 +403,5 @@ libejs: {
 
         
 
-
-
+</body>
+</html>
