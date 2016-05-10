@@ -5083,7 +5083,7 @@ PUBLIC MprList *mprGetPathFiles(cchar *dir, int flags);
     "**"/ matches zero or more directories, "**" matches zero or more files or directories.
     An exclusion pattern may be specified to apply to subsequent patterns by appending with "!".
     @param path Directory to list.
-    @param pattern Wild card pattern to match.
+    @param patterns Wild card pattern to match.
     @param flags Set to MPR_PATH_HIDDEN to include hidden files that start with ".". Set to MPR_PATH_DEPTH_FIRST to do a
         depth-first traversal, i.e. traverse subdirectories before considering adding the directory to the list.
         Set MPR_PATH_RELATIVE to return files relative to the given path. Set MPR_PATH_NO_DIRS to omit directories.

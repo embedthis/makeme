@@ -355,7 +355,7 @@
 <tr class="apiDef"><td class="apiType">int</td><td><a href="#group___mpr_time_1gac592bf4081e72d463277963567db5aa4" class="nameRef">mprGetTimeZoneOffset</a>(<a href="#group___mpr_time" class="ref">MprTime</a> when)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Get the current timezone offset for a given time.</td></tr>
 <tr class="apiDef"><td class="apiType">char*</td><td><a href="#group___mpr_path_1ga9bd48520260bb07575ca7899da34c0a2" class="nameRef">mprGetWinPath</a>(<a href="osdep.html#osdep_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *path)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Convert a path to an absolute windows path.</td></tr>
 <tr class="apiDef"><td class="apiType">void</td><td><a href="#group___mpr_worker_1gada34402b39990eab1ff9d55d9e271076" class="nameRef">mprGetWorkerStats</a>(<a href="#struct_mpr_worker_stats" class="ref">MprWorkerStats</a> *stats)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Get the Worker service statistics.</td></tr>
-<tr class="apiDef"><td class="apiType"><a href="#group___mpr_list" class="ref">MprList*</a></td><td><a href="#group___mpr_path_1gae46db2785330dd67136c8ec866fd2b10" class="nameRef">mprGlobPathFiles</a>(<a href="osdep.html#osdep_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *path, <a href="osdep.html#osdep_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *patterns, int flags)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Create a list of files in a directory or subdirectories that match the given wildcard patterns.</td></tr>
+<tr class="apiDef"><td class="apiType"><a href="#group___mpr_list" class="ref">MprList*</a></td><td><a href="#group___mpr_path_1gae46db2785330dd67136c8ec866fd2b10" class="nameRef">mprGlobPathFiles</a>(<a href="osdep.html#osdep_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *path, <a href="osdep.html#osdep_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *patterns, int flags)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Create a list of files in a directory or subdirectories that match the given wildcard pattern.</td></tr>
 <tr class="apiDef"><td class="apiType">void</td><td><a href="#group___mpr_sync_1ga45e1ba55d1912b43ca7c638e489b4bc3" class="nameRef">mprGlobalLock</a>()</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Globally lock the application.</td></tr>
 <tr class="apiDef"><td class="apiType">void</td><td><a href="#group___mpr_sync_1gacafc4433dfa8809f7e764683dcb7639a" class="nameRef">mprGlobalUnlock</a>()</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Unlock the global mutex.</td></tr>
 <tr class="apiDef"><td class="apiType">int</td><td><a href="#group___mpr_buf_1ga00b4c52b236de298af2ac5047bab6e57" class="nameRef">mprGrowBuf</a>(<a href="#group___mpr_buf" class="ref">MprBuf</a> *buf, <a href="osdep.html#osdep_8h_1a7d08ccc1e981eb4d5a238641ac4ccfc1" class="ref">ssize</a> count)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Grow the buffer.</td></tr>
@@ -6524,8 +6524,8 @@ Size of the buckets array.
     <dl><dt><b>Description</b>:</dt><dd>Add a symbol to the hash which may clash with an existing entry. Duplicate symbols can be added to the hash, but only one may be retrieved via <a class="ref" href="#group___mpr_hash_1ga28eaf688ae47d09abd9552fe003cedbb">mprLookupKey</a>. To recover duplicate entries walk the hash using <a class="ref" href="#group___mpr_hash_1ga7be8b20f3f390f7c3c05d90dbbb294b5">mprGetNextKey</a></dd></dl>
     <dl><dt>Parameters:</dt><dd>
     <table class="parameters" title="Parameters">
-    <tr><td class="param">table</td><td>Symbol table returned via mprCreateSymbolTable.</td>
-    <tr><td class="param">key</td><td>String key of the symbole entry to delete.</td>
+    <tr><td class="param">table</td><td>Symbol table returned via mprCreateHash.</td>
+    <tr><td class="param">key</td><td>String key of the symbol entry to delete.</td>
     <tr><td class="param">ptr</td><td>Arbitrary pointer to associate with the key in the table.</td>
     </table></dd></dl>
     <dl><dt>Returns:</dt><dd>Integer count of the number of entries.</dd></dl>
@@ -6546,8 +6546,8 @@ Size of the buckets array.
     <dl><dt><b>Description</b>:</dt><dd>Associate an arbitrary value with a string symbol key and insert into the symbol table. This will replace existing key values. Use mprAddDuplicateKey to allow duplicates.</dd></dl>
     <dl><dt>Parameters:</dt><dd>
     <table class="parameters" title="Parameters">
-    <tr><td class="param">table</td><td>Symbol table returned via mprCreateSymbolTable.</td>
-    <tr><td class="param">key</td><td>String key of the symbole entry to delete.</td>
+    <tr><td class="param">table</td><td>Symbol table returned via mprCreateHash.</td>
+    <tr><td class="param">key</td><td>String key of the symbol entry to delete.</td>
     <tr><td class="param">ptr</td><td>Arbitrary pointer to associate with the key in the table.</td>
     </table></dd></dl>
     <dl><dt>Returns:</dt><dd>Added MprKey reference.</dd></dl>
@@ -6568,8 +6568,8 @@ Size of the buckets array.
     <dl><dt><b>Description</b>:</dt><dd>Associate a formatted value with a key and insert into the symbol table.</dd></dl>
     <dl><dt>Parameters:</dt><dd>
     <table class="parameters" title="Parameters">
-    <tr><td class="param">table</td><td>Symbol table returned via mprCreateSymbolTable.</td>
-    <tr><td class="param">key</td><td>String key of the symbole entry to delete.</td>
+    <tr><td class="param">table</td><td>Symbol table returned via mprCreateHash.</td>
+    <tr><td class="param">key</td><td>String key of the symbol entry to delete.</td>
     <tr><td class="param">fmt</td><td>Format string. See <a class="ref" href="#group___mpr_string_1ga46a349c094d8523f31190345c4a3eeb1">mprPrintf</a></td>
     </table></dd></dl>
     <dl><dt>Returns:</dt><dd>Integer count of the number of entries.</dd></dl>
@@ -6590,8 +6590,8 @@ Size of the buckets array.
     <dl><dt><b>Description</b>:</dt><dd>Associate an arbitrary value with a string symbol key and insert into the symbol table.</dd></dl>
     <dl><dt>Parameters:</dt><dd>
     <table class="parameters" title="Parameters">
-    <tr><td class="param">table</td><td>Symbol table returned via mprCreateSymbolTable.</td>
-    <tr><td class="param">key</td><td>String key of the symbole entry to delete.</td>
+    <tr><td class="param">table</td><td>Symbol table returned via mprCreateHash.</td>
+    <tr><td class="param">key</td><td>String key of the symbol entry to delete.</td>
     <tr><td class="param">ptr</td><td>Arbitrary pointer to associate with the key in the table.</td>
     <tr><td class="param">type</td><td>Type of value.</td>
     </table></dd></dl>
@@ -6634,7 +6634,7 @@ Size of the buckets array.
     <dl><dt><b>Description</b>:</dt><dd>Create a new hash table and copy all the entries from an existing table.</dd></dl>
     <dl><dt>Parameters:</dt><dd>
     <table class="parameters" title="Parameters">
-    <tr><td class="param">table</td><td>Symbol table returned via mprCreateSymbolTable.</td>
+    <tr><td class="param">table</td><td>Symbol table returned via mprCreateHash.</td>
     </table></dd></dl>
     <dl><dt>Returns:</dt><dd>A new hash table initialized with the contents of the original hash table.</dd></dl>
     <dl><dt><b>API</b> Stability:</dt><dd>Stable.</dd></dl>
@@ -6695,7 +6695,7 @@ Size of the buckets array.
     <dl><dt><b>Description</b>:</dt><dd>Prepares for walking the contents of a symbol table by returning the first entry in the symbol table.</dd></dl>
     <dl><dt>Parameters:</dt><dd>
     <table class="parameters" title="Parameters">
-    <tr><td class="param">table</td><td>Symbol table returned via mprCreateSymbolTable.</td>
+    <tr><td class="param">table</td><td>Symbol table returned via mprCreateHash.</td>
     </table></dd></dl>
     <dl><dt>Returns:</dt><dd>Pointer to the first entry in the symbol table.</dd></dl>
     <dl><dt><b>API</b> Stability:</dt><dd>Stable.</dd></dl>
@@ -6715,7 +6715,7 @@ Size of the buckets array.
     <dl><dt><b>Description</b>:</dt><dd>Returns the number of symbols currently existing in a symbol table.</dd></dl>
     <dl><dt>Parameters:</dt><dd>
     <table class="parameters" title="Parameters">
-    <tr><td class="param">table</td><td>Symbol table returned via mprCreateSymbolTable.</td>
+    <tr><td class="param">table</td><td>Symbol table returned via mprCreateHash.</td>
     </table></dd></dl>
     <dl><dt>Returns:</dt><dd>Integer count of the number of entries.</dd></dl>
     <dl><dt><b>API</b> Stability:</dt><dd>Stable.</dd></dl>
@@ -6735,7 +6735,7 @@ Size of the buckets array.
     <dl><dt><b>Description</b>:</dt><dd>Continues walking the contents of a symbol table by returning the next entry in the symbol table. A previous call to mprGetFirstSymbol or mprGetNextSymbol is required to supply the value of the last argument.</dd></dl>
     <dl><dt>Parameters:</dt><dd>
     <table class="parameters" title="Parameters">
-    <tr><td class="param">table</td><td>Symbol table returned via mprCreateSymbolTable.</td>
+    <tr><td class="param">table</td><td>Symbol table returned via mprCreateHash.</td>
     <tr><td class="param">last</td><td>Symbol table entry returned via mprGetFirstSymbol or mprGetNextSymbol.</td>
     </table></dd></dl>
     <dl><dt>Returns:</dt><dd>Pointer to the first entry in the symbol table.</dd></dl>
@@ -6796,8 +6796,8 @@ Size of the buckets array.
     <dl><dt><b>Description</b>:</dt><dd>Lookup a symbol key and return the value associated with that key.</dd></dl>
     <dl><dt>Parameters:</dt><dd>
     <table class="parameters" title="Parameters">
-    <tr><td class="param">table</td><td>Symbol table returned via mprCreateSymbolTable.</td>
-    <tr><td class="param">key</td><td>String key of the symbole entry to delete.</td>
+    <tr><td class="param">table</td><td>Symbol table returned via mprCreateHash.</td>
+    <tr><td class="param">key</td><td>String key of the symbol entry to delete.</td>
     </table></dd></dl>
     <dl><dt>Returns:</dt><dd>Value associated with the key when the entry was inserted via mprInsertSymbol.</dd></dl>
     <dl><dt><b>API</b> Stability:</dt><dd>Stable.</dd></dl>
@@ -6817,8 +6817,8 @@ Size of the buckets array.
     <dl><dt><b>Description</b>:</dt><dd>Lookup a symbol key and return the hash table descriptor associated with that key.</dd></dl>
     <dl><dt>Parameters:</dt><dd>
     <table class="parameters" title="Parameters">
-    <tr><td class="param">table</td><td>Symbol table returned via mprCreateSymbolTable.</td>
-    <tr><td class="param">key</td><td>String key of the symbole entry to delete.</td>
+    <tr><td class="param">table</td><td>Symbol table returned via mprCreateHash.</td>
+    <tr><td class="param">key</td><td>String key of the symbol entry to delete.</td>
     </table></dd></dl>
     <dl><dt>Returns:</dt><dd>MprKey for the entry.</dd></dl>
     <dl><dt><b>API</b> Stability:</dt><dd>Stable.</dd></dl>
@@ -6838,8 +6838,8 @@ Size of the buckets array.
     <dl><dt><b>Description</b>:</dt><dd>Removes a symbol entry from the symbol table. The entry is looked up via the supplied key.</dd></dl>
     <dl><dt>Parameters:</dt><dd>
     <table class="parameters" title="Parameters">
-    <tr><td class="param">table</td><td>Symbol table returned via mprCreateSymbolTable.</td>
-    <tr><td class="param">key</td><td>String key of the symbole entry to delete.</td>
+    <tr><td class="param">table</td><td>Symbol table returned via mprCreateHash.</td>
+    <tr><td class="param">key</td><td>String key of the symbol entry to delete.</td>
     </table></dd></dl>
     <dl><dt>Returns:</dt><dd>Returns zero if successful, otherwise a negative MPR error code is returned.</dd></dl>
     <dl><dt><b>API</b> Stability:</dt><dd>Stable.</dd></dl>
@@ -10298,13 +10298,13 @@ Return the directory separator characters used to separate directories on a give
 (<a href="osdep.html#osdep_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *path, <a href="osdep.html#osdep_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *patterns, int flags)
   </div>
   <div class="apiDetail">
-<p>Create a list of files in a directory or subdirectories that match the given wildcard patterns.</p>
+<p>Create a list of files in a directory or subdirectories that match the given wildcard pattern.</p>
 This call returns a list of filenames
-    <dl><dt><b>Description</b>:</dt><dd>Get the list of files in a directory and return a list. The patterns list may contain multiple patterns separated by a comma. The supported wildcard patterns are: &quot;?&quot; Matches any single character, &quot;*&quot; matches zero or more characters of the file or directory, &quot;**&quot;/ matches zero or more directories, &quot;**&quot; matches zero or more files or directories,and a trailing &quot;/&quot; matches directories only. An exclusion pattern may be specified to apply to subsequent patterns by appending with &quot;!&quot;.</dd></dl>
+    <dl><dt><b>Description</b>:</dt><dd>Get the list of files in a directory and return a list. The pattern list may contain wild cards: &quot;?&quot; Matches any single character, &quot;*&quot; matches zero or more characters of the file or directory, &quot;**&quot;/ matches zero or more directories, &quot;**&quot; matches zero or more files or directories. An exclusion pattern may be specified to apply to subsequent patterns by appending with &quot;!&quot;.</dd></dl>
     <dl><dt>Parameters:</dt><dd>
     <table class="parameters" title="Parameters">
     <tr><td class="param">path</td><td>Directory to list.</td>
-    <tr><td class="param">patterns</td><td>Wild card patterns to match.</td>
+    <tr><td class="param">patterns</td><td>Wild card pattern to match.</td>
     <tr><td class="param">flags</td><td>Set to MPR_PATH_HIDDEN to include hidden files that start with &quot;.&quot;. Set to MPR_PATH_DEPTH_FIRST to do a depth-first traversal, i.e. traverse subdirectories before considering adding the directory to the list. Set MPR_PATH_RELATIVE to return files relative to the given path. Set MPR_PATH_NO_DIRS to omit directories.</td>
     </table></dd></dl>
     <dl><dt>Returns:</dt><dd>A list (MprList) of filenames.</dd></dl>
