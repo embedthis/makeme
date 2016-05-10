@@ -47,7 +47,7 @@
         "ssl": "~0.9"
     },
     "optionalDependencies": {
-        "mpr-openssl": "~0.4"
+        "mpr-openssl": "~0.5"
     },
     "devDependencies": {
         "pak": ">=0.11.0"
