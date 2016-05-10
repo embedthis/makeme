@@ -936,7 +936,7 @@ static int reportResponse(HttpConn *conn, cchar *url)
         }
     }
     if (status < 0) {
-        mprLog("error http", 0, "Cannot process request for \"%s\" %s", url, httpGetError(conn));
+        mprLog("error http", 0, "\nCannot process request for \"%s\" %s", url, httpGetError(conn));
         return MPR_ERR_CANT_READ;
 
     } else if (status == 0 && conn->protocol == 0) {
@@ -947,7 +947,7 @@ static int reportResponse(HttpConn *conn, cchar *url)
             app->success = 0;
         }
         if (!app->showStatus) {
-            mprLog("error http", 0, "Cannot process request for \"%s\" (%d) %s", url, status, httpGetError(conn));
+            mprLog("error http", 0, "\nCannot process request for \"%s\" (%d) %s", url, status, httpGetError(conn));
             return MPR_ERR_CANT_READ;
         }
     }
