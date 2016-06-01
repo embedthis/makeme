@@ -266,9 +266,9 @@ function findVxCompiler(results) {
     env.DIST = 'WindRiver'
     env.DIST_VER = version
 
-    if (platform.arch.match(/^i386$|^i486$$/)) {
+    if (platform.arch.match(/^i386|^i486/)) {
         vxarch = '386'
-    } else if (platform.arch.match(/^i[56]86$|^pentium$|^x86$/)) {
+    } else if (platform.arch.match(/^i[56]86|^pentium|^x86/)) {
         vxarch = 'pentium'
     } else if (platform.arch.match(/^ppc/)) {
         vxarch = 'ppc'
@@ -411,7 +411,6 @@ function setCompilerOptions(results, settings) {
             results.compiler.push(
                 '-fstack-protector',
                 '--param=ssp-buffer-size=4',
-                '--param ssp-buffer-size=4',
                 '-Wformat',
                 '-Wformat-security'
             )
@@ -456,7 +455,7 @@ function setCompilerOptions(results, settings) {
                 cpu = 'I80386'
             } else if (arch == 'i486') {
                 cpu = 'I80486'
-            } else if (arch.match(/^i.86$|^x86$/)) {
+            } else if (arch.match(/^i.86|^x86/)) {
                 if (arch == 'x86') {
                     cpu = 'PENTIUM'
                 } else if (arch == 'x86sim') {
@@ -474,10 +473,13 @@ function setCompilerOptions(results, settings) {
                 }
             }
         }
-        results.defines.push('VXWORKS', 'RW_MULTI_THREAD', '_GNU_TOOL', 
+        results.defines.push(
+            'VXWORKS', 
+            'RW_MULTI_THREAD', 
             'CPU=' + cpu.toUpper(), 
             'TOOL_FAMILY=gnu', 
             'TOOL=gnu', 
+            '_GNU_TOOL', 
             '_WRS_KERNEL_',
             '_VSB_CONFIG_FILE="' + 
             results.vxdir.join('samples/prebuilt_projects/vsb_vxsim_linux/h/config/vsbConfig.h') + '"')
