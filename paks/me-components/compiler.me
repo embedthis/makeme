@@ -178,7 +178,7 @@ function findVxCompiler(results) {
         search = [vxdir]
     } else {
         /*
-            Search for WorkBench/Tornado in common places
+            Search for WindRiver in common places
          */
         search = []
         if (Config.OS == 'windows') {
@@ -187,9 +187,13 @@ function findVxCompiler(results) {
             }
         }
         search += Path('/WindRiver').files('vxworks-*') +
+                  Path('/WindRiver').files('vxworks-*') +
                   Path('/usr/src/WindRiver').files('vxworks-*') +
                   Path(App.getenv('HOME') + '/WindRiver').files('vxworks-*')
-        vxdir = probe('target/h/vxWorks.h', {search: search.sort().reverse()})
+        vxdir = probe('target/h/vxWorks.h', {search: search.sort().reverse(), nothrow: true})
+        if (!vxdir) {
+            vxdir = probe('host/include/vxsimapi.h', {search: search.sort().reverse()})
+        }
     }
     if (!vxdir.contains('-')) {
         throw 'Unexpected VxWorks path. Should be of the format: "vxworks-version".\nPath is ' + vxdir
@@ -215,11 +219,26 @@ function findVxCompiler(results) {
     } else if (Config.OS == 'solaris') {
         env.WIND_HOST_TYPE = 'solaris2'
     }
-    /* VxWorks 6.9 needs to fix: get_feature error on liblmapi.so */
-    env.LD_LIBRARY_PATH = env.WIND_HOME + '/lmapi-5.0/' + env.WIND_HOST_TYPE + '/lib'
 
     let vxsearch
-    if (major >= 6) {
+    if (major >= 7) {
+        env.WIND_HOME = vxdir.dirname
+        env.WIND_GNU_PATH = vxdir.dirname.files('compilers/gnu-*').sort().reverse()[0]
+        vxsearch = [
+            env.WIND_GNU_PATH.join(env.WIND_HOST_TYPE, 'bin'),
+            env.WIND_GNU_PATH.join(env.WIND_HOST_TYPE, me.platform.arch + '-wrs-vxworks/bin'),
+            env.WIND_BASE.join('host', env.WIND_HOST_TYPE, 'bin'),
+            env.WIND_HOME.files('workbench*/foundation/' + env.WIND_HOST_TYPE + '/bin').sort().reverse()[0],
+        ]
+        /* VxWorks 7.0 needs to fix: get_feature error on liblmapi.so */
+        env.LD_LIBRARY_PATH = env.WIND_HOME + '/license/lmapi-5/' + env.WIND_HOST_TYPE + '/lib'
+        includes = [ 
+            vxdir.join('samples/prebuilt_projects/vsb_vxsim_linux/share/h'),
+            vxdir.join('samples/prebuilt_projects/vsb_vxsim_linux/krnl/h/system'),
+            vxdir.join('samples/prebuilt_projects/vsb_vxsim_linux/krnl/h/public'),
+        ]
+
+    } else if (major >= 6) {
         env.WIND_HOME = vxdir.dirname
         env.WIND_GNU_PATH = vxdir.dirname.files('gnu/*-' + vxdir.basename).sort().reverse()[0]
         vxsearch = [
@@ -227,8 +246,12 @@ function findVxCompiler(results) {
             env.WIND_GNU_PATH.join(env.WIND_HOST_TYPE, me.platform.arch + '-wrs-vxworks/bin'),
             env.WIND_BASE.join('host', env.WIND_HOST_TYPE, 'bin'),
             env.WIND_BASE.join('/host/resource/hutils/tcl'),
-            env.WIND_HOME.files('workbench*/foundation/' + env.WIND_HOST_TYPE + '/bin').sort().reverse()[0],
+            // env.WIND_HOME.files('workbench*/foundation/' + env.WIND_HOST_TYPE + '/bin').sort().reverse()[0],
         ]
+        /* VxWorks 6.9 needs to fix: get_feature error on liblmapi.so */
+        env.LD_LIBRARY_PATH = env.WIND_HOME + '/lmapi-5.0/' + env.WIND_HOST_TYPE + '/lib'
+        includes = [ vxdir.join('target/h'), vxdir.join('target/h/wrn/coreip') ]
+
     } else {
         env.WIND_HOME = vxdir
         env.WIND_GNU_PATH = ''
@@ -237,6 +260,9 @@ function findVxCompiler(results) {
             env.WIND_BASE.join('/host/resource/hutils/tcl'),
             env.WIND_HOME.files('workbench*/foundation/' + env.WIND_HOST_TYPE + '/bin').sort().reverse()[0],
         ]
+        /* VxWorks 6.9 needs to fix: get_feature error on liblmapi.so */
+        env.LD_LIBRARY_PATH = env.WIND_HOME + '/lmapi-5.0/' + env.WIND_HOST_TYPE + '/lib'
+        includes = [ vxdir.join('target/h'), vxdir.join('target/h/wrn/coreip') ]
     }
     env.DIST = 'WindRiver'
     env.DIST_VER = version
@@ -262,8 +288,6 @@ function findVxCompiler(results) {
         path = 'cc' + vxarch
     }
     path = probe(path, {fullpath: true, search: vxsearch})
-
-    includes = [ vxdir.join('target/h'), vxdir.join('target/h/wrn/coreip') ]
 
     blend(results, {
         path:     path,
@@ -416,7 +440,11 @@ function setCompilerOptions(results, settings) {
                 }
             }
         }
-        results.defines.push('VXWORKS', 'RW_MULTI_THREAD', '_GNU_TOOL', 'CPU=' + cpu.toUpper())
+        results.defines.push('VXWORKS', 'RW_MULTI_THREAD', '_GNU_TOOL', 
+            'CPU=_VX_SIMLINUX',
+            // 'CPU=' + cpu.toUpper(), 
+            'TOOL_FAMILY=gnu', 'TOOL=gnu', '_WRS_KERNEL_',
+            '_VSB_CONFIG_FILE="' + results.vxdir.join('samples/prebuilt_projects/vsb_vxsim_linux/h/config/vsbConfig.h') + '"')
         results.compiler.push('-fno-builtin', '-fno-defer-pop', '-fvolatile')
         if (arch.match(/mips/)) {
             /* Don't use mips global pointer */
