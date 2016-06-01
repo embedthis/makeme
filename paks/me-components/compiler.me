@@ -326,7 +326,6 @@ function getCompilerSettings(cc) {
             '#define _GNU_SOURCE\n#include <time.h>\nint main() { struct timespec tv; clock_gettime(CLOCK_REALTIME, &tv); return 0; }')
         settings.hasMmu = compile(cc, '',
             '#include <stdio.h>\n#include <unistd.h>\nint main() { fork(); return 0; }')
-        //  UNUSED - mtune not used?
         settings.hasMtune = compile(cc, '-mtune=generic', 'int main() { return 0;}')
         settings.hasPam = compile(cc, '',
             '#include <security/pam_appl.h>\nint main() { void *x = pam_start; return x != 0; }')
@@ -404,6 +403,33 @@ function setCompilerOptions(results, settings) {
                 results.compiler.push('-mno-sched-prolog')
             } else if (arch.startsWith('ppc')) {
                 results.defines.push('_GNU_TOOL')
+            }
+        }
+        if (me.settings.compiler && me.settings.compiler.fortify) {
+            results.defines.push(
+                '-D_FORTIFY_SOURCE=2'
+            )
+            results.compiler.push(
+                '-fstack-protector',
+                '--param=ssp-buffer-size=4',
+                '--param ssp-buffer-size=4',
+                '-Wformat',
+                '-Wformat-security'
+            )
+            if (platform.os != 'macosx') {
+                results.compiler.push(
+                    '-Wl,-z,relro,-z,now',
+                    '-Wl,--as-needed',
+                    '-Wl,--no-copy-dt-needed-entries',
+                    '-Wl,-z,noexecstatck',
+                    '-Wl,-z,noexecheap'
+                )
+                if (!me.settings.static) {
+                    results.compiler.push(
+                        '-pie',
+                        '-fPIE'
+                    )
+                }
             }
         }
     }

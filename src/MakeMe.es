@@ -617,7 +617,9 @@ public class MakeMe {
         if (!SupportedOS.contains(os)) {
             throw 'Unsupported or unknown operating system: ' + os + '. Select from: ' + SupportedOS.join(' ')
         }
-        if (!SupportedArch.contains(arch)) {
+        if (!SupportedArch.find(function(a) {
+            return arch.startsWith(a)
+        })) {
             throw 'Unsupported or unknown architecture: ' + arch + '. Select from: ' + SupportedArch.join(' ')
         }
     }
