@@ -436,7 +436,7 @@ public class Builder {
                 for each (file in files) {
                     let header = me.dir.inc.join(file.basename)
                     loader.createTarget({ name: header, enable: true, path: header, type: 'header', home: target.home,
-                        goals: [target.name], files: [ file ], includes: target.includes, generate: true, 
+                        goals: [target.name], files: [ file ], includes: target.includes, generate: true,
                         belongs: target.name })
                     target.depends.push(header)
                 }
@@ -453,7 +453,7 @@ public class Builder {
                 let files = buildFileList(target, target.resources)
                 for each (file in files) {
                     let res = me.dir.obj.join(file.replaceExt(me.ext.res).basename)
-                    loader.createTarget({ name : res, enable: true, path: res, enable: true, home: target.home,
+                    loader.createTarget({ name: res, enable: true, path: res, enable: true, home: target.home,
                         type: 'resource', goals: [target.name], files: [ file ], includes: target.includes,
                         defines: target.defines, generate: true, belongs: target.name })
                     target.files.push(res)
@@ -1178,9 +1178,9 @@ public class Builder {
         } else if (target.type == 'obj') {
             tv.CFLAGS = (target.compiler) ? target.compiler.join(' ') : ''
             if (makeme.generating) {
-                /* 
+                /*
                     Back quote quotes
-                    Use abs paths to reppath can substitute as much as possible 
+                    Use abs paths to reppath can substitute as much as possible
                  */
                 tv.DEFINES = target.defines.map(function(e) '-D' + e.replace(/"/g, '\\"')).join(' ')
                 tv.INCLUDES = (target.includes) ? target.includes.map(function(p) '"-I' + p + '"') : ''
@@ -1313,7 +1313,7 @@ public class Builder {
                             return true
                         }
                         if (sub.path && sub.path.modified > modified) {
-                            whyRebuild(name, 'Rebuild', 'dependent target ' + sname + ' has been modified, for "' + 
+                            whyRebuild(name, 'Rebuild', 'dependent target ' + sname + ' has been modified, for "' +
                                 dname + '"')
                             return true
                         }

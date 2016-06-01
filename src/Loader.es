@@ -53,8 +53,8 @@ public class Loader {
         if (!poptions) {
             return
         }
-        /* 
-            Disable/enable was originally --unset|--set 
+        /*
+            Disable/enable was originally --unset|--set
          */
         for each (field in poptions.disable) {
             me.settings[field] = false
@@ -130,7 +130,7 @@ public class Loader {
                 target.withpath = Path(value)
             }
             target.diagnostic = ''
-            if (!(me.configure.requires && me.configure.requires.contains(field)) && 
+            if (!(me.configure.requires && me.configure.requires.contains(field)) &&
                 !(me.configure.discovers && me.configure.discovers.contains(field))) {
                 requires.push(field)
             }
@@ -191,7 +191,7 @@ public class Loader {
     }
 
     /*
-        Blend files nominated in the customize[] property into 'me'. 
+        Blend files nominated in the customize[] property into 'me'.
         These are applied after the parent file is loaded. No errors if the file ddoes not exist.
      */
     function blendCustomize(obj) {
@@ -470,7 +470,7 @@ public class Loader {
         Expand tokens in all fields in an object hash. This is used to expand tokens in me file objects.
      */
     function expandTokens(o) {
-        let x 
+        let x
         if (me.targets.removeFiles) {
             if (me.targets.removeFiles.enable is String) x = 1
         }
@@ -831,7 +831,7 @@ public class Loader {
         obj.master = true
         if (!me.platform || !me.platform.name) {
             initPlatform(obj)
-        } 
+        }
         /*
             Load me-os/
          */
@@ -924,7 +924,7 @@ public class Loader {
         }
         me.globals.ME = me.dir.me
         return !tokens
-    } 
+    }
 
     /*
         Make globals used when doing string expansion
@@ -1052,7 +1052,7 @@ public class Loader {
             p.message ||= 'Run: ' + run
         }
         /* These are target events */
-        for each (n in ['action', 'build', 'shell', 'preblend', 'postblend', 'prebuild', 'postbuild', 
+        for each (n in ['action', 'build', 'shell', 'preblend', 'postblend', 'prebuild', 'postbuild',
                 'precompile', 'postcompile', 'preresolve', 'postresolve', 'presource', 'postsource', 'test']) {
             if (p[n] != undefined) {
                 p.type ||= 'script'
@@ -1060,10 +1060,10 @@ public class Loader {
                 let event = (n == 'action' || n == 'shell') ? 'build' : n
                 p.scripts ||= {}
                 p.scripts[event] ||= []
-                p.scripts[event]  += [{ 
-                    home: p.home, 
-                    interpreter: (n == 'shell') ? 'bash' : 'ejs', 
-                    script: script 
+                p.scripts[event]  += [{
+                    home: p.home,
+                    interpreter: (n == 'shell') ? 'bash' : 'ejs',
+                    script: script
                 }]
                 delete p[n]
             }
@@ -1129,7 +1129,7 @@ public class Loader {
             delete o[field]
         }
     }
-    
+
     /*
         Read a MakeMe file. This reads the file and returns a reference to the MakeMe definition object.
         The file is not processed or blended.
@@ -1208,7 +1208,7 @@ public class Loader {
                     script.home = Path(expand(script.home))
                 }
             }
-        } 
+        }
         target.files ||= []
         if (target.type == 'exe' || target.type == 'lib') {
             target.defines ||= []
@@ -1226,7 +1226,7 @@ public class Loader {
     }
 
     /*
-        Resolve directory properties to be absolute Paths so they can apply anywhere in the source tree. 
+        Resolve directory properties to be absolute Paths so they can apply anywhere in the source tree.
         Scripts change directory so it is essential that all script-accessible properties be absolute.
      */
     function resolveDirectories() {
@@ -1320,7 +1320,7 @@ public class Loader {
             dir.out  ||= dir.bld.join(me.platform.name)
             dir.bin  ||= dir.out.join('bin')
             dir.inc  ||= dir.out.join('inc')
-            dir.lbin ||= (options.gen || (me.platform.os == Config.OS && me.platform.arch == Config.CPU)) ? 
+            dir.lbin ||= (options.gen || (me.platform.os == Config.OS && me.platform.arch == Config.CPU)) ?
                 dir.bin : dir.bld.join(localPlatform, 'bin')
             if (!dir.top.join('lib').exists && dir.top.join('src').exists) {
                 dir.lib  ||= dir.top.join('src')
@@ -1508,5 +1508,3 @@ public class Loader {
 
     @end
  */
-
-
