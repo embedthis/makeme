@@ -187,7 +187,6 @@ function findVxCompiler(results) {
             }
         }
         search += Path('/WindRiver').files('vxworks-*') +
-                  Path('/WindRiver').files('vxworks-*') +
                   Path('/usr/src/WindRiver').files('vxworks-*') +
                   Path(App.getenv('HOME') + '/WindRiver').files('vxworks-*')
         vxdir = probe('target/h/vxWorks.h', {search: search.sort().reverse(), nothrow: true})
@@ -458,21 +457,31 @@ function setCompilerOptions(results, settings) {
             } else if (arch == 'i486') {
                 cpu = 'I80486'
             } else if (arch.match(/^i.86$|^x86$/)) {
-                cpu = major >= 7 ? '_VX_SIMLINUX' : 'PENTIUM'
+                if (arch == 'x86') {
+                    cpu = 'PENTIUM'
+                } else if (arch == 'x86sim') {
+                    cpu = '_VX_SIMLINUX'
+                } else {
+                    cpu = arch.toUpper()
+                }
             } else {
-                cpu = arch.toUpper()
                 if (arch == 'mips') {
                     cpu = 'MIPS32'
                 } else if (arch == 'arm') {
                     cpu = major >= 7 ? 'ARMARCH7' : 'ARM7TDMI'
+                } else {
+                    cpu = arch.toUpper()
                 }
             }
         }
         results.defines.push('VXWORKS', 'RW_MULTI_THREAD', '_GNU_TOOL', 
-            'CPU=_VX_SIMLINUX',
-            // 'CPU=' + cpu.toUpper(), 
-            'TOOL_FAMILY=gnu', 'TOOL=gnu', '_WRS_KERNEL_',
-            '_VSB_CONFIG_FILE="' + results.vxdir.join('samples/prebuilt_projects/vsb_vxsim_linux/h/config/vsbConfig.h') + '"')
+            'CPU=' + cpu.toUpper(), 
+            'TOOL_FAMILY=gnu', 
+            'TOOL=gnu', 
+            '_WRS_KERNEL_',
+            '_VSB_CONFIG_FILE="' + 
+            results.vxdir.join('samples/prebuilt_projects/vsb_vxsim_linux/h/config/vsbConfig.h') + '"')
+
         results.compiler.push('-fno-builtin', '-fno-defer-pop', '-fvolatile')
         if (arch.match(/mips/)) {
             /* Don't use mips global pointer */

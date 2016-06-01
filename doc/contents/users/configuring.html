@@ -106,9 +106,9 @@ the form <em>--set KEY=VALUE</em>. For example:
 
         <p>MakeMe supports cross compiling via the <em>configure --platform OS-ARCH-PROFILE</em> option. This adds a platform to the list of platforms to be made when building. Multiple platforms may be specified and the <em>local</em> platform alias may be used for the local development platform.</p>
 
-        <p>The ARCH componenty may contain a specific CPU to tune for. This is specified as a <em>:CPU</em> suffix 
-        to the ARCH field. Some operating systems such as VxWorks, require a CPU specifier. For example:</p>
-        <code>me --platform vxworks-arm:arm7tdmi-debug -configure .</code>
+        <p>The ARCH component may be a specific CPU to tune for rather than an CPU family.  For example:</p>
+        <code>me --platform vxworks-arm7tdmi-debug -configure .
+me --platform vxworks-x86sim</code>
 
         <p>This will create a vxworks-arm/platform.me configuration file and a <em>start.me</em> that references it. The platform switch does not need to be restated after configuration and will be ignored.</p>
 
