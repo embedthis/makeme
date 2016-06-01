@@ -227,7 +227,7 @@ function findVxCompiler(results) {
             env.WIND_GNU_PATH.join(env.WIND_HOST_TYPE, 'bin'),
             env.WIND_GNU_PATH.join(env.WIND_HOST_TYPE, me.platform.arch + '-wrs-vxworks/bin'),
             env.WIND_BASE.join('host', env.WIND_HOST_TYPE, 'bin'),
-            env.WIND_HOME.files('workbench*/foundation/' + env.WIND_HOST_TYPE + '/bin').sort().reverse()[0],
+            env.WIND_HOME.files('workbench*/' + env.WIND_HOST_TYPE + '/bin').sort().reverse()[0],
         ]
         /* VxWorks 7.0 needs to fix: get_feature error on liblmapi.so */
         env.LD_LIBRARY_PATH = env.WIND_HOME + '/license/lmapi-5/' + env.WIND_HOST_TYPE + '/lib'
@@ -480,10 +480,13 @@ function setCompilerOptions(results, settings) {
             'TOOL_FAMILY=gnu', 
             'TOOL=gnu', 
             '_GNU_TOOL', 
-            '_WRS_KERNEL_',
-            '_VSB_CONFIG_FILE="' + 
-            results.vxdir.join('samples/prebuilt_projects/vsb_vxsim_linux/h/config/vsbConfig.h') + '"')
-
+            '_WRS_KERNEL_')
+        if (major >= 7) {
+            results.defines.push(
+                '_VSB_CONFIG_FILE="' + 
+                    results.vxdir.join('samples/prebuilt_projects/vsb_vxsim_linux/h/config/vsbConfig.h') + '"'
+            )
+        }
         results.compiler.push('-fno-builtin', '-fno-defer-pop', '-fvolatile')
         if (arch.match(/mips/)) {
             /* Don't use mips global pointer */
