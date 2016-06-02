@@ -328,7 +328,7 @@ function getCompilerSettings(cc) {
         settings.hasMtune = compile(cc, '-mtune=generic', 'int main() { return 0;}')
         settings.hasPam = compile(cc, '',
             '#include <security/pam_appl.h>\nint main() { void *x = pam_start; return x != 0; }')
-        settings.hasStackProtector = compile(cc, '-fno-stack-protector', 'int main() { return 0;}')
+        settings.hasStackProtector = compile(cc, '-fstack-protector', 'int main() { return 0;}')
         settings.hasSync = compile(cc, '',
             'int main() { int a, b; a = 0 ; b = 1; __sync_add_and_fetch(&a, b); return 0; }')
         settings.hasSync64 = compile(cc, '',
@@ -350,7 +350,9 @@ function setCompilerOptions(results, settings) {
     let platform = me.platform
     let arch = platform.arch
 
+    let prior = (me.settings.compiler || {}).clone()
     makeme.loader.blendObj({ settings: { compiler: settings }})
+    blend(me.settings.compiler, prior, {combine: true})
 
     results.compiler ||=  []
     results.defines ||=  []
@@ -408,9 +410,13 @@ function setCompilerOptions(results, settings) {
             results.defines.push(
                 '-D_FORTIFY_SOURCE=2'
             )
+            if (settings.hasStackProtector) {
+                results.compiler.push(
+                    '-fstack-protector',
+                    '--param=ssp-buffer-size=4'
+                )
+            }
             results.compiler.push(
-                '-fstack-protector',
-                '--param=ssp-buffer-size=4',
                 '-Wformat',
                 '-Wformat-security'
             )
@@ -422,7 +428,11 @@ function setCompilerOptions(results, settings) {
                     '-Wl,-z,noexecstatck',
                     '-Wl,-z,noexecheap'
                 )
-                if (!me.settings.static) {
+                if (me.settings.static) {
+                    /* 
+                        Note: gcc -static disables pie. But we do not use -static.
+                        Also note: cannot use pie with shared libraries
+                     */
                     results.compiler.push(
                         '-pie',
                         '-fPIE'
@@ -431,7 +441,9 @@ function setCompilerOptions(results, settings) {
             }
         }
     }
-
+    if (arch == 'arm') {
+        results.compiler.push('-fomit-frame-pointer')
+    }
     if (platform.os == 'linux') {
         if (!me.settings.static) {
             results.linker.push('-rdynamic', '-Wl,--enable-new-dtags', '-Wl,-rpath,$ORIGIN/')
@@ -447,6 +459,9 @@ function setCompilerOptions(results, settings) {
         results.libraries.push('lxnet', 'rt', 'socket')
 
     } else if (platform.os == 'vxworks') {
+        if (!results.vxdir) {
+            results.vxdir = Path('/WindRiver/vxworks-7')
+        }
         let version: String = results.vxdir.basename.toString().split('-')[1]
         let major: Number = version.split('.')[0] cast Number
         let cpu = platform.cpu
@@ -554,7 +569,7 @@ function compile(cc: Path, command: String, contents: String = null): Boolean {
         let cflags = ''
         if (me.platform.cross) {
             cc = App.getenv('CC') || cc
-            cflags = App.getenv('CFLAGS') + ' '
+            cflags = App.getenv('CFLAGS') || ' '
         }
         command = '' + cc + ' -Werror -Wall ' + cflags + command
         strace('Compile', command)
