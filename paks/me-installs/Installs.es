@@ -508,8 +508,12 @@ class InstallsInner {
         let generic = me.dir.rel.join(me.settings.name + '-' + fmt + '.tgz')
         generic.remove()
         zname.link(generic)
-        let sumline = md5(zname.readString()) + ' ' + zname.basename + '\n'
+
+        let sumline = checksum(zname) + ' ' + zname.basename + '\n'
+        me.dir.rel.join('sha256-' + me.platform.vname + '-' + fmt + '.tgz.txt').write(sumline)
+        sumline = md5sum(zname) + ' ' + zname.basename + '\n'
         me.dir.rel.join('md5-' + me.platform.vname + '-' + fmt + '.tgz.txt').write(sumline)
+
         trace('Package', generic.relativeTo(me.dir.top))
     }
 
@@ -583,8 +587,12 @@ class InstallsInner {
         tar.create(files)
         Zlib.compress(name, zname)
         name.remove()
-        let sumline = md5(zname.readString()) + ' ' + zname.basename + '\n'
+
+        let sumline = checksum(zname) + ' ' + zname.basename + '\n'
+        me.dir.rel.join('sha256-' + base).joinExt('tgz.txt', true).write(sumline)
+        sumline = md5sum(zname) + ' ' + zname.basename + '\n'
         me.dir.rel.join('md5-' + base).joinExt('tgz.txt', true).write(sumline)
+
         let generic = me.dir.rel.join(me.settings.name + '-tar' + '.tgz')
         generic.remove()
         zname.link(generic)
@@ -704,7 +712,9 @@ class InstallsInner {
                 run('pkgutil --check-signature ' + outfile, {filter: true})
             }
         }
-        let sumline = md5(outfile.readString()) + ' ' + outfile.basename + '\n'
+        let sumline = checksum(outfile) + ' ' + outfile.basename + '\n'
+        me.dir.rel.join('sha256-' + base).joinExt('pkg.txt', true).write(sumline)
+        sumline = md5sum(outfile) + ' ' + outfile.basename + '\n'
         me.dir.rel.join('md5-' + base).joinExt('pkg.txt', true).write(sumline)
     }
 
@@ -767,8 +777,12 @@ class InstallsInner {
         run(pmaker + ' -ba --target ' + cpu + ' ' + spec.basename, {dir: RPM.join('SPECS'), filter: true})
         let rpmfile = RPM.join('RPMS', cpu, [s.name, s.version].join('-')).joinExt(cpu + '.rpm', true)
         rpmfile.rename(outfile)
-        let sumline = md5(outfile.readString()) + ' ' + outfile.basename + '\n'
+
+        let sumline = checksum(outfile) + ' ' + outfile.basename + '\n'
+        me.dir.rel.join('sha256-' + base).joinExt('rpm.txt', true).write(outline)
+        sumline = md5sum(outfile) + ' ' + outfile.basename + '\n'
         me.dir.rel.join('md5-' + base).joinExt('rpm.txt', true).write(outline)
+
         App.putenv('HOME', home)
     }
 
@@ -797,8 +811,12 @@ class InstallsInner {
         let outfile = me.dir.rel.join(base).joinExt('deb', true)
         trace('Package', outfile)
         run(pmaker + ' --build ' + DEBIAN.dirname + ' ' + outfile, {filter: true})
-        let sumline = md5(outfile.readString()) + ' ' + outfile.basename + '\n'
+
+        let sumline = checksum(outfile) + ' ' + outfile.basename + '\n'
+        me.dir.rel.join('sha256-' + base).joinExt('deb.txt', true).write(sumline)
+        sumline = md5sum(outfile) + ' ' + outfile.basename + '\n'
         me.dir.rel.join('md5-' + base).joinExt('deb.txt', true).write(sumline)
+
         /* This is done instead by the farm when posting the image */
         // run('dpkg-sig -k ' + KEY ' --sign builder ' + outfile)
     }
@@ -859,8 +877,12 @@ class InstallsInner {
         let zipfile = outfile.joinExt('zip', true)
         zipfile.remove()
         run(['zip', '-q', zipfile.basename, outfile.basename], {dir: me.dir.rel, filter: true})
-        let sumline = md5(zipfile.readString()) + ' ' + zipfile.basename + '\n'
+
+        let sumline = checksum(zipfile) + ' ' + zipfile.basename + '\n'
+        me.dir.rel.join('sha256-' + base).joinExt('exe.zip.txt', true).write(sumline)
+        sumline = md5sum(zipfile) + ' ' + zipfile.basename + '\n'
         me.dir.rel.join('md5-' + base).joinExt('exe.zip.txt', true).write(sumline)
+
         outfile.remove()
     }
 
@@ -931,6 +953,14 @@ class InstallsInner {
             patch = parts[2] cast Number
         }
         return (((major * VER_FACTOR) + minor) * VER_FACTOR) + patch
+    }
+
+    function checksum(filename) {
+        return(Cmd.run('shasum -a 256 ' + filename).split(' ')[0])
+    }
+
+    function md5sum(filename: Path) {
+        return md5(filename.readString())
     }
 
 } /* InstallsInner class */

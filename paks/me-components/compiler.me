@@ -321,8 +321,11 @@ function getCompilerSettings(cc) {
             '#include <stdio.h>\n#include <dlfcn.h>\nint main() { dlopen(\"test.so\", 0); return 0; }')
         settings.hasLibEdit = compile(cc, '',
             '#include <histedit.h>\nint main() { history_init(); return 0; }')
-        settings.hasLibRt = compile(cc, '',
-            '#define _GNU_SOURCE\n#include <time.h>\nint main() { struct timespec tv; clock_gettime(CLOCK_REALTIME, &tv); return 0; }')
+
+        if (me.platform.os != 'macosx') {
+            settings.hasLibRt = compile(cc, '',
+                '#define _GNU_SOURCE\n#include <time.h>\nint main() { struct timespec tv; clock_gettime(CLOCK_REALTIME, &tv); return 0; }')
+        }
         settings.hasMmu = compile(cc, '',
             '#include <stdio.h>\n#include <unistd.h>\nint main() { fork(); return 0; }')
         settings.hasMtune = compile(cc, '-mtune=generic', 'int main() { return 0;}')
@@ -400,9 +403,12 @@ function setCompilerOptions(results, settings) {
                 results.compiler.push('-fPIC')
                 results.defines.push('_REENTRANT', 'PIC')
             }
+            /* 
             if (arch.startsWith('arm')) {
                 results.compiler.push('-mno-sched-prolog')
-            } else if (arch.startsWith('ppc')) {
+            } else 
+            */
+            if (arch.startsWith('ppc')) {
                 results.defines.push('_GNU_TOOL')
             }
         }
