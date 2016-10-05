@@ -25,7 +25,6 @@ me \- MakeMe -- Utility to make and manage programs and products
     \fB--nocross\fR
     \fB--out path\fR
     \fB--overwrite\fR
-    \fB--platform os-arch\fR
     \fB--pre\fR
     \fB--prefix dir=path\fR
     \fB--prefixes [debian|embedthis|opt]\fR
@@ -319,7 +318,8 @@ Continue to build despite any build errors. Normal operation is to stop building
 
 .TP
 \fB\--debug\fR
-Same as --profile debug
+Enable a debug build. This enables the settings.debug property which controls whether debug symbols will be
+created when compiling.
 
 .TP
 \fB\--deploy directory\fR
@@ -394,10 +394,10 @@ Save MakeMe trace output to a file instead of displaying to the console.
 Overwrite existing files.
 
 .TP
-\fB\--platform os-arch\fR
+\fB\--platform os-arch-profile\fR
 Add a platform to build for cross-compilation. Multiple platforms can be added. You may use 'local' for the local platform. Options specified after the platform apply to the prior platform. For example: 
 
-    me --platform linux-x86 --without all --platform linux-arm --with ejscript configure
+    me --platform linux-x86-debug --without all --platform linux-arm-debug --with ejscript configure
 
 .TP
 \fB\--pre\fR
@@ -418,12 +418,6 @@ products install by default with a prefix of /usr/local/lib/PRODUCT and symlink 
 The opt prefix set installs with a prefix of "/opt".
 
 .TP
-\fB\--profile [debug|release|...]\fR
-Use the specified profile when building. This option is provided once when configuring and the result is saved in
-the platform.profile property in the platform.me file. Custom profiles can be added to the main.me or start.me
-files.
-
-.TP
 \fB\--quiet\fR
 Quiet operation. Suppresses output trace.
 
@@ -437,7 +431,7 @@ Re-run configuration using the prior configuration settings.
 
 .TP
 \fB\--release\fR
-Select the release profile. Same as --profile release.
+Enable a release build. This disables the settings.debug property and compiles without debug symbols.
 
 .TP
 \fB\--rom\fR

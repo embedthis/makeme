@@ -518,7 +518,7 @@ public class MakeMe {
             '  --configure /path/to/source/tree          # Configure product\n' +
             '  --configuration                           # Display current configuration\n' +
             '  --continue                                # Continue on errors\n' +
-            '  --debug                                   # Same as --profile debug\n' +
+            '  --debug                                   # Enable debug build\n' +
             '  --deploy directory                        # Install to deploy directory\n' +
             '  --depth level                             # Set utest depth level\n' +
             '  --diagnose                                # Emit diagnostic trace \n' +
@@ -541,10 +541,9 @@ public class MakeMe {
             '  --pre                                     # Pre-process a source file to stdout\n' +
             '  --prefix dir=path                         # Define installation path prefixes\n' +
             '  --prefixes [debian|opt|embedthis]         # Use a given prefix set\n' +
-            '  --profile [debug|release|...]             # Use the build profile\n' +
             '  --quiet                                   # Quiet operation. Suppress trace \n' +
             '  --rebuild                                 # Rebuild all specified targets\n' +
-            '  --release                                 # Same as --profile release\n' +
+            '  --release                                 # Enable release build\n' +
             '  --rom                                     # Build for ROM without a file system\n' +
             '  --set [feature=value]                     # Enable and a feature\n' +
             '  --sets [set,set,..]                       # File set to install/deploy\n' +
