@@ -85,6 +85,7 @@ public class MakeMe {
             pre: { },
             prefix: { range: String, separator: Array },
             prefixes: { range: String },
+            profile: { range: String },
             rebuild: { alias: 'r'},
             release: {},
             rom: { },
@@ -541,6 +542,7 @@ public class MakeMe {
             '  --pre                                     # Pre-process a source file to stdout\n' +
             '  --prefix dir=path                         # Define installation path prefixes\n' +
             '  --prefixes [debian|opt|embedthis]         # Use a given prefix set\n' +
+            '  --profile defaultProfile                  # Set the default profile\n' +
             '  --quiet                                   # Quiet operation. Suppress trace \n' +
             '  --rebuild                                 # Rebuild all specified targets\n' +
             '  --release                                 # Enable release build\n' +
@@ -616,7 +618,7 @@ public class MakeMe {
         if (!SupportedOS.contains(os)) {
             throw 'Unsupported or unknown operating system: ' + os + '. Select from: ' + SupportedOS.join(' ')
         }
-        if (!SupportedArch.find(function(a) {
+        if (arch && !SupportedArch.find(function(a) {
             return arch.startsWith(a)
         })) {
             throw 'Unsupported or unknown architecture: ' + arch + '. Select from: ' + SupportedArch.join(' ')
@@ -628,6 +630,9 @@ public class MakeMe {
         let [os, arch, profile] = platform.split('-')
         if (!arch) {
             arch = Config.CPU
+        }
+        if (!profile) {
+            profile = options.profile
         }
         if (!profile) {
             profile = (options.release) ? 'release' : 'debug'

@@ -418,6 +418,12 @@ products install by default with a prefix of /usr/local/lib/PRODUCT and symlink 
 The opt prefix set installs with a prefix of "/opt".
 
 .TP
+\fB\--profile defaultProfile\fR
+Set the default profile if unspecified. Typical profiles are: 'debug', 'dev', 'stage', 'prod' or 'release'.
+The profile is used in constructing the build output directory. You may specify override properties in the
+main.me profiles[PROFILE] collection.
+
+.TP
 \fB\--quiet\fR
 Quiet operation. Suppresses output trace.
 

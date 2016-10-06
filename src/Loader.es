@@ -28,7 +28,8 @@ public class Loader {
 
     function Loader() {
         options = makeme.options
-        localPlatform = options.local || (Config.OS + '-' + Config.CPU + '-' + (options.release ? 'release' : 'debug'))
+        let profile = options.profile || (options.release ? 'release' : 'debug')
+        localPlatform = options.local || (Config.OS + '-' + Config.CPU + '-' + profile)
         reset()
     }
 
@@ -37,14 +38,22 @@ public class Loader {
      */
     public function applyCommandLine() {
         let options = me.options
-        if (options.debug) {
-            me.settings.debug = true
-        }
-        if (options.release) {
-            me.settings.debug = false
-        }
-        if (me.settings.debug == undefined) {
-            me.settings.debug = true
+        if (!me.settings.debug) {
+            if (options.debug) {
+                me.settings.debug = true
+            }
+            if (options.release) {
+                me.settings.debug = false
+            }
+            if (options.profile) {
+                let profile = options.profile
+                if (profile == 'release' || profile == 'prod' || profile == 'production') {
+                    me.settings.debug = false
+                }
+            }
+            if (me.settings.debug == undefined) {
+                me.settings.debug = true
+            }
         }
         if (!options.platforms) {
             return
