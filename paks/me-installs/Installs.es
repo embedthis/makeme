@@ -296,6 +296,7 @@ class InstallsInner {
             files = files.sort().unique().filter(function(f) f.startsWith(root))
             files = files.map(function(f) '/' + f.relativeTo(root))
             flog.write(files.join('\n') + '\n')
+            flog.perms = 0700
         }
     }
 
