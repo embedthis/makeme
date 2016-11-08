@@ -33,7 +33,6 @@ ME(1)                            User Commands                           ME(1)
            <B>--nocross</B>
            <B>--out path</B>
            <B>--overwrite</B>
-           <B>--platform os-arch</B>
            <B>--pre</B>
            <B>--prefix dir=path</B>
            <B>--prefixes [debian|embedthis|opt]</B>
@@ -353,7 +352,9 @@ ME(1)                            User Commands                           ME(1)
               to stop building if any build errors are encountered.
 
        <B>--debug</B>
-              Same as --profile debug
+              Enable  a  debug build. This enables the settings.debug property
+              which controls whether debug symbols will be created  when  com-
+              piling.
 
        <B>--deploy directory</B>
               Install  the product to the deployment directory. This is useful
@@ -425,14 +426,14 @@ ME(1)                            User Commands                           ME(1)
        <B>--overwrite</B>
               Overwrite existing files.
 
-       <B>--platform os-arch</B>
+       <B>--platform os-arch-profile</B>
               Add a platform to build for  cross-compilation.  Multiple  plat-
               forms  can be added. You may use 'local' for the local platform.
               Options specified after the platform apply to  the  prior  plat-
               form. For example:
 
-                  me  --platform  linux-x86 --without all --platform linux-arm
-              --with ejscript configure
+                  me   --platform  linux-x86-debug  --without  all  --platform
+              linux-arm-debug --with ejscript configure
 
        <B>--pre  </B>Pre-process a source file to stdout.
 
@@ -453,11 +454,11 @@ ME(1)                            User Commands                           ME(1)
               symlink exectuables  to  /usr/local/bin.   The  opt  prefix  set
               installs with a prefix of "/opt".
 
-       <B>--profile [debug|release|...]</B>
-              Use the specified profile when building. This option is provided
-              once when configuring and the  result  is  saved  in  the  plat-
-              form.profile  property  in the platform.me file. Custom profiles
-              can be added to the main.me or start.me files.
+       <B>--profile defaultProfile</B>
+              Set  the  default  profile if unspecified. Typical profiles are:
+              'debug', 'dev', 'stage', 'prod' or 'release'.   The  profile  is
+              used in constructing the build output directory. You may specify
+              override properties in the main.me profiles[PROFILE] collection.
 
        <B>--quiet</B>
               Quiet operation. Suppresses output trace.
@@ -469,7 +470,8 @@ ME(1)                            User Commands                           ME(1)
               Re-run configuration using the prior configuration settings.
 
        <B>--release</B>
-              Select the release profile. Same as --profile release.
+              Enable  a  release build. This disables the settings.debug prop-
+              erty and compiles without debug symbols.
 
        <B>--rom  </B>Configure setting to build for systems without  a  file  system.
               This  enables  the  ROM file system.  Use the makerom utility to

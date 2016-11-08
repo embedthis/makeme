@@ -508,7 +508,7 @@ class InstallsInner {
 
         let generic = me.dir.rel.join(me.settings.name + '-' + fmt + '.tgz')
         generic.remove()
-        zname.link(generic)
+        zname.basename.link(generic)
 
         let sumline = checksum(zname) + ' ' + zname.basename + '\n'
         me.dir.rel.join('sha256-' + me.platform.vname + '-' + fmt + '.tgz.txt').write(sumline)
@@ -596,7 +596,7 @@ class InstallsInner {
 
         let generic = me.dir.rel.join(me.settings.name + '-tar' + '.tgz')
         generic.remove()
-        zname.link(generic)
+        zname.basename.link(generic)
     }
 
     function makeNativeInstall(prefixes) {

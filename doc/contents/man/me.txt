@@ -29,7 +29,6 @@ SYNOPSIS
            --nocross
            --out path
            --overwrite
-           --platform os-arch
            --pre
            --prefix dir=path
            --prefixes [debian|embedthis|opt]
@@ -370,7 +369,9 @@ OPTIONS
 
 
        --debug
-              Same as --profile debug
+              Enable  a  debug build. This enables the settings.debug property
+              which controls whether debug symbols will be created  when  com-
+              piling.
 
 
        --deploy directory
@@ -459,14 +460,14 @@ OPTIONS
               Overwrite existing files.
 
 
-       --platform os-arch
+       --platform os-arch-profile
               Add a platform to build for  cross-compilation.  Multiple  plat-
               forms  can be added. You may use 'local' for the local platform.
               Options specified after the platform apply to  the  prior  plat-
               form. For example:
 
-                  me  --platform  linux-x86 --without all --platform linux-arm
-              --with ejscript configure
+                  me   --platform  linux-x86-debug  --without  all  --platform
+              linux-arm-debug --with ejscript configure
 
 
        --pre  Pre-process a source file to stdout.
@@ -491,11 +492,11 @@ OPTIONS
               installs with a prefix of "/opt".
 
 
-       --profile [debug|release|...]
-              Use the specified profile when building. This option is provided
-              once when configuring and the  result  is  saved  in  the  plat-
-              form.profile  property  in the platform.me file. Custom profiles
-              can be added to the main.me or start.me files.
+       --profile defaultProfile
+              Set  the  default  profile if unspecified. Typical profiles are:
+              'debug', 'dev', 'stage', 'prod' or 'release'.   The  profile  is
+              used in constructing the build output directory. You may specify
+              override properties in the main.me profiles[PROFILE] collection.
 
 
        --quiet
@@ -511,7 +512,8 @@ OPTIONS
 
 
        --release
-              Select the release profile. Same as --profile release.
+              Enable  a  release build. This disables the settings.debug prop-
+              erty and compiles without debug symbols.
 
 
        --rom  Configure setting to build for systems without  a  file  system.
