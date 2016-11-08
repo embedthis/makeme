@@ -413,9 +413,11 @@ function setCompilerOptions(results, settings) {
             }
         }
         if (me.settings.compiler && me.settings.compiler.fortify) {
-            results.defines.push(
-                '-D_FORTIFY_SOURCE=2'
-            )
+            if (!me.settings.debug) {
+                results.defines.push(
+                    '-D_FORTIFY_SOURCE=2'
+                )
+            }
             if (settings.hasStackProtector) {
                 results.compiler.push(
                     '-fstack-protector',
