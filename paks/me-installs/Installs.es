@@ -384,9 +384,7 @@ class InstallsInner {
         }
         me.installing = true
         let [manifest, package, prefixes] = setupInstall('install')
-print("III")
         if (package) {
-print("JJJ")
             checkRoot(manifest)
             if (!makeme.generating) {
                 if (me.options.deploy) {
@@ -395,7 +393,6 @@ print("JJJ")
                     trace('Install', me.settings.title)
                 }
             }
-print("KKK")
             files = deploy(manifest, package) 
             makeFilesLog(prefixes.vapp ? prefixes.vapp : prefixes.app, prefixes.root, files, me.prefixes)
         }
