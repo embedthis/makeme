@@ -289,8 +289,8 @@ class InstallsInner {
         return [manifest, package, prefixes]
     }
 
-    function makeFiles(where, root, files, prefixes) {
-        if (!makeme.generating && !me.options.deploy) {
+    function makeFilesLog(where, root, files, prefixes) {
+        if (!makeme.generating && !me.options.deploy && me.manifest.log != false) {
             let flog = where.join('files.log')
             files += [flog]
             files = files.sort().unique().filter(function(f) f.startsWith(root))
@@ -305,10 +305,15 @@ class InstallsInner {
         if (package) {
             trace('Create', me.settings.title + ' Binary')
             let files = deploy(manifest, package)
-            makeFiles(prefixes.vapp ? prefixes.vapp : prefixes.app, prefixes.root, files, prefixes)
+            makeFilesLog(prefixes.vapp ? prefixes.vapp : prefixes.app, prefixes.root, files, prefixes)
             /* Do Tar first as native package will add files */
-            makeTarInstall(prefixes)
-            makeNativeInstall(prefixes)
+            let binary = manifest.packages.binary
+            if (binary.formats.contains('tar')) {
+                makeTarInstall(prefixes)
+            }
+            if (binary.formats.contains('native')) {
+                makeNativeInstall(prefixes)
+            }
         }
     }
 
@@ -379,7 +384,9 @@ class InstallsInner {
         }
         me.installing = true
         let [manifest, package, prefixes] = setupInstall('install')
+print("III")
         if (package) {
+print("JJJ")
             checkRoot(manifest)
             if (!makeme.generating) {
                 if (me.options.deploy) {
@@ -388,8 +395,9 @@ class InstallsInner {
                     trace('Install', me.settings.title)
                 }
             }
+print("KKK")
             files = deploy(manifest, package) 
-            makeFiles(prefixes.vapp ? prefixes.vapp : prefixes.app, prefixes.root, files, me.prefixes)
+            makeFilesLog(prefixes.vapp ? prefixes.vapp : prefixes.app, prefixes.root, files, me.prefixes)
         }
         delete me.installing
     }
