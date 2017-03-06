@@ -878,7 +878,7 @@ public function repvar(command: String): String {
         command = command.replace(RegExp(mappings.configuration, 'g'), '$${CONFIG}')
     }
     for each (p in ['vapp', 'app', 'bin', 'inc', 'lib', 'man', 'base', 'web', 'cache', 'spool', 'log', 'etc']) {
-        if (me.prefixes[p]) {
+        if (me.prefixes[p] && me.prefixes[p].toString() != '') {
             if (me.platform.like == 'windows') {
                 let pat = me.prefixes[p].windows.replace(/\\/g, '\\\\')
                 command = command.replace(RegExp(pat, 'g'), '$$(ME_' + p.toUpper() + '_PREFIX)')
@@ -911,7 +911,7 @@ public function repvar2(command: String, home: Path? = null): String {
         command = command.replace(RegExp(mappings.configuration, 'g'), '$${CONFIG}')
     }
     for each (p in ['vapp', 'app', 'bin', 'inc', 'lib', 'man', 'base', 'web', 'cache', 'spool', 'log', 'etc']) {
-        if (mappings[p]) {
+        if (mappings[p] && mappings[p].toString() != '') {
             if (me.platform.like == 'windows') {
                 let pat = mappings[p].windows.replace(/\\/g, '\\\\')
                 command = command.replace(RegExp(pat, 'g'), '$$(ME_' + p.toUpper() + '_PREFIX)')
