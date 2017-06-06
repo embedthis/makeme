@@ -1,5 +1,5 @@
 {
-    platforms: ['linux-x64', 'macosx-x64', 'windows-x64'],
+    platforms: ['linux-x64'],
     steps:     ['prep', 'download', 'configure', 'build', 'package', 'test'],
     options:   ['publish'],
     commands: {
@@ -9,5 +9,23 @@
         test: 'me test',
         package: 'me package',
         publish: 'publish',
+    },
+    config: {
+        publish: {
+            type: 'aws',
+            region: 'us-east-1',
+            endpoint: 's3.amazonaws.com',
+            publicBucket: 'embedthis.software',
+            codename: '${channel}',
+            component: 'embedthis',
+            bucket: 'embedthis.apt',
+            sign: 'B3C7BC73',
+            keys: ['aws-embedthis-ops', 'gpg'],
+            profiles: {
+                prod: {
+                    primary: true,
+                },
+            }
+        },
     },
 }
