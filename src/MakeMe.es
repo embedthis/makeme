@@ -317,7 +317,7 @@ public class MakeMe {
             }
         }
         if (args.rest.contains('deploy')) {
-            let platforms = Me().readFile(Loader.START).platforms
+            let platforms = loader.readFile(Loader.START).platforms
             options.deploy = Path(platforms[0]).join('deploy')
         }
         if (options.deploy) {
