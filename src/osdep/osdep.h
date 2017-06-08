@@ -724,7 +724,6 @@ typedef int64 Ticks;
 
 /**
     Time/Ticks units per second (milliseconds)
-    MOB - should use CLK_TCK and sysconf(_SC_CLK_TCK);
  */
 #define TPS 1000
 

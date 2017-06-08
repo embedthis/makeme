@@ -63949,6 +63949,7 @@ static int lookupOverloadedOperator(Ejs *ejs, EjsOpCode opcode, EjsAny *lhs)
     EjsName     qname;
     int         i;
 
+    qname = ejsName(ejs, "", "");
     for (i = 0; operMap[i].opcode; i++) {
         if (operMap[i].opcode == opcode) {
             qname = ejsName(ejs, "", operMap[i].name);
