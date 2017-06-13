@@ -1,4 +1,4 @@
-    
+
     <div class="sidebar">
         <div class="ui large left vertical inverted labeled menu">
             <div class="item">
@@ -11,7 +11,7 @@
                 <div class="menu">
                     <a class="item" href="@~/index.html">MakeMe Overview</a>
                     <a class="item" href="@~/users/features.html">MakeMe Features</a>
-                    <a class="item" href="https://embedthis.com/makeme/download.html">Download</a> 
+                    <a class="item" href="https://embedthis.com/makeme/download.html">Download</a>
                     <a class="item" href="@~/licensing/index.html">Licensing</a>
                 </div>
             </div>
@@ -21,9 +21,6 @@
                 </a>
                 <div class="menu">
                     <a class="item" href="@~/start/installing.html">Installing MakeMe</a>
-                    <a class="item" href="@~/start/linux.html">Installing for Linux</a>
-                    <a class="item" href="@~/start/mac.html">Installing for Mac OS X</a>
-                    <a class="item" href="@~/start/windows.html">Installing for Windows</a>
                     <a class="item" href="@~/start/releaseNotes.html">Release Notes</a>
                 </div>
             </div>

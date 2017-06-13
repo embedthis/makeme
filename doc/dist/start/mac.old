@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Installing on Linux</title>
+    <title>Installing on Mac</title>
     <!-- Copyright Embedthis Software. All Rights Reserved. -->
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta charset="utf-8" />
@@ -32,7 +32,7 @@
                 <div class="menu">
                     <a class="item" href="../index.html">MakeMe Overview</a>
                     <a class="item" href="../users/features.html">MakeMe Features</a>
-                    <a class="item" href="https://embedthis.com/makeme/download.html">Download</a> 
+                    <a class="item" href="https://embedthis.com/makeme/download.html">Download</a>
                     <a class="item" href="../licensing/index.html">Licensing</a>
                 </div>
             </div>
@@ -42,9 +42,6 @@
                 </a>
                 <div class="menu">
                     <a class="item" href="../start/installing.html">Installing MakeMe</a>
-                    <a class="item" href="../start/linux.html">Installing for Linux</a>
-                    <a class="item" href="../start/mac.html">Installing for Mac OS X</a>
-                    <a class="item" href="../start/windows.html">Installing for Windows</a>
                     <a class="item" href="../start/releaseNotes.html">Release Notes</a>
                 </div>
             </div>
@@ -153,7 +150,7 @@
             
             
             <div class="divider">/</div>
-            <a class="active section" href="linux.html">Installing on Linux</a>
+            <a class="active section" href="mac.old">Installing on Mac</a>
             
         </div>
         
@@ -162,32 +159,24 @@
     </div>
     <div class="content">
 
-            <h1>Installing on Linux</h1>
-            <p>The Embedthis MakeMe distribution for Linux is the MakeMe source distribution,
+
+            <h1>Installing on Mac</h1>
+            <p>The Embedthis MakeMe distribution for Mac OS X is published as an installable pkg file,
             available <a href="https://embedthis.com/makeme/download.html">here</a>.</p>
             <a id="pkg"></a>
-            <h2>Building and Installing MakeMe</h2>
+            <h2>Installing the Image</h2>
             <ol>
-                <li>Download and extract the source code.</li>
-                <li>Change directory to the top level of the source code.</li>
-                <li>Do a bootstrap make via "make boot".</li>
-                <li>Install via "make install"".</li>
+                <li>Double click on the PKG image.</li>
             </ol>
-            <pre class="ui code segment">
-tar xfz ~/Downloads/makeme-0.8.0-0-src.tgz
-cd me-0.8.0
-make boot
-sudo make install
-</pre>
+            
             <a id="removing"></a>
             <h2>Removing MakeMe</h2>
             <ol>
                 <li>Run a terminal and change directory to the installation directory for MakeMe. This is typically
                 "/usr/local/lib/makeme/latest".</li>
-                <li>Run the uninstall script in the MakeMe install directory:</li>
+                <li>Run the uninstall script in the MakeMe installation directory:</li>
             </ol>
-            <pre class="ui code segment">cd /usr/local/lib/makeme/latest
-sudo ./uninstall</pre>
+            <pre class="ui code segment">sudo ./uninstall</pre>
             
             <a id="running"></a>
             <h2>Running MakeMe</h2>
@@ -203,8 +192,7 @@ Run "me --gen start" to create stub start.me
 Usage: me [options] [targets|actions] ...
   Options:
   --benchmark                              # Measure elapsed time
-  --chdir dir                              # Directory to build from 
-  --configure /path/to/source              # Configure for building
+  --configure path-to-source               # Configure for building
   --continue                               # Continue on errors
   --debug                                  # Same as --profile debug
   --depth level                            # Set utest depth level

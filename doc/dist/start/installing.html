@@ -32,7 +32,7 @@
                 <div class="menu">
                     <a class="item" href="../index.html">MakeMe Overview</a>
                     <a class="item" href="../users/features.html">MakeMe Features</a>
-                    <a class="item" href="https://embedthis.com/makeme/download.html">Download</a> 
+                    <a class="item" href="https://embedthis.com/makeme/download.html">Download</a>
                     <a class="item" href="../licensing/index.html">Licensing</a>
                 </div>
             </div>
@@ -42,9 +42,6 @@
                 </a>
                 <div class="menu">
                     <a class="item" href="../start/installing.html">Installing MakeMe</a>
-                    <a class="item" href="../start/linux.html">Installing for Linux</a>
-                    <a class="item" href="../start/mac.html">Installing for Mac OS X</a>
-                    <a class="item" href="../start/windows.html">Installing for Windows</a>
                     <a class="item" href="../start/releaseNotes.html">Release Notes</a>
                 </div>
             </div>
@@ -157,26 +154,103 @@
     </div>
     <div class="content">
 
+
             <h1>Installation Overview</h1>
-            <p>Please read the overview information below, then refer to the specific instructions for your operating
-            system. The MakeMe binary installation is available for:</p>
+            <p>MakeMe is available as a source code distribution. Several build environments are supported:</p>
             <ul>
-                <li><a href="mac.html">Mac OS X Installation Instructions</a></li>
-                <li><a href="windows.html">Windows Installation Instructions</a></li>
-                <li><a href="linux.html">Linux Installation Instructions</a></li>
+                <li><b>Linux</b> &mdash; Linux 2.6 with GNU C/C++</li>
+                <li><b>Windows</b> &mdash; Microsoft Windows 7 with Visual Studio 2010 or later</li>
+                <li><b>Mac OS X</b> &mdash; Mac OS X 10.8 (Mountain Lion) or later</li>
             </ul>
 
-            <h2>Configurable Components</h2>
-            <p>MakeMe uses the
-            <a href="http://embedthis.com/pak/">Pak</a> manager to install and manage 3rd party packages such as
-            OpenSSL. Browse the online <a href="https://embedthis.com/catalog/#/">Pak Catalog</a> for
-            configurable component packages or visit the <a href="http://embedthis.com/pak">Pak Web Site</a>.
-            
-            <h2>Source Code</h2>
-            <p>The MakeMe source code is provided as a <a href="https://embedthis.com/makeme/download.html">separate
-                download</a> distribution. MakeMe is also available via the
-            source code <a href="https://github.com/embedthis/makeme">repository</a> for developers who wish to 
-            participate in the active development of MakeMe. Developers are welcome!</p>
+            <h2>Accessing the Source Code</h2>
+            <p>With each MakeMe release, a complete source code snapshot is provided. You can download a source package from the MakeMe web site or you can retrieve it from the MakeMe GitHub repository. If you download from the repository, please use the <em>master</em> branch for the most recent stable snapshot. For less stable daily builds, use the <em>dev</em> branch.</p>
+
+            <a class="ui primary right labeled icon button"
+                href="https://embedthis.com/makeme/download.html">
+                <i class="right long arrow icon"></i>Download Source
+            </a>
+            <a class="ui secondary right labeled icon button"
+                href="https://github.com/embedthis/makeme">
+                <i class="right long arrow icon"></i>GitHub Repository
+            </a>
+
+            <h2>Building and Installing MakeMe</h2>
+            <ol>
+                <li>Download and extract the source code.</li>
+                <li>Change directory to the top level of the source code.</li>
+                <li>Do a bootstrap make via "make boot".</li>
+                <li>Install via "make install"".</li>
+            </ol>
+            <pre class="ui code segment">
+wget https://s3.amazonaws.com/embedthis.software/makeme-0.10.5-src.tgz
+tar xfz makeme-0.10.5-0-src.tgz
+cd me-0.10.5
+make boot
+sudo make install </pre>
+            <a id="removing"></a>
+            <h2>Removing MakeMe</h2>
+            <ol>
+                <li>Run a terminal and change directory to the installation directory for MakeMe. This is typically
+                "/usr/local/lib/makeme/latest".</li>
+                <li>Run the uninstall script in the MakeMe install directory:</li>
+            </ol>
+            <pre class="ui code segment">cd /usr/local/lib/makeme/latest
+sudo ./uninstall</pre>
+
+            <a id="running"></a>
+            <h2>Running MakeMe</h2>
+            <p>You can invoke MakeMe simply as <em>me</em>
+            <pre class="ui code segment"><b>$ me</b>
+me.es: ERROR: Can't find suitable start.me.
+Run "me --gen start" to create stub start.me
+</pre>
+            <p>This indicates you are ready to start by creating your first <em>start.me</em> file.
+            To learn more, read the <a href="../index.html ">MakeMe Overview</a>.</p>
+            <p>To display the various MakeMe command options, type:</p>
+            <pre class="ui code segment"><b>$ me help</b>
+Usage: me [options] [targets|actions] ...
+Options:
+--benchmark                              # Measure elapsed time
+--chdir dir                              # Directory to build from
+--configure /path/to/source              # Configure for building
+--continue                               # Continue on errors
+--debug                                  # Same as --profile debug
+--depth level                            # Set utest depth level
+--diagnose                               # Emit diagnostic trace
+--dump                                   # Dump the full project me file
+--endian [big|little]                    # Define the CPU endianness
+--file file.me                           # Use the specified me file
+--force                                  # Override warnings
+--gen [make|nmake|sh|vs|xcode|main|start]# Generate project file
+--help                                   # Print help message
+--import                                 # Import standard me environment
+--keep                                   # Keep intermediate files
+--log logSpec                            # Save errors to a log file
+--nocross                                # Build natively
+--overwrite                              # Overwrite existing files
+--out path                               # Save output to a file
+--platform os-arch-profile               # Build for specified platform
+--pre                                    # Pre-process a source file to stdout
+--prefix dir=path                        # Define installation path prefixes
+--profile [debug|release|...]            # Use the build profile
+--quiet                                  # Quiet operation. Suppress trace
+--rebuild                                # Rebuild all specified targets
+--reconfigure                            # Reconfigure with existing settings
+--release                                # Same as --profile release
+--rom                                    # Build for ROM without a file system
+--set [feature=value]                    # Enable and a feature
+--show                                   # Show commands executed
+--static                                 # Make static libraries
+--unicode                                # Set char size to wide (unicode)
+--unset feature                          # Unset a feature
+--version                                # Display the me version
+--verbose                                # Trace operations
+--watch [sleep time]                     # Watch for changes and rebuild
+--why                                    # Why a target was or was not built
+--with PACK[=PATH]                       # Build with package at PATH
+--without PACK                           # Build without a package
+</pre>
 
     </div>
     <div class="terms ui basic center aligned segment">

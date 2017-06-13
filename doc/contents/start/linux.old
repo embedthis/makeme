@@ -5,9 +5,8 @@
     ],
 }
             <h1>Installing on Linux</h1>
-            <p>The Embedthis MakeMe distribution for Linux is the MakeMe source distribution,
-            available <a href="https://embedthis.com/makeme/download.html">here</a>.</p>
-            <a id="pkg"></a>
+            <p>The Embedthis MakeMe distribution for Linux is the MakeMe source distribution, available <a href="https://embedthis.com/makeme/download.html">here</a>.</p> <a id="pkg"></a>
+
             <h2>Building and Installing MakeMe</h2>
             <ol>
                 <li>Download and extract the source code.</li>
@@ -30,7 +29,7 @@ sudo make install
             </ol>
             <pre class="ui code segment">cd /usr/local/lib/makeme/latest
 sudo ./uninstall</pre>
-            
+
             <a id="running"></a>
             <h2>Running MakeMe</h2>
             <p>You can invoke MakeMe simply as <em>me</em>
@@ -45,12 +44,12 @@ Run "me --gen start" to create stub start.me
 Usage: me [options] [targets|actions] ...
   Options:
   --benchmark                              # Measure elapsed time
-  --chdir dir                              # Directory to build from 
+  --chdir dir                              # Directory to build from
   --configure /path/to/source              # Configure for building
   --continue                               # Continue on errors
   --debug                                  # Same as --profile debug
   --depth level                            # Set utest depth level
-  --diagnose                               # Emit diagnostic trace 
+  --diagnose                               # Emit diagnostic trace
   --dump                                   # Dump the full project me file
   --endian [big|little]                    # Define the CPU endianness
   --file file.me                           # Use the specified me file
@@ -67,7 +66,7 @@ Usage: me [options] [targets|actions] ...
   --pre                                    # Pre-process a source file to stdout
   --prefix dir=path                        # Define installation path prefixes
   --profile [debug|release|...]            # Use the build profile
-  --quiet                                  # Quiet operation. Suppress trace 
+  --quiet                                  # Quiet operation. Suppress trace
   --rebuild                                # Rebuild all specified targets
   --reconfigure                            # Reconfigure with existing settings
   --release                                # Same as --profile release

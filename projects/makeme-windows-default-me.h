@@ -127,7 +127,7 @@
     #define ME_TUNE "speed"
 #endif
 #ifndef ME_VERSION
-    #define ME_VERSION "0.10.5"
+    #define ME_VERSION "0.10.6"
 #endif
 
 /* Prefixes */
@@ -225,10 +225,10 @@
     #define ME_MINOR_VERSION 10
 #endif
 #ifndef ME_PATCH_VERSION
-    #define ME_PATCH_VERSION 5
+    #define ME_PATCH_VERSION 6
 #endif
 #ifndef ME_VNUM
-    #define ME_VNUM 80005
+    #define ME_VNUM 80006
 #endif
 
 /* Components */
