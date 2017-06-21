@@ -93,12 +93,24 @@ function findWindowsCompiler(results) {
             vcvars = vsdir.join('VC/vcvarsall.bat')
         } else {
             let pf = me.dir.programFiles32
-            for each (v in [14, 13, 12, 11, 10, 9]) {
-                vcvars = pf.join('Microsoft Visual Studio ' + v + '.0/VC/vcvarsall.bat')
-                if (vcvars.exists) {
-                    break
+            for (v = 2030; v >= 2017; v--) {
+                let comdir = pf.join('Microsoft Visual Studio', v, 'Community')
+                if (comdir.exists) {
+                    vcvars = comdir.join('VC/Auxiliary/Build/vcvarsall.bat')
+                    if (vcvars.exists) {
+                        version = '15.0'
+                        break
+                    }
                 }
-                vcvars = null
+            }
+            if (!vcvars.exists) {
+                for each (v in [14, 13, 12, 11, 10, 9]) {
+                    vcvars = pf.join('Microsoft Visual Studio ' + v + '.0/VC/vcvarsall.bat')
+                    if (vcvars.exists) {
+                        break
+                    }
+                    vcvars = null
+                }
             }
             if (vcvars) {
                 vsdir = vcvars.parent.parent
@@ -137,7 +149,7 @@ function findWindowsCompiler(results) {
 
         path ||= probe(path || 'cl.exe', {fullpath: true, search: search})
     }
-    version = vsdir.name.match(/\d*\.\d/)[0]
+    version ||= vsdir.name.match(/\d*\.\d/)[0]
     let cver = version.replace('.', '')
     let crt = vsdir.join('VC/redist', me.platform.arch, 
         'Microsoft.VC' + cver + '.CRT', (version < 14 ? 'msvcr' : 'vcruntime') + cver + '.dll')
