@@ -17,13 +17,13 @@ See [LICENSE.md](https://github.com/embedthis/makeme/blob/master/LICENSE.md) for
 
 ### To install
 
-    */bin/me install
+    make install
 
-### To build thereafter: 
+### To build again if required to customize:  
 
     me
 
-### Command line to build things
+### Command line to build other things
 
     me
 
