@@ -5,25 +5,24 @@ Embedthis MakeMe. A modern replacement for autoconf/make.
 
 Licensing
 ---
+
 See [LICENSE.md](https://github.com/embedthis/makeme/blob/master/LICENSE.md) for details.
 
 ### Documentation:
 
-    Coming soon at https://embedthis.com/makeme/doc/index.html
+    See https://embedthis.com/makeme/doc/index.html
 
 ### To build first time:
 
     make boot
 
-### To install
+### To install on Linux:
 
     make install
 
-### To build again if required to customize:  
+On Windows, add build/*/bin to your PATH.
 
-    me
-
-### Command line to build other things
+### Command line to build other things:
 
     me
 
