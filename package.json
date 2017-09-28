@@ -1,7 +1,7 @@
 {
     "name": "makeme",
     "description": "Embedthis MakeMe",
-    "version": "0.10.6",
+    "version": "0.10.7",
     "keywords": [
         "me",
         "makeme",
@@ -42,7 +42,7 @@
         "me-os": "~0.8",
         "me-vstudio": "~0.8",
         "me-xcode": "~0.8",
-        "mpr": "~6.2",
+        "mpr": "~7",
         "mpr-mbedtls": "~0.5",
         "ssl": "~0.9"
     },

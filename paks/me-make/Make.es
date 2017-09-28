@@ -527,7 +527,7 @@ class Make {
         genWriteLine('clean:')
         builtin('cleanTargets')
         genWriteLine('')
-        builder.build()
+        builder.build(['gen'])
         genClose()
     }
 
@@ -573,7 +573,7 @@ class Make {
         }
         genWriteLine('\tcp projects/' + me.settings.name + '-${OS}-${PROFILE}-me.h ${BUILD}/inc/me.h')
         genWriteLine('fi\n')
-        builder.build()
+        builder.build(['gen'])
         genClose()
         path.setAttributes({permissions: 0755})
     }
