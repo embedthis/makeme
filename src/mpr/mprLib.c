@@ -7594,10 +7594,10 @@ PUBLIC char *mprGetRandomString(ssize size)
     int         i, pid;
 
     len = size / 2;
-    bytes = mprAlloc(size / 2);
+    bytes = mprAlloc(len);
     ascii = mprAlloc(size + 1);
 
-    if (mprGetRandomBytes(bytes, sizeof(bytes), 0) < 0) {
+    if (mprGetRandomBytes(bytes, len, 0) < 0) {
         mprLog("critical mpr", 0, "Failed to get random bytes");
         now = mprGetTime();
         pid = (int) getpid();
@@ -18186,6 +18186,9 @@ PUBLIC MprList *mprGlobPathFiles(cchar *path, cchar *pattern, int flags)
             exclude = &pattern[1];
         }
         globPathFiles(result, path, rewritePattern(pattern, flags), relativeTo, exclude, flags);
+        if (!(flags & (MPR_PATH_DEPTH_FIRST))) {
+            mprSortList(result, NULL, NULL);
+        }
     }
     return result;
 }
@@ -23281,6 +23284,9 @@ PUBLIC int mprParseSocketAddress(cchar *address, char **pip, int *pport, int *ps
         *psecure = sncmp(address, "https", 5) == 0;
     }
     ip = sclone(address);
+    /*
+        Split off spaces and step over ://
+     */
     if ((cp = strchr(ip, ' ')) != 0) {
         *cp++ = '\0';
     }
@@ -23289,7 +23295,7 @@ PUBLIC int mprParseSocketAddress(cchar *address, char **pip, int *pport, int *ps
     }
     if (ipv6(ip)) {
         /*
-            IPv6. If port is present, it will follow a closing bracket ']'
+            IPv6 - has 2 colons minimum. If port is present, it will follow a closing bracket ']'
          */
         if ((cp = strchr(ip, ']')) != 0) {
             cp++;
@@ -23298,8 +23304,9 @@ PUBLIC int mprParseSocketAddress(cchar *address, char **pip, int *pport, int *ps
 
                 /* Set ipAddr to ipv6 address without brackets */
                 ip = sclone(ip + 1);
-                cp = strchr(ip, ']');
-                *cp = '\0';
+                if ((cp = strchr(ip, ']')) != 0) {
+                    *cp = '\0';
+                }
 
             } else {
                 /* Handles [a:b:c:d:e:f:g:h:i] case (no port)- should not occur */
@@ -27583,13 +27590,40 @@ static void validateTime(struct tm *tp, struct tm *defaults)
         swapDayMonth(tp);
     }
 
+    /*
+        Check for overflow. Underflow validated below.
+     */
+    if (tp->tm_sec > 60) {
+        tp->tm_sec = -1;
+    }
+    if (tp->tm_min > 60) {
+        tp->tm_sec = -1;
+    }
+    if (tp->tm_hour > 24) {
+        tp->tm_sec = -1;
+    }
+    if (tp->tm_mday > 31) {
+        tp->tm_sec = -1;
+    }
+    if (tp->tm_mon > 11) {
+        tp->tm_sec = -1;
+    }
+    if (tp->tm_wday > 6) {
+        tp->tm_sec = -1;
+    }
+    if (tp->tm_yday > 366) {
+        tp->tm_sec = -1;
+    }
+
+#if UNUSED
     if (tp->tm_year != -MAXINT && tp->tm_mon >= 0 && tp->tm_mday >= 0 && tp->tm_hour >= 0) {
         /*  Everything defined */
         return;
     }
+#endif
 
     /*
-        Use empty time if missing
+        Use empty time if defaults missing
      */
     if (defaults == NULL) {
         memset(&empty, 0, sizeof(empty));
@@ -27640,8 +27674,12 @@ static void validateTime(struct tm *tp, struct tm *defaults)
         tp->tm_mday = defaults->tm_mday;
     }
     if (tp->tm_yday < 0) {
-        tp->tm_yday = (leapYear(tp->tm_year + 1900) ?
-            leapMonthStart[tp->tm_mon] : normalMonthStart[tp->tm_mon]) + tp->tm_mday - 1;
+        if (tp->tm_mon <= 11) {
+            tp->tm_yday = (leapYear(tp->tm_year + 1900) ?
+                leapMonthStart[tp->tm_mon] : normalMonthStart[tp->tm_mon]) + tp->tm_mday - 1;
+        } else {
+            tp->tm_yday = defaults->tm_yday;
+        }
     }
     if (tp->tm_hour < 0) {
         tp->tm_hour = defaults->tm_hour;

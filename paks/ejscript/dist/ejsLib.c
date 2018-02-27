@@ -27232,7 +27232,7 @@ static EjsArray *compactArray(Ejs *ejs, EjsArray *ap, int argc, EjsObj **argv)
 static EjsArray *concatArray(Ejs *ejs, EjsArray *ap, int argc, EjsObj **argv)
 {
     EjsArray    *args, *newArray, *vpa;
-    EjsObj          *vp, **src, **dest;
+    EjsObj      *vp, **src, **dest;
     int         i, k, next;
 
     assert(argc == 1 && ejsIs(ejs, argv[0], Array));

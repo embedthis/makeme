@@ -16,6 +16,7 @@ public class Loader {
     public static const BUILD: Path = Path('build')
     public static const MAIN: Path = Path('main.me')
     public static const PACKAGE: Path = Path('package.json')
+    public static const PAK: Path = Path('pak.json')
     public static const PLATFORM: Path = Path('platform.me')
     public static const START: Path = Path('start.me')
     public static const Unix = ['macosx', 'linux', 'unix', 'freebsd', 'solaris']
@@ -828,7 +829,7 @@ public class Loader {
         This will load all referenced MakeMe files in this order:
             1. O/S file
             2. standard/simple file
-            3. Package.json
+            3. pak.json and/or package.json
             4. Plugins
             5. Blend[] files - these load before the invoking file
             6. File itself
@@ -873,31 +874,35 @@ public class Loader {
         loadObj = obj
 
     /*
-        Load the Package.json and extract product description and definition
+        Load the pak.json and/or Package.json and extract product description and definition
      */
     function loadPackage(path) {
-        let pfile = path.dirname.join(PACKAGE)
         let settings = me.settings
         let dir = me.dir
-        if (pfile.exists) {
-            let package
-            try {
-                package = pfile.readJSON()
-            } catch (e) {
-                trace('Warn', 'Cannot parse: ' + pfile + '\n' + e)
+        let package = {}
+        try {
+            let pfile = path.dirname.join(PACKAGE)
+            if (pfile.exists) {
+                blend(package, pfile.readJSON())
             }
-            try {
-                settings.name = package.name
-                settings.description = package.description
-                settings.title = package.title || package.description
-                settings.version = package.version
-                settings.author = package.author ? package.author.name : package.name
-                settings.company = package.company
-                if (package.directories && package.directories.paks) {
-                    dir.paks = Path(package.directories.paks)
-                }
-            } catch {}
+            pfile = path.dirname.join(PAK)
+            if (pfile.exists) {
+                blend(package, pfile.readJSON())
+            }
+        } catch (e) {
+            trace('Warn', 'Cannot parse: ' + pfile + '\n' + e)
         }
+        try {
+            settings.name = package.name
+            settings.description = package.description
+            settings.title = package.title || package.description
+            settings.version = package.version
+            settings.author = package.author ? package.author.name : package.name
+            settings.company = package.company
+            if (package.directories && package.directories.paks) {
+                dir.paks = Path(package.directories.paks)
+            }
+        } catch {}
         settings.name ||= options.name || ''
         settings.author ||= ''
         settings.company ||= settings.author.split(' ')[0].toLowerCase()
