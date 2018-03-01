@@ -50459,7 +50459,7 @@ static EjsObj *uri_set_host(Ejs *ejs, EjsUri *up, int argc, EjsObj **argv)
  */
 static EjsBoolean *uri_isAbsolute(Ejs *ejs, EjsUri *up, int argc, EjsObj **argv)
 {
-    return ejsCreateBoolean(ejs, up->uri->path[0] == '/');
+    return ejsCreateBoolean(ejs, up->uri->path && up->uri->path[0] == '/');
 }
 
 

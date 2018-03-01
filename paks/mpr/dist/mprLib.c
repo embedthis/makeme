@@ -14408,7 +14408,7 @@ PUBLIC int mprCreateNotifierService(MprWaitService *ws)
     }
     EV_SET(&ev, 0, EVFILT_USER, EV_ADD | EV_CLEAR, 0, 0, NULL);
     if (kevent(ws->kq, &ev, 1, NULL, 0, NULL) < 0) {
-        mprLog("critical mpr event", 0, "Cannot issue notifier wakeup event, errno=%d", errno);
+        mprLog("critical mpr event", 4, "Cannot issue notifier wakeup event, errno=%d", errno);
         return MPR_ERR_CANT_INITIALIZE;
     }
     if ((ws->handlerMap = mprCreateList(MPR_FD_MIN, 0)) == 0) {
@@ -14472,7 +14472,7 @@ PUBLIC int mprNotifyOn(MprWaitHandler *wp, int mask)
                 if (rc == 1 && interest[0].flags & EV_ERROR && interest[0].data == EPIPE) {
                     /* Broken PIPE - just ignore */
                 } else {
-                    mprLog("error mpr event", 0, "Cannot issue notifier wakeup event, errno=%d", errno);
+                    mprLog("error mpr event", 4, "Cannot issue notifier wakeup event, errno=%d", errno);
                 }
             }
         }
@@ -14649,7 +14649,7 @@ PUBLIC void mprWakeNotifier()
         ws->wakeRequested = 1;
         EV_SET(&ev, 0, EVFILT_USER, 0, NOTE_TRIGGER, 0, NULL);
         if (kevent(ws->kq, &ev, 1, NULL, 0, NULL) < 0) {
-            mprLog("error mpr event", 0, "Cannot issue notifier wakeup event, errno=%d", errno);
+            mprLog("error mpr event", 4, "Cannot issue notifier wakeup event, errno=%d", errno);
         }
     }
 }
@@ -19296,11 +19296,13 @@ PUBLIC char *mprSearchPath(cchar *file, int flags, cchar *search, ...)
     if ((result = checkPath(file, flags)) != 0) {
         return result;
     }
+#if ME_WIN_LIKE
     if ((flags & MPR_SEARCH_EXE) && *ME_EXE) {
         if ((result = checkPath(mprJoinPathExt(file, ME_EXE), flags)) != 0) {
             return result;
         }
     }
+#endif
     for (nextDir = (char*) search; nextDir; nextDir = va_arg(args, char*)) {
         tok = NULL;
         nextDir = sclone(nextDir);
@@ -19311,12 +19313,14 @@ PUBLIC char *mprSearchPath(cchar *file, int flags, cchar *search, ...)
                 va_end(args);
                 return mprNormalizePath(result);
             }
+#if ME_WIN_LIKE
             if ((flags & MPR_SEARCH_EXE) && *ME_EXE) {
                 if ((result = checkPath(mprJoinPathExt(path, ME_EXE), flags)) != 0) {
                     va_end(args);
                     return mprNormalizePath(result);
                 }
             }
+#endif
             dir = stok(0, MPR_SEARCH_SEP, &tok);
         }
     }

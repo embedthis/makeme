@@ -332,7 +332,14 @@ class InstallsInner {
         let base = staging.join(me.platform.vname)
         let name = me.settings.name
         let package = base.join('package.json')
-        let version = package.readJSON().version
+        let version
+        if (package.exists) {
+            version = package.readJSON().version
+        }
+        if (!version) {
+            let pak = base.join('pak.json')
+            version = pak.readJSON().version
+        }
         trace('Cache', me.settings.title + ' ' + version)
 
         if (dist.exists) {
@@ -496,10 +503,12 @@ class InstallsInner {
     }
 
     function makeSimpleInstall(package, prefixes, fmt) {
+    /*
         if (fmt == 'pak') {
             let base = prefixes.staging.join(me.platform.vname)
             let package = base.join('package.json')
         }
+        */
         let name = me.dir.rel.join(me.platform.vname + '-' + fmt + '.tar')
         let zname = name.replaceExt('tgz')
         let options = {relativeTo: prefixes.staging, user: 'root', group: 'root', uid: 0, gid: 0}

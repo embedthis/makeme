@@ -46,8 +46,6 @@
         "dist/",
         "doc/api/"
     ],
-    "pak": {
-        "import": true,
-        "origin": "embedthis/mpr"
-    }
+    "import": true,
+    "origin": "embedthis/mpr"
 }

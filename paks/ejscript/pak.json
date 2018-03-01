@@ -58,8 +58,6 @@
         "dist/",
         "doc/api/"
     ],
-    "pak": {
-        "import": true,
-        "origin": "embedthis/ejscript"
-    }
+    "import": true,
+    "origin": "embedthis/ejscript"
 }

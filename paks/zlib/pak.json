@@ -32,7 +32,5 @@
     "devDependencies": {
         "pak": ">=0.11.3"
     },
-    "pak": {
-        "origin": "embedthis/zlib"
-    }
+    "origin": "embedthis/zlib"
 }

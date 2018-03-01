@@ -87,6 +87,11 @@ Me.load({
                     from:       '${TOP}/package.json',
                     to:         '${src}/',
                     enable:      "!Path('${TOP}/installs/package.json').exists && Path('${TOP}/package.json').exists",
+
+                }, {
+                    from:       '${TOP}/pak.json',
+                    to:         '${src}/',
+                    enable:      "!Path('${TOP}/installs/package.json').exists && Path('${TOP}/pak.json').exists",
                 },
             ],
         },

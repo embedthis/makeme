@@ -52,7 +52,5 @@
     "devDependencies": {
         "pak": ">=0.11.0"
     },
-    "pak": {
-        "import": true
-    }
+    "import": true
 }
