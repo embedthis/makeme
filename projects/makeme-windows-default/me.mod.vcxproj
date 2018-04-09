@@ -100,7 +100,7 @@
 
       <CustomBuildStep>
         <Command>cd ..\..
-"./build/windows-x86-default/bin/makeme-ejsc" --debug --out "./build/windows-x86-default/bin/me.mod" --optimize 9 src/Builder.es src/Loader.es src/MakeMe.es src/Me.es src/Script.es src/Target.es paks/ejs.version/Version.es
+"./build/windows-x86-default/bin/makeme-ejsc" --debug --out "./build/windows-x86-default/bin/me.mod" --optimize 9 paks/ejs.version/Version.es src/Builder.es src/Loader.es src/MakeMe.es src/Me.es src/Script.es src/Target.es
 cd projects\makeme-windows-default</Command>
         <Outputs>$(BinDir)\me.mod</Outputs>
       </CustomBuildStep>

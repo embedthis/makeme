@@ -1904,13 +1904,13 @@ cd ..
     			files = (
     			);
     			inputPaths = (
-    ../src/Builder.es,
+    ../paks/ejs.version/Version.es,
+../src/Builder.es,
 ../src/Loader.es,
 ../src/MakeMe.es,
 ../src/Me.es,
 ../src/Script.es,
-../src/Target.es,
-../paks/ejs.version/Version.es
+../src/Target.es
     			);
     			outputPaths = (
     ../build/macosx-x64-default/bin/me.mod
@@ -1919,7 +1919,7 @@ cd ..
     			shellPath = /bin/bash;
     			shellScript = "PATH=$PATH:/usr/local/bin
 cd ..
-	\"./build/macosx-x64-default/bin/makeme-ejsc\" --debug --out \"./build/macosx-x64-default/bin/me.mod\" --optimize 9 src/Builder.es src/Loader.es src/MakeMe.es src/Me.es src/Script.es src/Target.es paks/ejs.version/Version.es
+	\"./build/macosx-x64-default/bin/makeme-ejsc\" --debug --out \"./build/macosx-x64-default/bin/me.mod\" --optimize 9 paks/ejs.version/Version.es src/Builder.es src/Loader.es src/MakeMe.es src/Me.es src/Script.es src/Target.es
 ";
     		};
 		48C2837448C29E0200000022 /* ShellScript for pakrun */ = {
@@ -1939,6 +1939,7 @@ cd ..
 ../paks/me-installs/Installs.es,
 ../paks/me-installs/installs.me,
 ../paks/me-installs/manifest.me,
+../paks/me-installs/pak.json,
 ../paks/me-make/Make.es,
 ../paks/me-make/make.me,
 ../paks/me-os/freebsd.me,
@@ -1975,6 +1976,7 @@ cd ..
 	cp paks/me-installs/Installs.es build/macosx-x64-default/bin/paks/me-installs/Installs.es
 	cp paks/me-installs/installs.me build/macosx-x64-default/bin/paks/me-installs/installs.me
 	cp paks/me-installs/manifest.me build/macosx-x64-default/bin/paks/me-installs/manifest.me
+	cp paks/me-installs/pak.json build/macosx-x64-default/bin/paks/me-installs/pak.json
 	mkdir -p \"build/macosx-x64-default/bin/paks/me-make\"
 	cp paks/me-make/Make.es build/macosx-x64-default/bin/paks/me-make/Make.es
 	cp paks/me-make/make.me build/macosx-x64-default/bin/paks/me-make/make.me
