@@ -96,7 +96,10 @@ public class Builder {
         if (!(patterns is Array)) {
             patterns = [patterns]
         }
-        let list = me.dir.top.files(patterns, options).sort()
+        let list = me.dir.top.files(patterns, options)
+        if (target.sort !== false) {
+            list = list.sort()
+        }
         if (list.length == 0 && makeme.generating) {
             list = patterns
         }
