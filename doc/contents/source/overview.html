@@ -1,6 +1,6 @@
 {
     title:  'Building Overview',
-    crumbs: [ 
+    crumbs: [
         { 'Built with MakeMe': 'index.html' },
     ],
 }
@@ -9,16 +9,16 @@
             <p>This document describes the process to build the software from source for a supported platform.
             The source distribution contains all the necessary source files, headers and tools to
             reconfigure, build and verify the software. </p>
-            
+
             <h2>Preparing the Environment</h2>
             <p>Before building, you may need to install required tools such as cross-compilers, SDKs, and system
-            libraries. If you wish to build the software with the support of third-party packages such as 
+            libraries. If you wish to build the software with the support of third-party packages such as
             OpenSSL, you may need to download the source from the relevant vendor and build the
             required libraries for the software to utilize.</p>
 
             <h3>Windows</h3>
-            <p>To build on Windows, you will need to install Microsoft Visual Studio 10.0 or later. Either the full 
-            product or the express editions will work fine. You will also need to 
+            <p>To build on Windows, you will need to install Microsoft Visual Studio 10.0 or later. Either the full
+            product or the express editions will work fine. You will also need to
             install the <a href="http://msdn.microsoft.com/en-us/windowsserver/bb980924.aspx">Windows SDK</a>.
             <p>Before building or configuring, you need to define certain Microsoft compiler environment variables as
             described in the Microsoft Visual Studio installation. These variables are the PATH, INCLUDE and LIB
@@ -107,7 +107,7 @@
                 <tbody>
                 <tr>
                     <td>configure</td>
-                    <td>Build configuration script to use when building with MakeMe. This invokes MakeMe to 
+                    <td>Build configuration script to use when building with MakeMe. This invokes MakeMe to
                        configure the software on the development system.</td>
                 </tr>
                 <tr>
@@ -115,8 +115,8 @@
                     <td>Platform specific MakeMe file. There will be one platform MakeMe file for each target platform.</td>
                 </tr>
                 <tr>
-                    <td>package.json</td>
-                    <td>Package description file. It specifies the version and Pak dependencies.</td>
+                    <td>pak.json</td>
+                    <td>Pak description file. It specifies the version and Pak dependencies.</td>
                 </tr>
                 <tr>
                     <td>main.me</td>

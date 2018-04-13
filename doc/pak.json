@@ -1,0 +1,17 @@
+{
+    "name": "makemedoc",
+    "title": "Embedthis MakeMe Documentation",
+    "description": "MakeMe build tool",
+    "dependencies": {
+        "me-docstyle": "~0.9"
+    },
+    "devDependencies": {
+        "expansive": ">=0.6.0"
+    },
+    "directories": {
+        "contents": "contents",
+        "export": "contents/lib"
+    },
+    "import": true,
+    "profile": "debug"
+}

@@ -15,7 +15,5 @@
         "expansive": ">=0.7.0",
         "pak": ">=0.11.3"
     },
-    "pak": {
-        "origin": "embedthis/exp-canon"
-    }
+    "origin": "embedthis/exp-canon"
 }
