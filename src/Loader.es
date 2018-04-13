@@ -880,8 +880,9 @@ public class Loader {
         let settings = me.settings
         let dir = me.dir
         let package = {}
+        let pfile
         try {
-            let pfile = path.dirname.join(PACKAGE)
+            pfile = path.dirname.join(PACKAGE)
             if (pfile.exists) {
                 blend(package, pfile.readJSON())
             }
