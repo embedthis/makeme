@@ -47,7 +47,7 @@
         "mpr-mbedtls": "~0.5",
         "mpr-nanossl": "~0.3",
         "mpr-openssl": "~0.5",
-        "sqlite": "~1.0",
+        "sqlite": "~3",
         "watchdog": "~0.2"
     },
     "devDependencies": {

@@ -16,9 +16,7 @@
 
 
 
-
 /********* Start of file src/ejsByteCode.h ************/
-
 
 /*
     ejsByteCode.h - Ejscript VM Byte Code
@@ -264,9 +262,7 @@ typedef enum EjsOpCode {
  */
 
 
-
 /********* Start of file src/ejsByteCodeTable.h ************/
-
 
 /**
     ejsByteCodeTable.h - Master Byte Code Table
@@ -558,9 +554,7 @@ PUBLIC EjsOptable *ejsGetOptable();
  */
 
 
-
 /********* Start of file src/ejs.h ************/
-
 
 /*
     ejs.h - Ejscript header
@@ -6024,9 +6018,7 @@ PUBLIC int64 ejsSwapInt64(Ejs *ejs, int64 word);
  */
 
 
-
 /********* Start of file src/ejs.web/ejsWeb.h ************/
-
 
 /**
     ejsWeb.h -- Header for the Ejscript Web Framework
@@ -6254,9 +6246,7 @@ extern void ejsSendRequestErrorEvent(Ejs *ejs, EjsRequest *req);
  */
 
 
-
 /********* Start of file src/ejsCompiler.h ************/
-
 
 /*
     ejsCompiler.h - Internal compiler header.

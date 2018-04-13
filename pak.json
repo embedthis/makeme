@@ -43,7 +43,7 @@
         "me-vstudio": "~0.8",
         "me-xcode": "~0.8",
         "mpr": "~7",
-        "mpr-mbedtls": "~0.5",
+        "mpr-mbedtls": "~2",
         "ssl": "~0.9"
     },
     "optionalDependencies": {
