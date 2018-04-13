@@ -2,20 +2,19 @@
 <html lang="en">
 <head>
     <title>MakeMe DOM</title>
-    <!-- Copyright Embedthis Software. All Rights Reserved. -->
+    
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <meta charset="utf-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-    <meta name="description" content="MakeMe build tool" />
-    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700|Open+Sans:300italic,400,300,700'
-        rel='stylesheet' type='text/css'>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+    <meta name="description" content="MakeMe build tool">
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700|Open+Sans:300italic,400,300,700' rel='stylesheet' type='text/css'>
     <link href='https://fonts.googleapis.com/css?family=Julius+Sans+One' rel='stylesheet' type='text/css'>
     
-    <link href="../images/favicon.ico" rel="shortcut icon" />
-    <link href="/lib/semantic-ui/semantic.css" rel="stylesheet" type="text/css" />
-    <link href="/css/all.css" rel="stylesheet" type="text/css" />
-    <link href="/css/api.css" rel="stylesheet" type="text/css" />
+    <link href="../images/favicon.ico" rel="shortcut icon">
+    <link href="/lib/semantic-ui/semantic.min.css" rel="stylesheet" type="text/css">
+    <link href="/css/all.min.css" rel="stylesheet" type="text/css">
+    <link href="/css/api.min.css" rel="stylesheet" type="text/css">
     
 
 </head>
@@ -74,9 +73,7 @@
                 <div class="menu">
                     <a class="item" href="../ref/syntax.html">File Syntax</a>
                     <a class="item" href="../ref/dom.html">MakeMe DOM</a>
-<!--
-                    <a class="item" href="../ref/api/index.html">MakeMe API</a>
--->
+
                     <a class="item" href="../ref/processing.html">File Processing</a>
                     <a class="item" href="../ref/commandline.html">Command Line</a>
                     <a class="item" href="../ref/events.html">Events</a>
@@ -183,13 +180,13 @@
                 <th>Description</th>
             </thead>
             <tbody>
-                <tr><td>blend</td><td>MakeMe files to blend. 
+                <tr><td>blend<td>MakeMe files to blend. 
                     This is an array of files to load. These paths may include the wild-card "*" character to 
                     match a filename portion and "**" to match any file or directory at any depth in the directory 
-                    tree. If the filename is not found, "~/.paks" is searched for a matching Pak.</td></tr>
-                <tr><td>customize</td><td>Optional MakeMe files to load after fully loading all blended MakeMe files</td></tr>
-                <tr><td>defaults</td><td>Default properties to be inherited by all targets</td></tr>
-                <tr><td>dir</td><td>Directories used by MakeMe. These must be absolute paths so that they can be used
+                    tree. If the filename is not found, "~/.paks" is searched for a matching Pak.</tr>
+                <tr><td>customize<td>Optional MakeMe files to load after fully loading all blended MakeMe files</tr>
+                <tr><td>defaults<td>Default properties to be inherited by all targets</tr>
+                <tr><td>dir<td>Directories used by MakeMe. These must be absolute paths so that they can be used
                     when the current directory is changed while processing.
                     <ul>
                         <li>work &mdash; Path to the current directory from where MakeMe is being initiated</li>
@@ -203,19 +200,19 @@
                         <li>obj &mdash; Platform objects directory under the "out" directory</li>
                         <li>me &mdash; Path to the MakeMe product scripts directory</li>
                     </ul>
-                </td></tr>
-                <tr><td>env</td><td>Environment variables to set when compiling and linking</td></tr>
-                <tr><td>ext</td><td>File extensions indexed by file type</td></tr>
-                <tr><td>globals</td><td>Global values to use in property token expansion</td></tr>
-                <tr><td>internal</td><td>Default properties to be inherited by only the targets in the same MakeMe file</td></tr>
-                <tr><td>main</td><td>Path to the <em>main.me</em> file. Used in platform MakeMe files.</td></tr>
-                <tr><td>mixin</td><td>Literal script code to mixin.</td></tr>
-                <tr><td>modules</td><td>List of scripts or compiled scripts to pre-load</td></tr>
-                <tr><td>options</td><td>Supplied command line options</td></tr>
-                <tr><td>platform</td><td>Description of the current platform. Has properties for operating system
-                        and CPU architecture.</td></tr>
-                <tr><td>plugins</td><td>List of required plugins. These are listed without '.me' extensions.</td></tr>
-                <tr><td>prefixes</td><td>Installation directory prefixes and default values on Unix/Linux systems:
+                </tr>
+                <tr><td>env<td>Environment variables to set when compiling and linking</tr>
+                <tr><td>ext<td>File extensions indexed by file type</tr>
+                <tr><td>globals<td>Global values to use in property token expansion</tr>
+                <tr><td>internal<td>Default properties to be inherited by only the targets in the same MakeMe file</tr>
+                <tr><td>main<td>Path to the <em>main.me</em> file. Used in platform MakeMe files.</tr>
+                <tr><td>mixin<td>Literal script code to mixin.</tr>
+                <tr><td>modules<td>List of scripts or compiled scripts to pre-load</tr>
+                <tr><td>options<td>Supplied command line options</tr>
+                <tr><td>platform<td>Description of the current platform. Has properties for operating system
+                        and CPU architecture.</tr>
+                <tr><td>plugins<td>List of required plugins. These are listed without '.me' extensions.</tr>
+                <tr><td>prefixes<td>Installation directory prefixes and default values on Unix/Linux systems:
                     <ul>
                         <li>root &mdash; Root directory prefix: /</li>
                         <li>base &mdash; Base installation prefix: /usr/local</li>
@@ -236,15 +233,15 @@
                         <li>src &mdash; Product source /usr/src/${settings.product}-${settings.version}</li>
                     </ul>
             
-            </td></tr>
-                <tr><td>profiles</td><td>Build profiles. Standard profiles are: debug and release</td></tr>
-                <tr><td>rules</td><td>Command rules for compiling, building libraries and executables</td></tr>
-                <tr><td>scripts</td><td>Project top-level scripts.</td></tr>
-                <tr><td>settings</td><td>Project top-level settings. This includes name, version, description. 
-                        See <a href="#settings">settings</a> collection below for full details.</td></tr>
-                <tr><td>target</td><td>Reference to the currently building target.</td></tr>
-                <tr><td>targets</td><td>Targets to build. Each target is its own collection of properties</td></tr>
-                <tr><td>usage</td><td>Additional usage message to emit for MakeMe command line errors</td></tr>
+            </tr>
+                <tr><td>profiles<td>Build profiles. Standard profiles are: debug and release</tr>
+                <tr><td>rules<td>Command rules for compiling, building libraries and executables</tr>
+                <tr><td>scripts<td>Project top-level scripts.</tr>
+                <tr><td>settings<td>Project top-level settings. This includes name, version, description. 
+                        See <a href="#settings">settings</a> collection below for full details.</tr>
+                <tr><td>target<td>Reference to the currently building target.</tr>
+                <tr><td>targets<td>Targets to build. Each target is its own collection of properties</tr>
+                <tr><td>usage<td>Additional usage message to emit for MakeMe command line errors</tr>
             </tbody>
         </table>
         <a name="globals"></a>
@@ -256,29 +253,29 @@
                 <th>Description</th>
             </thead>
             <tbody>
-            <tr><td>ARCH</td><td>CPU architecture: x86, x64, ppc, ...</td></tr>
-            <tr><td>BIN</td><td>Binary outputs directory: OS-ARCH-PROFILE/bin</td></tr>
-            <tr><td>BLD</td><td>Build output directory</td></tr>
-            <tr><td>CONFIG</td><td>Platform configuration: OS-ARCH-PROFILE</td></tr>
-            <tr><td>EXE</td><td>Executable extension: .exe</td></tr>
-            <tr><td>GCC_ARCH</td><td>CPU architecture mapped to a GCC architecture: x86_64, i686, ...</td></tr>
-            <tr><td>LIKE</td><td>Set to windows or posix if relevant</td></tr>
-            <tr><td>INC</td><td>Standard include directory</td></tr>
-            <tr><td>LBIN</td><td>Binary output directory for the local platform</td></tr>
-            <tr><td>O</td><td>Compiled object file extension: .o, .obj</td></tr>
-            <tr><td>OBJ</td><td>Directory holding compiled files: OS-ARCH-PROFILE/obj</td></tr>
-            <tr><td>OS</td><td>Operating system: linux, windows, ...</td></tr>
-            <tr><td>OUT</td><td>Per-platform output directory: build/OS-ARCH-PROFILE</td></tr>
-            <tr><td>PAKS</td><td>Local Paks directory: src/paks</td></tr>
-            <tr><td>PKG</td><td>Package directory: build/OS-ARCH-PROFILE/pkg</td></tr>
-            <tr><td>PLATFORM</td><td>Platform string: OS-ARCH</td></tr>
-            <tr><td>PROFILE</td><td>Selected build profile. Typically 'debug' or 'release'</td></tr>
-            <tr><td>PROJ</td><td>Generated projects directory. Typically 'projects'</td></tr>
-            <tr><td>REL</td><td>Release image directory: build/OS-ARCH-PROFILE/img</td></tr>
-            <tr><td>SHLIB</td><td>Shared object library extension: .so, .lib</td></tr>
-            <tr><td>SHOBJ</td><td>Shared object extension: .so, .dll</td></tr>
-            <tr><td>SRC</td><td>Directory of the source tree to be built</td></tr>
-            <tr><td>TOP</td><td>Top directory where the project is being built</td></tr>
+            <tr><td>ARCH<td>CPU architecture: x86, x64, ppc, ...</tr>
+            <tr><td>BIN<td>Binary outputs directory: OS-ARCH-PROFILE/bin</tr>
+            <tr><td>BLD<td>Build output directory</tr>
+            <tr><td>CONFIG<td>Platform configuration: OS-ARCH-PROFILE</tr>
+            <tr><td>EXE<td>Executable extension: .exe</tr>
+            <tr><td>GCC_ARCH<td>CPU architecture mapped to a GCC architecture: x86_64, i686, ...</tr>
+            <tr><td>LIKE<td>Set to windows or posix if relevant</tr>
+            <tr><td>INC<td>Standard include directory</tr>
+            <tr><td>LBIN<td>Binary output directory for the local platform</tr>
+            <tr><td>O<td>Compiled object file extension: .o, .obj</tr>
+            <tr><td>OBJ<td>Directory holding compiled files: OS-ARCH-PROFILE/obj</tr>
+            <tr><td>OS<td>Operating system: linux, windows, ...</tr>
+            <tr><td>OUT<td>Per-platform output directory: build/OS-ARCH-PROFILE</tr>
+            <tr><td>PAKS<td>Local Paks directory: src/paks</tr>
+            <tr><td>PKG<td>Package directory: build/OS-ARCH-PROFILE/pkg</tr>
+            <tr><td>PLATFORM<td>Platform string: OS-ARCH</tr>
+            <tr><td>PROFILE<td>Selected build profile. Typically 'debug' or 'release'</tr>
+            <tr><td>PROJ<td>Generated projects directory. Typically 'projects'</tr>
+            <tr><td>REL<td>Release image directory: build/OS-ARCH-PROFILE/img</tr>
+            <tr><td>SHLIB<td>Shared object library extension: .so, .lib</tr>
+            <tr><td>SHOBJ<td>Shared object extension: .so, .dll</tr>
+            <tr><td>SRC<td>Directory of the source tree to be built</tr>
+            <tr><td>TOP<td>Top directory where the project is being built</tr>
             </tbody>
         </table>
         
@@ -291,10 +288,10 @@
                 <th>Description</th>
             </thead>
             <tbody>
-                <tr><td>arch</td><td>CPU architecture: arm, ppc, x64, x86, ...</td></tr>
-                <tr><td>like</td><td>Set to 'windows' or 'posix' or empty</td></tr>
-                <tr><td>os</td><td>Operating system: linux, windows, vxworks, ...</td></tr>
-                <tr><td>profile</td><td>Build profile selected: 'debug', 'release', ...</td></tr>
+                <tr><td>arch<td>CPU architecture: arm, ppc, x64, x86, ...</tr>
+                <tr><td>like<td>Set to 'windows' or 'posix' or empty</tr>
+                <tr><td>os<td>Operating system: linux, windows, vxworks, ...</tr>
+                <tr><td>profile<td>Build profile selected: 'debug', 'release', ...</tr>
             </tbody>
         </table>
         <a name="configure"></a>
@@ -307,10 +304,10 @@
                 <th>Description</th>
             </thead>
             <tbody>
-                <tr><td>discovers</td><td>List of optional configurable components to discover when configuring </td></tr>
-                <tr><td>requires</td><td>List of required components to discover when configuring </td></tr>
-                <tr><td>extras</td><td>List of components that but can be included via an explicit
-                    <em>configure --with NAME</em> command.</td></tr>
+                <tr><td>discovers<td>List of optional configurable components to discover when configuring </tr>
+                <tr><td>requires<td>List of required components to discover when configuring </tr>
+                <tr><td>extras<td>List of components that but can be included via an explicit
+                    <em>configure --with NAME</em> command.</tr>
             </tbody>
         </table>
         <a name="settings"></a>
@@ -322,21 +319,21 @@
                 <th>Description</th>
             </thead>
             <tbody>
-                <tr><td>company</td><td>Company name</td></tr>
-                <tr><td>prefixes</td><td>Name of collection containing installation prefixes. 
+                <tr><td>company<td>Company name</tr>
+                <tr><td>prefixes<td>Name of collection containing installation prefixes. 
                     Set to debian|embedthis|opt or to a user-provided collection. This causes the requested prefix collection
-                    to be copied to the prefixes collection.</td></tr>
-                <tr><td>product</td><td>Product or project name. Should be one word, lower case without spaces</td></tr>
-                <tr><td>static</td><td>Build using static linking instead of building shared libraries</td></tr>
-                <tr><td>title</td><td>Descriptive one sentence title for the product</td></tr>
-                <tr><td>version</td><td>Product version string. Should be of the form: MAJOR.MINOR.PATCH </td></tr>
+                    to be copied to the prefixes collection.</tr>
+                <tr><td>product<td>Product or project name. Should be one word, lower case without spaces</tr>
+                <tr><td>static<td>Build using static linking instead of building shared libraries</tr>
+                <tr><td>title<td>Descriptive one sentence title for the product</tr>
+                <tr><td>version<td>Product version string. Should be of the form: MAJOR.MINOR.PATCH </tr>
             </tbody>
         </table>
         <a name="targets"></a>
         <h2>Targets Properties &mdash; me.targets[].*</h2>
         <table title="targets" class="ui table segment">
             <thead>
-                <tr><th>Name</th><th>Description</th>
+                <tr><th>Name<th>Description</th>
             </thead>
             <tbody>
                 <tr>
@@ -421,7 +418,7 @@
                     <td>path</td>
                     <td>Path to the result of building the target. If unset, MakeMe computes the output path
                         based on the target name and the target type. If the path is set, it overrides the default
-                        and defines the output filename or directory for the target.</p>
+                        and defines the output filename or directory for the target.<p></p>
                 </tr>
                 <tr>
                     <td>platforms</td>
@@ -474,7 +471,7 @@
         <h2>Additional Target Properties for File Targets &mdash; me.targets[].*</h2>
         <table title="targets" class="ui table segment">
             <thead>
-                <tr><th>Name</th><th class="two wide">Type</th><th>Description</th>
+                <tr><th>Name<th class="two wide">Type<th>Description</th>
             </thead>
             <tbody>
                 <tr>
@@ -610,18 +607,18 @@
         <p>These properties are relevant only if the target is configurable (has configurable == true)</p>
         <table title="targets" class="ui table segment">
             <thead>
-                <tr><th>Name</th><th>Description</th>
+                <tr><th>Name<th>Description</th>
             </thead>
             <tbody>
-                <tr><td>conflicts</td><td>Array of conflicting configurable targets</td></tr>
-                <tr><td>description</td><td>Descriptive name of the configurable target</td></tr>
-                <tr><td>requires</td><td>Array of targets to discover that are essential for this target</td></tr>
-                <tr><td>discovers</td><td>Array of targets to discover that may be optionally utilized by this target</td></tr>
-                <tr><td>enable</td><td>Set to true if the target was found on the system</td></tr>
-                <tr><td>file</td><td>File to the MakeMe file that defined the target</td></tr>
-                <tr><td>imports</td><td>Files to import for this target into the platform bin directory before building</td></tr>
-                <tr><td>path</td><td>If found, the path to the configurable target directory or binary</td></tr>
-                <tr><td>withpath</td><td>Path supplied via a configure --with EXTENSION=PATH command line option</td></tr>
+                <tr><td>conflicts<td>Array of conflicting configurable targets</tr>
+                <tr><td>description<td>Descriptive name of the configurable target</tr>
+                <tr><td>requires<td>Array of targets to discover that are essential for this target</tr>
+                <tr><td>discovers<td>Array of targets to discover that may be optionally utilized by this target</tr>
+                <tr><td>enable<td>Set to true if the target was found on the system</tr>
+                <tr><td>file<td>File to the MakeMe file that defined the target</tr>
+                <tr><td>imports<td>Files to import for this target into the platform bin directory before building</tr>
+                <tr><td>path<td>If found, the path to the configurable target directory or binary</tr>
+                <tr><td>withpath<td>Path supplied via a configure --with EXTENSION=PATH command line option</tr>
             </tbody>
         </table>
 
@@ -633,14 +630,14 @@
                 <th>Description</th>
             </thead>
             <tbody>
-                <tr><td>preblend</td><td>Array of scripts to run for the preblend event</td></tr>
-                <tr><td>postload</td><td>Array of scripts to run for the postload event</td></tr>
-                <tr><td>loaded</td><td>Array of scripts to run for the loaded event</td></tr>
-                <tr><td>preinherit</td><td>Array of scripts to run for the preinherit event</td></tr>
-                <tr><td>postconfig</td><td>Array of scripts to run for the postconfig event</td></tr>
-                <tr><td>preheader</td><td>Array of scripts to run for the preheader event</td></tr>
-                <tr><td>pregen</td><td>Array of scripts to run for the pregen event</td></tr>
-                <tr><td>gencustom</td><td>Array of scripts to run for the gencustom event</td></tr>
+                <tr><td>preblend<td>Array of scripts to run for the preblend event</tr>
+                <tr><td>postload<td>Array of scripts to run for the postload event</tr>
+                <tr><td>loaded<td>Array of scripts to run for the loaded event</tr>
+                <tr><td>preinherit<td>Array of scripts to run for the preinherit event</tr>
+                <tr><td>postconfig<td>Array of scripts to run for the postconfig event</tr>
+                <tr><td>preheader<td>Array of scripts to run for the preheader event</tr>
+                <tr><td>pregen<td>Array of scripts to run for the pregen event</tr>
+                <tr><td>gencustom<td>Array of scripts to run for the gencustom event</tr>
             </tbody>
         </table>
         <a name="tscripts"></a>
@@ -651,16 +648,16 @@
                 <th>Description</th>
             </thead>
             <tbody>
-                <tr><td>postblend</td><td>Array of scripts to run for the postblend event</td></tr>
-                <tr><td>preresolve</td><td>Array of scripts to run for the preresolve event</td></tr>
-                <tr><td>postresolve</td><td>Array of scripts to run for the postresolve event</td></tr>
-                <tr><td>presource</td><td>Array of scripts to run for the presource event</td></tr>
-                <tr><td>postsource</td><td>Array of scripts to run for the postsource event</td></tr>
-                <tr><td>precompile</td><td>Array of scripts to run for the precompile event</td></tr>
-                <tr><td>postcompile</td><td>Array of scripts to run for the postcompile event</td></tr>
-                <tr><td>prebuild</td><td>Array of scripts to run for the prebuild event</td></tr>
-                <tr><td>build</td><td>Array of scripts to run for the build event</td></tr>
-                <tr><td>postbuild</td><td>Array of scripts to run for the postbuild event</td></tr>
+                <tr><td>postblend<td>Array of scripts to run for the postblend event</tr>
+                <tr><td>preresolve<td>Array of scripts to run for the preresolve event</tr>
+                <tr><td>postresolve<td>Array of scripts to run for the postresolve event</tr>
+                <tr><td>presource<td>Array of scripts to run for the presource event</tr>
+                <tr><td>postsource<td>Array of scripts to run for the postsource event</tr>
+                <tr><td>precompile<td>Array of scripts to run for the precompile event</tr>
+                <tr><td>postcompile<td>Array of scripts to run for the postcompile event</tr>
+                <tr><td>prebuild<td>Array of scripts to run for the prebuild event</tr>
+                <tr><td>build<td>Array of scripts to run for the build event</tr>
+                <tr><td>postbuild<td>Array of scripts to run for the postbuild event</tr>
             </tbody>
         </table>
         <a name="pscripts"></a>
@@ -671,8 +668,8 @@
                 <th>Description</th>
             </thead>
             <tbody>
-                <tr><td>without</td><td>Array of scripts to run for the without event</td></tr>
-                <tr><td>config</td><td>Array of scripts to run for the config event</td></tr>
+                <tr><td>without<td>Array of scripts to run for the without event</tr>
+                <tr><td>config<td>Array of scripts to run for the config event</tr>
             </tbody>
         </table>
 
@@ -682,12 +679,13 @@
     </div>
 
     <script src="/lib/jquery/jquery.min.js"></script>
-    <script src="/lib/jquery/pak.json"></script>
-    <script src="/lib/semantic-ui/semantic.js"></script>
-    <script src="/scripts/sidebar.js"></script>
+    <script src="/lib/jquery/pak.min.js"></script>
+    <script src="/lib/semantic-ui/semantic.min.js"></script>
+    <script src="/scripts/sidebar.min.js"></script>
      
 
     
 
-</body>
-</html>
+
+
+
