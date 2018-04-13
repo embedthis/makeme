@@ -994,6 +994,7 @@ DEPS_51 = $(DEPS_51) paks\me-components\components.me
 DEPS_51 = $(DEPS_51) paks\me-components\ejscript.me
 DEPS_51 = $(DEPS_51) paks\me-components\lib.me
 DEPS_51 = $(DEPS_51) paks\me-components\link.me
+DEPS_51 = $(DEPS_51) paks\me-components\pak.json
 DEPS_51 = $(DEPS_51) paks\me-components\rc.me
 DEPS_51 = $(DEPS_51) paks\me-components\testme.me
 DEPS_51 = $(DEPS_51) paks\me-installs\Installs.es
@@ -1002,18 +1003,22 @@ DEPS_51 = $(DEPS_51) paks\me-installs\manifest.me
 DEPS_51 = $(DEPS_51) paks\me-installs\pak.json
 DEPS_51 = $(DEPS_51) paks\me-make\Make.es
 DEPS_51 = $(DEPS_51) paks\me-make\make.me
+DEPS_51 = $(DEPS_51) paks\me-make\pak.json
 DEPS_51 = $(DEPS_51) paks\me-os\freebsd.me
 DEPS_51 = $(DEPS_51) paks\me-os\gcc.me
 DEPS_51 = $(DEPS_51) paks\me-os\linux.me
 DEPS_51 = $(DEPS_51) paks\me-os\macosx.me
 DEPS_51 = $(DEPS_51) paks\me-os\os.me
+DEPS_51 = $(DEPS_51) paks\me-os\pak.json
 DEPS_51 = $(DEPS_51) paks\me-os\solaris.me
 DEPS_51 = $(DEPS_51) paks\me-os\unix.me
 DEPS_51 = $(DEPS_51) paks\me-os\vxworks.me
 DEPS_51 = $(DEPS_51) paks\me-os\windows.me
 DEPS_51 = $(DEPS_51) paks\me-vstudio\Vstudio.es
+DEPS_51 = $(DEPS_51) paks\me-vstudio\pak.json
 DEPS_51 = $(DEPS_51) paks\me-vstudio\vstudio.me
 DEPS_51 = $(DEPS_51) paks\me-xcode\Xcode.es
+DEPS_51 = $(DEPS_51) paks\me-xcode\pak.json
 DEPS_51 = $(DEPS_51) paks\me-xcode\xcode.me
 
 build\$(CONFIG)\.pakrun-modified: $(DEPS_51)
@@ -1025,6 +1030,7 @@ build\$(CONFIG)\.pakrun-modified: $(DEPS_51)
 	copy /Y /B paks\me-components\ejscript.me+modified build\$(CONFIG)\bin\paks\me-components\ejscript.me $(LOG)
 	copy /Y /B paks\me-components\lib.me+modified build\$(CONFIG)\bin\paks\me-components\lib.me $(LOG)
 	copy /Y /B paks\me-components\link.me+modified build\$(CONFIG)\bin\paks\me-components\link.me $(LOG)
+	copy /Y /B paks\me-components\pak.json+modified build\$(CONFIG)\bin\paks\me-components\pak.json $(LOG)
 	copy /Y /B paks\me-components\rc.me+modified build\$(CONFIG)\bin\paks\me-components\rc.me $(LOG)
 	copy /Y /B paks\me-components\testme.me+modified build\$(CONFIG)\bin\paks\me-components\testme.me $(LOG)
 	if not exist "build\$(CONFIG)\bin\paks\me-installs" md "build\$(CONFIG)\bin\paks\me-installs"
@@ -1035,21 +1041,25 @@ build\$(CONFIG)\.pakrun-modified: $(DEPS_51)
 	if not exist "build\$(CONFIG)\bin\paks\me-make" md "build\$(CONFIG)\bin\paks\me-make"
 	copy /Y /B paks\me-make\Make.es+modified build\$(CONFIG)\bin\paks\me-make\Make.es $(LOG)
 	copy /Y /B paks\me-make\make.me+modified build\$(CONFIG)\bin\paks\me-make\make.me $(LOG)
+	copy /Y /B paks\me-make\pak.json+modified build\$(CONFIG)\bin\paks\me-make\pak.json $(LOG)
 	if not exist "build\$(CONFIG)\bin\paks\me-os" md "build\$(CONFIG)\bin\paks\me-os"
 	copy /Y /B paks\me-os\freebsd.me+modified build\$(CONFIG)\bin\paks\me-os\freebsd.me $(LOG)
 	copy /Y /B paks\me-os\gcc.me+modified build\$(CONFIG)\bin\paks\me-os\gcc.me $(LOG)
 	copy /Y /B paks\me-os\linux.me+modified build\$(CONFIG)\bin\paks\me-os\linux.me $(LOG)
 	copy /Y /B paks\me-os\macosx.me+modified build\$(CONFIG)\bin\paks\me-os\macosx.me $(LOG)
 	copy /Y /B paks\me-os\os.me+modified build\$(CONFIG)\bin\paks\me-os\os.me $(LOG)
+	copy /Y /B paks\me-os\pak.json+modified build\$(CONFIG)\bin\paks\me-os\pak.json $(LOG)
 	copy /Y /B paks\me-os\solaris.me+modified build\$(CONFIG)\bin\paks\me-os\solaris.me $(LOG)
 	copy /Y /B paks\me-os\unix.me+modified build\$(CONFIG)\bin\paks\me-os\unix.me $(LOG)
 	copy /Y /B paks\me-os\vxworks.me+modified build\$(CONFIG)\bin\paks\me-os\vxworks.me $(LOG)
 	copy /Y /B paks\me-os\windows.me+modified build\$(CONFIG)\bin\paks\me-os\windows.me $(LOG)
 	if not exist "build\$(CONFIG)\bin\paks\me-vstudio" md "build\$(CONFIG)\bin\paks\me-vstudio"
 	copy /Y /B paks\me-vstudio\Vstudio.es+modified build\$(CONFIG)\bin\paks\me-vstudio\Vstudio.es $(LOG)
+	copy /Y /B paks\me-vstudio\pak.json+modified build\$(CONFIG)\bin\paks\me-vstudio\pak.json $(LOG)
 	copy /Y /B paks\me-vstudio\vstudio.me+modified build\$(CONFIG)\bin\paks\me-vstudio\vstudio.me $(LOG)
 	if not exist "build\$(CONFIG)\bin\paks\me-xcode" md "build\$(CONFIG)\bin\paks\me-xcode"
 	copy /Y /B paks\me-xcode\Xcode.es+modified build\$(CONFIG)\bin\paks\me-xcode\Xcode.es $(LOG)
+	copy /Y /B paks\me-xcode\pak.json+modified build\$(CONFIG)\bin\paks\me-xcode\pak.json $(LOG)
 	copy /Y /B paks\me-xcode\xcode.me+modified build\$(CONFIG)\bin\paks\me-xcode\xcode.me $(LOG)
 	copy /Y /B nul+modified build\$(CONFIG)\.pakrun-modified $(LOG)
 
@@ -1267,7 +1277,7 @@ installBinary: $(DEPS_59)
 	copy /Y /B paks\me-components\ejscript.me+modified "$(ME_VAPP_PREFIX)\bin\paks\me-components\ejscript.me" $(LOG)
 	copy /Y /B paks\me-components\lib.me+modified "$(ME_VAPP_PREFIX)\bin\paks\me-components\lib.me" $(LOG)
 	copy /Y /B paks\me-components\link.me+modified "$(ME_VAPP_PREFIX)\bin\paks\me-components\link.me" $(LOG)
-	copy /Y /B paks\me-components\package.json+modified "$(ME_VAPP_PREFIX)\bin\paks\me-components\package.json" $(LOG)
+	copy /Y /B paks\me-components\pak.json+modified "$(ME_VAPP_PREFIX)\bin\paks\me-components\pak.json" $(LOG)
 	copy /Y /B paks\me-components\rc.me+modified "$(ME_VAPP_PREFIX)\bin\paks\me-components\rc.me" $(LOG)
 	copy /Y /B paks\me-components\testme.me+modified "$(ME_VAPP_PREFIX)\bin\paks\me-components\testme.me" $(LOG)
 	if not exist "$(ME_VAPP_PREFIX)\bin\paks\me-installs" md "$(ME_VAPP_PREFIX)\bin\paks\me-installs"
@@ -1282,7 +1292,7 @@ installBinary: $(DEPS_59)
 	copy /Y /B paks\me-make\Make.es+modified "$(ME_VAPP_PREFIX)\bin\paks\me-make\Make.es" $(LOG)
 	copy /Y /B paks\me-make\README.md+modified "$(ME_VAPP_PREFIX)\bin\paks\me-make\README.md" $(LOG)
 	copy /Y /B paks\me-make\make.me+modified "$(ME_VAPP_PREFIX)\bin\paks\me-make\make.me" $(LOG)
-	copy /Y /B paks\me-make\package.json+modified "$(ME_VAPP_PREFIX)\bin\paks\me-make\package.json" $(LOG)
+	copy /Y /B paks\me-make\pak.json+modified "$(ME_VAPP_PREFIX)\bin\paks\me-make\pak.json" $(LOG)
 	if not exist "$(ME_VAPP_PREFIX)\bin\paks\me-os" md "$(ME_VAPP_PREFIX)\bin\paks\me-os"
 	copy /Y /B paks\me-os\LICENSE.md+modified "$(ME_VAPP_PREFIX)\bin\paks\me-os\LICENSE.md" $(LOG)
 	copy /Y /B paks\me-os\README.md+modified "$(ME_VAPP_PREFIX)\bin\paks\me-os\README.md" $(LOG)
@@ -1291,7 +1301,7 @@ installBinary: $(DEPS_59)
 	copy /Y /B paks\me-os\linux.me+modified "$(ME_VAPP_PREFIX)\bin\paks\me-os\linux.me" $(LOG)
 	copy /Y /B paks\me-os\macosx.me+modified "$(ME_VAPP_PREFIX)\bin\paks\me-os\macosx.me" $(LOG)
 	copy /Y /B paks\me-os\os.me+modified "$(ME_VAPP_PREFIX)\bin\paks\me-os\os.me" $(LOG)
-	copy /Y /B paks\me-os\package.json+modified "$(ME_VAPP_PREFIX)\bin\paks\me-os\package.json" $(LOG)
+	copy /Y /B paks\me-os\pak.json+modified "$(ME_VAPP_PREFIX)\bin\paks\me-os\pak.json" $(LOG)
 	copy /Y /B paks\me-os\solaris.me+modified "$(ME_VAPP_PREFIX)\bin\paks\me-os\solaris.me" $(LOG)
 	copy /Y /B paks\me-os\unix.me+modified "$(ME_VAPP_PREFIX)\bin\paks\me-os\unix.me" $(LOG)
 	copy /Y /B paks\me-os\vxworks.me+modified "$(ME_VAPP_PREFIX)\bin\paks\me-os\vxworks.me" $(LOG)
@@ -1300,13 +1310,13 @@ installBinary: $(DEPS_59)
 	copy /Y /B paks\me-vstudio\LICENSE.md+modified "$(ME_VAPP_PREFIX)\bin\paks\me-vstudio\LICENSE.md" $(LOG)
 	copy /Y /B paks\me-vstudio\README.md+modified "$(ME_VAPP_PREFIX)\bin\paks\me-vstudio\README.md" $(LOG)
 	copy /Y /B paks\me-vstudio\Vstudio.es+modified "$(ME_VAPP_PREFIX)\bin\paks\me-vstudio\Vstudio.es" $(LOG)
-	copy /Y /B paks\me-vstudio\package.json+modified "$(ME_VAPP_PREFIX)\bin\paks\me-vstudio\package.json" $(LOG)
+	copy /Y /B paks\me-vstudio\pak.json+modified "$(ME_VAPP_PREFIX)\bin\paks\me-vstudio\pak.json" $(LOG)
 	copy /Y /B paks\me-vstudio\vstudio.me+modified "$(ME_VAPP_PREFIX)\bin\paks\me-vstudio\vstudio.me" $(LOG)
 	if not exist "$(ME_VAPP_PREFIX)\bin\paks\me-xcode" md "$(ME_VAPP_PREFIX)\bin\paks\me-xcode"
 	copy /Y /B paks\me-xcode\LICENSE.md+modified "$(ME_VAPP_PREFIX)\bin\paks\me-xcode\LICENSE.md" $(LOG)
 	copy /Y /B paks\me-xcode\README.md+modified "$(ME_VAPP_PREFIX)\bin\paks\me-xcode\README.md" $(LOG)
 	copy /Y /B paks\me-xcode\Xcode.es+modified "$(ME_VAPP_PREFIX)\bin\paks\me-xcode\Xcode.es" $(LOG)
-	copy /Y /B paks\me-xcode\package.json+modified "$(ME_VAPP_PREFIX)\bin\paks\me-xcode\package.json" $(LOG)
+	copy /Y /B paks\me-xcode\pak.json+modified "$(ME_VAPP_PREFIX)\bin\paks\me-xcode\pak.json" $(LOG)
 	copy /Y /B paks\me-xcode\xcode.me+modified "$(ME_VAPP_PREFIX)\bin\paks\me-xcode\xcode.me" $(LOG)
 
 #

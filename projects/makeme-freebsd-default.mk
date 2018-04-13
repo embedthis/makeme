@@ -917,6 +917,7 @@ DEPS_51 += paks/me-components/components.me
 DEPS_51 += paks/me-components/ejscript.me
 DEPS_51 += paks/me-components/lib.me
 DEPS_51 += paks/me-components/link.me
+DEPS_51 += paks/me-components/pak.json
 DEPS_51 += paks/me-components/rc.me
 DEPS_51 += paks/me-components/testme.me
 DEPS_51 += paks/me-installs/Installs.es
@@ -925,18 +926,22 @@ DEPS_51 += paks/me-installs/manifest.me
 DEPS_51 += paks/me-installs/pak.json
 DEPS_51 += paks/me-make/Make.es
 DEPS_51 += paks/me-make/make.me
+DEPS_51 += paks/me-make/pak.json
 DEPS_51 += paks/me-os/freebsd.me
 DEPS_51 += paks/me-os/gcc.me
 DEPS_51 += paks/me-os/linux.me
 DEPS_51 += paks/me-os/macosx.me
 DEPS_51 += paks/me-os/os.me
+DEPS_51 += paks/me-os/pak.json
 DEPS_51 += paks/me-os/solaris.me
 DEPS_51 += paks/me-os/unix.me
 DEPS_51 += paks/me-os/vxworks.me
 DEPS_51 += paks/me-os/windows.me
 DEPS_51 += paks/me-vstudio/Vstudio.es
+DEPS_51 += paks/me-vstudio/pak.json
 DEPS_51 += paks/me-vstudio/vstudio.me
 DEPS_51 += paks/me-xcode/Xcode.es
+DEPS_51 += paks/me-xcode/pak.json
 DEPS_51 += paks/me-xcode/xcode.me
 
 $(BUILD)/.pakrun-modified: $(DEPS_51)
@@ -948,6 +953,7 @@ $(BUILD)/.pakrun-modified: $(DEPS_51)
 	cp paks/me-components/ejscript.me $(BUILD)/bin/paks/me-components/ejscript.me
 	cp paks/me-components/lib.me $(BUILD)/bin/paks/me-components/lib.me
 	cp paks/me-components/link.me $(BUILD)/bin/paks/me-components/link.me
+	cp paks/me-components/pak.json $(BUILD)/bin/paks/me-components/pak.json
 	cp paks/me-components/rc.me $(BUILD)/bin/paks/me-components/rc.me
 	cp paks/me-components/testme.me $(BUILD)/bin/paks/me-components/testme.me
 	mkdir -p "$(BUILD)/bin/paks/me-installs"
@@ -958,21 +964,25 @@ $(BUILD)/.pakrun-modified: $(DEPS_51)
 	mkdir -p "$(BUILD)/bin/paks/me-make"
 	cp paks/me-make/Make.es $(BUILD)/bin/paks/me-make/Make.es
 	cp paks/me-make/make.me $(BUILD)/bin/paks/me-make/make.me
+	cp paks/me-make/pak.json $(BUILD)/bin/paks/me-make/pak.json
 	mkdir -p "$(BUILD)/bin/paks/me-os"
 	cp paks/me-os/freebsd.me $(BUILD)/bin/paks/me-os/freebsd.me
 	cp paks/me-os/gcc.me $(BUILD)/bin/paks/me-os/gcc.me
 	cp paks/me-os/linux.me $(BUILD)/bin/paks/me-os/linux.me
 	cp paks/me-os/macosx.me $(BUILD)/bin/paks/me-os/macosx.me
 	cp paks/me-os/os.me $(BUILD)/bin/paks/me-os/os.me
+	cp paks/me-os/pak.json $(BUILD)/bin/paks/me-os/pak.json
 	cp paks/me-os/solaris.me $(BUILD)/bin/paks/me-os/solaris.me
 	cp paks/me-os/unix.me $(BUILD)/bin/paks/me-os/unix.me
 	cp paks/me-os/vxworks.me $(BUILD)/bin/paks/me-os/vxworks.me
 	cp paks/me-os/windows.me $(BUILD)/bin/paks/me-os/windows.me
 	mkdir -p "$(BUILD)/bin/paks/me-vstudio"
 	cp paks/me-vstudio/Vstudio.es $(BUILD)/bin/paks/me-vstudio/Vstudio.es
+	cp paks/me-vstudio/pak.json $(BUILD)/bin/paks/me-vstudio/pak.json
 	cp paks/me-vstudio/vstudio.me $(BUILD)/bin/paks/me-vstudio/vstudio.me
 	mkdir -p "$(BUILD)/bin/paks/me-xcode"
 	cp paks/me-xcode/Xcode.es $(BUILD)/bin/paks/me-xcode/Xcode.es
+	cp paks/me-xcode/pak.json $(BUILD)/bin/paks/me-xcode/pak.json
 	cp paks/me-xcode/xcode.me $(BUILD)/bin/paks/me-xcode/xcode.me
 	touch "$(BUILD)/.pakrun-modified"
 
@@ -1218,7 +1228,7 @@ installBinary: $(DEPS_59)
 	cp paks/me-components/ejscript.me $(ME_VAPP_PREFIX)/bin/paks/me-components/ejscript.me ; \
 	cp paks/me-components/lib.me $(ME_VAPP_PREFIX)/bin/paks/me-components/lib.me ; \
 	cp paks/me-components/link.me $(ME_VAPP_PREFIX)/bin/paks/me-components/link.me ; \
-	cp paks/me-components/package.json $(ME_VAPP_PREFIX)/bin/paks/me-components/package.json ; \
+	cp paks/me-components/pak.json $(ME_VAPP_PREFIX)/bin/paks/me-components/pak.json ; \
 	cp paks/me-components/rc.me $(ME_VAPP_PREFIX)/bin/paks/me-components/rc.me ; \
 	cp paks/me-components/testme.me $(ME_VAPP_PREFIX)/bin/paks/me-components/testme.me ; \
 	mkdir -p "$(ME_VAPP_PREFIX)/bin/paks/me-installs" ; \
@@ -1233,7 +1243,7 @@ installBinary: $(DEPS_59)
 	cp paks/me-make/Make.es $(ME_VAPP_PREFIX)/bin/paks/me-make/Make.es ; \
 	cp paks/me-make/README.md $(ME_VAPP_PREFIX)/bin/paks/me-make/README.md ; \
 	cp paks/me-make/make.me $(ME_VAPP_PREFIX)/bin/paks/me-make/make.me ; \
-	cp paks/me-make/package.json $(ME_VAPP_PREFIX)/bin/paks/me-make/package.json ; \
+	cp paks/me-make/pak.json $(ME_VAPP_PREFIX)/bin/paks/me-make/pak.json ; \
 	mkdir -p "$(ME_VAPP_PREFIX)/bin/paks/me-os" ; \
 	cp paks/me-os/LICENSE.md $(ME_VAPP_PREFIX)/bin/paks/me-os/LICENSE.md ; \
 	cp paks/me-os/README.md $(ME_VAPP_PREFIX)/bin/paks/me-os/README.md ; \
@@ -1242,7 +1252,7 @@ installBinary: $(DEPS_59)
 	cp paks/me-os/linux.me $(ME_VAPP_PREFIX)/bin/paks/me-os/linux.me ; \
 	cp paks/me-os/macosx.me $(ME_VAPP_PREFIX)/bin/paks/me-os/macosx.me ; \
 	cp paks/me-os/os.me $(ME_VAPP_PREFIX)/bin/paks/me-os/os.me ; \
-	cp paks/me-os/package.json $(ME_VAPP_PREFIX)/bin/paks/me-os/package.json ; \
+	cp paks/me-os/pak.json $(ME_VAPP_PREFIX)/bin/paks/me-os/pak.json ; \
 	cp paks/me-os/solaris.me $(ME_VAPP_PREFIX)/bin/paks/me-os/solaris.me ; \
 	cp paks/me-os/unix.me $(ME_VAPP_PREFIX)/bin/paks/me-os/unix.me ; \
 	cp paks/me-os/vxworks.me $(ME_VAPP_PREFIX)/bin/paks/me-os/vxworks.me ; \
@@ -1251,13 +1261,13 @@ installBinary: $(DEPS_59)
 	cp paks/me-vstudio/LICENSE.md $(ME_VAPP_PREFIX)/bin/paks/me-vstudio/LICENSE.md ; \
 	cp paks/me-vstudio/README.md $(ME_VAPP_PREFIX)/bin/paks/me-vstudio/README.md ; \
 	cp paks/me-vstudio/Vstudio.es $(ME_VAPP_PREFIX)/bin/paks/me-vstudio/Vstudio.es ; \
-	cp paks/me-vstudio/package.json $(ME_VAPP_PREFIX)/bin/paks/me-vstudio/package.json ; \
+	cp paks/me-vstudio/pak.json $(ME_VAPP_PREFIX)/bin/paks/me-vstudio/pak.json ; \
 	cp paks/me-vstudio/vstudio.me $(ME_VAPP_PREFIX)/bin/paks/me-vstudio/vstudio.me ; \
 	mkdir -p "$(ME_VAPP_PREFIX)/bin/paks/me-xcode" ; \
 	cp paks/me-xcode/LICENSE.md $(ME_VAPP_PREFIX)/bin/paks/me-xcode/LICENSE.md ; \
 	cp paks/me-xcode/README.md $(ME_VAPP_PREFIX)/bin/paks/me-xcode/README.md ; \
 	cp paks/me-xcode/Xcode.es $(ME_VAPP_PREFIX)/bin/paks/me-xcode/Xcode.es ; \
-	cp paks/me-xcode/package.json $(ME_VAPP_PREFIX)/bin/paks/me-xcode/package.json ; \
+	cp paks/me-xcode/pak.json $(ME_VAPP_PREFIX)/bin/paks/me-xcode/pak.json ; \
 	cp paks/me-xcode/xcode.me $(ME_VAPP_PREFIX)/bin/paks/me-xcode/xcode.me ; \
 	mkdir -p "$(ME_VAPP_PREFIX)/doc/man/man1" ; \
 	cp doc/dist/man/me.1 $(ME_VAPP_PREFIX)/doc/man/man1/me.1 ; \
