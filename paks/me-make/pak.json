@@ -1,8 +1,8 @@
 {
-    "name": "me-vstudio",
-    "description": "MakeMe Project Generation",
+    "name": "me-make",
+    "description": "MakeMe Makefile Generation",
     "title": "Embedthis Development",
-    "version": "0.8.7",
+    "version": "0.1.4",
     "keywords": [
         "me"
     ],
@@ -13,10 +13,10 @@
     },
     "repository": {
         "type": "git",
-        "url": "git://github.com/embedthis/me-vstudio.git"
+        "url": "git://github.com/embedthis/me-make.git"
     },
     "bugs": {
-        "url": "http://github.com/embedthis/me-vstudio/issues"
+        "url": "http://github.com/embedthis/me-make/issues"
     },
     "licenses": [
         {
@@ -28,7 +28,5 @@
             "url": "https://embedthis.com/licensing/"
         }
     ],
-    "pak": {
-        "origin": "embedthis/me-vstudio"
-    }
+    "origin": "embedthis/me-make"
 }

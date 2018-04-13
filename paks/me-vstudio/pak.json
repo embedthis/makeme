@@ -1,8 +1,8 @@
 {
-    "name": "me-xcode",
+    "name": "me-vstudio",
     "description": "MakeMe Project Generation",
     "title": "Embedthis Development",
-    "version": "0.8.7",
+    "version": "0.8.8",
     "keywords": [
         "me"
     ],
@@ -13,10 +13,10 @@
     },
     "repository": {
         "type": "git",
-        "url": "git://github.com/embedthis/me-xcode.git"
+        "url": "git://github.com/embedthis/me-vstudio.git"
     },
     "bugs": {
-        "url": "http://github.com/embedthis/me-xcode/issues"
+        "url": "http://github.com/embedthis/me-vstudio/issues"
     },
     "licenses": [
         {
@@ -28,7 +28,5 @@
             "url": "https://embedthis.com/licensing/"
         }
     ],
-    "pak": {
-        "origin": "embedthis/me-xcode"
-    }
+    "origin": "embedthis/me-vstudio"
 }

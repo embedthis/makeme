@@ -1,8 +1,8 @@
 {
-    "name": "me-make",
-    "description": "MakeMe Makefile Generation",
+    "name": "me-components",
+    "description": "MakeMe Standard Configurable Components",
     "title": "Embedthis Development",
-    "version": "0.1.3",
+    "version": "0.9.3",
     "keywords": [
         "me"
     ],
@@ -13,10 +13,10 @@
     },
     "repository": {
         "type": "git",
-        "url": "git://github.com/embedthis/me-make.git"
+        "url": "git://github.com/embedthis/me-components.git"
     },
     "bugs": {
-        "url": "http://github.com/embedthis/me-make/issues"
+        "url": "http://github.com/embedthis/me-components/issues"
     },
     "licenses": [
         {
@@ -28,7 +28,5 @@
             "url": "https://embedthis.com/licensing/"
         }
     ],
-    "pak": {
-        "origin": "embedthis/me-make"
-    }
+    "origin": "embedthis/me-components"
 }

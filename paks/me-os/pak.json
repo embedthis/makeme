@@ -2,7 +2,7 @@
     "name": "me-os",
     "description": "MakeMe O/S Support",
     "title": "Embedthis Development",
-    "version": "0.8.5",
+    "version": "0.8.6",
     "keywords": [
         "me"
     ],
@@ -28,7 +28,5 @@
             "url": "https://embedthis.com/licensing/"
         }
     ],
-    "pak": {
-        "origin": "embedthis/me-os"
-    }
+    "origin": "embedthis/me-os"
 }

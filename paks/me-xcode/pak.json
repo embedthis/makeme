@@ -1,8 +1,8 @@
 {
-    "name": "me-components",
-    "description": "MakeMe Standard Configurable Components",
+    "name": "me-xcode",
+    "description": "MakeMe Project Generation",
     "title": "Embedthis Development",
-    "version": "0.9.2",
+    "version": "0.8.8",
     "keywords": [
         "me"
     ],
@@ -13,10 +13,10 @@
     },
     "repository": {
         "type": "git",
-        "url": "git://github.com/embedthis/me-components.git"
+        "url": "git://github.com/embedthis/me-xcode.git"
     },
     "bugs": {
-        "url": "http://github.com/embedthis/me-components/issues"
+        "url": "http://github.com/embedthis/me-xcode/issues"
     },
     "licenses": [
         {
@@ -28,7 +28,5 @@
             "url": "https://embedthis.com/licensing/"
         }
     ],
-    "pak": {
-        "origin": "embedthis/me-components"
-    }
+    "origin": "embedthis/me-xcode"
 }
