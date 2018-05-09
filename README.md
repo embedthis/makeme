@@ -10,7 +10,7 @@ See [LICENSE.md](https://github.com/embedthis/makeme/blob/master/LICENSE.md) for
 
 ### Documentation:
 
-    See https://embedthis.com/makeme/doc/index.html
+    See https://www.embedthis.com/makeme/doc/index.html
 
 ### To build first time:
 
@@ -28,5 +28,5 @@ On Windows, add build/*/bin to your PATH.
 
 Resources
 ---
-  - [MakeMe Web Site](https://embedthis.com/makeme/)
+  - [MakeMe Web Site](https://www.embedthis.com/makeme/)
   - [MakeMe GitHub repository](https://github.com/embedthis/makeme)
