@@ -664,7 +664,13 @@ class Xcode {
             }
             target.vars ||= {}
             if (target.path) {
-                outputs = target.path.relativeTo(base)
+                if (target.type == 'file') {
+                    outputs = []
+                    for each (p in target.files) {
+                        outputs.push(target.path.relativeTo(base).join(p.basename))
+                    }
+                    outputs = outputs.join(',\n')
+                }
                 target.vars.OUT = outputs
             }
             let sid = getid('ID_ShellScript:' + target.name)

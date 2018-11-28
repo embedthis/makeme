@@ -7,9 +7,7 @@
 #include "me.h"
 
 
-
 /********* Start of file src/zconf.h ************/
-
 
 /* zconf.h -- configuration of the zlib compression library
  * Copyright (C) 1995-2011 Jean-loup Gailly.
@@ -507,9 +505,7 @@ typedef uLong FAR uLongf;
 #endif /* ZCONF_H */
 
 
-
 /********* Start of file src/zlib.h ************/
-
 
 /* zlib.h -- interface of the 'zlib' general purpose compression library
   version 1.2.6, January 29th, 2012
@@ -2245,9 +2241,7 @@ ZEXTERN int            ZEXPORT deflateResetKeep OF((z_streamp));
 #endif /* ZLIB_H */
 
 
-
 /********* Start of file src/gzguts.h ************/
-
 
 /* gzguts.h -- zlib internal header definitions for gz* operations
  * Copyright (C) 2004, 2005, 2010, 2011, 2012 Mark Adler
@@ -2458,9 +2452,7 @@ unsigned ZLIB_INTERNAL gz_intmax OF((void));
 #endif /* GZGUTS_H */
 
 
-
 /********* Start of file src/inftrees.h ************/
-
 
 /* inftrees.h -- header to use inftrees.c
  * Copyright (C) 1995-2005, 2010 Mark Adler
@@ -2529,9 +2521,7 @@ int ZLIB_INTERNAL inflate_table OF((codetype type, unsigned short FAR *lens,
 #endif /* INFTREES_H  */
 
 
-
 /********* Start of file src/inffast.h ************/
-
 
 /* inffast.h -- header to use inffast.c
  * Copyright (C) 1995-2003, 2010 Mark Adler
@@ -2549,9 +2539,7 @@ void ZLIB_INTERNAL inflate_fast OF((z_streamp strm, unsigned start));
 #endif /* INFFAST_H */
 
 
-
 /********* Start of file src/inffixed.h ************/
-
 
     /* inffixed.h -- table for decoding fixed codes
      * Generated automatically by makefixed().
@@ -2652,9 +2640,7 @@ void ZLIB_INTERNAL inflate_fast OF((z_streamp strm, unsigned start));
 #endif /* INFFIXED_H  */
 
 
-
 /********* Start of file src/inflate.h ************/
-
 
 /* inflate.h -- internal inflate state definition
  * Copyright (C) 1995-2009 Mark Adler
@@ -2783,9 +2769,7 @@ struct inflate_state {
 #endif /* INFLATE_H  */
 
 
-
 /********* Start of file src/zutil.h ************/
-
 
 /* zutil.h -- internal interface and configuration of the compression library
  * Copyright (C) 1995-2011 Jean-loup Gailly.
@@ -3039,9 +3023,7 @@ extern const char * const z_errmsg[10]; /* indexed by 2-zlib_error */
 #endif /* ZUTIL_H */
 
 
-
 /********* Start of file src/deflate.h ************/
-
 
 /* deflate.h -- internal compression state
  * Copyright (C) 1995-2012 Jean-loup Gailly

@@ -25,6 +25,9 @@ class InstallsInner {
      */
     public function deploy(manifest, package): Array {
         let sets = me.options.sets 
+        if (sets is String) {
+            sets = sets.split(',')
+        }
         if (me.options.deploy) {
             sets ||= package['sets-cross'] 
         } else {

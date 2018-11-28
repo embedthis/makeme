@@ -38,7 +38,7 @@ static App *app;
 
 #if ME_COMPILER_HAS_LIB_EDIT
 static History  *cmdHistory;
-static EditLine *eh; 
+static EditLine *eh;
 static cchar    *prompt;
 #endif
 
@@ -60,7 +60,7 @@ MAIN(ejsMain, int argc, char **argv, char **envp)
     char            *argp, *searchPath, *modules, *name, *tok, *extraFiles;
     int             nextArg, err, ecFlags, stats, merge, bind, noout, debug, optimizeLevel, warnLevel, strict, i, next;
 
-    /*  
+    /*
         Initialize Multithreaded Portable Runtime (MPR)
      */
     mpr = mprCreate(argc, argv, 0);
@@ -68,7 +68,7 @@ MAIN(ejsMain, int argc, char **argv, char **envp)
     mprAddRoot(app);
     mprAddStandardSignals();
 
-    if (mprStart(mpr) < 0) {
+    if (mprStart() < 0) {
         mprLog("ejs", 0, "Cannot start mpr services");
         return EJS_ERR;
     }
@@ -127,7 +127,7 @@ MAIN(ejsMain, int argc, char **argv, char **envp)
                 homeDir = mprGetAbsPath(argv[++nextArg]);
                 if (chroot(homeDir) < 0) {
                     if (errno == EPERM) {
-                        mprEprintf("%s: Must be super user to use the --chroot option", mprGetAppName(mpr));
+                        mprEprintf("%s: Must be super user to use the --chroot option", mprGetAppName());
                     } else {
                         mprEprintf("%s: Cannot change change root directory to %s, errno %d",
                             mprGetAppName(), homeDir, errno);
@@ -193,7 +193,7 @@ MAIN(ejsMain, int argc, char **argv, char **envp)
             }
 
         } else if (smatch(argp, "--name")) {
-            /* Just ignore. Used to tag commands with a unique command line */ 
+            /* Just ignore. Used to tag commands with a unique command line */
             nextArg++;
 
         } else if (smatch(argp, "--nobind")) {
@@ -279,7 +279,7 @@ MAIN(ejsMain, int argc, char **argv, char **envp)
     }
 
     if (err) {
-        /*  
+        /*
             If --method or --class is specified, then the named class.method will be run (method defaults to "main", class
             defaults to first class with a "main").
 
@@ -348,7 +348,7 @@ MAIN(ejsMain, int argc, char **argv, char **envp)
         mprAddItem(app->files, sclone(argv[nextArg]));
     }
     if (app->cygroot) {
-        /*  
+        /*
             When cygwin invokes a script with shebang, it passes a cygwin path to the script
             The ejs --cygroot option permits ejscript to conver this to a native path
          */
@@ -368,7 +368,7 @@ MAIN(ejsMain, int argc, char **argv, char **envp)
                 err++;
             }
         } else {
-            /*  
+            /*
                 No args - run as an interactive shell
              */
             if (interpretCommands(cp, NULL) < 0) {
@@ -405,8 +405,8 @@ static void manageApp(App *app, int flags)
 }
 
 
-/*  
-    Compile the source files supplied on the command line. This will compile in-memory and optionally also save to 
+/*
+    Compile the source files supplied on the command line. This will compile in-memory and optionally also save to
     module files.
  */
 static int interpretFiles(EcCompiler *cp, MprList *files, int argc, char **argv, cchar *className, cchar *method)
@@ -430,7 +430,7 @@ static int interpretFiles(EcCompiler *cp, MprList *files, int argc, char **argv,
 }
 
 
-/*  
+/*
     Interpret from the console or from a literal command
  */
 static int interpretCommands(EcCompiler *cp, cchar *cmd)
@@ -486,7 +486,7 @@ static int interpretCommands(EcCompiler *cp, cchar *cmd)
 /************************************************* Command line History **************************************/
 #if ME_COMPILER_HAS_LIB_EDIT
 
-static cchar *issuePrompt(EditLine *e) 
+static cchar *issuePrompt(EditLine *e)
 {
     return prompt;
 }
@@ -495,11 +495,11 @@ static cchar *issuePrompt(EditLine *e)
 static EditLine *initEditLine()
 {
     EditLine    *e;
-    HistEvent   ev; 
+    HistEvent   ev;
 
-    cmdHistory = history_init(); 
-    history(cmdHistory, &ev, H_SETSIZE, 100); 
-    e = el_init("ejs", stdin, stdout, stderr); 
+    cmdHistory = history_init();
+    history(cmdHistory, &ev, H_SETSIZE, 100);
+    e = el_init("ejs", stdin, stdout, stderr);
     el_set(e, EL_EDITOR, "vi");
     el_set(e, EL_HIST, history, cmdHistory);
     el_source(e, NULL);
@@ -507,35 +507,35 @@ static EditLine *initEditLine()
 }
 
 
-/*  
+/*
     Prompt for input with the level of current nest (block nest depth)
  */
-static char *readline(cchar *msg) 
-{ 
-    HistEvent   ev; 
-    cchar       *str; 
+static char *readline(cchar *msg)
+{
+    HistEvent   ev;
+    cchar       *str;
     char        *result;
     ssize       len;
-    int         count; 
- 
-    if (eh == NULL) { 
+    int         count;
+
+    if (eh == NULL) {
         eh = initEditLine();
     }
     prompt = msg;
     el_set(eh, EL_PROMPT, issuePrompt);
     el_set(eh, EL_SIGNAL, 1);
-    str = el_gets(eh, &count); 
-    if (str && count > 0) { 
-        result = strdup(str); 
+    str = el_gets(eh, &count);
+    if (str && count > 0) {
+        result = strdup(str);
         len = slen(result);
         if (result[len - 1] == '\n') {
-            result[len - 1] = '\0'; 
+            result[len - 1] = '\0';
         }
-        count = history(cmdHistory, &ev, H_ENTER, result); 
-        return result; 
-    }  
-    return NULL; 
-} 
+        count = history(cmdHistory, &ev, H_ENTER, result);
+        return result;
+    }
+    return NULL;
+}
 
 #else /* ME_COMPILER_HAS_LIB_EDIT */
 
@@ -553,7 +553,7 @@ static char *readline(cchar *msg)
 #endif /* ME_COMPILER_HAS_LIB_EDIT */
 
 
-/*  
+/*
     Read input from the console (stdin)
  */
 static int consoleGets(EcStream *stream)
@@ -582,12 +582,12 @@ static int consoleGets(EcStream *stream)
 }
 
 
-/*  
+/*
     Read input from a literal command
  */
 static int commandGets(EcStream *stream)
 {
-    /*  
+    /*
         Execute one string of commands. So we only come here once. Second time round, nextChar will be set.
      */
     if (stream->nextChar) {
@@ -599,7 +599,7 @@ static int commandGets(EcStream *stream)
 }
 
 
-static void require(cchar *name) 
+static void require(cchar *name)
 {
     if (name && *name) {
         mprAddItem(app->modules, sclone(name));
@@ -612,7 +612,7 @@ static void require(cchar *name)
     Copyright (c) Embedthis Software. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
-    You may use the Embedthis Open Source license or you may acquire a 
+    You may use the Embedthis Open Source license or you may acquire a
     commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
     this software for full details and other copyrights.

@@ -10,7 +10,7 @@ See LICENSE.md for details.
   See doc/index.html
 
 ### Prerequisites:
-    MakeMe (https://embedthis.com/makeme/) for MakeMe to configure and build.
+    MakeMe (https://www.embedthis.com/makeme/) for MakeMe to configure and build.
 
 ### To Build:
 
@@ -19,7 +19,7 @@ See LICENSE.md for details.
 
 Resources
 ---
-  - [Embedthis web site](https://embedthis.com/)
+  - [Embedthis web site](https://www.embedthis.com/)
   - [Appweb web site](http://appwebserver.org/)
   - [MPR GitHub repository](http://github.com/embedthis/mpr-4)
   - [Appweb GitHub repository](http://github.com/embedthis/appweb-4)
