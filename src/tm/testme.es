@@ -73,7 +73,7 @@ enumerable class TestMe {
             quiet: { alias: 'q' },
             rebuild: { alias: 'r' },
             show: { alias: 's' },
-            trace: { alias: 't' },
+            trace: { alias: 't', range: String },
             verbose: { alias: 'v' },
             version: { },
             why: { alias: 'w' },
@@ -256,7 +256,7 @@ enumerable class TestMe {
         }
         let sep = App.SearchSeparator
         App.putenv('PATH', bin + sep + me.dirname + sep + App.getenv('PATH'))
-        App.log.debug(2, "PATH=" + App.getenv('PATH'))
+        App.log.debug(6, "PATH=" + App.getenv('PATH'))
     }
 
     /*
@@ -397,7 +397,7 @@ enumerable class TestMe {
         let prior = this.failedCount
         if (command) {
             try {
-                App.log.debug(5, serialize(env))
+                App.log.debug(6, serialize(env))
                 this.startTest = new Date
                 let cmd = new Cmd
                 cmd.env = env

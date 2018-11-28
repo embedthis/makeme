@@ -65,7 +65,7 @@ class Configure {
     }
 
     /*
-        Only used when cross compiling. 
+        Only used when cross compiling.
         Note: setting CFLAGS, DFLAGS etc overwrites internal me settings for compiler, defines etc.
      */
     function defineEnv() {
@@ -168,7 +168,7 @@ class Configure {
         }
     }
 
-    /**  
+    /**
         Configure and initialize for building. This generates platform specific me files.
         @hide
      */
@@ -370,14 +370,14 @@ class Configure {
             }
             path = path.relative
             trace('Create', path)
-            let data = '/*\n    ' + path + ' -- MakeMe ' + me.settings.title + ' for ' + me.platform.name + 
-                '\n */\n\nMe.load(' + 
+            let data = '/*\n    ' + path + ' -- MakeMe ' + me.settings.title + ' for ' + me.platform.name +
+                '\n */\n\nMe.load(' +
                 serialize(nme, {nulls: false, pretty: true, indent: 4, commas: true, quotes: false}) + ')\n'
             path.dirname.makeDir()
             path.write(data)
         }
         if (makeme.options.show && makeme.options.verbose) {
-            trace('Configuration', me.settings.title + 
+            trace('Configuration', me.settings.title +
                 '\nsettings = ' +
                 serialize(me.settings, {pretty: true, indent: 4, commas: true, quotes: false}) +
                 '\ncomponents = ' +
@@ -401,7 +401,7 @@ class Configure {
     function createStartFile(platforms) {
         trace('Create', Loader.START)
         let profile = makeme.options.release ? 'release' : 'debug'
-        platforms = platforms.transform(function(p) p == (Config.OS + '-' + Config.CPU + '-' + profile) ? 
+        platforms = platforms.transform(function(p) p == (Config.OS + '-' + Config.CPU + '-' + profile) ?
             'local-' + profile : p)
         let pstr = serialize(platforms, {pretty: true, indent: 4, commas: true, nulls: false, quotes: false})
         pstr = pstr.replace(/^/mg, '    ').trimStart(' ')
@@ -441,7 +441,7 @@ class Configure {
         f.writeLine('    #define ' + key + ' ' + value)
         f.writeLine('#endif')
     }
-   
+
     /*
         Check for --without, and run enable scripts/functions
         Enable scripts do not run in dependency order
@@ -490,7 +490,7 @@ class Configure {
                 enableComponent(target)
             }
         }
-    } 
+    }
 
     public function findComponents() {
         let configure = me.configure
@@ -596,7 +596,7 @@ class Configure {
                 target.loaded = true
             }
             delete target.bare
-      
+
             if (!target.description) {
                 let path = me.dir.paks.join(target.name)
                 if (path.join(Loader.PACKAGE).exists) {
@@ -633,7 +633,7 @@ class Configure {
             vtrace('Configure', target.name + ': ' + target.diagnostic)
         }
     }
-    
+
     function loadComponents(components, toplevel = false) {
         if (toplevel) {
             admitSetup('load')
@@ -650,7 +650,7 @@ class Configure {
             if (target.configurable) {
                 makeme.builder.runTargetScript(target, 'postconfig')
             }
-        } 
+        }
     }
 
     function traceComponents() {
@@ -792,7 +792,7 @@ module embedthis.me.script {
     public function getComponentSearch(target, component, objdir = '.') {
         if (target.withpath) {
             return [Path(target.withpath).join(objdir)]
-        } 
+        }
         let search = []
         if (me.platform.cross) {
             return search
@@ -887,7 +887,7 @@ module embedthis.me.script {
             if (control.nothrow) {
                 return null
             }
-            throw 'Cannot find "' + file + '" for component "' + Configure.currentComponent + 
+            throw 'Cannot find "' + file + '" for component "' + Configure.currentComponent +
                     '".\n' + 'Using search: ' + serialize(search, {pretty: true})
         }
         vtrace('Probe', 'Component "' + Configure.currentComponent + '" found: "' + path)
@@ -910,7 +910,7 @@ module embedthis.me.script {
     Copyright (c) Embedthis Software. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
-    You may use the Embedthis Open Source license or you may acquire a 
+    You may use the Embedthis Open Source license or you may acquire a
     commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
     this software for full details and other copyrights.

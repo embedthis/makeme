@@ -40,7 +40,7 @@ MAIN(ejsMain, int argc, char **argv, char **envp)
     mprAddRoot(app);
     mprAddStandardSignals();
 
-    if (mprStart(mpr) < 0) {
+    if (mprStart() < 0) {
         mprLog("me", 0, "Cannot start mpr services");
         return EJS_ERR;
     }
