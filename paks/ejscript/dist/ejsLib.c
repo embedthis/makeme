@@ -8517,7 +8517,7 @@ PUBLIC EcCompiler *ecCreateCompiler(Ejs *ejs, int flags)
     return cp;
 }
 
-        
+
 static void manageCompiler(EcCompiler *cp, int flags)
 {
     if (flags & MPR_MANAGE_MARK) {
@@ -8550,7 +8550,7 @@ PUBLIC int ecCompile(EcCompiler *cp, int argc, char **argv)
     ejs = cp->ejs;
     saveCompiling = ejs->compiling;
     ejs->compiling = 1;
-    
+
     paused = ejsBlockGC(ejs);
     rc = compileInner(cp, argc, argv);
     ejsUnblockGC(ejs, paused);
@@ -8639,7 +8639,7 @@ static int compileInner(EcCompiler *cp, int argc, char **argv)
     block = ejsCreateBlock(ejs, 0);
     mprSetName(block, "Compiler");
     ejsPushBlock(ejs, block);
-    
+
     /*
         Process the internal representation and generate code
      */
@@ -8792,17 +8792,17 @@ PUBLIC int ejsEvalFile(cchar *path)
 
     mprCreate(0, 0, 0);
     if ((ejs = ejsCreateVM(0, 0, 0)) == 0) {
-        mprDestroy(0);
+        mprDestroy();
         return MPR_ERR_MEMORY;
     }
     mprAddRoot(ejs);
     if (ejsLoadModules(ejs, 0, 0) < 0) {
-        mprDestroy(0);
+        mprDestroy();
         return MPR_ERR_CANT_READ;
     }
     if (ejsLoadScriptFile(ejs, path, NULL, EC_FLAGS_NO_OUT | EC_FLAGS_DEBUG) < 0) {
         ejsReportError(ejs, "Error in program");
-        mprDestroy(0);
+        mprDestroy();
         return MPR_ERR;
     }
     mprDestroy();
@@ -8819,17 +8819,17 @@ PUBLIC int ejsEvalScript(cchar *script)
 
     mprCreate(0, 0, 0);
     if ((ejs = ejsCreateVM(0, 0, 0)) == 0) {
-        mprDestroy(0);
+        mprDestroy();
         return MPR_ERR_MEMORY;
     }
     mprAddRoot(ejs);
     if (ejsLoadModules(ejs, 0, 0) < 0) {
-        mprDestroy(0);
+        mprDestroy();
         return MPR_ERR_CANT_READ;
     }
     if (ejsLoadScriptLiteral(ejs, ejsCreateStringFromAsc(ejs, script), NULL, EC_FLAGS_NO_OUT | EC_FLAGS_DEBUG) < 0) {
         ejsReportError(ejs, "Error in program");
-        mprDestroy(0);
+        mprDestroy();
         return MPR_ERR;
     }
     mprDestroy();
@@ -8913,13 +8913,13 @@ PUBLIC void ecErrorv(EcCompiler *cp, cchar *severity, EcLocation *loc, cchar *fm
     cchar   *appName;
     char    *pointer, *errorMsg, *msg;
 
-    appName = mprGetAppName(cp);
+    appName = mprGetAppName();
     msg = sfmtv(fmt, args);
 
     if (loc) {
         if (loc->source) {
             pointer = makeHighlight(cp, loc->source, loc->column);
-            errorMsg = sfmt("%s: %s: %s: %d: %s\n  %w  \n  %s", appName, severity, loc->filename, 
+            errorMsg = sfmt("%s: %s: %s: %d: %s\n  %w  \n  %s", appName, severity, loc->filename,
                 loc->lineNumber, msg, loc->source, pointer);
         } else if (loc->lineNumber >= 0) {
             errorMsg = sfmt("%s: %s: %s: %d: %s", appName, severity, loc->filename, loc->lineNumber, msg);
@@ -8945,7 +8945,7 @@ PUBLIC void ecSetRequire(EcCompiler *cp, MprList *modules)
     Copyright (c) Embedthis Software. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
-    You may use the Embedthis Open Source license or you may acquire a 
+    You may use the Embedthis Open Source license or you may acquire a
     commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
     this software for full details and other copyrights.
@@ -26217,7 +26217,7 @@ dtoa
 
 
 /*********************************** Methods **********************************/
-/*  
+/*
     Get the application command line arguments
     static function get args(): Array
  */
@@ -26234,17 +26234,17 @@ static EjsArray *app_args(Ejs *ejs, EjsObj *unused, int argc, EjsObj **argv)
 }
 
 
-/*  
+/*
     Get the current working directory
     function get dir(): Path
  */
 static EjsPath *app_dir(Ejs *ejs, EjsObj *unused, int argc, EjsObj **argv)
 {
-    return ejsCreatePathFromAsc(ejs, mprGetCurrentPath(ejs));
+    return ejsCreatePathFromAsc(ejs, mprGetCurrentPath());
 }
 
 
-/*  
+/*
     Set the current working directory
     function chdir(value: String|Path): void
  */
@@ -26279,7 +26279,7 @@ static EjsObj *app_chdir(Ejs *ejs, EjsObj *unused, int argc, EjsObj **argv)
     return 0;
 }
 
-/*  
+/*
     Get the directory containing the application's executable file.
     static function get exeDir(): Path
  */
@@ -26289,7 +26289,7 @@ static EjsPath *app_exeDir(Ejs *ejs, EjsObj *unused, int argc, EjsObj **argv)
 }
 
 
-/*  
+/*
     Get the application's executable filename.
     static function get exePath(): Path
  */
@@ -26299,7 +26299,7 @@ static EjsPath *app_exePath(Ejs *ejs, EjsObj *unused, int argc, EjsObj **argv)
 }
 
 
-/*  
+/*
     Exit the application
     static function exit(status: Number, how: String = "immediate"): void
     TODO - status is not implemented
@@ -26347,7 +26347,7 @@ static EjsObj *app_exit(Ejs *ejs, EjsObj *unused, int argc, EjsObj **argv)
 
 
 #if ES_App_env
-/*  
+/*
     Get all environment vars
     function get env(): Object
  */
@@ -26371,7 +26371,7 @@ static EjsAny *app_env(Ejs *ejs, EjsObj *app, int argc, EjsObj **argv)
 #endif
 
 
-/*  
+/*
     Get an environment var
     function getenv(key: String): String
  */
@@ -26400,7 +26400,7 @@ static EjsNumber *app_gid(Ejs *ejs, EjsObj *unused, int argc, EjsObj **argv)
 }
 
 
-/*  
+/*
     Put an environment var
     function putenv(key: String, value: String): void
  */
@@ -26415,7 +26415,7 @@ static EjsObj *app_putenv(Ejs *ejs, EjsObj *app, int argc, EjsObj **argv)
 }
 
 
-/*  
+/*
     Get the ejs module search path. Does not actually read the environment.
     function get search(): Array
  */
@@ -26425,7 +26425,7 @@ static EjsArray *app_search(Ejs *ejs, EjsObj *app, int argc, EjsObj **argv)
 }
 
 
-/*  
+/*
     Set the ejs module search path. Does not actually update the environment.
     function set search(path: Array): Void
  */
@@ -26436,7 +26436,7 @@ static EjsObj *app_set_search(Ejs *ejs, EjsObj *app, int argc, EjsObj **argv)
 }
 
 
-/*  
+/*
     Get a default search path. NOTE: this does not modify ejs->search.
     function get createSearch(searchPaths: String): Array
  */
@@ -26458,7 +26458,7 @@ static EjsNumber *app_pid(Ejs *ejs, EjsObj *unused, int argc, EjsObj **argv)
 }
 
 
-/*  
+/*
     static function run(timeout: Number = -1, oneEvent: Boolean = false): Boolean
  */
 static EjsObj *app_run(Ejs *ejs, EjsObj *unused, int argc, EjsObj **argv)
@@ -26480,7 +26480,7 @@ static EjsObj *app_run(Ejs *ejs, EjsObj *unused, int argc, EjsObj **argv)
     remaining = timeout;
     dispatcherMark = mprGetEventMark(ejs->dispatcher);
     do {
-        rc = mprWaitForEvent(ejs->dispatcher, remaining, dispatcherMark); 
+        rc = mprWaitForEvent(ejs->dispatcher, remaining, dispatcherMark);
         remaining = mprGetRemainingTicks(mark, timeout);
         dispatcherMark = mprGetEventMark(ejs->dispatcher);
     } while (!ejs->exception && !oneEvent && !ejs->exiting && remaining > 0 && !mprIsStopping());
@@ -26488,7 +26488,7 @@ static EjsObj *app_run(Ejs *ejs, EjsObj *unused, int argc, EjsObj **argv)
 }
 
 
-/*  
+/*
     Pause the application. This services events while asleep.
     static function sleep(delay: Number = -1): void
     TODO - sleep currently throws if an exception is generated in an event callback (worker).
@@ -26508,7 +26508,7 @@ static EjsObj *app_sleep(Ejs *ejs, EjsObj *unused, int argc, EjsObj **argv)
     remaining = timeout;
     dispatcherMark = mprGetEventMark(ejs->dispatcher);
     do {
-        mprWaitForEvent(ejs->dispatcher, remaining, dispatcherMark); 
+        mprWaitForEvent(ejs->dispatcher, remaining, dispatcherMark);
         remaining = mprGetRemainingTicks(mark, timeout);
         dispatcherMark = mprGetEventMark(ejs->dispatcher);
     } while (!ejs->exiting && remaining > 0 && !mprIsStopping());
@@ -26516,7 +26516,7 @@ static EjsObj *app_sleep(Ejs *ejs, EjsObj *unused, int argc, EjsObj **argv)
 }
 
 
-/*  
+/*
     static function get uid(): Number
  */
 static EjsNumber *app_uid(Ejs *ejs, EjsObj *unused, int argc, EjsObj **argv)
@@ -26529,7 +26529,7 @@ static EjsNumber *app_uid(Ejs *ejs, EjsObj *unused, int argc, EjsObj **argv)
 }
 
 
-/*  
+/*
     static function getpass(prompt: String): String
  */
 static EjsString *app_getpass(Ejs *ejs, EjsObj *unused, int argc, EjsObj **argv)
@@ -26577,7 +26577,7 @@ PUBLIC void ejsConfigureAppType(Ejs *ejs)
     Copyright (c) Embedthis Software. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
-    You may use the Embedthis Open Source license or you may acquire a 
+    You may use the Embedthis Open Source license or you may acquire a
     commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
     this software for full details and other copyrights.
@@ -29262,7 +29262,7 @@ static EjsByteArray *ba_ByteArray(Ejs *ejs, EjsByteArray *ap, int argc, EjsObj *
     }
     resizable = (argc == 2) ? ejsGetBoolean(ejs, argv[1]): 1;
     ap->growInc = (resizable) ? ME_MAX_BUFFER : 0;
-    ap->endian = mprGetEndian(ejs);
+    ap->endian = mprGetEndian();
     ap->resizable = 1;
     if (ejsGrowByteArray(ejs, ap, size) < 0) {
         return 0;
@@ -29284,7 +29284,7 @@ static EjsBoolean *ba_async(Ejs *ejs, EjsByteArray *ap, int argc, EjsObj **argv)
 
 
 /**
-    Set the async mode 
+    Set the async mode
     function set async(enable: Boolean): Void
  */
 static EjsObj *ba_setAsync(Ejs *ejs, EjsByteArray *ap, int argc, EjsObj **argv)
@@ -29422,7 +29422,7 @@ static EjsObj *setEndian(Ejs *ejs, EjsByteArray *ap, int argc, EjsObj **argv)
         return 0;
     }
     ap->endian = endian;
-    ap->swap = (ap->endian != mprGetEndian(ejs));
+    ap->swap = (ap->endian != mprGetEndian());
     return 0;
 }
 
@@ -29485,7 +29485,7 @@ static EjsNumber *nextByteArrayValue(Ejs *ejs, EjsIterator *ip, int argc, EjsObj
 }
 
 
-/*  
+/*
     Return an iterator to return the next array element value.
     iterator native function getValues(): Iterator
  */
@@ -29495,7 +29495,7 @@ static EjsIterator *ba_getValues(Ejs *ejs, EjsObj *ap, int argc, EjsObj **argv)
 }
 
 
-/*  
+/*
     Flush the data in the byte array and reset the read and write position pointers
     function flush(ignored: Number): Void
  */
@@ -29555,7 +29555,7 @@ static EjsBoolean *ba_resizable(Ejs *ejs, EjsByteArray *ap, int argc, EjsObj **a
 
 /*
     Read data from the array into another byte array. Data is read from the current read $position pointer.
-    Data is written to the write position if offset is -1. Othwise at the given offset. If offset is < 0, the 
+    Data is written to the write position if offset is -1. Othwise at the given offset. If offset is < 0, the
     write position is updated.
     function read(buffer: ByteArray, offset: Number = 0, count: Number = -1): Number
  */
@@ -29776,7 +29776,7 @@ static EjsNumber *ba_readShort(Ejs *ejs, EjsByteArray *ap, int argc, EjsObj **ar
 
 
 /*
-    Read a UTF-8 string from the array. Read data from the read position up to the write position but not more 
+    Read a UTF-8 string from the array. Read data from the read position up to the write position but not more
     than count characters.
 
     function readString(count: Number = -1): String
@@ -30120,8 +30120,8 @@ PUBLIC ssize ejsGrowByteArray(Ejs *ejs, EjsByteArray *ap, ssize len)
 
 
 /*
-    Get more input sufficient to satisfy the rquired number of bytes. The required parameter specifies how many bytes 
-    must be read. Short fills are not permitted. Return the count of bytes available or 0 if the required number of 
+    Get more input sufficient to satisfy the rquired number of bytes. The required parameter specifies how many bytes
+    must be read. Short fills are not permitted. Return the count of bytes available or 0 if the required number of
     bytes can't be read. Return -ve on errors.
  */
 static ssize getInput(Ejs *ejs, EjsByteArray *ap, ssize required)
@@ -30349,7 +30349,7 @@ PUBLIC EjsByteArray *ejsCreateByteArray(Ejs *ejs, ssize size)
     ap->async = -1;
     ap->resizable = 1;
     ap->growInc = ME_MAX_BUFFER;
-    ap->endian = mprGetEndian(ejs);
+    ap->endian = mprGetEndian();
     if (ejsGrowByteArray(ejs, ap, size) < 0) {
         return 0;
     }
@@ -30373,7 +30373,7 @@ PUBLIC void ejsConfigureByteArrayType(Ejs *ejs)
     EjsHelpers  *helpers;
     EjsPot      *prototype;
 
-    if ((type = ejsFinalizeScriptType(ejs, N("ejs", "ByteArray"), sizeof(EjsByteArray), manageByteArray, 
+    if ((type = ejsFinalizeScriptType(ejs, N("ejs", "ByteArray"), sizeof(EjsByteArray), manageByteArray,
             EJS_TYPE_OBJ | EJS_TYPE_NUMERIC_INDICIES | EJS_TYPE_VIRTUAL_SLOTS | EJS_TYPE_MUTABLE_INSTANCES)) == 0) {
         return;
     }
@@ -30386,7 +30386,7 @@ PUBLIC void ejsConfigureByteArrayType(Ejs *ejs)
     helpers->invokeOperator = (EjsInvokeOperatorHelper) invokeByteArrayOperator;
     helpers->lookupProperty = (EjsLookupPropertyHelper) lookupByteArrayProperty;
     helpers->setProperty = (EjsSetPropertyHelper) setByteArrayProperty;
-    
+
     prototype = type->prototype;
     ejsBindConstructor(ejs, type, ba_ByteArray);
     ejsBindMethod(ejs, prototype, ES_ByteArray_on, ba_on);
@@ -30432,7 +30432,7 @@ PUBLIC void ejsConfigureByteArrayType(Ejs *ejs)
     Copyright (c) Embedthis Software. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
-    You may use the Embedthis Open Source license or you may acquire a 
+    You may use the Embedthis Open Source license or you may acquire a
     commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
     this software for full details and other copyrights.
@@ -35538,7 +35538,7 @@ static bool     waitForState(EjsHttp *hp, int state, MprTicks timeout, int throw
 static ssize    writeHttpData(Ejs *ejs, EjsHttp *hp);
 
 /************************************ Methods *********************************/
-/*  
+/*
     function Http(uri: Uri = null)
  */
 static EjsHttp *httpConstructor(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **argv)
@@ -35564,7 +35564,7 @@ static EjsHttp *httpConstructor(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **argv)
 }
 
 
-/*  
+/*
     function get async(): Boolean
  */
 static EjsBoolean *http_async(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **argv)
@@ -35573,7 +35573,7 @@ static EjsBoolean *http_async(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **argv)
 }
 
 
-/*  
+/*
     function set async(enable: Boolean): Void
  */
 static EjsObj *http_set_async(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **argv)
@@ -35590,7 +35590,7 @@ static EjsObj *http_set_async(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **argv)
 
 
 #if ES_Http_available
-/*  
+/*
     function get available(): Number
     DEPRECATED 1.0.0B3 (11/09)
  */
@@ -35623,7 +35623,7 @@ static EjsString *http_ca(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **argv)
 }
 
 
-/*  
+/*
     function set setCertificate(value: String): Void
  */
 static EjsObj *http_set_ca(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **argv)
@@ -35633,7 +35633,7 @@ static EjsObj *http_set_ca(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **argv)
 }
 
 
-/*  
+/*
     function close(): Void
  */
 static EjsObj *http_close(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **argv)
@@ -35653,7 +35653,7 @@ static EjsObj *http_close(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **argv)
 }
 
 
-/*  
+/*
     function connect(method: String, url = null, data ...): Http
  */
 static EjsHttp *http_connect(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **argv)
@@ -35675,7 +35675,7 @@ static EjsString *http_certificate(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **arg
 }
 
 
-/*  
+/*
     function set setCertificate(value: String): Void
  */
 static EjsObj *http_set_certificate(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **argv)
@@ -35685,7 +35685,7 @@ static EjsObj *http_set_certificate(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **ar
 }
 
 
-/*  
+/*
     function get contentLength(): Number
  */
 static EjsNumber *http_contentLength(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **argv)
@@ -35700,7 +35700,7 @@ static EjsNumber *http_contentLength(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **a
 }
 
 
-/*  
+/*
     function get contentType(): String
  */
 static EjsString *http_contentType(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **argv)
@@ -35709,7 +35709,7 @@ static EjsString *http_contentType(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **arg
 }
 
 
-/*  
+/*
     function get date(): Date
  */
 static EjsDate *http_date(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **argv)
@@ -35718,7 +35718,7 @@ static EjsDate *http_date(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **argv)
 }
 
 
-/*  
+/*
     function finalize(): Void
  */
 static EjsObj *http_finalize(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **argv)
@@ -35731,7 +35731,7 @@ static EjsObj *http_finalize(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **argv)
 }
 
 
-/*  
+/*
     function get finalized(): Boolean
  */
 static EjsBoolean *http_finalized(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **argv)
@@ -35743,7 +35743,7 @@ static EjsBoolean *http_finalized(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **argv
 }
 
 
-/*  
+/*
     function flush(dir: Number = Stream.WRITE): Void
  */
 static EjsObj *http_flush(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **argv)
@@ -35758,7 +35758,7 @@ static EjsObj *http_flush(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **argv)
 }
 
 
-/*  
+/*
     function form(uri: String = null, formData: Object = null): Http
     Issue a POST method with form data
  */
@@ -35769,7 +35769,7 @@ static EjsHttp *http_form(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **argv)
     if (argc == 2 && !ejsIs(ejs, argv[1], Null)) {
         /*
             Prep here to reset the state. The ensures the current headers will be preserved.
-            Users may have called setHeader to define custom headers. Users must call reset if they want to clear 
+            Users may have called setHeader to define custom headers. Users must call reset if they want to clear
             prior headers.
          */
         httpPrepClientConn(hp->conn, 1);
@@ -35789,7 +35789,7 @@ static EjsHttp *http_form(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **argv)
 }
 
 
-/*  
+/*
     function get followRedirects(): Boolean
  */
 static EjsBoolean *http_followRedirects(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **argv)
@@ -35798,7 +35798,7 @@ static EjsBoolean *http_followRedirects(Ejs *ejs, EjsHttp *hp, int argc, EjsObj 
 }
 
 
-/*  
+/*
     function set followRedirects(flag: Boolean): Void
  */
 static EjsObj *http_set_followRedirects(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **argv)
@@ -35808,7 +35808,7 @@ static EjsObj *http_set_followRedirects(Ejs *ejs, EjsHttp *hp, int argc, EjsObj 
 }
 
 
-/*  
+/*
     function get(uri: String = null, ...data): Http
     The spec allows GET methods to have body data, but is rarely, if ever, used.
  */
@@ -35823,7 +35823,7 @@ static EjsHttp *http_get(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **argv)
 }
 
 
-/*  
+/*
     Return the (proposed) request headers
     function getRequestHeaders(): Object
  */
@@ -35842,7 +35842,7 @@ static EjsPot *http_getRequestHeaders(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **
 }
 
 
-/*  
+/*
     function head(uri: String = null): Http
  */
 static EjsHttp *http_head(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **argv)
@@ -35851,7 +35851,7 @@ static EjsHttp *http_head(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **argv)
 }
 
 
-/*  
+/*
     function header(key: String): String
  */
 static EjsString *http_header(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **argv)
@@ -35874,7 +35874,7 @@ static EjsString *http_header(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **argv)
 }
 
 
-/*  
+/*
     function get headers(): Object
  */
 static EjsPot *http_headers(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **argv)
@@ -35918,7 +35918,7 @@ static EjsObj *http_info(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **argv)
 }
 
 
-/*  
+/*
     function get isSecure(): Boolean
  */
 static EjsBoolean *http_isSecure(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **argv)
@@ -35927,7 +35927,7 @@ static EjsBoolean *http_isSecure(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **argv)
 }
 
 
-/*  
+/*
     function get key(): String
  */
 static EjsAny *http_key(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **argv)
@@ -35939,7 +35939,7 @@ static EjsAny *http_key(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **argv)
 }
 
 
-/*  
+/*
     function set key(keyFile: String): Void
  */
 static EjsObj *http_set_key(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **argv)
@@ -35949,7 +35949,7 @@ static EjsObj *http_set_key(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **argv)
 }
 
 
-/*  
+/*
     function get lastModified(): Date
  */
 static EjsDate *http_lastModified(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **argv)
@@ -35971,7 +35971,7 @@ static EjsObj *http_limits(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **argv)
 }
 
 
-/*  
+/*
     function get method(): String
  */
 static EjsString *http_method(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **argv)
@@ -35980,7 +35980,7 @@ static EjsString *http_method(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **argv)
 }
 
 
-/*  
+/*
     function set method(value: String): Void
  */
 static EjsObj *http_set_method(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **argv)
@@ -36009,7 +36009,7 @@ static EjsObj *http_off(Ejs *ejs, EjsHttp *hp, int argc, EjsAny **argv)
 }
 
 
-/*  
+/*
     function on(name, observer: function): Http
  */
 static EjsHttp *http_on(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **argv)
@@ -36028,7 +36028,7 @@ static EjsHttp *http_on(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **argv)
         ejsSendEvent(ejs, hp->emitter, "readable", NULL, hp);
     }
     //  TODO - don't need to test finalizedConnector
-    if (!conn->tx->finalizedConnector && !conn->error && HTTP_STATE_CONNECTED <= conn->state && 
+    if (!conn->tx->finalizedConnector && !conn->error && HTTP_STATE_CONNECTED <= conn->state &&
             conn->state < HTTP_STATE_FINALIZED && conn->writeq->ioCount == 0) {
         httpNotify(conn, HTTP_EVENT_WRITABLE, 0);
     }
@@ -36102,7 +36102,7 @@ static EjsArray *http_providers(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **argv)
 #endif
 
 
-/*  
+/*
     function put(uri: String = null, form object): Http
  */
 static EjsHttp *http_put(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **argv)
@@ -36111,12 +36111,12 @@ static EjsHttp *http_put(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **argv)
 }
 
 
-/*  
+/*
     function read(buffer: ByteArray, offset: Number = 0, count: Number = -1): Number
     Returns a count of bytes read. Non-blocking if a callback is defined. Otherwise, blocks.
 
     Offset: -1 then read to the buffer write position, >= 0 then read to that offset
-    count: -1 then read as much as the buffer will hold. If buffer is growable, read all content. If not growable, 
+    count: -1 then read as much as the buffer will hold. If buffer is growable, read all content. If not growable,
         read the buffer size. If count >= 0, then read that number of bytes.
  */
 static EjsNumber *http_read(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **argv)
@@ -36167,7 +36167,7 @@ static EjsNumber *http_read(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **argv)
 }
 
 
-/*  
+/*
     function readString(count: Number = -1): String
     Read count bytes (default all) of content as a string. This always starts at the first character of content.
  */
@@ -36175,7 +36175,7 @@ static EjsString *http_readString(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **argv
 {
     EjsString   *result;
     ssize       count;
-    
+
     count = (argc == 1) ? ejsGetInt(ejs, argv[0]) : -1;
     if (!waitForState(hp, HTTP_STATE_CONTENT, -1, 1)) {
         return 0;
@@ -36194,7 +36194,7 @@ static EjsString *http_readString(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **argv
 }
 
 
-/*  
+/*
     function reset(): Void
  */
 static EjsObj *http_reset(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **argv)
@@ -36205,7 +36205,7 @@ static EjsObj *http_reset(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **argv)
 }
 
 
-/*  
+/*
     function get response(): String
  */
 static EjsString *http_response(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **argv)
@@ -36223,7 +36223,7 @@ static EjsString *http_response(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **argv)
 }
 
 
-/*  
+/*
     function set response(data: String): Void
  */
 static EjsObj *http_set_response(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **argv)
@@ -36233,7 +36233,7 @@ static EjsObj *http_set_response(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **argv)
 }
 
 
-/*  
+/*
     function get retries(): Number
  */
 static EjsNumber *http_retries(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **argv)
@@ -36242,7 +36242,7 @@ static EjsNumber *http_retries(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **argv)
 }
 
 
-/*  
+/*
     function set retries(count: Number): Void
  */
 static EjsObj *http_set_retries(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **argv)
@@ -36252,7 +36252,7 @@ static EjsObj *http_set_retries(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **argv)
 }
 
 
-/*  
+/*
     function setCredentials(username: String?, password: String?, authType: String?): Void
  */
 static EjsObj *http_setCredentials(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **argv)
@@ -36271,7 +36271,7 @@ static EjsObj *http_setCredentials(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **arg
 }
 
 
-/*  
+/*
     function setHeader(key: String, value: String, overwrite: Boolean = true): Void
  */
 static EjsObj *http_setHeader(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **argv)
@@ -36299,7 +36299,7 @@ static EjsObj *http_setHeader(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **argv)
 }
 
 
-/*  
+/*
     function set limits(limits: Object): Void
  */
 static EjsObj *http_setLimits(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **argv)
@@ -36352,7 +36352,7 @@ PUBLIC int ejsSetupHttpTrace(Ejs *ejs, HttpTrace *trace, EjsObj *options)
 }
 
 
-/*  
+/*
     function trace(options): Void
  */
 static EjsObj *http_trace(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **argv)
@@ -36362,7 +36362,7 @@ static EjsObj *http_trace(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **argv)
 }
 
 
-/*  
+/*
     function get status(): Number
  */
 static EjsNumber *http_status(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **argv)
@@ -36380,7 +36380,7 @@ static EjsNumber *http_status(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **argv)
 }
 
 
-/*  
+/*
     function get statusMessage(): String
  */
 static EjsString *http_statusMessage(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **argv)
@@ -36398,7 +36398,7 @@ static EjsString *http_statusMessage(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **a
 }
 
 
-/*  
+/*
     function get uri(): Uri
  */
 static EjsUri *http_uri(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **argv)
@@ -36407,7 +36407,7 @@ static EjsUri *http_uri(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **argv)
 }
 
 
-/*  
+/*
     function set uri(newUri: Uri): Void
  */
 static EjsObj *http_set_uri(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **argv)
@@ -36429,7 +36429,7 @@ static EjsBoolean *http_verify(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **argv)
 }
 
 
-/*  
+/*
     function set verify(on: Boolean): Void
  */
 static EjsObj *http_set_verify(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **argv)
@@ -36458,7 +36458,7 @@ static EjsBoolean *http_verifyIssuer(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **a
 }
 
 
-/*  
+/*
     function set verifyIssuer(on: Boolean): Void
  */
 static EjsObj *http_set_verifyIssuer(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **argv)
@@ -36474,7 +36474,7 @@ static EjsObj *http_set_verifyIssuer(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **a
 }
 
 
-/*  
+/*
     Wait for a request to complete. Timeout is in msec. Timeout < 0 means use default inactivity and request timeouts.
     Timeout of zero means no timeout.
 
@@ -36655,10 +36655,10 @@ static void httpEventChange(HttpConn *conn, int event, int arg)
 }
 
 
-/*  
+/*
     Read the required number of bytes into the response content buffer. Count < 0 means transfer the entire content.
     Returns the number of bytes read. Returns null on EOF.
- */ 
+ */
 static ssize readHttpData(Ejs *ejs, EjsHttp *hp, ssize count)
 {
     MprBuf      *buf;
@@ -36690,7 +36690,7 @@ static ssize readHttpData(Ejs *ejs, EjsHttp *hp, ssize count)
 }
 
 
-/* 
+/*
     Write another block of data
  */
 static ssize writeHttpData(Ejs *ejs, EjsHttp *hp)
@@ -36720,7 +36720,7 @@ static ssize writeHttpData(Ejs *ejs, EjsHttp *hp)
 }
 
 
-/*  
+/*
     Respond to an IO event. This wraps the standard httpIOEvent() call.
  */
 static void httpEvent(HttpConn *conn, MprEvent *event)
@@ -36776,8 +36776,8 @@ static EjsString *getStringHeader(Ejs *ejs, EjsHttp *hp, cchar *key)
 }
 
 
-/*  
-    Prepare form data as a series of key-value pairs. Data is formatted according to www-url-encoded specs by 
+/*
+    Prepare form data as a series of key-value pairs. Data is formatted according to www-url-encoded specs by
     mprSetHttpFormData. Objects are flattened into a one level key/value pairs. Keys can have embedded "." separators.
     E.g.  name=value&address=77%20Park%20Lane
  */
@@ -36814,7 +36814,7 @@ static void prepForm(Ejs *ejs, EjsHttp *hp, cchar *prefix, EjsObj *data)
             sep = (mprGetBufLength(hp->requestContent) > 0) ? "&" : "";
             if (prefix) {
                 newKey = sjoin(prefix, ".", key, NULL);
-                encodedKey = mprUriEncode(newKey, MPR_ENCODE_URI_COMPONENT); 
+                encodedKey = mprUriEncode(newKey, MPR_ENCODE_URI_COMPONENT);
             } else {
                 encodedKey = mprUriEncode(key, MPR_ENCODE_URI_COMPONENT);
             }
@@ -36826,8 +36826,8 @@ static void prepForm(Ejs *ejs, EjsHttp *hp, cchar *prefix, EjsObj *data)
 }
 
 #if FUTURE && KEEP
-/*  
-    Prepare form data using json encoding. The objects are json encoded then URI encoded to be safe. 
+/*
+    Prepare form data using json encoding. The objects are json encoded then URI encoded to be safe.
  */
 static void prepForm(Ejs *ejs, EjsHttp *hp, char *prefix, EjsObj *data)
 {
@@ -36841,7 +36841,7 @@ static void prepForm(Ejs *ejs, EjsHttp *hp, char *prefix, EjsObj *data)
     jdata = ejsToJSON(ejs, data, NULL);
     if (prefix) {
         newKey = sjoin(prefix, ".", key, NULL);
-        encodedKey = mprUriEncode(newKey, MPR_ENCODE_URI_COMPONENT); 
+        encodedKey = mprUriEncode(newKey, MPR_ENCODE_URI_COMPONENT);
     } else {
         encodedKey = mprUriEncode(key, MPR_ENCODE_URI_COMPONENT);
     }
@@ -36859,7 +36859,7 @@ static bool expired(EjsHttp *hp)
     requestTimeout = conn->limits->requestTimeout ? conn->limits->requestTimeout : MAXINT;
     inactivityTimeout = conn->limits->inactivityTimeout ? conn->limits->inactivityTimeout : MAXINT;
 
-    /* 
+    /*
         Workaround for a GCC bug when comparing two 64bit numerics directly. Need a temporary.
      */
     diff = (conn->lastActivity + inactivityTimeout) - http->now;
@@ -36871,7 +36871,7 @@ static bool expired(EjsHttp *hp)
     if (diff < 0) {
         if (conn->rx) {
             if (inactivity) {
-                mprDebug("ejs http", 4, "Inactive request timed out %s, exceeded inactivity timeout %d", 
+                mprDebug("ejs http", 4, "Inactive request timed out %s, exceeded inactivity timeout %d",
                     conn->rx->uri, inactivityTimeout);
             } else {
                 mprDebug("ejs http", 4, "Request timed out %s, exceeded timeout %d", conn->rx->uri, requestTimeout);
@@ -36884,9 +36884,9 @@ static bool expired(EjsHttp *hp)
 #endif
 
 
-/*  
+/*
     Wait for the connection to acheive a requested state
-    Timeout is in msec. Timeout of zero means don't wait. Timeout of < 0 means use standard inactivity and 
+    Timeout is in msec. Timeout of zero means don't wait. Timeout of < 0 means use standard inactivity and
     duration timeouts.
  */
 static bool waitForState(EjsHttp *hp, int state, MprTicks timeout, int throw)
@@ -36918,8 +36918,8 @@ static bool waitForState(EjsHttp *hp, int state, MprTicks timeout, int throw)
     success = count = 0;
     mark = mprGetTicks();
     remaining = timeout;
-    while (conn->state < state && count <= conn->retries && redirectCount < 16 && !conn->error && 
-            !ejs->exiting && !mprIsStopping(conn)) {
+    while (conn->state < state && count <= conn->retries && redirectCount < 16 && !conn->error &&
+            !ejs->exiting && !mprIsStopping()) {
         count++;
         if ((rc = httpWait(conn, HTTP_STATE_PARSED, remaining)) == 0) {
             if (httpNeedRetry(conn, &url)) {
@@ -36932,7 +36932,7 @@ static bool waitForState(EjsHttp *hp, int state, MprTicks timeout, int throw)
                     uri = httpJoinUri(conn->tx->parsedUri, 1, &location);
                     hp->uri = httpUriToString(uri, HTTP_COMPLETE_URI);
                 }
-                count--; 
+                count--;
                 redirectCount++;
             } else if (httpWait(conn, state, remaining) == 0) {
                 success = 1;
@@ -36999,7 +36999,7 @@ static bool waitForState(EjsHttp *hp, int state, MprTicks timeout, int throw)
 }
 
 
-/*  
+/*
     Wait till the response headers have been received. Safe in sync and async mode. Async mode never blocks.
     Timeout < 0 means use default inactivity timeout. Timeout of zero means wait forever.
  */
@@ -37028,7 +37028,7 @@ static EjsNumber *limitToNumber(Ejs *ejs, uint64 n)
 /*
     Get limits:  obj[*] = limits
  */
-PUBLIC void ejsGetHttpLimits(Ejs *ejs, EjsObj *obj, HttpLimits *limits, bool server) 
+PUBLIC void ejsGetHttpLimits(Ejs *ejs, EjsObj *obj, HttpLimits *limits, bool server)
 {
     EjsNumber   *n;
 
@@ -37085,7 +37085,7 @@ static uint64 numberToLimit(Ejs *ejs, EjsObj *obj, cchar *field)
 }
 
 
-PUBLIC void ejsSetHttpLimits(Ejs *ejs, HttpLimits *limits, EjsObj *obj, bool server) 
+PUBLIC void ejsSetHttpLimits(Ejs *ejs, HttpLimits *limits, EjsObj *obj, bool server)
 {
     /*
         TODO - the Limit object should map the Http limits more closely
@@ -37154,7 +37154,7 @@ static void sendHttpErrorEvent(Ejs *ejs, EjsHttp *hp)
 
 /*********************************** Factory **********************************/
 
-/*  
+/*
     Manage the object properties for the garbage collector
  */
 static void manageHttp(EjsHttp *hp, int flags)
@@ -37260,7 +37260,7 @@ PUBLIC void ejsConfigureHttpType(Ejs *ejs)
     Copyright (c) Embedthis Software. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
-    You may use the Embedthis Open Source license or you may acquire a 
+    You may use the Embedthis Open Source license or you may acquire a
     commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
     this software for full details and other copyrights.
@@ -39111,7 +39111,7 @@ static EjsNumber *getAllocatedMemory(Ejs *ejs, EjsObj *thisObj, int argc, EjsObj
 {
     MprMemStats    *mem;
 
-    mem = mprGetMemStats(ejs);
+    mem = mprGetMemStats();
     return ejsCreateNumber(ejs, (MprNumber) mem->bytesAllocated);
 }
 
@@ -39141,7 +39141,7 @@ static EjsNumber *getMaxMemory(Ejs *ejs, EjsObj *thisObj, int argc, EjsObj **arg
 {
     MprMemStats    *mem;
 
-    mem = mprGetMemStats(ejs);
+    mem = mprGetMemStats();
     return ejsCreateNumber(ejs, (MprNumber) mem->maxHeap);
 }
 
@@ -39168,7 +39168,7 @@ static EjsNumber *getRedline(Ejs *ejs, EjsObj *thisObj, int argc, EjsObj **argv)
 {
     MprMemStats    *mem;
 
-    mem = mprGetMemStats(ejs);
+    mem = mprGetMemStats();
     return ejsCreateNumber(ejs, (MprNumber) mem->warnHeap);
 }
 
@@ -39199,7 +39199,7 @@ static EjsNumber *getResident(Ejs *ejs, EjsObj *thisObj, int argc, EjsObj **argv
 {
     MprMemStats    *mem;
 
-    mem = mprGetMemStats(ejs);
+    mem = mprGetMemStats();
     return ejsCreateNumber(ejs, (MprNumber) mem->rss);
 }
 
@@ -39211,7 +39211,7 @@ static EjsNumber *getSystemRam(Ejs *ejs, EjsObj *thisObj, int argc, EjsObj **arg
 {
     MprMemStats    *mem;
 
-    mem = mprGetMemStats(ejs);
+    mem = mprGetMemStats();
     return ejsCreateNumber(ejs, (double) mem->ram);
 }
 
@@ -39256,7 +39256,7 @@ PUBLIC void ejsConfigureMemoryType(Ejs *ejs)
     Copyright (c) Embedthis Software. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
-    You may use the Embedthis Open Source license or you may acquire a 
+    You may use the Embedthis Open Source license or you may acquire a
     commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
     this software for full details and other copyrights.
@@ -39347,7 +39347,7 @@ static EjsBoolean *lf_fixed(Ejs *ejs, EjsObj *unused, int argc, EjsObj **argv)
 }
 
 
-/*  
+/*
     function set fixed(yes: Boolean)
  */
 static EjsVoid *lf_set_fixed(Ejs *ejs, EjsObj *unused, int argc, EjsObj **argv)
@@ -39360,16 +39360,16 @@ static EjsVoid *lf_set_fixed(Ejs *ejs, EjsObj *unused, int argc, EjsObj **argv)
 }
 
 
-/*  
+/*
     function get level(): Number
  */
 static EjsNumber *lf_level(Ejs *ejs, EjsObj *unused, int argc, EjsObj **argv)
 {
-    return ejsCreateNumber(ejs, mprGetLogLevel(ejs));
+    return ejsCreateNumber(ejs, mprGetLogLevel());
 }
 
 
-/*  
+/*
     function set level(value: Number): Void
  */
 static EjsObj *lf_set_level(Ejs *ejs, EjsObj *unused, int argc, EjsObj **argv)
@@ -39379,7 +39379,7 @@ static EjsObj *lf_set_level(Ejs *ejs, EjsObj *unused, int argc, EjsObj **argv)
 }
 
 
-/*  
+/*
     function redirect(location: String, level: Number = null): Void
  */
 static EjsFile *lf_redirect(Ejs *ejs, EjsObj *unused, int argc, EjsObj **argv)
@@ -39421,7 +39421,7 @@ PUBLIC void ejsConfigureMprLogType(Ejs *ejs)
     Copyright (c) Embedthis Software. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
-    You may use the Embedthis Open Source license or you may acquire a 
+    You may use the Embedthis Open Source license or you may acquire a
     commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
     this software for full details and other copyrights.
@@ -45060,7 +45060,7 @@ static int socketListenEvent(EjsSocket *listen, MprEvent *event);
 static EjsSocket *sock_Socket(Ejs *ejs, EjsSocket *sp, int argc, EjsObj **argv)
 {
     sp->ejs = ejs;
-    sp->sock = mprCreateSocket(NULL);
+    sp->sock = mprCreateSocket();
     if (sp->sock == 0) {
         ejsThrowMemoryError(ejs);
         return 0;
@@ -45151,7 +45151,7 @@ static EjsObj *sock_connect(Ejs *ejs, EjsSocket *sp, int argc, EjsObj **argv)
             address = ejsToString(ejs, address);
         }
         sp->address = ejsToMulti(ejs, address);
-        mprParseSocketAddress(sp->address, &sp->address, &sp->port, NULL, 0);
+        mprParseSocketAddress(sp->address, (cchar**) &sp->address, &sp->port, NULL, 0);
         if (sp->address == 0) {
             sp->address = sclone("127.0.0.1");
         }
@@ -45206,7 +45206,7 @@ static EjsObj *sock_listen(Ejs *ejs, EjsSocket *sp, int argc, EjsObj **argv)
         }
         sp->address = ejsToMulti(ejs, address);
         //  TODO - should listen to secure and permit https://IP:PORT
-        mprParseSocketAddress(sp->address, &sp->address, &sp->port, NULL, 80);
+        mprParseSocketAddress(sp->address, (cchar**) &sp->address, &sp->port, NULL, 80);
     }
     if (!sp->sock) {
         ejsThrowStateError(ejs, "Socket is closed");
@@ -45351,7 +45351,7 @@ static EjsNumber *sock_write(Ejs *ejs, EjsSocket *sp, int argc, EjsObj **argv)
         ejsResetByteArray(ejs, sp->data);
     } else {
         sp->data = ejsCreateByteArray(ejs, -1);
-    } 
+    }
     if (ejsWriteToByteArray(ejs, sp->data, 1, &argv[0]) < 0) {
         return 0;
     }
@@ -45373,7 +45373,7 @@ static void enableSocketEvents(EjsSocket *sp, int (*proc)(EjsSocket *sp, MprEven
 
     ejs = sp->ejs;
     assert(sp->sock);
-    
+
     if (sp->sock->handler == 0) {
         mprAddSocketHandler(sp->sock, sp->mask, ejs->dispatcher, (MprEventProc) proc, sp, 0);
     } else {
@@ -45408,7 +45408,7 @@ static int socketIOEvent(EjsSocket *sp, MprEvent *event)
                 ejsSendEvent(ejs, sp->emitter, "readable", NULL, sp);
             }
             sp->mask |= MPR_READABLE;
-        } 
+        }
         if (event->mask & MPR_WRITABLE) {
             writeSocketData(ejs, sp);
         }
@@ -45421,7 +45421,7 @@ static int socketIOEvent(EjsSocket *sp, MprEvent *event)
 
 
 /*********************************** Factory **********************************/
-/*  
+/*
    Manage the object properties for the garbage collector
  */
 static void manageSocket(EjsSocket *sp, int flags)
@@ -45480,7 +45480,7 @@ PUBLIC void ejsConfigureSocketType(Ejs *ejs)
     Copyright (c) Embedthis Software. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
-    You may use the Embedthis Open Source license or you may acquire a 
+    You may use the Embedthis Open Source license or you may acquire a
     commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
     this software for full details and other copyrights.
@@ -48459,8 +48459,8 @@ static EjsString *system_ipaddr(Ejs *ejs, EjsObj *unused, int argc, EjsObj **arg
     char            ipaddr[ME_MAX_PATH], service[ME_MAX_PATH];
     int             rc;
 
-    if ((ip = mprGetIpAddr(ejs)) != 0) {
-        return ejsCreateStringFromAsc(ejs, mprGetIpAddr(ejs));
+    if ((ip = mprGetIpAddr()) != 0) {
+        return ejsCreateStringFromAsc(ejs, mprGetIpAddr());
     }
     memset((char*) &hints, 0, sizeof(hints));
     hints.ai_socktype = SOCK_STREAM;
@@ -48470,7 +48470,7 @@ static EjsString *system_ipaddr(Ejs *ejs, EjsObj *unused, int argc, EjsObj **arg
         ip = 0;
         //  TODO - support IPv6
         for (res = reslist; res; res = res->ai_next) {
-            if (getnameinfo(res->ai_addr, (socklen_t) res->ai_addrlen, ipaddr, (int) sizeof(ipaddr) - 1, service, 
+            if (getnameinfo(res->ai_addr, (socklen_t) res->ai_addrlen, ipaddr, (int) sizeof(ipaddr) - 1, service,
                     (int) sizeof(service) - 1, NI_NUMERICHOST | NI_NUMERICSERV | NI_NOFQDN) == 0) {
                 if (strncmp(ipaddr, "10.", 3) == 0 || strncmp(ipaddr, "127.", 4) == 0 ||
                      strncmp(ipaddr, "169.", 4) == 0 || strncmp(ipaddr, "172.", 4) == 0 ||
@@ -48543,7 +48543,7 @@ PUBLIC void ejsConfigureSystemType(Ejs *ejs)
     Copyright (c) Embedthis Software. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
-    You may use the Embedthis Open Source license or you may acquire a 
+    You may use the Embedthis Open Source license or you may acquire a
     commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
     this software for full details and other copyrights.
@@ -51415,7 +51415,7 @@ static bool waitForReadyState(EjsWebSocket *ws, int state, MprTicks timeout, int
 static void webSocketNotify(HttpConn *conn, int state, int notifyFlags);
 
 /************************************ Methods *********************************/
-/*  
+/*
     function WebSocket(uri: Uri, protocols = null, options)
 
     options = {
@@ -51493,7 +51493,7 @@ static EjsString *ws_binaryType(Ejs *ejs, EjsWebSocket *ws, int argc, EjsObj **a
 }
 
 
-/*  
+/*
     function get bufferedAmount(): Number
 
     Returns amount of buffered send data
@@ -51504,7 +51504,7 @@ static EjsNumber *ws_bufferedAmount(Ejs *ejs, EjsWebSocket *ws, int argc, EjsObj
 }
 
 
-/*  
+/*
     function close(status: Number = 1000, reason: String? = ""): Void
  */
 static EjsObj *ws_close(Ejs *ejs, EjsWebSocket *ws, int argc, EjsObj **argv)
@@ -51520,7 +51520,7 @@ static EjsObj *ws_close(Ejs *ejs, EjsWebSocket *ws, int argc, EjsObj **argv)
             ejsThrowArgError(ejs, "Bad status");
             return 0;
         }
-        reason = (argc >= 1) ? ejsToMulti(ejs, argv[1]): 0; 
+        reason = (argc >= 1) ? ejsToMulti(ejs, argv[1]): 0;
         if (slen(reason) >= 124) {
             ejsThrowArgError(ejs, "Close reason is too long. Must be less than 124 bytes");
             return 0;
@@ -51531,7 +51531,7 @@ static EjsObj *ws_close(Ejs *ejs, EjsWebSocket *ws, int argc, EjsObj **argv)
 }
 
 
-/*  
+/*
     function get extensions(): String
  */
 static EjsString *ws_extensions(Ejs *ejs, EjsWebSocket *ws, int argc, EjsObj **argv)
@@ -51550,7 +51550,7 @@ static EjsObj *ws_off(Ejs *ejs, EjsWebSocket *ws, int argc, EjsAny **argv)
 }
 
 
-/*  
+/*
     function on(name, observer: function): Http
  */
 static EjsWebSocket *ws_on(Ejs *ejs, EjsWebSocket *ws, int argc, EjsObj **argv)
@@ -51568,7 +51568,7 @@ static EjsWebSocket *ws_on(Ejs *ejs, EjsWebSocket *ws, int argc, EjsObj **argv)
     if (conn->readq && conn->readq->count > 0) {
         onWebSocketEvent(ws, HTTP_EVENT_READABLE, 0, 0);
     }
-    if (!conn->tx->finalizedConnector && 
+    if (!conn->tx->finalizedConnector &&
             !conn->error && HTTP_STATE_CONNECTED <= conn->state && conn->state < HTTP_STATE_FINALIZED &&
             conn->writeq->ioCount == 0) {
         onWebSocketEvent(ws, HTTP_EVENT_WRITABLE, 0, 0);
@@ -51577,7 +51577,7 @@ static EjsWebSocket *ws_on(Ejs *ejs, EjsWebSocket *ws, int argc, EjsObj **argv)
 }
 
 
-/*  
+/*
     function get protocol(): String
  */
 static EjsString *ws_protocol(Ejs *ejs, EjsWebSocket *ws, int argc, EjsObj **argv)
@@ -51586,7 +51586,7 @@ static EjsString *ws_protocol(Ejs *ejs, EjsWebSocket *ws, int argc, EjsObj **arg
 }
 
 
-/*  
+/*
     function get readyState(): Number
  */
 static EjsNumber *ws_readyState(Ejs *ejs, EjsWebSocket *ws, int argc, EjsObj **argv)
@@ -51595,7 +51595,7 @@ static EjsNumber *ws_readyState(Ejs *ejs, EjsWebSocket *ws, int argc, EjsObj **a
 }
 
 
-/*  
+/*
     function send(...content): Number
  */
 static EjsNumber *ws_send(Ejs *ejs, EjsWebSocket *ws, int argc, EjsObj **argv)
@@ -51629,7 +51629,7 @@ static EjsNumber *ws_send(Ejs *ejs, EjsWebSocket *ws, int argc, EjsObj **argv)
 }
 
 
-/*  
+/*
     function sendBlock(content, options): Number
  */
 static EjsNumber *ws_sendBlock(Ejs *ejs, EjsWebSocket *ws, int argc, EjsObj **argv)
@@ -51833,7 +51833,7 @@ static void webSocketNotify(HttpConn *conn, int event, int arg)
             onWebSocketEvent(ws, HTTP_EVENT_APP_OPEN, 0, 0);
         }
         break;
-    
+
     case HTTP_EVENT_READABLE:
         packet = httpGetPacket(conn->readq);
         content = packet->content;
@@ -51902,8 +51902,8 @@ static bool waitForHttpState(EjsWebSocket *ws, int state, MprTicks timeout, int 
     success = count = 0;
     mark = mprGetTicks();
     remaining = timeout;
-    while (conn->state < state && count <= conn->retries && redirectCount < 16 && 
-           !conn->error && !ejs->exiting && !mprIsStopping(conn)) {
+    while (conn->state < state && count <= conn->retries && redirectCount < 16 &&
+           !conn->error && !ejs->exiting && !mprIsStopping()) {
         count++;
         if ((rc = httpWait(conn, HTTP_STATE_PARSED, remaining)) == 0) {
             if (httpNeedRetry(conn, &url)) {
@@ -51912,7 +51912,7 @@ static bool waitForHttpState(EjsWebSocket *ws, int state, MprTicks timeout, int 
                     uri = httpJoinUri(conn->tx->parsedUri, 1, &location);
                     ws->uri = httpUriToString(uri, HTTP_COMPLETE_URI);
                 }
-                count--; 
+                count--;
                 redirectCount++;
             } else if (httpWait(conn, state, remaining) == 0) {
                 success = 1;
@@ -52000,7 +52000,7 @@ static bool waitForReadyState(EjsWebSocket *ws, int state, MprTicks timeout, int
     remaining = timeout;
     dispatcherMark = mprGetEventMark(conn->dispatcher);
     while (conn->state < HTTP_STATE_CONTENT || rx->webSocket->state < state) {
-        if (conn->error || ejs->exiting || mprIsStopping(conn) || remaining < 0) {
+        if (conn->error || ejs->exiting || mprIsStopping() || remaining < 0) {
             break;
         }
         mprWaitForEvent(conn->dispatcher, min(inactivityTimeout, remaining), dispatcherMark);
@@ -52017,7 +52017,7 @@ static bool waitForReadyState(EjsWebSocket *ws, int state, MprTicks timeout, int
 
 /*********************************** Factory **********************************/
 
-/*  
+/*
     Manage the object properties for the garbage collector
  */
 static void manageWebSocket(EjsWebSocket *ws, int flags)
@@ -52046,7 +52046,7 @@ PUBLIC void ejsConfigureWebSocketType(Ejs *ejs)
     EjsType     *type;
     EjsPot      *prototype;
 
-    if ((type = ejsFinalizeScriptType(ejs, N("ejs", "WebSocket"), sizeof(EjsWebSocket), 
+    if ((type = ejsFinalizeScriptType(ejs, N("ejs", "WebSocket"), sizeof(EjsWebSocket),
             manageWebSocket, EJS_TYPE_POT)) == 0) {
         return;
     }
@@ -52073,7 +52073,7 @@ PUBLIC void ejsConfigureWebSocketType(Ejs *ejs)
     Copyright (c) Embedthis Software. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
-    You may use the Embedthis Open Source license or you may acquire a 
+    You may use the Embedthis Open Source license or you may acquire a
     commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
     this software for full details and other copyrights.
@@ -53075,7 +53075,7 @@ PUBLIC EjsAny *cloneXml(Ejs *ejs, EjsXML *xml, bool deep)
             }
         }
     }
-    if (mprHasMemError(ejs)) {
+    if (mprHasMemError()) {
         return 0;
     }
     return root;
@@ -53745,7 +53745,7 @@ static EjsObj *saveXml(Ejs *ejs, EjsXML *xml, int argc, EjsObj **argv)
     }
     file = mprOpenFile(filename,  O_CREAT | O_TRUNC | O_WRONLY | O_TEXT, 0664);
     if (file == 0) {
-        ejsThrowIOError(ejs, "Cannot open: %s, %d", filename, mprGetOsError(ejs));
+        ejsThrowIOError(ejs, "Cannot open: %s, %d", filename, mprGetOsError());
         return 0;
     }
     len = mprGetBufLength(buf);
@@ -54052,7 +54052,7 @@ PUBLIC void ejsCreateXMLType(Ejs *ejs)
 {
     EjsType     *type;
 
-    type = ejsCreateCoreType(ejs, N("ejs", "XML"), sizeof(EjsXML), S_XML, ES_XML_NUM_CLASS_PROP, ejsManageXML, 
+    type = ejsCreateCoreType(ejs, N("ejs", "XML"), sizeof(EjsXML), S_XML, ES_XML_NUM_CLASS_PROP, ejsManageXML,
         EJS_TYPE_OBJ);
 
     /*
@@ -54107,7 +54107,7 @@ PUBLIC void ejsConfigureXMLType(Ejs *ejs)
     Copyright (c) Embedthis Software. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
-    You may use the Embedthis Open Source license or you may acquire a 
+    You may use the Embedthis Open Source license or you may acquire a
     commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
     this software for full details and other copyrights.
@@ -54537,7 +54537,7 @@ static EjsXML *createElement(Ejs *ejs, EjsXML *list, EjsXML *targetObject, EjsNa
                 j = mprLookupItem(targetObject->elements, last);
             } else {
                 j = -1;
-            } 
+            }
             if (j < 0) {
                 j = mprGetListLength(targetObject->elements) - 1;
             }
@@ -54713,7 +54713,7 @@ static EjsXML *shallowCopy(Ejs *ejs, EjsXML *xml)
             }
         }
     }
-    if (mprHasMemError(ejs)) {
+    if (mprHasMemError()) {
         return 0;
     }
     return root;
@@ -54721,9 +54721,9 @@ static EjsXML *shallowCopy(Ejs *ejs, EjsXML *xml)
 
 
 /*
-    Resolve empty XML list objects to an actual XML object. This is used by SetPropertyByName to find the actual 
-    object to update. This method resolves the value of empty XMLLists. If the XMLList is not empty, the list will 
-    be returned. If list is empty, this method attempts to create an element based on the list targetObject and 
+    Resolve empty XML list objects to an actual XML object. This is used by SetPropertyByName to find the actual
+    object to update. This method resolves the value of empty XMLLists. If the XMLList is not empty, the list will
+    be returned. If list is empty, this method attempts to create an element based on the list targetObject and
     targetProperty.
  */
 static EjsXML *resolve(Ejs *ejs, EjsXML *xml)
@@ -54922,7 +54922,7 @@ PUBLIC void ejsCreateXMLListType(Ejs *ejs)
 {
     EjsType     *type;
 
-    type = ejsCreateCoreType(ejs, N("ejs", "XMLList"), sizeof(EjsXML), S_XMLList, ES_XMLList_NUM_CLASS_PROP, 
+    type = ejsCreateCoreType(ejs, N("ejs", "XMLList"), sizeof(EjsXML), S_XMLList, ES_XMLList_NUM_CLASS_PROP,
         ejsManageXML, EJS_TYPE_OBJ);
 
     /*
@@ -54971,7 +54971,7 @@ PUBLIC void ejsConfigureXMLListType(Ejs *ejs)
     Copyright (c) Embedthis Software. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
-    You may use the Embedthis Open Source license or you may acquire a 
+    You may use the Embedthis Open Source license or you may acquire a
     commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
     this software for full details and other copyrights.
@@ -55782,19 +55782,19 @@ static void setupConnTrace(HttpConn *conn);
 static void stateChangeNotifier(HttpConn *conn, int event, int arg);
 
 /************************************ Code ************************************/
-/*  
+/*
     function get address(): String
  */
 static EjsString *hs_address(Ejs *ejs, EjsHttpServer *sp, int argc, EjsObj **argv)
 {
     if (sp->ip) {
         return ejsCreateStringFromAsc(ejs, sp->ip);
-    } 
+    }
     return ESV(null);
 }
 
 
-/*  
+/*
     function accept(): Request
  */
 static EjsRequest *hs_accept(Ejs *ejs, EjsHttpServer *sp, int argc, EjsObj **argv)
@@ -55819,7 +55819,7 @@ static EjsRequest *hs_accept(Ejs *ejs, EjsHttpServer *sp, int argc, EjsObj **arg
 }
 
 
-/*  
+/*
     function get async(): Boolean
  */
 static EjsObj *hs_async(Ejs *ejs, EjsHttpServer *sp, int argc, EjsObj **argv)
@@ -55828,7 +55828,7 @@ static EjsObj *hs_async(Ejs *ejs, EjsHttpServer *sp, int argc, EjsObj **argv)
 }
 
 
-/*  
+/*
     function set async(enable: Boolean): Void
  */
 static EjsObj *hs_set_async(Ejs *ejs, EjsHttpServer *sp, int argc, EjsObj **argv)
@@ -55859,7 +55859,7 @@ static EjsPath *hs_hostedHome(Ejs *ejs, EjsHttpServer *sp, int argc, EjsObj **ar
 }
 
 
-/*  
+/*
     function close(): Void
  */
 static EjsObj *hs_close(Ejs *ejs, EjsHttpServer *sp, int argc, EjsObj **argv)
@@ -55873,7 +55873,7 @@ static EjsObj *hs_close(Ejs *ejs, EjsHttpServer *sp, int argc, EjsObj **argv)
 }
 
 
-/*  
+/*
     function get limits(): Object
  */
 static EjsObj *hs_limits(Ejs *ejs, EjsHttpServer *sp, int argc, EjsObj **argv)
@@ -55890,7 +55890,7 @@ static EjsObj *hs_limits(Ejs *ejs, EjsHttpServer *sp, int argc, EjsObj **argv)
 }
 
 
-/*  
+/*
     function setLimits(limits: Object): Void
  */
 static EjsObj *hs_setLimits(Ejs *ejs, EjsHttpServer *sp, int argc, EjsObj **argv)
@@ -55950,7 +55950,7 @@ static EjsVoid *hs_set_hosted(Ejs *ejs, EjsHttpServer *sp, int argc, EjsObj **ar
 }
 
 
-/*  
+/*
     function listen(endpoint): Void
 
     An endpoint can be either a "port" or "ip:port", or null. If hosted, this call does little -- just add to the
@@ -55970,7 +55970,7 @@ static EjsVoid *hs_listen(Ejs *ejs, EjsHttpServer *sp, int argc, EjsObj **argv)
         if (loc != ESV(null)) {
             address = ejsToString(ejs, loc);
             //  TODO should permit https://IP:PORT
-            mprParseSocketAddress(address->value, &sp->ip, &sp->port, NULL, 0);
+            mprParseSocketAddress(address->value, (cchar**) &sp->ip, &sp->port, NULL, 0);
         } else {
             address = 0;
         }
@@ -56051,7 +56051,7 @@ static EjsVoid *hs_listen(Ejs *ejs, EjsHttpServer *sp, int argc, EjsObj **argv)
 }
 
 
-/*  
+/*
     function get name(): String
  */
 static EjsString *hs_name(Ejs *ejs, EjsHttpServer *sp, int argc, EjsObj **argv)
@@ -56063,7 +56063,7 @@ static EjsString *hs_name(Ejs *ejs, EjsHttpServer *sp, int argc, EjsObj **argv)
 }
 
 
-/*  
+/*
     function set name(hostname: String): Void
  */
 static EjsObj *hs_set_name(Ejs *ejs, EjsHttpServer *sp, int argc, EjsObj **argv)
@@ -56079,7 +56079,7 @@ static EjsObj *hs_set_name(Ejs *ejs, EjsHttpServer *sp, int argc, EjsObj **argv)
 }
 
 
-/*  
+/*
     function off(name: [String|Array], observer: Function): Void
  */
 static EjsObj *hs_off(Ejs *ejs, EjsHttpServer *sp, int argc, EjsAny **argv)
@@ -56089,7 +56089,7 @@ static EjsObj *hs_off(Ejs *ejs, EjsHttpServer *sp, int argc, EjsAny **argv)
 }
 
 
-/*  
+/*
     function on(name: [String|Array], observer: Function): HttpServer
  */
 static EjsHttpServer *hs_on(Ejs *ejs, EjsHttpServer *sp, int argc, EjsAny **argv)
@@ -56100,7 +56100,7 @@ static EjsHttpServer *hs_on(Ejs *ejs, EjsHttpServer *sp, int argc, EjsAny **argv
 }
 
 
-/*  
+/*
     function get port(): Number
  */
 static EjsNumber *hs_port(Ejs *ejs, EjsHttpServer *sp, int argc, EjsObj **argv)
@@ -56109,7 +56109,7 @@ static EjsNumber *hs_port(Ejs *ejs, EjsHttpServer *sp, int argc, EjsObj **argv)
 }
 
 
-/*  
+/*
     function run(): Void
  */
 static EjsVoid *hs_run(Ejs *ejs, EjsHttpServer *sp, int argc, EjsObj **argv)
@@ -56119,7 +56119,7 @@ static EjsVoid *hs_run(Ejs *ejs, EjsHttpServer *sp, int argc, EjsObj **argv)
     if (!sp->hosted) {
         dispatcherMark = mprGetEventMark(ejs->dispatcher);
         while (!ejs->exiting && !mprIsStopping()) {
-            mprWaitForEvent(ejs->dispatcher, MPR_MAX_TIMEOUT, dispatcherMark); 
+            mprWaitForEvent(ejs->dispatcher, MPR_MAX_TIMEOUT, dispatcherMark);
             dispatcherMark = mprGetEventMark(ejs->dispatcher);
         }
     }
@@ -56127,7 +56127,7 @@ static EjsVoid *hs_run(Ejs *ejs, EjsHttpServer *sp, int argc, EjsObj **argv)
 }
 
 
-/*  
+/*
     function secure(keyFile: Path, certFile: Path!, protocols: Array? = null, ciphers: Array? = null): Void
  */
 static EjsObj *hs_secure(Ejs *ejs, EjsHttpServer *sp, int argc, EjsObj **argv)
@@ -56187,7 +56187,7 @@ static EjsObj *hs_secure(Ejs *ejs, EjsHttpServer *sp, int argc, EjsObj **argv)
 }
 
 
-/*  
+/*
     function setPipeline(incoming: Array, outgoing: Array, connector: String): Void
  */
 static EjsObj *hs_setPipeline(Ejs *ejs, EjsHttpServer *sp, int argc, EjsObj **argv)
@@ -56204,7 +56204,7 @@ static EjsObj *hs_setPipeline(Ejs *ejs, EjsHttpServer *sp, int argc, EjsObj **ar
 }
 
 
-/*  
+/*
     function trace(options): Void
  */
 static EjsObj *hs_trace(Ejs *ejs, EjsHttpServer *sp, int argc, EjsObj **argv)
@@ -56214,7 +56214,7 @@ static EjsObj *hs_trace(Ejs *ejs, EjsHttpServer *sp, int argc, EjsObj **argv)
 }
 
 
-/*  
+/*
     function get software(headers: Object = null): Void
  */
 static EjsString *hs_software(Ejs *ejs, EjsHttpServer *sp, int argc, EjsObj **argv)
@@ -56223,7 +56223,7 @@ static EjsString *hs_software(Ejs *ejs, EjsHttpServer *sp, int argc, EjsObj **ar
 }
 
 
-/*  
+/*
     function verifyClients(caCertPath: Path, caCertFile: Path): Void
  */
 static EjsObj *hs_verifyClients(Ejs *ejs, EjsHttpServer *sp, int argc, EjsObj **argv)
@@ -56239,7 +56239,7 @@ static void receiveRequest(EjsRequest *req, MprEvent *event)
     EjsAny          *argv[1];
     EjsFunction     *onrequest;
     HttpConn        *conn;
-    
+
     conn = req->conn;
     ejs = req->ejs;
     assert(ejs);
@@ -56253,7 +56253,7 @@ static void receiveRequest(EjsRequest *req, MprEvent *event)
     ejsRunFunction(ejs, onrequest, req->server, 1, argv);
     if (conn->state == HTTP_STATE_BEGIN) {
         conn->ejs = 0;
-        httpUsePrimary(conn);        
+        httpUsePrimary(conn);
     }
     httpEnableConnEvents(conn);
 }
@@ -56297,7 +56297,7 @@ static EjsVoid *hs_passRequest(Ejs *ejs, EjsHttpServer *server, int argc, EjsAny
 
 //  TODO rethink this. This should really go into the HttpHost object
 
-static void setHttpPipeline(Ejs *ejs, EjsHttpServer *sp) 
+static void setHttpPipeline(Ejs *ejs, EjsHttpServer *sp)
 {
     EjsString       *vs;
     HttpHost        *host;
@@ -56349,7 +56349,7 @@ static void setHttpPipeline(Ejs *ejs, EjsHttpServer *sp)
 
 
 /*
-    Notification callback. This routine is called from the Http pipeline on connection state changes. 
+    Notification callback. This routine is called from the Http pipeline on connection state changes.
  */
 static void stateChangeNotifier(HttpConn *conn, int event, int arg)
 {
@@ -56383,7 +56383,7 @@ static void stateChangeNotifier(HttpConn *conn, int event, int arg)
         /*  IO event notification for the request.  */
         if (req && req->emitter) {
             ejsSendEvent(ejs, req->emitter, "readable", NULL, req);
-        } 
+        }
         break;
 
     case HTTP_EVENT_WRITABLE:
@@ -56474,23 +56474,23 @@ static EjsRequest *createRequest(EjsHttpServer *sp, HttpConn *conn)
 
 #if FUTURE
     if (sp->pipe) {
-        def = ejsRunFunction(ejs, sp->createPipeline, 
-        if ((vp = ejsGetPropertyByName(ejs, def, ejsName(&name, "", "handler"))) != 0) { 
+        def = ejsRunFunction(ejs, sp->createPipeline,
+        if ((vp = ejsGetPropertyByName(ejs, def, ejsName(&name, "", "handler"))) != 0) {
             handler = ejsToMulti(ejs, vp);
         }
-        if ((incoming = ejsGetPropertyByName(ejs, def, ejsName(&name, "", "incoming"))) != 0) { 
+        if ((incoming = ejsGetPropertyByName(ejs, def, ejsName(&name, "", "incoming"))) != 0) {
             count = ejsGetProperty(ejs, incoming)
             for (i = 0; i < count; i++) {
-                mprAddItem(ilist, 
+                mprAddItem(ilist,
             }
         }
-        if ((outgoing = ejsGetPropertyByName(ejs, def, ejsName(&name, "", "outgoing"))) != 0) { 
+        if ((outgoing = ejsGetPropertyByName(ejs, def, ejsName(&name, "", "outgoing"))) != 0) {
             count = ejsGetProperty(ejs, incoming)
         }
-        if ((connector = ejsGetPropertyByName(ejs, def, ejsName(&name, "", "connector"))) != 0) { 
+        if ((connector = ejsGetPropertyByName(ejs, def, ejsName(&name, "", "connector"))) != 0) {
             connector = ejsToMulti(ejs, vp);
         }
-        httpSetPipeline(conn, ejsToMulti(ejs, Handler), ejsToMulti(ejs, connector), 
+        httpSetPipeline(conn, ejsToMulti(ejs, Handler), ejsToMulti(ejs, connector),
     }
 #endif
     return req;
@@ -56517,7 +56517,7 @@ static void startEjsHandler(HttpQueue *q)
     if ((sp = httpGetEndpointContext(endpoint)) == 0) {
         lp = conn->sock->listenSock;
         if ((sp = lookupServer(conn->ejs, lp->ip, lp->port)) == 0) {
-            httpError(conn, HTTP_CODE_INTERNAL_SERVER_ERROR, 
+            httpError(conn, HTTP_CODE_INTERNAL_SERVER_ERROR,
                     "No HttpServer configured to serve for request from %s:%d", lp->ip, lp->port);
             return;
         }
@@ -56553,7 +56553,7 @@ static void startEjsHandler(HttpQueue *q)
 static void readyEjsHandler(HttpQueue *q)
 {
     HttpConn        *conn;
-    
+
     conn = q->conn;
     if (conn->readq->count > 0) {
         HTTP_NOTIFY(conn, HTTP_EVENT_READABLE, 0);
@@ -56561,7 +56561,7 @@ static void readyEjsHandler(HttpQueue *q)
 }
 
 
-/* 
+/*
     Create the http pipeline handler
  */
 HttpStage *ejsAddWebHandler(Http *http, MprModule *module)
@@ -56583,7 +56583,7 @@ HttpStage *ejsAddWebHandler(Http *http, MprModule *module)
 }
 
 
-/*  
+/*
     Mark the object properties for the garbage collector
  */
 static void manageHttpServer(EjsHttpServer *sp, int flags)
@@ -56605,7 +56605,7 @@ static void manageHttpServer(EjsHttpServer *sp, int flags)
         mprMark(sp->limits);
         mprMark(sp->outgoingStages);
         mprMark(sp->incomingStages);
-        
+
     } else {
         if (sp->ejs && sp->ejs->httpServers) {
             mprRemoveItem(sp->ejs->httpServers, sp);
@@ -56686,7 +56686,7 @@ void ejsConfigureHttpServerType(Ejs *ejs)
     EjsType     *type;
     EjsPot      *prototype;
 
-    if ((type = ejsFinalizeScriptType(ejs, N("ejs.web", "HttpServer"), sizeof(EjsHttpServer), manageHttpServer, 
+    if ((type = ejsFinalizeScriptType(ejs, N("ejs.web", "HttpServer"), sizeof(EjsHttpServer), manageHttpServer,
             EJS_TYPE_POT | EJS_TYPE_DYNAMIC_INSTANCES)) == 0) {
         return;
     }
@@ -56730,7 +56730,7 @@ void ejsConfigureHttpServerType(Ejs *ejs)
     Copyright (c) Embedthis Software. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
-    You may use the Embedthis Open Source license or you may acquire a 
+    You may use the Embedthis Open Source license or you may acquire a
     commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
     this software for full details and other copyrights.
@@ -60628,8 +60628,8 @@ void ejsMarkName(EjsName *qname)
 
 /********************************** Inline Code *******************************/
 /*
-    The stack is a stack of pointers to values. The top of stack (stack.top) always points to the current top item 
-    on the stack. To push a new value, top is incremented then the value is stored. To pop, simply copy the value at 
+    The stack is a stack of pointers to values. The top of stack (stack.top) always points to the current top item
+    on the stack. To push a new value, top is incremented then the value is stored. To pop, simply copy the value at
     top and decrement top ptr.
  */
 #define top                     (*state->stack)
@@ -60654,7 +60654,7 @@ void ejsMarkName(EjsName *qname)
 
 static void callFunction(Ejs *ejs, EjsFunction *fun, EjsAny *thisObj, int argc, int stackAdjust);
 
-static ME_INLINE void getPropertyFromSlot(Ejs *ejs, EjsAny *thisObj, EjsAny *obj, int slotNum) 
+static ME_INLINE void getPropertyFromSlot(Ejs *ejs, EjsAny *thisObj, EjsAny *obj, int slotNum)
 {
     EjsFunction     *fun, *value;
 
@@ -60683,7 +60683,7 @@ static ME_INLINE void getPropertyFromSlot(Ejs *ejs, EjsAny *thisObj, EjsAny *obj
 
 #define GET_SLOT(thisObj, obj, slotNum) getPropertyFromSlot(ejs, thisObj, obj, slotNum)
 
-static ME_INLINE void checkGetter(Ejs *ejs, EjsAny *value, EjsAny *thisObj, EjsAny *obj, int slotNum) 
+static ME_INLINE void checkGetter(Ejs *ejs, EjsAny *value, EjsAny *thisObj, EjsAny *obj, int slotNum)
 {
     EjsFunction     *fun;
 
@@ -60717,7 +60717,7 @@ static ME_INLINE void checkGetter(Ejs *ejs, EjsAny *value, EjsAny *thisObj, EjsA
 }
 
 #define CHECK_VALUE(value, thisObj, obj, slotNum) checkGetter(ejs, value, thisObj, obj, slotNum)
-#define CHECK_GC() if (MPR->heap->mustYield && !(ejs->state->paused)) { mprYield(0); } else 
+#define CHECK_GC() if (MPR->heap->mustYield && !(ejs->state->paused)) { mprYield(0); } else
 
 /*
     Set a slot value when we don't know if the object is an EjsObj
@@ -60732,7 +60732,7 @@ static ME_INLINE void checkGetter(Ejs *ejs, EjsAny *value, EjsAny *thisObj, EjsA
     if (1) { \
         (fp)->pc = (uchar*) (value); \
         (fp)->attentionPc = 0; \
-    } else 
+    } else
 
 #define GET_BYTE()      *(FRAME)->pc++
 #define GET_DOUBLE()    ejsDecodeDouble(ejs, &(FRAME)->pc)
@@ -60821,7 +60821,7 @@ static void VM(Ejs *ejs, EjsFunction *fun, EjsAny *otherThis, int argc, int stac
     #include    "ejsByteGoto.h"
 #endif
     assert(ejs);
-    assert(!mprHasMemError(ejs));
+    assert(!mprHasMemError());
     assert(!ejs->exception);
     assert(ejs->state->fp == 0 || ejs->state->fp->attentionPc == 0);
 
@@ -61295,7 +61295,7 @@ static void VM(Ejs *ejs, EjsFunction *fun, EjsAny *otherThis, int argc, int stac
                 CHECK_VALUE(vp, NULL, lookup.obj, lookup.slotNum);
             }
             BREAK;
-                
+
         /*
             Load a variable by an unqualified name expression
                 GetScopedNameExpr
@@ -61344,7 +61344,7 @@ static void VM(Ejs *ejs, EjsFunction *fun, EjsAny *otherThis, int argc, int stac
             FILL(mark);
 #endif
             BREAK;
-                
+
         /*
             Load a property by property name
                 GetObjName          <qname>
@@ -61378,7 +61378,7 @@ static void VM(Ejs *ejs, EjsFunction *fun, EjsAny *otherThis, int argc, int stac
             } else if (lookup.obj == state.fp->thisObj) {
                 *mark++ = EJS_OP_GET_THIS_SLOT;
                 mark += ejsEncodeUint(mark, lookup.slotNum);
-                
+
             } else if (ejsIsType(ejs, lookup.obj) && ejsIsA(ejs, THIS, (EjsType*) lookup.obj)) {
                 *mark++ = EJS_OP_GET_TYPE_SLOT;
                 mark += ejsEncodeUint(mark, lookup.slotNum);
@@ -61577,7 +61577,7 @@ static void VM(Ejs *ejs, EjsFunction *fun, EjsAny *otherThis, int argc, int stac
             SET_SLOT(THIS, THIS, opcode - EJS_OP_PUT_THIS_SLOT_0, pop(ejs));
             BREAK;
 
-        /* 
+        /*
             Store a property by slot number
                 PutObjSlot          <slot>
                 Stack before (top)  [obj]
@@ -61624,7 +61624,7 @@ static void VM(Ejs *ejs, EjsFunction *fun, EjsAny *otherThis, int argc, int stac
 
         /*
             Store a variable by an unqualified name expression
-                PutScopedName 
+                PutScopedName
                 Stack before (top)  [name]
                                     [space]
                                     [value]
@@ -61927,7 +61927,7 @@ static void VM(Ejs *ejs, EjsFunction *fun, EjsAny *otherThis, int argc, int stac
                 }
             } else {
                 /*
-                    Calculate the "this" to use for the function. If required function is a method in the current 
+                    Calculate the "this" to use for the function. If required function is a method in the current
                     "this" object use the current thisObj. If the lookup.obj is a type, then use it. Otherwise global.
                  */
                 if ((vp = fun->boundThis) == 0) {
@@ -61939,7 +61939,7 @@ static void VM(Ejs *ejs, EjsFunction *fun, EjsAny *otherThis, int argc, int stac
                         vp = lookup.obj;
                     } else {
                         vp = /* lookup.obj */ ejs->global;
-                    } 
+                    }
                 }
                 callProperty(ejs, lookup.obj, slotNum, vp, argc, 0);
             }
@@ -62116,7 +62116,7 @@ static void VM(Ejs *ejs, EjsFunction *fun, EjsAny *otherThis, int argc, int stac
         /*
             Invoke finally blocks before acting on: return, returnValue and break/continue (goto) opcodes.
             These are injected by the compiler.
-        
+
                 call_finally
          */
         CASE (EJS_OP_CALL_FINALLY):
@@ -62133,7 +62133,7 @@ static void VM(Ejs *ejs, EjsFunction *fun, EjsAny *otherThis, int argc, int stac
 
         /*
             Invoke finally blocks before leaving try block. These are injected by the compiler.
-        
+
                 goto_finally
          */
         CASE (EJS_OP_GOTO_FINALLY):
@@ -62187,8 +62187,8 @@ static void VM(Ejs *ejs, EjsFunction *fun, EjsAny *otherThis, int argc, int stac
                 assert(FRAME->pc);
                 FRAME->attentionPc = 0;
             }
-            if (mprHasMemError(ejs) && !ejs->exception) {
-                mprResetMemError(ejs);
+            if (mprHasMemError() && !ejs->exception) {
+                mprResetMemError();
                 ejsThrowMemoryError(ejs);
             }
             if (ejs->exception && !processException(ejs)) {
@@ -62796,7 +62796,7 @@ static void VM(Ejs *ejs, EjsFunction *fun, EjsAny *otherThis, int argc, int stac
             push(obj);
             ejs->result = obj;
             BREAK;
-                
+
             /*
              Create a new array literal
              NewArray            <type> <argc>
@@ -62850,7 +62850,7 @@ static void VM(Ejs *ejs, EjsFunction *fun, EjsAny *otherThis, int argc, int stac
                     EjsName qname = { nameVar, spaceVar };
                     ejsDefineProperty(ejs, vp, -1, qname, NULL, attributes, v1);
                 }
-            } 
+            }
             state->stack -= (argc * 3);
             push(vp);
             state->t1 = 0;
@@ -63024,7 +63024,7 @@ static void VM(Ejs *ejs, EjsFunction *fun, EjsAny *otherThis, int argc, int stac
         }
     }
 #endif
-    
+
 done:
 #if ME_DEBUG && FUTURE
     if (ejs->initialized) {
@@ -63117,7 +63117,7 @@ static void storeProperty(Ejs *ejs, EjsObj *thisObj, EjsAny *vp, EjsName qname, 
 
     //  ONLY XML requires this.  NOTE: this bypasses ES5 traits
     //  Alternatively push this whole function down into ejsObject and have all go via setPropertyByName
-    
+
     if (TYPE(vp)->helpers.setPropertyByName) {
         slotNum = (*TYPE(vp)->helpers.setPropertyByName)(ejs, vp, qname, value);
         if (slotNum >= 0) {
@@ -63129,7 +63129,7 @@ static void storeProperty(Ejs *ejs, EjsObj *thisObj, EjsAny *vp, EjsName qname, 
             trait = ejsGetPropertyTraits(ejs, lookup.obj, slotNum);
             if (trait->attributes & EJS_TRAIT_SETTER) {
                 vp = lookup.obj;
-                
+
             } else if (ejsIsPrototype(ejs, lookup.obj) || trait->attributes & EJS_TRAIT_GETTER) {
                 if (TYPE(vp)->hasInstanceVars) {
                     /* The prototype properties have been inherited */
@@ -63144,7 +63144,7 @@ static void storeProperty(Ejs *ejs, EjsObj *thisObj, EjsAny *vp, EjsName qname, 
                 }
             } else {
                 /*
-                    This is the fundamental asymetry between load/store. We allow loading properties from static base 
+                    This is the fundamental asymetry between load/store. We allow loading properties from static base
                     types, but do not allow stores. This is essential to stop bleeding of Object static properties into
                     all objects. E.g. Object.create.
                  */
@@ -63214,7 +63214,7 @@ EjsObj *ejsRunInitializer(Ejs *ejs, EjsModule *mp)
     EjsModule   *dp;
     EjsAny      *result;
     int         next;
-    
+
     if (mp->initialized || !mp->hasInitializer) {
         mp->initialized = 1;
         result = ESV(null);
@@ -63264,7 +63264,7 @@ int ejsRun(Ejs *ejs)
 EjsAny *ejsRunFunction(Ejs *ejs, EjsFunction *fun, EjsAny *thisObj, int argc, void *argv)
 {
     int     i;
-    
+
     assert(ejs);
     assert(fun);
     assert(ejsIsFunction(ejs, fun));
@@ -63279,7 +63279,7 @@ EjsAny *ejsRunFunction(Ejs *ejs, EjsFunction *fun, EjsAny *thisObj, int argc, vo
         return 0;
     }
     ejsClearAttention(ejs);
-    
+
     if (thisObj == 0) {
         thisObj = fun->boundThis ? fun->boundThis : ejs->global;
     }
@@ -63372,7 +63372,7 @@ static void badArgType(Ejs *ejs, EjsFunction *fun, EjsPot *activation, EjsTrait 
 
 
 /*
-    Validate the args. This routine handles ...rest args and parameter type checking and casts. Returns the new argc 
+    Validate the args. This routine handles ...rest args and parameter type checking and casts. Returns the new argc
     or < 0 on errors.
  */
 static int validateArgs(Ejs *ejs, EjsFunction *fun, int argc, void *args)
@@ -63476,7 +63476,7 @@ static void callInterfaceInitializers(Ejs *ejs, EjsType *type)
     for (next = 0; ((iface = mprGetNextItem(type->implements, &next)) != 0); ) {
         if (iface->hasInitializer) {
             qname = ejsGetPropertyName(ejs, iface, 0);
-            //  TODO OPT. Could run all 
+            //  TODO OPT. Could run all
             fun = ejsGetPropertyByName(ejs, type, qname);
             if (fun && ejsIsFunction(ejs, fun)) {
                 callFunction(ejs, fun, type, 0, 0);
@@ -63608,12 +63608,12 @@ static EjsEx *inHandler(Ejs *ejs, int kind)
     EjsCode     *code;
     uint        pc;
     int         i;
-    
+
     ex = 0;
     fp = ejs->state->fp;
     code = fp->function.body.code;
     pc = (uint) (fp->pc - code->byteCode - 1);
-    
+
     /*
         Exception handlers are sorted with the inner most handlers first.
      */
@@ -63706,12 +63706,12 @@ rescan:
              */
             SET_PC(fp, &fp->function.body.code->byteCode[ex->handlerEnd + 1]);
             fp->function.inCatch = fp->function.inException = 0;
-            goto rescan;            
+            goto rescan;
         }
     }
 
     /*
-        Exception without a catch block or exception in a catch block. 
+        Exception without a catch block or exception in a catch block.
      */
     if ((ex = findExceptionHandler(ejs, EJS_EX_FINALLY)) != 0) {
         if (fp->function.inCatch) {
@@ -63767,7 +63767,7 @@ static void createExceptionBlock(Ejs *ejs, EjsEx *ex, int flags)
         state->stack -= (count - ex->numStack);
         assert(state->stack >= fp->stackReturn);
     }
-    
+
     /*
         Allocate a new frame in which to execute the handler
      */
@@ -64034,7 +64034,7 @@ static void callProperty(Ejs *ejs, EjsAny *obj, int slotNum, EjsAny *thisObj, in
 
 
 /*
-    Call a function. Supports both native and scripted functions. If native, the function is fully 
+    Call a function. Supports both native and scripted functions. If native, the function is fully
     invoked here. If scripted, a new frame is created and the pc adjusted to point to the new function.
  */
 static void callFunction(Ejs *ejs, EjsFunction *fun, EjsAny *thisObj, int argc, int stackAdjust)
@@ -64048,7 +64048,7 @@ static void callFunction(Ejs *ejs, EjsFunction *fun, EjsAny *thisObj, int argc, 
 
     assert(fun);
     assert(ejs->exception == 0);
-    assert(ejs->state->fp == 0 || ejs->state->fp->attentionPc == 0);  
+    assert(ejs->state->fp == 0 || ejs->state->fp->attentionPc == 0);
 
     state = ejs->state;
 
@@ -64065,7 +64065,7 @@ static void callFunction(Ejs *ejs, EjsFunction *fun, EjsAny *thisObj, int argc, 
             }
             return;
         }
-        
+
     } else if (!ejsIsFunction(ejs, fun)) {
         if (fun == ESV(undefined)) {
             ejsThrowReferenceError(ejs, "Function is undefined");
@@ -64078,8 +64078,8 @@ static void callFunction(Ejs *ejs, EjsFunction *fun, EjsAny *thisObj, int argc, 
     if (thisObj == 0) {
         if ((thisObj = fun->boundThis) == 0) {
             thisObj = state->fp->function.boundThis;
-        } 
-    } 
+        }
+    }
     if (fun->boundArgs) {
         assert(ejsIs(ejs, fun->boundArgs, Array));
         count = fun->boundArgs->length;
@@ -64093,11 +64093,11 @@ static void callFunction(Ejs *ejs, EjsFunction *fun, EjsAny *thisObj, int argc, 
         state->stack += count;
         argc += count;
     }
-    
+
     assert(ejs->spreadArgs == 0);
     argc += ejs->spreadArgs;
     ejs->spreadArgs = 0;
-    
+
     /*
         Validate the args. Cast to the right type, handle rest args and return with argc adjusted.
      */
@@ -64235,7 +64235,7 @@ void ejsLog(Ejs *ejs, cchar *fmt, ...)
 #if FUTURE
 #if ME_COMPILER_HAS_LIB_EDIT
 static History  *cmdHistory;
-static EditLine *eh; 
+static EditLine *eh;
 static cchar    *prompt;
 
 static cchar *issuePrompt(EditLine *e) {
@@ -64245,11 +64245,11 @@ static cchar *issuePrompt(EditLine *e) {
 static EditLine *initEditLine()
 {
     EditLine    *e;
-    HistEvent   ev; 
+    HistEvent   ev;
 
-    cmdHistory = history_init(); 
-    history(cmdHistory, &ev, H_SETSIZE, 100); 
-    e = el_init("ejs", stdin, stdout, stderr); 
+    cmdHistory = history_init();
+    history(cmdHistory, &ev, H_SETSIZE, 100);
+    e = el_init("ejs", stdin, stdout, stderr);
     el_set(e, EL_EDITOR, "vi");
     el_set(e, EL_HIST, history, cmdHistory);
     el_source(e, NULL);
@@ -64257,33 +64257,33 @@ static EditLine *initEditLine()
 }
 
 
-/*  
+/*
     Prompt for input with the level of current nest (block nest depth)
  */
-static char *readline(cchar *msg) 
-{ 
-    HistEvent   ev; 
-    cchar       *str; 
+static char *readline(cchar *msg)
+{
+    HistEvent   ev;
+    cchar       *str;
     char        *result;
-    int         len, count; 
- 
-    if (eh == NULL) { 
+    int         len, count;
+
+    if (eh == NULL) {
         eh = initEditLine();
     }
     prompt = msg;
     el_set(eh, EL_PROMPT, issuePrompt);
-    str = el_gets(eh, &count); 
-    if (str && count > 0) { 
-        result = strdup(str); 
+    str = el_gets(eh, &count);
+    if (str && count > 0) {
+        result = strdup(str);
         len = strlen(result);
         if (result[len - 1] == '\n') {
-            result[len - 1] = '\0'; 
+            result[len - 1] = '\0';
         }
-        count = history(cmdHistory, &ev, H_ENTER, result); 
-        return result; 
-    }  
-    return NULL; 
-} 
+        count = history(cmdHistory, &ev, H_ENTER, result);
+        return result;
+    }
+    return NULL;
+}
 
 #else
 
@@ -64303,7 +64303,7 @@ static char *readline(cchar *msg)
 typedef struct EjsBreakpoint {
     cchar   *filename;
     int     lineNumber;
-    int     opcode;    
+    int     opcode;
 } EjsBreakpoint;
 
 
@@ -64438,7 +64438,7 @@ void ejsShowOpFrequency(Ejs *ejs)
     Copyright (c) Embedthis Software. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
-    You may use the Embedthis Open Source license or you may acquire a 
+    You may use the Embedthis Open Source license or you may acquire a
     commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
     this software for full details and other copyrights.
@@ -64510,7 +64510,7 @@ static void setDoc(Ejs *ejs, EjsModule *mp, cchar *tag, void *vp, int slotNum);
     @param minVersion Minimum acceptable version (inclusive). Set to zero for unversioned.
     @param maxVersion Maximum acceptable version (inclusive). Set to -1 for all versions.
     @param flags Reserved. Must be set to zero.
-    @param modulesArg List of modules loaded. Will only return a list if successful and doing a top level load. 
+    @param modulesArg List of modules loaded. Will only return a list if successful and doing a top level load.
         When ejsLoadModule is called to load dependant modules, not list of modules will be returned.
         The final list of modules aggregates all modules loaded including those from dependant modules.
     @return Returns the last loaded module.
@@ -64554,7 +64554,7 @@ static int initializeModule(Ejs *ejs, EjsModule *mp)
             nativeModule = ejsLookupNativeModule(ejs, ejsToMulti(ejs, mp->name));
             if (nativeModule == NULL) {
                 if (ejs->exception == 0) {
-                    ejsThrowIOError(ejs, "Cannot load or initialize the native module %@ in file \"%s\"", 
+                    ejsThrowIOError(ejs, "Cannot load or initialize the native module %@ in file \"%s\"",
                         mp->name, mp->path);
                 }
                 return MPR_ERR_CANT_INITIALIZE;
@@ -64570,9 +64570,9 @@ static int initializeModule(Ejs *ejs, EjsModule *mp)
         if (nativeModule && (nativeModule->callback)(ejs) < 0) {
             return MPR_ERR_CANT_INITIALIZE;
         }
-        if (ejs->hasError || EST(Error) == 0 || mprHasMemError(ejs)) {
+        if (ejs->hasError || EST(Error) == 0 || mprHasMemError()) {
             if (!ejs->exception) {
-                ejsThrowIOError(ejs, "Initialization error for %s (%d, %d)", mp->path, ejs->hasError, mprHasMemError(ejs));
+                ejsThrowIOError(ejs, "Initialization error for %s (%d, %d)", mp->path, ejs->hasError, mprHasMemError());
             }
             return MPR_ERR_CANT_INITIALIZE;
         }
@@ -64588,7 +64588,7 @@ static int initializeModule(Ejs *ejs, EjsModule *mp)
 }
 
 
-static cchar *search(Ejs *ejs, cchar *filename, int minVersion, int maxVersion) 
+static cchar *search(Ejs *ejs, cchar *filename, int minVersion, int maxVersion)
 {
     cchar       *path;
 
@@ -64601,8 +64601,8 @@ static cchar *search(Ejs *ejs, cchar *filename, int minVersion, int maxVersion)
         } else if (minVersion == 0 && maxVersion == EJS_MAX_VERSION) {
             ejsThrowReferenceError(ejs,  "Cannot find module file \"%s\"", filename);
         } else {
-            ejsThrowReferenceError(ejs,  "Cannot find module file \"%s\", min version %d.%d.%d, max version %d.%d.%d", 
-                filename, 
+            ejsThrowReferenceError(ejs,  "Cannot find module file \"%s\", min version %d.%d.%d, max version %d.%d.%d",
+                filename,
                 EJS_MAJOR(minVersion), EJS_MINOR(minVersion), EJS_PATCH(minVersion),
                 EJS_MAJOR(maxVersion), EJS_MINOR(maxVersion), EJS_PATCH(maxVersion));
         }
@@ -64822,7 +64822,7 @@ static int loadDependencySection(Ejs *ejs, EjsModule *mp)
     checksum  = ejsModuleReadInt(ejs, mp);
     minVersion = ejsModuleReadInt(ejs, mp);
     maxVersion = ejsModuleReadInt(ejs, mp);
-    
+
     if (mp->hasError) {
         return MPR_ERR_CANT_READ;
     }
@@ -64917,7 +64917,7 @@ static int loadClassSection(Ejs *ejs, EjsModule *mp)
 
     fixup = 0;
     ifixup = 0;
-    
+
     qname = ejsModuleReadName(ejs, mp);
     attributes = ejsModuleReadInt(ejs, mp);
     slotNum = ejsModuleReadInt(ejs, mp);
@@ -64960,7 +64960,7 @@ static int loadClassSection(Ejs *ejs, EjsModule *mp)
             Currently errors on Namespace
          */
         if (attributes & EJS_TYPE_HAS_CONSTRUCTOR && !type->hasConstructor) {
-            mprLog("ejs vm", 0, "WARNING: module indicates a constructor required but none exists for \"%@\"", 
+            mprLog("ejs vm", 0, "WARNING: module indicates a constructor required but none exists for \"%@\"",
                 type->qname.name);
         }
 #endif
@@ -64970,7 +64970,7 @@ static int loadClassSection(Ejs *ejs, EjsModule *mp)
         }
 #endif
     }
-        
+
     /*
         Read implemented interfaces. Add to type->implements. Create fixup record if the interface type is not yet known.
      */
@@ -65065,7 +65065,7 @@ static int loadFunctionSection(Ejs *ejs, EjsModule *mp)
     numDefault = ejsModuleReadInt(ejs, mp);
     numExceptions = ejsModuleReadInt(ejs, mp);
     codeLen = ejsModuleReadInt(ejs, mp);
-    
+
     if (mp->hasError) {
         return MPR_ERR_CANT_READ;
     }
@@ -65108,11 +65108,11 @@ static int loadFunctionSection(Ejs *ejs, EjsModule *mp)
         }
         if (attributes & EJS_FUN_CONSTRUCTOR) {
             fun = (EjsFunction*) block;
-            ejsInitFunction(ejs, fun, qname.name, code, codeLen, numArgs, numDefault, numExceptions, returnType, 
+            ejsInitFunction(ejs, fun, qname.name, code, codeLen, numArgs, numDefault, numExceptions, returnType,
                 attributes, mp, NULL, strict);
             assert(fun->isConstructor);
         } else {
-            fun = ejsCreateFunction(ejs, qname.name, code, codeLen, numArgs, numDefault, numExceptions, returnType, 
+            fun = ejsCreateFunction(ejs, qname.name, code, codeLen, numArgs, numDefault, numExceptions, returnType,
                 attributes, mp, mp->scope, strict);
         }
         if (fun == 0) {
@@ -65188,7 +65188,7 @@ static int loadDebugSection(Ejs *ejs, EjsModule *mp)
     fun = mp->currentMethod;
     assert(fun);
 
-    /* 
+    /*
         Note the location in the file and skip over
      */
     assert(!fun->isNativeProc);
@@ -65229,7 +65229,7 @@ static int loadExceptionSection(Ejs *ejs, EjsModule *mp)
         if (mp->hasError) {
             return MPR_ERR_CANT_READ;
         }
-        ex = ejsAddException(ejs, fun, tryStart, tryEnd, catchType, handlerStart, handlerEnd, numBlocks, 
+        ex = ejsAddException(ejs, fun, tryStart, tryEnd, catchType, handlerStart, handlerEnd, numBlocks,
             numStack, flags, i);
         if (fixup) {
             assert(catchType == 0);
@@ -65263,7 +65263,7 @@ static int loadPropertySection(Ejs *ejs, EjsModule *mp, int sectionType)
     ejsModuleReadType(ejs, mp, &type, &fixup, &propTypeName, 0);
 
     /*
-        This is used for namespace values. It is required when compiling (only) and thus module init code is not 
+        This is used for namespace values. It is required when compiling (only) and thus module init code is not
         being run -- but we still need the value of the namespace if a script wants to declare a variable qualified
         by the namespace that is defined in the module.
      */
@@ -65475,7 +65475,7 @@ static int fixupTypes(Ejs *ejs, MprList *list)
         }
         if (type == 0) {
             if (fixup->typeName.name) {
-                ejsThrowReferenceError(ejs, "Cannot fixup forward type reference for \"%@\". Fixup kind %d", 
+                ejsThrowReferenceError(ejs, "Cannot fixup forward type reference for \"%@\". Fixup kind %d",
                     fixup->typeName.name, fixup->kind);
             }
             return MPR_ERR_CANT_LOAD;
@@ -65850,9 +65850,9 @@ static EjsLoadState *createLoadState(Ejs *ejs, int flags)
 
 
 /*
-    Read a type reference. Types are stored as either global property slot numbers or as strings (token offsets into the 
-    constant pool). The lowest bit is set if the reference is a string. The type and name arguments are optional and may 
-    be set to null. Return the 0 if successful, otherwise return < 0. If the type could not be resolved, allocate a 
+    Read a type reference. Types are stored as either global property slot numbers or as strings (token offsets into the
+    constant pool). The lowest bit is set if the reference is a string. The type and name arguments are optional and may
+    be set to null. Return the 0 if successful, otherwise return < 0. If the type could not be resolved, allocate a
     fixup record and return in *fixup. The caller should then call addFixup.
  */
 int ejsModuleReadType(Ejs *ejs, EjsModule *mp, EjsType **typeRef, EjsTypeFixup **fixup, EjsName *typeName, int *slotNum)
@@ -66067,7 +66067,7 @@ static void popScope(EjsModule *mp, int keepScope)
     Copyright (c) Embedthis Software. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
-    You may use the Embedthis Open Source license or you may acquire a 
+    You may use the Embedthis Open Source license or you may acquire a
     commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
     this software for full details and other copyrights.
@@ -66187,7 +66187,7 @@ int ejsAddNativeModule(Ejs *ejs, cchar *name, EjsNativeCallback callback, int ch
 }
 
 
-EjsNativeModule *ejsLookupNativeModule(Ejs *ejs, cchar *name) 
+EjsNativeModule *ejsLookupNativeModule(Ejs *ejs, cchar *name)
 {
     return mprLookupKey(ejs->service->nativeModules, name);
 }
@@ -66258,7 +66258,7 @@ void ejsRemoveModuleFromAll(EjsModule *mp)
 static void manageConstants(EjsConstants *cp, int flags)
 {
     int     i;
-    
+
     if (flags & MPR_MANAGE_MARK) {
         mprMark(cp->pool);
         mprMark(cp->table);
@@ -66435,7 +66435,7 @@ int ejsAddDebugLine(Ejs *ejs, EjsDebug **debugp, int offset, wchar *source)
     int         numLines;
 
     assert(debugp);
-    
+
     if (*debugp == 0) {
         *debugp = ejsCreateDebug(ejs, 0);
     }
@@ -66870,7 +66870,7 @@ int ejsModuleReadInt(Ejs *ejs, EjsModule *mp)
 
 
 /*
-    Read an encoded number. Numbers are variable-length and little-endian encoded in 7 bits with the 0x80 
+    Read an encoded number. Numbers are variable-length and little-endian encoded in 7 bits with the 0x80
     bit of each byte being a continuation bit.
  */
 int64 ejsModuleReadNum(Ejs *ejs, EjsModule *mp)
@@ -66890,7 +66890,7 @@ int64 ejsModuleReadNum(Ejs *ejs, EjsModule *mp)
     sign = 1 - ((c & 0x1) << 1);
     t = (c >> 1) & 0x3f;
     shift = 6;
-    
+
     while (c & 0x80) {
         if ((c = mprGetFileChar(mp->file)) < 0) {
             mp->hasError = 1;
@@ -66923,7 +66923,7 @@ EjsName ejsModuleReadName(Ejs *ejs, EjsModule *mp)
 #if UNUSED && KEEP
 int ejsSwapInt16(Ejs *ejs, int word)
 {
-    if (mprGetEndian(ejs) == ME_LITTLE_ENDIAN) {
+    if (mprGetEndian() == ME_LITTLE_ENDIAN) {
         return word;
     }
     return ((word & 0xFF) << 8) | ((word & 0xFF00) >> 8);
@@ -66933,7 +66933,7 @@ int ejsSwapInt16(Ejs *ejs, int word)
 
 int ejsSwapInt32(Ejs *ejs, int word)
 {
-    if (mprGetEndian(ejs) == ME_LITTLE_ENDIAN) {
+    if (mprGetEndian() == ME_LITTLE_ENDIAN) {
         return word;
     }
     return ((word & 0xFF000000) >> 24) | ((word & 0xFF0000) >> 8) | ((word & 0xFF00) << 8) | ((word & 0xFF) << 24);
@@ -66944,7 +66944,7 @@ int64 ejsSwapInt64(Ejs *ejs, int64 a)
 {
     int64   low, high;
 
-    if (mprGetEndian(ejs) == ME_LITTLE_ENDIAN) {
+    if (mprGetEndian() == ME_LITTLE_ENDIAN) {
         return a;
     }
     low = a & 0xFFFFFFFF;
@@ -66960,8 +66960,8 @@ double ejsSwapDouble(Ejs *ejs, double a)
         int64   i;
         double  d;
     } alias;
-    
-    if (mprGetEndian(ejs) == ME_LITTLE_ENDIAN) {
+
+    if (mprGetEndian() == ME_LITTLE_ENDIAN) {
         return a;
     }
     alias.d = a;
@@ -66974,7 +66974,7 @@ double ejsSwapDouble(Ejs *ejs, double a)
 {
     int64   low, high;
 
-    if (mprGetEndian(ejs) == ME_LITTLE_ENDIAN) {
+    if (mprGetEndian() == ME_LITTLE_ENDIAN) {
         return a;
     }
     low = ((int64) a) & 0xFFFFFFFF;
@@ -66990,7 +66990,7 @@ double ejsSwapDouble(Ejs *ejs, double a)
     Copyright (c) Embedthis Software. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
-    You may use the Embedthis Open Source license or you may acquire a 
+    You may use the Embedthis Open Source license or you may acquire a
     commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
     this software for full details and other copyrights.
@@ -67474,7 +67474,7 @@ Ejs *ejsCreateVM(int argc, cchar **argv, int flags)
     ejs->argv = argv;
     ejs->name = sfmt("ejs-%d", sp->seqno++);
     ejs->dispatcher = mprCreateDispatcher(ejs->name, 0);
-    ejs->mutex = mprCreateLock(ejs);
+    ejs->mutex = mprCreateLock();
     ejs->dontExit = sp->dontExit;
     ejs->flags |= (flags & (EJS_FLAG_NO_INIT | EJS_FLAG_DOC | EJS_FLAG_HOSTED));
     ejs->hosted = (flags & EJS_FLAG_HOSTED) ? 1 : 0;
@@ -67500,7 +67500,7 @@ Ejs *ejsCreateVM(int argc, cchar **argv, int flags)
     initSearchPath(ejs, 0);
     mprAddItem(sp->vmlist, ejs);
 
-    if (ejs->hasError || mprHasMemError(ejs)) {
+    if (ejs->hasError || mprHasMemError()) {
         ejsDestroyVM(ejs);
         mprLog("ejs vm", 0, "Cannot create VM");
         return 0;
@@ -67561,7 +67561,7 @@ int ejsLoadModules(Ejs *ejs, cchar *search, MprList *require)
         return MPR_ERR_CANT_READ;
     }
     unlock(sp);
-    if (mprHasMemError(ejs)) {
+    if (mprHasMemError()) {
         mprLog("ejs vm", 0, "Memory allocation error during initialization");
         ejsDestroyVM(ejs);
         return MPR_ERR_MEMORY;
@@ -67575,7 +67575,7 @@ void ejsDestroyVM(Ejs *ejs)
 {
     EjsService  *sp;
     EjsState    *state;
-    EjsModule   *mp;   
+    EjsModule   *mp;
     MprList     *modules;
     int         next;
 
@@ -67689,7 +67689,7 @@ static void managePool(EjsPool *pool, int flags)
 /*
     Create a pool for virtual machines
  */
-EjsPool *ejsCreatePool(int poolMax, cchar *templateScript, cchar *startScript, cchar *startScriptPath, 
+EjsPool *ejsCreatePool(int poolMax, cchar *templateScript, cchar *startScript, cchar *startScriptPath,
         cchar *home, cchar *documents)
 {
     EjsPool     *pool;
@@ -67790,7 +67790,7 @@ Ejs *ejsAllocPoolVM(EjsPool *pool, int flags)
         pool->count++;
     }
     pool->lastActivity = mprGetTime();
-    mprDebug("ejs", 5, "Alloc VM active %d, allocated %d, max %d", pool->count - mprGetListLength(pool->list), 
+    mprDebug("ejs", 5, "Alloc VM active %d, allocated %d, max %d", pool->count - mprGetListLength(pool->list),
         pool->count, pool->max);
 
 #if UNUSED && OPT
@@ -67870,7 +67870,7 @@ void ejsApplyBlockHelpers(EjsService *sp, EjsType *type)
 
 static void defineSharedTypes(Ejs *ejs)
 {
-    /*  
+    /*
         Create the essential bootstrap types. Order matters.
      */
     ejsCreateBootstrapTypes(ejs);
@@ -67958,21 +67958,21 @@ static void initStack(Ejs *ejs)
         This will allocate memory virtually for systems with virutal memory. Otherwise, it will just use malloc.
      */
     state = ejs->state;
-    state->stackSize = MPR_PAGE_ALIGN(ME_MAX_EJS_STACK, mprGetPageSize(ejs));
+    state->stackSize = MPR_PAGE_ALIGN(ME_MAX_EJS_STACK, mprGetPageSize());
     if ((state->stackBase = mprVirtAlloc(state->stackSize, MPR_MAP_READ | MPR_MAP_WRITE)) != 0) {
         state->stack = &state->stackBase[-1];
     }
 }
 
 
-/*  
+/*
     This will configure all the core types by defining native methods and properties
     This runs after ejs.mod is loaded. NOTE: this does not happen when compiling ejs.mod (ejs->empty).
  */
 static int configureEjs(Ejs *ejs)
 {
     if (!ejs->service->immutableInitialized) {
-        /* 
+        /*
             Configure shared immutable types
          */
         ejsConfigureIteratorType(ejs);
@@ -68028,7 +68028,7 @@ static int configureEjs(Ejs *ejs)
 }
 
 
-/*  
+/*
     Preload required modules. If require is NULL, then load the standard set.
     Otherwise only load those specified in require.
  */
@@ -68167,7 +68167,7 @@ int ejsRunProgram(Ejs *ejs, cchar *className, cchar *methodName)
 }
 
 
-/*  
+/*
     Run the specified method in the named class. If methodName is null, default to "main".
     If className is null, search for the first class containing the method name.
  */
@@ -68189,7 +68189,7 @@ static int runSpecificMethod(Ejs *ejs, cchar *className, cchar *methodName)
         methodName = "main";
     }
     methodName = sclone(methodName);
-    /*  
+    /*
         Search for the first class with the given name
      */
     if (className == 0 || *className == '\0') {
@@ -68320,7 +68320,7 @@ int ejsSendEvent(Ejs *ejs, EjsObj *emitter, cchar *name, EjsAny *thisObj, EjsAny
 }
 
 
-/*  
+/*
     Search for the named method in all types.
  */
 static int searchForMethod(Ejs *ejs, cchar *methodName, EjsType **typeReturn)
@@ -68338,7 +68338,7 @@ static int searchForMethod(Ejs *ejs, cchar *methodName, EjsType **typeReturn)
     global = ejs->global;
     globalCount = ejsGetLength(ejs, global);
 
-    /*  
+    /*
         Search for the named method in all types
      */
     for (slotNum = 0; slotNum < globalCount; slotNum++) {
@@ -68396,7 +68396,7 @@ void ejsUnblockGC(Ejs *ejs, int paused)
 
 
 #if FUTURE && KEEP
-/*  
+/*
     Notifier callback function. Invoked by mprAlloc on allocation errors. This will prevent the allocation error
     bubbling up to the global memory failure handler.
  */
@@ -68416,7 +68416,7 @@ static void allocNotifier(int flags, uint size)
         if (ejs->memoryCallback) {
             argv[0] = ejsCreateNumber(ejs, size);
             argv[1] = ejsCreateNumber(ejs, total);
-            thisObj = ejs->memoryCallback->boundThis ? ejs->memoryCallback->boundThis : ejs->global; 
+            thisObj = ejs->memoryCallback->boundThis ? ejs->memoryCallback->boundThis : ejs->global;
             ejsRunFunction(ejs, ejs->memoryCallback, thisObj, 2, argv);
         }
         if (!ejs->exception) {
@@ -68442,8 +68442,8 @@ void ejsReportError(Ejs *ejs, char *fmt, ...)
     char        *msg, *buf;
 
     va_start(arg, fmt);
-    
-    /*  
+
+    /*
         Compiler error format is:
         program:SEVERITY:line:errorCode:message
         Where program is either "ejsc" or "ejs"
@@ -68509,7 +68509,7 @@ int ejsAddImmutable(Ejs *ejs, int slotNum, EjsName qname, EjsAny *value)
 
     assert((ejsIsType(ejs, value) && !((EjsType*) value)->mutable) ||
               (!ejsIsType(ejs, value) && !TYPE(value)->mutableInstances));
-    
+
     if ((foundSlot = ejsLookupProperty(ejs, ejs->service->immutable, qname)) >= 0) {
         return foundSlot;
     }
@@ -68548,7 +68548,7 @@ void ejsDisableExit(Ejs *ejs)
     Copyright (c) Embedthis Software. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
-    You may use the Embedthis Open Source license or you may acquire a 
+    You may use the Embedthis Open Source license or you may acquire a
     commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
     this software for full details and other copyrights.

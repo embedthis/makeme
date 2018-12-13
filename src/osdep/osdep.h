@@ -496,7 +496,8 @@
             /**
                 Boolean data type.
              */
-            #if _MSC_VER <= 1800
+            #if WINDOWS && (_MSC_VER <= 1800)
+                /* Bool introduced via stdbool in VS 2015 */
                 typedef char bool;
             #endif
         #endif
@@ -956,11 +957,8 @@ typedef int64 Ticks;
 #ifndef ME_BUFSIZE
     #define ME_BUFSIZE          4096        /**< Reasonable size for buffers */
 #endif
-#if DEPRECATE || 1
-/* Use ME_BUFSIZE instead. This is not a maximum, but a default size. This can be deprecated after one more cycle. */
 #ifndef ME_MAX_BUFFER
-    #define ME_MAX_BUFFER       ME_BUFSIZE  /**< Reasonable size for buffers */
-#endif
+    #define ME_MAX_BUFFER       ME_BUFSIZE  /* DEPRECATE */
 #endif
 
 #ifndef ME_MAX_ARGC
@@ -1231,7 +1229,7 @@ typedef int64 Ticks;
     #define STARTF_USESHOWWINDOW 0
     #define STARTF_USESTDHANDLES 0
 
-    #define BUFSIZ   ME_MAX_BUFFER
+    #define BUFSIZ   ME_BUFSIZE
     #define PATHSIZE ME_MAX_PATH
     #define gethostbyname2(a,b) gethostbyname(a)
     #pragma comment( lib, "ws2.lib" )
@@ -1249,6 +1247,10 @@ typedef int64 Ticks;
     typedef int Socklen;
     struct sockaddr_storage { char pad[1024]; };
 #endif /* TIDSP */
+
+#ifndef NBBY
+    #define NBBY 8
+#endif
 
 /*********************************** Externs **********************************/
 

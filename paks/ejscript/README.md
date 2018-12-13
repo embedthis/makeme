@@ -10,7 +10,7 @@ See LICENSE.md for details.
 
 ### To Read Documentation:
 
-  See https://embedthis.com/ejscript/doc/
+  See https://www.embedthis.com/ejscript/doc/
 
 ### To Build:
 
@@ -37,7 +37,7 @@ directory in your PATH. This is under OS-ARCH-PROFILE/bin.
 
 Resources
 ---
-  - [Ejscript web site](https://embedthis.com/ejscript/)
-  - [Embedthis web site](https://embedthis.com/)
+  - [Ejscript web site](https://www.embedthis.com/ejscript/)
+  - [Embedthis web site](https://www.embedthis.com/)
   - [Ejscript GitHub repository](http://github.com/embedthis/ejscript)
 

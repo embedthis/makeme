@@ -371,7 +371,13 @@ if not exist "$(IncDir)" md "$(IncDir)"
 
     function projHeader(base, target) {
         me.SUBSYSTEM = (target.rule == 'gui') ? 'Windows' : 'Console'
-        me.INC = target.includes ? target.includes.map(function(path) wpath(path.relativeTo(base))).join(';') : ''
+        me.INC = target.includes ? target.includes.map(function(path) {
+            if (path.isAbsolute || path.startsWith('$(')) {
+                return path
+            } else { 
+                return wpath(path.relativeTo(base))
+            }
+        }).join(';') : ''
         me.DEF = target.defines ? target.defines.join(';') : ''
         output('<?xml version="1.0" encoding="utf-8"?>
     <Project DefaultTargets="Build" ToolsVersion="${TOOLS_VERSION}" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">')
@@ -450,7 +456,7 @@ if not exist "$(IncDir)" md "$(IncDir)"
                 output('  <PropertyGroup Condition="\'${CTOK}|${PTOK}\'==\'${VOUT}|${VTYPE}\'" Label="Configuration">
         <ConfigurationType>${PTYPE}</ConfigurationType>
         <CharacterSet>NotSet</CharacterSet>
-        <PlatformToolset>v120</PlatformToolset>
+        <PlatformToolset>v141</PlatformToolset>
       </PropertyGroup>')
             }
         }
@@ -587,12 +593,14 @@ if not exist "$(IncDir)" md "$(IncDir)"
             for each (let file: Path in target.files) {
                 let path = target.path
                 path = path.relativeTo(Base)
-                command += 'if exist ' + wpath(path) + ' del /Q ' + wpath(path) + '\n'
                 if (file.isDir) {
+                    command += 'if exist ' + wpath(path) + ' del /Q ' + wpath(path) + '\n'
                     command += '\tif not exist ' + wpath(path) + ' md ' + wpath(path) + '\n'
                     command += '\txcopy /S /Y ' + wpath(file.relativeTo(target.home)) + ' ' + wpath(path) + '\n'
                 } else {
-                    command += '\tcopy /Y ' + wpath(file.relativeTo(target.home)) + ' ' + wpath(path) + '\n'
+                    let p = path.join(file.basename)
+                    command += 'if exist ' + wpath(p) + ' del /Q ' + wpath(p) + '\n'
+                    command += '\tcopy /Y ' + wpath(file.relativeTo(target.home)) + ' ' + wpath(p) + '\n'
                 }
             }
         } else if (target.generate === true) {

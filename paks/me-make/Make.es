@@ -92,7 +92,7 @@ class Make {
             if (needed[name]) {
                 let enable = target.enable
                 if (me.platform.os == 'windows' || me.platform.os == 'vxworks') {
-                    if (target.name == 'ssl' || target.name == 'openssl') {
+                    if (target.name == 'ssl' /* KEEP || target.name == 'openssl' */) {
                         enable = false
                     }
                 }
@@ -123,7 +123,7 @@ class Make {
                     value ||= ''
                     if (!defined[key]) {
                         if (me.platform.os == 'windows' ) {
-                            genWriteLine('!IF "$(ME_COM_' + name.toUpper() + ')" == ""')
+                            genWriteLine('!IF "$(' + key.toUpper() + ')" == ""')
                             genWriteLine('%-21s = %s'.format([key, '"' + value + '"']))
                             genWriteLine('!ENDIF')
                         } else {
@@ -1164,6 +1164,7 @@ class Make {
                 }
             }
             if (name) {
+                let full = lib
                 lib = lib.replace(/^lib/, '').replace(/\.lib$/, '')
                 if (ifdef) {
                     let indent = ''
@@ -1186,7 +1187,10 @@ class Make {
                         indent = '    '
                     }
                     if (me.platform.os == 'windows') {
-                        genWriteLine('LIBS_' + nextID + ' = $(LIBS_' + nextID + ') lib' + lib + '.lib')
+                        if (!full.endsWith('.lib')) {
+                            full = 'lib' + lib + '.lib'
+                        }
+                        genWriteLine('LIBS_' + nextID + ' = $(LIBS_' + nextID + ') ' + full)
                         if (component) {
                             for each (path in component.libpaths) {
                                 if (path != me.dir.bin) {

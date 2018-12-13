@@ -815,7 +815,10 @@ public class Builder {
         for each (dname in (target.depends + target.uses)) {
             let dep = getDep(dname)
             if (dep) {
-                if (!dep.enable) {
+                /*
+                    If generating for make|nmake still inherit dependencies as these are conditional build files
+                 */
+                if (!dep.enable && !(me.options.gen == 'nmake' || me.options.gen == 'make')) {
                     continue
                 }
                 resolve(dep)

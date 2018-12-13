@@ -29,22 +29,22 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
         <ConfigurationType></ConfigurationType>
         <CharacterSet>NotSet</CharacterSet>
-        <PlatformToolset>v120</PlatformToolset>
+        <PlatformToolset>v141</PlatformToolset>
       </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
         <ConfigurationType></ConfigurationType>
         <CharacterSet>NotSet</CharacterSet>
-        <PlatformToolset>v120</PlatformToolset>
+        <PlatformToolset>v141</PlatformToolset>
       </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
         <ConfigurationType></ConfigurationType>
         <CharacterSet>NotSet</CharacterSet>
-        <PlatformToolset>v120</PlatformToolset>
+        <PlatformToolset>v141</PlatformToolset>
       </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
         <ConfigurationType></ConfigurationType>
         <CharacterSet>NotSet</CharacterSet>
-        <PlatformToolset>v120</PlatformToolset>
+        <PlatformToolset>v141</PlatformToolset>
       </PropertyGroup>
 
       <Import Project="$(VCTargetsPath)Microsoft.Cpp.Default.props" />
@@ -100,14 +100,14 @@
 
       <CustomBuildStep>
         <Command>cd ..\..\src
-if exist $(BinDir) del /Q $(BinDir)
-copy /Y master-main.me $(BinDir)
-if exist $(BinDir) del /Q $(BinDir)
-copy /Y master-start.me $(BinDir)
-if exist $(BinDir) del /Q $(BinDir)
-copy /Y simple.me $(BinDir)
-if exist $(BinDir) del /Q $(BinDir)
-copy /Y standard.me $(BinDir)
+if exist $(BinDir)\master-main.me del /Q $(BinDir)\master-main.me
+copy /Y master-main.me $(BinDir)\master-main.me
+if exist $(BinDir)\master-start.me del /Q $(BinDir)\master-start.me
+copy /Y master-start.me $(BinDir)\master-start.me
+if exist $(BinDir)\simple.me del /Q $(BinDir)\simple.me
+copy /Y simple.me $(BinDir)\simple.me
+if exist $(BinDir)\standard.me del /Q $(BinDir)\standard.me
+copy /Y standard.me $(BinDir)\standard.me
 cd ..\projects\makeme-windows-default</Command>
         <Outputs>$(BinDir)</Outputs>
       </CustomBuildStep>

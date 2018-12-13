@@ -29,22 +29,22 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
         <ConfigurationType></ConfigurationType>
         <CharacterSet>NotSet</CharacterSet>
-        <PlatformToolset>v120</PlatformToolset>
+        <PlatformToolset>v141</PlatformToolset>
       </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
         <ConfigurationType></ConfigurationType>
         <CharacterSet>NotSet</CharacterSet>
-        <PlatformToolset>v120</PlatformToolset>
+        <PlatformToolset>v141</PlatformToolset>
       </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
         <ConfigurationType></ConfigurationType>
         <CharacterSet>NotSet</CharacterSet>
-        <PlatformToolset>v120</PlatformToolset>
+        <PlatformToolset>v141</PlatformToolset>
       </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
         <ConfigurationType></ConfigurationType>
         <CharacterSet>NotSet</CharacterSet>
-        <PlatformToolset>v120</PlatformToolset>
+        <PlatformToolset>v141</PlatformToolset>
       </PropertyGroup>
 
       <Import Project="$(VCTargetsPath)Microsoft.Cpp.Default.props" />
@@ -100,70 +100,70 @@
 
       <CustomBuildStep>
         <Command>cd ..\..
-if exist $(BinDir) del /Q $(BinDir)
-copy /Y paks\me-components\appweb.me $(BinDir)
-if exist $(BinDir) del /Q $(BinDir)
-copy /Y paks\me-components\compiler.me $(BinDir)
-if exist $(BinDir) del /Q $(BinDir)
-copy /Y paks\me-components\components.me $(BinDir)
-if exist $(BinDir) del /Q $(BinDir)
-copy /Y paks\me-components\ejscript.me $(BinDir)
-if exist $(BinDir) del /Q $(BinDir)
-copy /Y paks\me-components\lib.me $(BinDir)
-if exist $(BinDir) del /Q $(BinDir)
-copy /Y paks\me-components\link.me $(BinDir)
-if exist $(BinDir) del /Q $(BinDir)
-copy /Y paks\me-components\pak.json $(BinDir)
-if exist $(BinDir) del /Q $(BinDir)
-copy /Y paks\me-components\rc.me $(BinDir)
-if exist $(BinDir) del /Q $(BinDir)
-copy /Y paks\me-components\testme.me $(BinDir)
-if exist $(BinDir) del /Q $(BinDir)
-copy /Y paks\me-installs\Installs.es $(BinDir)
-if exist $(BinDir) del /Q $(BinDir)
-copy /Y paks\me-installs\installs.me $(BinDir)
-if exist $(BinDir) del /Q $(BinDir)
-copy /Y paks\me-installs\manifest.me $(BinDir)
-if exist $(BinDir) del /Q $(BinDir)
-copy /Y paks\me-installs\pak.json $(BinDir)
-if exist $(BinDir) del /Q $(BinDir)
-copy /Y paks\me-make\Make.es $(BinDir)
-if exist $(BinDir) del /Q $(BinDir)
-copy /Y paks\me-make\make.me $(BinDir)
-if exist $(BinDir) del /Q $(BinDir)
-copy /Y paks\me-make\pak.json $(BinDir)
-if exist $(BinDir) del /Q $(BinDir)
-copy /Y paks\me-os\freebsd.me $(BinDir)
-if exist $(BinDir) del /Q $(BinDir)
-copy /Y paks\me-os\gcc.me $(BinDir)
-if exist $(BinDir) del /Q $(BinDir)
-copy /Y paks\me-os\linux.me $(BinDir)
-if exist $(BinDir) del /Q $(BinDir)
-copy /Y paks\me-os\macosx.me $(BinDir)
-if exist $(BinDir) del /Q $(BinDir)
-copy /Y paks\me-os\os.me $(BinDir)
-if exist $(BinDir) del /Q $(BinDir)
-copy /Y paks\me-os\pak.json $(BinDir)
-if exist $(BinDir) del /Q $(BinDir)
-copy /Y paks\me-os\solaris.me $(BinDir)
-if exist $(BinDir) del /Q $(BinDir)
-copy /Y paks\me-os\unix.me $(BinDir)
-if exist $(BinDir) del /Q $(BinDir)
-copy /Y paks\me-os\vxworks.me $(BinDir)
-if exist $(BinDir) del /Q $(BinDir)
-copy /Y paks\me-os\windows.me $(BinDir)
-if exist $(BinDir) del /Q $(BinDir)
-copy /Y paks\me-vstudio\Vstudio.es $(BinDir)
-if exist $(BinDir) del /Q $(BinDir)
-copy /Y paks\me-vstudio\pak.json $(BinDir)
-if exist $(BinDir) del /Q $(BinDir)
-copy /Y paks\me-vstudio\vstudio.me $(BinDir)
-if exist $(BinDir) del /Q $(BinDir)
-copy /Y paks\me-xcode\Xcode.es $(BinDir)
-if exist $(BinDir) del /Q $(BinDir)
-copy /Y paks\me-xcode\pak.json $(BinDir)
-if exist $(BinDir) del /Q $(BinDir)
-copy /Y paks\me-xcode\xcode.me $(BinDir)
+if exist $(BinDir)\appweb.me del /Q $(BinDir)\appweb.me
+copy /Y paks\me-components\appweb.me $(BinDir)\appweb.me
+if exist $(BinDir)\compiler.me del /Q $(BinDir)\compiler.me
+copy /Y paks\me-components\compiler.me $(BinDir)\compiler.me
+if exist $(BinDir)\components.me del /Q $(BinDir)\components.me
+copy /Y paks\me-components\components.me $(BinDir)\components.me
+if exist $(BinDir)\ejscript.me del /Q $(BinDir)\ejscript.me
+copy /Y paks\me-components\ejscript.me $(BinDir)\ejscript.me
+if exist $(BinDir)\lib.me del /Q $(BinDir)\lib.me
+copy /Y paks\me-components\lib.me $(BinDir)\lib.me
+if exist $(BinDir)\link.me del /Q $(BinDir)\link.me
+copy /Y paks\me-components\link.me $(BinDir)\link.me
+if exist $(BinDir)\pak.json del /Q $(BinDir)\pak.json
+copy /Y paks\me-components\pak.json $(BinDir)\pak.json
+if exist $(BinDir)\rc.me del /Q $(BinDir)\rc.me
+copy /Y paks\me-components\rc.me $(BinDir)\rc.me
+if exist $(BinDir)\testme.me del /Q $(BinDir)\testme.me
+copy /Y paks\me-components\testme.me $(BinDir)\testme.me
+if exist $(BinDir)\Installs.es del /Q $(BinDir)\Installs.es
+copy /Y paks\me-installs\Installs.es $(BinDir)\Installs.es
+if exist $(BinDir)\installs.me del /Q $(BinDir)\installs.me
+copy /Y paks\me-installs\installs.me $(BinDir)\installs.me
+if exist $(BinDir)\manifest.me del /Q $(BinDir)\manifest.me
+copy /Y paks\me-installs\manifest.me $(BinDir)\manifest.me
+if exist $(BinDir)\pak.json del /Q $(BinDir)\pak.json
+copy /Y paks\me-installs\pak.json $(BinDir)\pak.json
+if exist $(BinDir)\Make.es del /Q $(BinDir)\Make.es
+copy /Y paks\me-make\Make.es $(BinDir)\Make.es
+if exist $(BinDir)\make.me del /Q $(BinDir)\make.me
+copy /Y paks\me-make\make.me $(BinDir)\make.me
+if exist $(BinDir)\pak.json del /Q $(BinDir)\pak.json
+copy /Y paks\me-make\pak.json $(BinDir)\pak.json
+if exist $(BinDir)\freebsd.me del /Q $(BinDir)\freebsd.me
+copy /Y paks\me-os\freebsd.me $(BinDir)\freebsd.me
+if exist $(BinDir)\gcc.me del /Q $(BinDir)\gcc.me
+copy /Y paks\me-os\gcc.me $(BinDir)\gcc.me
+if exist $(BinDir)\linux.me del /Q $(BinDir)\linux.me
+copy /Y paks\me-os\linux.me $(BinDir)\linux.me
+if exist $(BinDir)\macosx.me del /Q $(BinDir)\macosx.me
+copy /Y paks\me-os\macosx.me $(BinDir)\macosx.me
+if exist $(BinDir)\os.me del /Q $(BinDir)\os.me
+copy /Y paks\me-os\os.me $(BinDir)\os.me
+if exist $(BinDir)\pak.json del /Q $(BinDir)\pak.json
+copy /Y paks\me-os\pak.json $(BinDir)\pak.json
+if exist $(BinDir)\solaris.me del /Q $(BinDir)\solaris.me
+copy /Y paks\me-os\solaris.me $(BinDir)\solaris.me
+if exist $(BinDir)\unix.me del /Q $(BinDir)\unix.me
+copy /Y paks\me-os\unix.me $(BinDir)\unix.me
+if exist $(BinDir)\vxworks.me del /Q $(BinDir)\vxworks.me
+copy /Y paks\me-os\vxworks.me $(BinDir)\vxworks.me
+if exist $(BinDir)\windows.me del /Q $(BinDir)\windows.me
+copy /Y paks\me-os\windows.me $(BinDir)\windows.me
+if exist $(BinDir)\Vstudio.es del /Q $(BinDir)\Vstudio.es
+copy /Y paks\me-vstudio\Vstudio.es $(BinDir)\Vstudio.es
+if exist $(BinDir)\pak.json del /Q $(BinDir)\pak.json
+copy /Y paks\me-vstudio\pak.json $(BinDir)\pak.json
+if exist $(BinDir)\vstudio.me del /Q $(BinDir)\vstudio.me
+copy /Y paks\me-vstudio\vstudio.me $(BinDir)\vstudio.me
+if exist $(BinDir)\Xcode.es del /Q $(BinDir)\Xcode.es
+copy /Y paks\me-xcode\Xcode.es $(BinDir)\Xcode.es
+if exist $(BinDir)\pak.json del /Q $(BinDir)\pak.json
+copy /Y paks\me-xcode\pak.json $(BinDir)\pak.json
+if exist $(BinDir)\xcode.me del /Q $(BinDir)\xcode.me
+copy /Y paks\me-xcode\xcode.me $(BinDir)\xcode.me
 cd projects\makeme-windows-default</Command>
         <Outputs>$(BinDir)</Outputs>
       </CustomBuildStep>
