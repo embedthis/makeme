@@ -42,7 +42,7 @@
         "me-os": "~0.8",
         "me-vstudio": "~0.8",
         "me-xcode": "~0.8",
-        "mpr": "~7",
+        "mpr": "~8",
         "mpr-mbedtls": "~2",
         "ssl": "~0.9"
     },

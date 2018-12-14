@@ -99,7 +99,6 @@ struct  MprXml;
 #ifndef ME_MPR_TEST
     #define ME_MPR_TEST 1
 #endif
-
 #ifndef ME_MPR_MAX_PASSWORD
     #define ME_MPR_MAX_PASSWORD 256    /**< Max password length */
 #endif
@@ -740,6 +739,9 @@ PUBLIC void mprAtomicAdd64(volatile int64 *target, int64 value);
     #ifndef ME_MPR_ALLOC_STACK
         #define ME_MPR_ALLOC_STACK     1                   /**< Monitor stack usage */
     #endif
+    #ifndef ME_MPR_ALLOC_TRACE
+        #define ME_MPR_ALLOC_TRACE     0                   /**< Trace to stdout */
+    #endif
 #else
     #ifndef ME_MPR_ALLOC_DEBUG
         #define ME_MPR_ALLOC_DEBUG     0
@@ -749,6 +751,9 @@ PUBLIC void mprAtomicAdd64(volatile int64 *target, int64 value);
     #endif
     #ifndef ME_MPR_ALLOC_STACK
         #define ME_MPR_ALLOC_STACK     0
+    #endif
+    #ifndef ME_MPR_ALLOC_TRACE
+        #define ME_MPR_ALLOC_TRACE     0                   /**< Trace to stdout */
     #endif
 #endif
 
@@ -1183,10 +1188,12 @@ PUBLIC struct Mpr *mprCreateMemService(MprManager manager, int flags);
     To protect an active memory block memory block from being reclaimed, it must have a reference to it. Memory blocks
     can specify a manager routine via #mprAllocObj. The manager is is invoked by the garbage collector to "mark"
     dependant active blocks. Marked blocks will not be reclaimed by the garbage collector.
+    \n\n
     This function can be called by foreign (non Mpr) threads provided you use the MPR_ALLOC_HOLD flag so that the memory
-    will be preserved until you call mprRelease on the memory block. This is important as without the MPR_ALLOC_HOLD flag,
-    the garbage collector could run immediately after calling mprAlloc and collect the memory. When used in an Mpr thread,
-    the garbage collector cannot run unless you call mprYield and so the memory is safe from immediate collection.
+    will be preserved until you call mprRelease on the memory block. This is important, as without the MPR_ALLOC_HOLD flag,
+    the garbage collector could run immediately after calling mprAlloc and collect the memory.
+    When used in an Mpr thread, the garbage collector cannot run until your thread calls #mprYield and so the memory is
+    safe from immediate collection.
     @param size Size of the memory block to allocate.
     @param flags Allocation flags. Supported flags include: MPR_ALLOC_MANAGER to reserve room for a manager callback and
         MPR_ALLOC_ZERO to zero allocated memory. Use MPR_ALLOC_HOLD to return memory immune from GC. Must use this flag if
@@ -1626,7 +1633,7 @@ PUBLIC bool mprEnableGC(bool on);
 
 /**
     Hold a memory block
-    @description This call will protect a memory block from freeing by the garbage collector. Call mprRelease to
+    @description This call will protect a memory block from freeing by the garbage collector. Call #mprRelease to
         allow the block to be collected.
     @param ptr Any memory block
     @ingroup MprMem
@@ -1637,7 +1644,7 @@ PUBLIC void mprHold(cvoid *ptr);
 /**
     Hold memory blocks
     @description This call will protect a set of memory blocks from freeing by the garbage collector.
-        Call mprReleaseBlocks to allow the blocks to be collected.
+        Call #mprReleaseBlocks to allow the blocks to be collected.
     @param ptr Any memory block
     @param ... Other memory blocks. Terminate the list with a NULL.
     @ingroup MprMem
@@ -1648,6 +1655,7 @@ PUBLIC void mprHoldBlocks(cvoid *ptr, ...);
 /**
     Release a memory block
     @description This call is used to allow a memory block to be freed by the garbage collector after calling mprHold.
+    You must NEVER use or access the memory block after calling mprRelease. The memory may be freed before the call returns, even when executing in an MPR thread.
     @param ptr Any memory block
     @ingroup MprMem
     @stability Stable.
@@ -1657,6 +1665,7 @@ PUBLIC void mprRelease(cvoid *ptr);
 /**
     Release a memory blocks
     @description This call is used to allow a memory blocks to be freed by the garbage collector after calling mprHoldBlocks.
+    You must NEVER use or access the memory blocks after calling mprRelease. The memory may be freed before the call returns, even when executing in an MPR thread.
     @param ptr Any memory block
     @param ... Other memory blocks. Terminate the list with a NULL.
     @ingroup MprMem
@@ -2374,7 +2383,7 @@ PUBLIC char    *awtom(wchar *src, ssize *len);
 PUBLIC ssize   wtom(char *dest, ssize count, wchar *src, ssize len);
 PUBLIC ssize   mtow(wchar *dest, ssize count, cchar *src, ssize len);
 
-#if KEEP
+#if FUTURE
 PUBLIC wchar    *wfmt(wchar *fmt, ...);
 PUBLIC wchar    *itow(wchar *buf, ssize bufCount, int64 value, int radix);
 PUBLIC wchar    *wchr(wchar *s, int c);
@@ -2456,7 +2465,7 @@ PUBLIC wchar    *wupper(wchar *s);
     This API is not yet public
  */
 #if ME_CHAR_LEN > 1
-#if KEEP
+#if FUTURE
 PUBLIC int      mcaselesscmp(wchar *s1, cchar *s2);
 PUBLIC int      mcmp(wchar *s1, cchar *s2);
 PUBLIC wchar    *mcontains(wchar *str, cchar *pattern);
@@ -3024,7 +3033,7 @@ PUBLIC void mprSetBufRefillProc(MprBuf *buf, MprBufProc fn, void *arg);
 PUBLIC int mprSetBufSize(MprBuf *buf, ssize size, ssize maxSize);
 
 #if DOXYGEN || ME_CHAR_LEN > 1
-#if KEEP
+#if FUTURE
 /**
     Add a wide null character to the buffer contents.
     @description Add a null character but do not change the buffer content lengths. The null is added outside the
@@ -3070,7 +3079,7 @@ PUBLIC ssize mprPutStringToWideBuf(MprBuf *buf, cchar *str);
  */
 PUBLIC ssize mprPutFmtToWideBuf(MprBuf *buf, cchar *fmt, ...) PRINTF_ATTRIBUTE(2,3);
 
-#endif /* KEEP */
+#endif /* FUTURE */
 #else /* ME_CHAR_LEN == 1 */
 
 #define mprAddNullToWideBuf     mprAddNullToBuf
@@ -3082,7 +3091,7 @@ PUBLIC ssize mprPutFmtToWideBuf(MprBuf *buf, cchar *fmt, ...) PRINTF_ATTRIBUTE(2
 /*
     Macros for speed
  */
-#define mprGetBufLength(bp) ((ssize) ((bp)->end - (bp)->start))
+#define mprGetBufLength(bp) ((bp) ? ((ssize) ((bp)->end - (bp)->start)) : 0)
 #define mprGetBufSize(bp) ((bp)->buflen)
 #define mprGetBufSpace(bp) ((bp)->endbuf - (bp)->end)
 #define mprGetBuf(bp) ((bp)->data)
@@ -4029,35 +4038,23 @@ PUBLIC MprLogHandler mprGetLogHandler(void);
 /**
     Write a message to the error log file.
     @description Send a message to the MPR error logging subsystem.
-        The purpose of the error log is to record essential configuration and error conditions. Per-request trace
-        typically is sent to a separate trace log.
+        The purpose of the error log is to record essential configuration and error conditions. Per-request trace typically is sent to a separate trace log.
         \n\n
-        By default, error log messages are sent to the standard error output.
-        Applications may redirect output by installing a log handler using #mprSetLogHandler.
+        By default, error log messages are sent to the standard error output. Applications may redirect output by installing a log handler using #mprSetLogHandler.
         \n\n
-        Log messages should be a single text line to facilitate machine processing of log files. Descriptive tag words
-        may be provided to indicate a severity level and to classifiy messages.
-        By convention, tags may include one of the severity levels defined in RFC 5424: "debug",
-        "info", "notice", "warn", "error", "critical". Messages using the "error", "critical" tags should use
-        a level of zero.  Tags should be space separated.
+        Log messages should be a single text line to facilitate machine processing of log files. Descriptive tag words may be provided to indicate a severity level and to classifiy messages. By convention, tags may include one of the severity levels defined in RFC 5424: "debug", "info", "notice", "warn", "error", "critical". Messages using the "error", "critical" tags should use a level of zero.  Tags should be space separated. By convention, specify the RFC tag name first in a list of tags.
         \n\n
-        Logging typically is enabled in both debug and release builds and may be controlled via the build define
-        ME_MPR_LOGGING which is typically set via the MakeMe setting "logging: true".
+        The default log handler emits messages in three formats depending on whether MPR_LOG_DETAILED is provided to #mprStartLogging and the value of the tags parameter. If MPR_LOG_DETAILED and tags are supplied, the format is: "MM/DD/YY HH:MM:SS LEVEL TAGS, Message". Otherwise a a simplified output format is used: "Name: severity: message", where severity is set to "error" for level 0 messages. This is useful for utility programs. If tags are null, the message is output raw, without any any prefixes.
+        \n\n
+        Logging typically is enabled in both debug and release builds and may be controlled via the build define ME_MPR_LOGGING which is typically set via the MakeMe setting "logging: true".
         \n\n
         The #mprDebug API may be used to emit log messages only in debug builds.
         \n\n
-        If level zero is used, the message is also sent to any relevant operating system logging facility such as
-        syslog or the Windows event database.
+        If level zero is used, the message is also sent to any relevant operating system logging facility such as syslog or the Windows event database.
         \n\n
-        It is good practice to only include debug trace at levels above level 2 so that essential error messages are clearly
-        visible in the error log and are not swamped by debug messages.
-    @param tags Descriptive space separated tag words to classify this message.
-        The default log handler emits messages in three formats depending on whether MPR_LOG_DETAILED is provided to
-        #mprStartLogging and the value of the tags parameter.
-        If MPR_LOG_DETAILED and tags are supplied, the format is: "MM/DD/YY HH:MM:SS LEVEL TAGS, Message". Otherwise a
-        a simplified output format is used: "Name: severity: message", where severity is set to "error" for level 0
-        messages. This is useful for utility programs.
-        If tags are null, the message is output raw, without any any prefixes.
+        It is good practice to only include debug trace at levels above level 2 so that essential error messages are clearly visible in the error log and are not swamped by debug messages.
+
+    @param tags Descriptive space separated tag words to classify this message. Tag words may be provided to indicate a severity level and to classifiy messages. By convention, tags may include one of the severity levels defined in RFC 5424: "debug", "info", "notice", "warn", "error", "critical". Messages using the "error", "critical" tags should use a level of zero.  Tags should be space separated. By convention, specify the RFC tag name first in a list of tags.
     @param level Logging level for this message. The level is 0-5 with five being the most verbose.
     @param fmt Printf style format string. Variable number of arguments to print
     @param ... Variable number of arguments for printf data
@@ -5791,11 +5788,10 @@ PUBLIC int mprUnloadModule(MprModule *mp);
  */
 #define MPR_EVENT_CONTINUOUS        0x1     /**< Timer event runs is automatically rescheduled */
 #define MPR_EVENT_QUICK             0x2     /**< Execute inline without executing via a thread */
-#define MPR_EVENT_DONT_QUEUE        0x4     /**< Don't queue the event. User must call mprQueueEvent */
+#define MPR_EVENT_DONT_QUEUE        0x4     /**< Don't queue the event. User must call mprQueueEvent. (internal use only) */
 #define MPR_EVENT_STATIC_DATA       0x8     /**< Event data is permanent and should not be marked by GC */
 #define MPR_EVENT_RUNNING           0x10    /**< Event currently executing */
-#define MPR_EVENT_HOLD              0x20    /**< Hold the event object to prevent from GC */
-#define MPR_EVENT_WAIT              0x40    /**< Wait untill the event is complete */
+#define MPR_EVENT_FOREIGN           0x20    /**< Invoking from a foreign non-mpr thread */
 
 #define MPR_EVENT_MAX_PERIOD (MAXINT64 / 2)
 
@@ -5896,7 +5892,8 @@ typedef struct MprEventService {
 PUBLIC void mprClearWaiting(void);
 
 /**
-    Create a new event dispatcher
+    Create a new event dispatcher.
+    @description Dispatchers are event queues that serialize the execution of work. Most of the MPR routines are not thread-safe and thus access to objects needs to be serialized by creating events to run on dispatchers. Resources such as connections will typically own a dispatcher that is used to serialize their work.
     @param name Useful name for debugging
     @param flags Dispatcher flags.
     @returns a Dispatcher object that can manage events and be used with mprCreateEvent
@@ -6026,9 +6023,12 @@ PUBLIC void mprWakeEventService(void);
 PUBLIC void mprSignalDispatcher(MprDispatcher *dispatcher);
 
 /**
-    Create a new event
-    @description Create a new event for service
-        This API may be also called by foreign (non-mpr) threads and is the only safe way to invoke MPR services from
+    Queue an new event on a dispatcher.
+    @description Create an event to run a callback on an event dispatcher queue.
+        The MPR serializes work in a thread-safe manner on dispatcher queues. Resources such as connections will typically
+        own a dispatcher that is used to serialize their work.
+        \n\n
+        This API may be called by foreign (non-mpr) threads and is the only safe way to invoke MPR services from
         a foreign-thread. The reason for this is that the MPR uses a cooperative garbage collector and a foreign thread
         may call into the MPR at an inopportune time when the MPR is running the garbage collector which requires sole
         access to application memory.
@@ -6036,22 +6036,19 @@ PUBLIC void mprSignalDispatcher(MprDispatcher *dispatcher);
         Set to NULL for the MPR dispatcher. Use MPR_EVENT_QUICK in the flags to run the event on the events nonBlock
         dispatcher. This should only be used for quick, non-block event callbacks. If using another dispatcher,
         it is essential that the dispatcher not be destroyed while this event is queued or running.
-    @param name Static string name of the event
+    @param name Static string name of the event used for debugging.
     @param period Time in milliseconds used by continuous events between firing of the event.
-    @param proc Function to invoke when the event is run
+    @param proc Function to invoke when the event is run.
     @param data Data to associate with the event and stored in event->data. The data must be either an allocated memory
         object or MPR_EVENT_STATIC_DATA must be specified in flags.
     @param flags Flags to modify the behavior of the event. Valid values are: MPR_EVENT_CONTINUOUS to create an event
-        which will be automatically rescheduled accoring to the specified period. Use MPR_EVENT_STATIC_DATA if the
+        which will be automatically rescheduled according to the specified period. Use MPR_EVENT_STATIC_DATA if the
         data argument does not point to a memory object allocated by the Mpr. Include MPR_EVENT_QUICK to execute the event
-        without creating using a worker thread. This should only be used for quick non-blocking event callbacks.
-        Set to MPR_EVENT_HOLD to call #mprHold on the event object before returning. The caller must then call #mprRelease
-        on the event object. Set to MPR_EVENT_WAIT for the mprCreateEvent call to wait until the event callback has been run and returned.
-        This is useful if the data is transient (such as a local variable) and the stack must be preserved throughout the event call.
-        NOTE: this will not wait if the caller is currently executing an event on the nominated dispatcher.
-    @return Returns the event object if successful. Warning: the event callback may run to completion and the event
-        object may be itself collected before this function returns (unless MPR_EVENT_HOLD has been specified). In this
-        case, the return value will be non-zero, but the memory it points to may be freed or re-assigned.
+        without utilizing using a worker thread. This should only be used for quick non-blocking event callbacks.
+        \n\n
+        When calling this routine from foreign threads, you must use the MPR_EVENT_FOREIGN flag. IN this case the supplied dispatcher will be ignored and the MPR_EVENT_QUICK and MPR_EVENT_STATIC_DATA flags will be implied. Data supplied from foreign threads must be non-mpr memory and must persist until the callback has completed. This typically means the data memory should either be static or be allocated using malloc() before the call and released via free() in the callback.
+    @return Returns the event object if successful. This routine may return before or after the even callback has run.
+        If MPR_EVENT_FOREIGN is supplied, the return value is always zero.
     @ingroup MprEvent
     @stability Evolving
  */

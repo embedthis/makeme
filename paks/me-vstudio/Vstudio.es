@@ -598,9 +598,11 @@ if not exist "$(IncDir)" md "$(IncDir)"
                     command += '\tif not exist ' + wpath(path) + ' md ' + wpath(path) + '\n'
                     command += '\txcopy /S /Y ' + wpath(file.relativeTo(target.home)) + ' ' + wpath(path) + '\n'
                 } else {
-                    let p = path.join(file.basename)
-                    command += 'if exist ' + wpath(p) + ' del /Q ' + wpath(p) + '\n'
-                    command += '\tcopy /Y ' + wpath(file.relativeTo(target.home)) + ' ' + wpath(p) + '\n'
+                    if (path.isDir || path.endsWith(')') || target.files.length > 1) {
+                        path = path.join(file.basename)
+                    }
+                    command += 'if exist ' + wpath(path) + ' del /Q ' + wpath(path) + '\n'
+                    command += '\tcopy /Y ' + wpath(file.relativeTo(target.home)) + ' ' + wpath(path) + '\n'
                 }
             }
         } else if (target.generate === true) {

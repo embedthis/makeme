@@ -9368,7 +9368,6 @@ static void invokeDefenses(HttpMonitor *monitor, MprHash *args)
     int             next;
 
     http = monitor->http;
-    mprHold(args);
 
     for (ITERATE_ITEMS(monitor->defenses, defense, next)) {
         if ((remedyProc = mprLookupKey(http->remedies, defense->remedy)) == 0) {
@@ -9413,7 +9412,6 @@ static void invokeDefenses(HttpMonitor *monitor, MprHash *args)
         }
 #endif
     }
-    mprRelease(args);
 }
 
 
@@ -9448,7 +9446,9 @@ static void checkCounter(HttpMonitor *monitor, HttpCounter *counter, cchar *ip)
         /*
             WARNING: may yield depending on remedy
          */
+        mprAddRoot(args);
         invokeDefenses(monitor, args);
+        mprRemoveRoot(args);
     }
     counter->value = 0;
 }

@@ -1253,10 +1253,19 @@ class Make {
         if (found) {
             genWriteLine('')
             if (command.contains('$(LIBS)')) {
-                command = command.replace('$(LIBS)',
-                    '$(LIBPATHS_' + nextID + ') $(LIBS_' + nextID + ') $(LIBS_' + nextID + ') $(LIBS)')
+                if (me.platform.os == 'windows') {
+                    command = command.replace('$(LIBS)',
+                        '$(LIBPATHS_' + nextID + ') $(LIBS_' + nextID + ') $(LIBS)')
+                } else {
+                    command = command.replace('$(LIBS)',
+                        '$(LIBPATHS_' + nextID + ') $(LIBS_' + nextID + ') $(LIBS_' + nextID + ') $(LIBS)')
+                }
             } else {
-                command += ' $(LIBPATHS_' + nextID + ') $(LIBS_' + nextID + ') $(LIBS_' + nextID + ')'
+                if (me.platform.os == 'windows') {
+                    command += ' $(LIBPATHS_' + nextID + ') $(LIBS_' + nextID + ')'
+                } else {
+                    command += ' $(LIBPATHS_' + nextID + ') $(LIBS_' + nextID + ') $(LIBS_' + nextID + ')'
+                }
             }
         }
         return command
