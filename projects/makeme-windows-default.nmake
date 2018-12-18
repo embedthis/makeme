@@ -3,7 +3,7 @@
 #
 
 NAME                  = makeme
-VERSION               = 1.0.0
+VERSION               = 1.0.1
 
 OS                    = windows
 PA                    = $(PROCESSOR_ARCHITECTURE)
@@ -80,7 +80,7 @@ ME_COM_ZLIB           = 1
 !ENDIF
 
 !IF "$(ME_COM_OPENSSL_PATH)" == ""
-ME_COM_OPENSSL_PATH   = ""
+ME_COM_OPENSSL_PATH   = "/path/to/openssl"
 !ENDIF
 
 !IF "$(ME_COM_LIB)" == "1"
@@ -396,7 +396,7 @@ DEPS_16 = $(DEPS_16) src\ejscript\ejs.h
 build\$(CONFIG)\obj\ejs.obj: \
     src\ejscript\ejs.c $(DEPS_16)
 	@echo .. [Compile] build\$(CONFIG)\obj\ejs.obj
-	"$(CC)" -c -Fo$(BUILD)\obj\ejs.obj -Fd$(BUILD)\obj\ejs.pdb $(CFLAGS) $(DFLAGS) -D_FILE_OFFSET_BITS=64 -DMBEDTLS_USER_CONFIG_FILE=\"embedtls.h\" -DME_COM_OPENSSL_PATH=$(ME_COM_OPENSSL_PATH) $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)\include" src\ejscript\ejs.c $(LOG)
+	"$(CC)" -c -Fo$(BUILD)\obj\ejs.obj -Fd$(BUILD)\obj\ejs.pdb $(CFLAGS) $(DFLAGS) -D_FILE_OFFSET_BITS=64 -DMBEDTLS_USER_CONFIG_FILE=\"embedtls.h\" -DME_COM_OPENSSL_PATH=$(ME_COM_OPENSSL_PATH) $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)\inc32" src\ejscript\ejs.c $(LOG)
 
 #
 #   ejsLib.obj
@@ -409,7 +409,7 @@ DEPS_17 = $(DEPS_17) build\$(CONFIG)\inc\me.h
 build\$(CONFIG)\obj\ejsLib.obj: \
     src\ejscript\ejsLib.c $(DEPS_17)
 	@echo .. [Compile] build\$(CONFIG)\obj\ejsLib.obj
-	"$(CC)" -c -Fo$(BUILD)\obj\ejsLib.obj -Fd$(BUILD)\obj\ejsLib.pdb $(CFLAGS) $(DFLAGS) -D_FILE_OFFSET_BITS=64 -DMBEDTLS_USER_CONFIG_FILE=\"embedtls.h\" -DME_COM_OPENSSL_PATH=$(ME_COM_OPENSSL_PATH) $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)\include" src\ejscript\ejsLib.c $(LOG)
+	"$(CC)" -c -Fo$(BUILD)\obj\ejsLib.obj -Fd$(BUILD)\obj\ejsLib.pdb $(CFLAGS) $(DFLAGS) -D_FILE_OFFSET_BITS=64 -DMBEDTLS_USER_CONFIG_FILE=\"embedtls.h\" -DME_COM_OPENSSL_PATH=$(ME_COM_OPENSSL_PATH) $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)\inc32" src\ejscript\ejsLib.c $(LOG)
 
 #
 #   ejsc.obj
@@ -419,7 +419,7 @@ DEPS_18 = $(DEPS_18) src\ejscript\ejs.h
 build\$(CONFIG)\obj\ejsc.obj: \
     src\ejscript\ejsc.c $(DEPS_18)
 	@echo .. [Compile] build\$(CONFIG)\obj\ejsc.obj
-	"$(CC)" -c -Fo$(BUILD)\obj\ejsc.obj -Fd$(BUILD)\obj\ejsc.pdb $(CFLAGS) $(DFLAGS) -D_FILE_OFFSET_BITS=64 -DMBEDTLS_USER_CONFIG_FILE=\"embedtls.h\" -DME_COM_OPENSSL_PATH=$(ME_COM_OPENSSL_PATH) $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)\include" src\ejscript\ejsc.c $(LOG)
+	"$(CC)" -c -Fo$(BUILD)\obj\ejsc.obj -Fd$(BUILD)\obj\ejsc.pdb $(CFLAGS) $(DFLAGS) -D_FILE_OFFSET_BITS=64 -DMBEDTLS_USER_CONFIG_FILE=\"embedtls.h\" -DME_COM_OPENSSL_PATH=$(ME_COM_OPENSSL_PATH) $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)\inc32" src\ejscript\ejsc.c $(LOG)
 
 #
 #   http.h
@@ -435,7 +435,7 @@ DEPS_20 = $(DEPS_20) src\http\http.h
 build\$(CONFIG)\obj\http.obj: \
     src\http\http.c $(DEPS_20)
 	@echo .. [Compile] build\$(CONFIG)\obj\http.obj
-	"$(CC)" -c -Fo$(BUILD)\obj\http.obj -Fd$(BUILD)\obj\http.pdb $(CFLAGS) $(DFLAGS) -D_FILE_OFFSET_BITS=64 -DMBEDTLS_USER_CONFIG_FILE=\"embedtls.h\" -DME_COM_OPENSSL_PATH=$(ME_COM_OPENSSL_PATH) $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)\include" src\http\http.c $(LOG)
+	"$(CC)" -c -Fo$(BUILD)\obj\http.obj -Fd$(BUILD)\obj\http.pdb $(CFLAGS) $(DFLAGS) -D_FILE_OFFSET_BITS=64 -DMBEDTLS_USER_CONFIG_FILE=\"embedtls.h\" -DME_COM_OPENSSL_PATH=$(ME_COM_OPENSSL_PATH) $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)\inc32" src\http\http.c $(LOG)
 
 #
 #   httpLib.obj
@@ -446,7 +446,7 @@ DEPS_21 = $(DEPS_21) build\$(CONFIG)\inc\pcre.h
 build\$(CONFIG)\obj\httpLib.obj: \
     src\http\httpLib.c $(DEPS_21)
 	@echo .. [Compile] build\$(CONFIG)\obj\httpLib.obj
-	"$(CC)" -c -Fo$(BUILD)\obj\httpLib.obj -Fd$(BUILD)\obj\httpLib.pdb $(CFLAGS) $(DFLAGS) -D_FILE_OFFSET_BITS=64 -DMBEDTLS_USER_CONFIG_FILE=\"embedtls.h\" -DME_COM_OPENSSL_PATH=$(ME_COM_OPENSSL_PATH) $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)\include" src\http\httpLib.c $(LOG)
+	"$(CC)" -c -Fo$(BUILD)\obj\httpLib.obj -Fd$(BUILD)\obj\httpLib.pdb $(CFLAGS) $(DFLAGS) -D_FILE_OFFSET_BITS=64 -DMBEDTLS_USER_CONFIG_FILE=\"embedtls.h\" -DME_COM_OPENSSL_PATH=$(ME_COM_OPENSSL_PATH) $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)\inc32" src\http\httpLib.c $(LOG)
 
 #
 #   mbedtls.h
@@ -472,7 +472,7 @@ DEPS_24 = $(DEPS_24) build\$(CONFIG)\inc\ejs.h
 build\$(CONFIG)\obj\me.obj: \
     src\me.c $(DEPS_24)
 	@echo .. [Compile] build\$(CONFIG)\obj\me.obj
-	"$(CC)" -c -Fo$(BUILD)\obj\me.obj -Fd$(BUILD)\obj\me.pdb $(CFLAGS) $(DFLAGS) -D_FILE_OFFSET_BITS=64 -DMBEDTLS_USER_CONFIG_FILE=\"embedtls.h\" -DME_COM_OPENSSL_PATH=$(ME_COM_OPENSSL_PATH) $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)\include" src\me.c $(LOG)
+	"$(CC)" -c -Fo$(BUILD)\obj\me.obj -Fd$(BUILD)\obj\me.pdb $(CFLAGS) $(DFLAGS) -D_FILE_OFFSET_BITS=64 -DMBEDTLS_USER_CONFIG_FILE=\"embedtls.h\" -DME_COM_OPENSSL_PATH=$(ME_COM_OPENSSL_PATH) $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)\inc32" src\me.c $(LOG)
 
 #
 #   mpr-mbedtls.obj
@@ -492,7 +492,7 @@ DEPS_26 = $(DEPS_26) build\$(CONFIG)\inc\mpr.h
 build\$(CONFIG)\obj\mpr-openssl.obj: \
     src\mpr-openssl\mpr-openssl.c $(DEPS_26)
 	@echo .. [Compile] build\$(CONFIG)\obj\mpr-openssl.obj
-	"$(CC)" -c -Fo$(BUILD)\obj\mpr-openssl.obj -Fd$(BUILD)\obj\mpr-openssl.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) "-I$(BUILD)\inc" "-I$(ME_COM_OPENSSL_PATH)\include" src\mpr-openssl\mpr-openssl.c $(LOG)
+	"$(CC)" -c -Fo$(BUILD)\obj\mpr-openssl.obj -Fd$(BUILD)\obj\mpr-openssl.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) "-I$(BUILD)\inc" "-I$(ME_COM_OPENSSL_PATH)\inc32" src\mpr-openssl\mpr-openssl.c $(LOG)
 
 #
 #   mpr.h
@@ -508,7 +508,7 @@ DEPS_28 = $(DEPS_28) src\mpr\mpr.h
 build\$(CONFIG)\obj\mprLib.obj: \
     src\mpr\mprLib.c $(DEPS_28)
 	@echo .. [Compile] build\$(CONFIG)\obj\mprLib.obj
-	"$(CC)" -c -Fo$(BUILD)\obj\mprLib.obj -Fd$(BUILD)\obj\mprLib.pdb $(CFLAGS) $(DFLAGS) -D_FILE_OFFSET_BITS=64 -DMBEDTLS_USER_CONFIG_FILE=\"embedtls.h\" -DME_COM_OPENSSL_PATH=$(ME_COM_OPENSSL_PATH) $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)\include" src\mpr\mprLib.c $(LOG)
+	"$(CC)" -c -Fo$(BUILD)\obj\mprLib.obj -Fd$(BUILD)\obj\mprLib.pdb $(CFLAGS) $(DFLAGS) -D_FILE_OFFSET_BITS=64 -DMBEDTLS_USER_CONFIG_FILE=\"embedtls.h\" -DME_COM_OPENSSL_PATH=$(ME_COM_OPENSSL_PATH) $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)\inc32" src\mpr\mprLib.c $(LOG)
 
 #
 #   pcre.h
@@ -535,7 +535,7 @@ DEPS_31 = $(DEPS_31) build\$(CONFIG)\inc\ejs.h
 build\$(CONFIG)\obj\testme.obj: \
     src\tm\testme.c $(DEPS_31)
 	@echo .. [Compile] build\$(CONFIG)\obj\testme.obj
-	"$(CC)" -c -Fo$(BUILD)\obj\testme.obj -Fd$(BUILD)\obj\testme.pdb $(CFLAGS) $(DFLAGS) -D_FILE_OFFSET_BITS=64 -DMBEDTLS_USER_CONFIG_FILE=\"embedtls.h\" -DME_COM_OPENSSL_PATH=$(ME_COM_OPENSSL_PATH) $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)\include" src\tm\testme.c $(LOG)
+	"$(CC)" -c -Fo$(BUILD)\obj\testme.obj -Fd$(BUILD)\obj\testme.pdb $(CFLAGS) $(DFLAGS) -D_FILE_OFFSET_BITS=64 -DMBEDTLS_USER_CONFIG_FILE=\"embedtls.h\" -DME_COM_OPENSSL_PATH=$(ME_COM_OPENSSL_PATH) $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)\inc32" src\tm\testme.c $(LOG)
 
 #
 #   zlib.h
@@ -637,15 +637,15 @@ LIBS_38 = $(LIBS_38) libmpr-openssl.lib
 !ENDIF
 !IF "$(ME_COM_OPENSSL)" == "1"
 LIBS_38 = $(LIBS_38) gdi32.lib
-LIBPATHS_38 = $(LIBPATHS_38) -libpath:$(ME_COM_OPENSSL_PATH)
+LIBPATHS_38 = $(LIBPATHS_38) -libpath:$(ME_COM_OPENSSL_PATH)/out32
 !ENDIF
 !IF "$(ME_COM_OPENSSL)" == "1"
 LIBS_38 = $(LIBS_38) libeay32.lib
-LIBPATHS_38 = $(LIBPATHS_38) -libpath:$(ME_COM_OPENSSL_PATH)
+LIBPATHS_38 = $(LIBPATHS_38) -libpath:$(ME_COM_OPENSSL_PATH)/out32
 !ENDIF
 !IF "$(ME_COM_OPENSSL)" == "1"
 LIBS_38 = $(LIBS_38) ssleay32.lib
-LIBPATHS_38 = $(LIBPATHS_38) -libpath:$(ME_COM_OPENSSL_PATH)
+LIBPATHS_38 = $(LIBPATHS_38) -libpath:$(ME_COM_OPENSSL_PATH)/out32
 !ENDIF
 !IF "$(ME_COM_ZLIB)" == "1"
 LIBS_38 = $(LIBS_38) libzlib.lib
@@ -662,7 +662,7 @@ LIBS_38 = $(LIBS_38) libzlib.lib
 
 build\$(CONFIG)\bin\libmpr.dll: $(DEPS_38)
 	@echo ..... [Link] build\$(CONFIG)\bin\libmpr.dll
-	"$(LD)" -dll -out:$(BUILD)\bin\libmpr.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS)  "$(BUILD)\obj\mprLib.obj" $(LIBPATHS_38) $(LIBS_38) $(LIBS_38) $(LIBS)  $(LOG)
+	"$(LD)" -dll -out:$(BUILD)\bin\libmpr.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS)  "$(BUILD)\obj\mprLib.obj" $(LIBPATHS_38) $(LIBS_38) $(LIBS)  $(LOG)
 
 !IF "$(ME_COM_PCRE)" == "1"
 #
@@ -701,15 +701,15 @@ LIBS_40 = $(LIBS_40) libmpr-openssl.lib
 !ENDIF
 !IF "$(ME_COM_OPENSSL)" == "1"
 LIBS_40 = $(LIBS_40) gdi32.lib
-LIBPATHS_40 = $(LIBPATHS_40) -libpath:$(ME_COM_OPENSSL_PATH)
+LIBPATHS_40 = $(LIBPATHS_40) -libpath:$(ME_COM_OPENSSL_PATH)/out32
 !ENDIF
 !IF "$(ME_COM_OPENSSL)" == "1"
 LIBS_40 = $(LIBS_40) libeay32.lib
-LIBPATHS_40 = $(LIBPATHS_40) -libpath:$(ME_COM_OPENSSL_PATH)
+LIBPATHS_40 = $(LIBPATHS_40) -libpath:$(ME_COM_OPENSSL_PATH)/out32
 !ENDIF
 !IF "$(ME_COM_OPENSSL)" == "1"
 LIBS_40 = $(LIBS_40) ssleay32.lib
-LIBPATHS_40 = $(LIBPATHS_40) -libpath:$(ME_COM_OPENSSL_PATH)
+LIBPATHS_40 = $(LIBPATHS_40) -libpath:$(ME_COM_OPENSSL_PATH)/out32
 !ENDIF
 !IF "$(ME_COM_ZLIB)" == "1"
 LIBS_40 = $(LIBS_40) libzlib.lib
@@ -734,7 +734,7 @@ LIBS_40 = $(LIBS_40) libmpr.lib
 
 build\$(CONFIG)\bin\libhttp.dll: $(DEPS_40)
 	@echo ..... [Link] build\$(CONFIG)\bin\libhttp.dll
-	"$(LD)" -dll -out:$(BUILD)\bin\libhttp.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS)  "$(BUILD)\obj\httpLib.obj" $(LIBPATHS_40) $(LIBS_40) $(LIBS_40) $(LIBS)  $(LOG)
+	"$(LD)" -dll -out:$(BUILD)\bin\libhttp.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS)  "$(BUILD)\obj\httpLib.obj" $(LIBPATHS_40) $(LIBS_40) $(LIBS)  $(LOG)
 !ENDIF
 
 !IF "$(ME_COM_EJSCRIPT)" == "1"
@@ -770,15 +770,15 @@ LIBS_41 = $(LIBS_41) libmpr-openssl.lib
 !ENDIF
 !IF "$(ME_COM_OPENSSL)" == "1"
 LIBS_41 = $(LIBS_41) gdi32.lib
-LIBPATHS_41 = $(LIBPATHS_41) -libpath:$(ME_COM_OPENSSL_PATH)
+LIBPATHS_41 = $(LIBPATHS_41) -libpath:$(ME_COM_OPENSSL_PATH)/out32
 !ENDIF
 !IF "$(ME_COM_OPENSSL)" == "1"
 LIBS_41 = $(LIBS_41) libeay32.lib
-LIBPATHS_41 = $(LIBPATHS_41) -libpath:$(ME_COM_OPENSSL_PATH)
+LIBPATHS_41 = $(LIBPATHS_41) -libpath:$(ME_COM_OPENSSL_PATH)/out32
 !ENDIF
 !IF "$(ME_COM_OPENSSL)" == "1"
 LIBS_41 = $(LIBS_41) ssleay32.lib
-LIBPATHS_41 = $(LIBPATHS_41) -libpath:$(ME_COM_OPENSSL_PATH)
+LIBPATHS_41 = $(LIBPATHS_41) -libpath:$(ME_COM_OPENSSL_PATH)/out32
 !ENDIF
 !IF "$(ME_COM_ZLIB)" == "1"
 LIBS_41 = $(LIBS_41) libzlib.lib
@@ -812,7 +812,7 @@ LIBS_41 = $(LIBS_41) libhttp.lib
 
 build\$(CONFIG)\bin\libejs.dll: $(DEPS_41)
 	@echo ..... [Link] build\$(CONFIG)\bin\libejs.dll
-	"$(LD)" -dll -out:$(BUILD)\bin\libejs.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS)  "$(BUILD)\obj\ejsLib.obj" $(LIBPATHS_41) $(LIBS_41) $(LIBS_41) $(LIBS)  $(LOG)
+	"$(LD)" -dll -out:$(BUILD)\bin\libejs.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS)  "$(BUILD)\obj\ejsLib.obj" $(LIBPATHS_41) $(LIBS_41) $(LIBS)  $(LOG)
 !ENDIF
 
 !IF "$(ME_COM_EJSCRIPT)" == "1"
@@ -836,15 +836,15 @@ LIBS_42 = $(LIBS_42) libmpr-openssl.lib
 !ENDIF
 !IF "$(ME_COM_OPENSSL)" == "1"
 LIBS_42 = $(LIBS_42) gdi32.lib
-LIBPATHS_42 = $(LIBPATHS_42) -libpath:$(ME_COM_OPENSSL_PATH)
+LIBPATHS_42 = $(LIBPATHS_42) -libpath:$(ME_COM_OPENSSL_PATH)/out32
 !ENDIF
 !IF "$(ME_COM_OPENSSL)" == "1"
 LIBS_42 = $(LIBS_42) libeay32.lib
-LIBPATHS_42 = $(LIBPATHS_42) -libpath:$(ME_COM_OPENSSL_PATH)
+LIBPATHS_42 = $(LIBPATHS_42) -libpath:$(ME_COM_OPENSSL_PATH)/out32
 !ENDIF
 !IF "$(ME_COM_OPENSSL)" == "1"
 LIBS_42 = $(LIBS_42) ssleay32.lib
-LIBPATHS_42 = $(LIBPATHS_42) -libpath:$(ME_COM_OPENSSL_PATH)
+LIBPATHS_42 = $(LIBPATHS_42) -libpath:$(ME_COM_OPENSSL_PATH)/out32
 !ENDIF
 !IF "$(ME_COM_ZLIB)" == "1"
 LIBS_42 = $(LIBS_42) libzlib.lib
@@ -879,7 +879,7 @@ LIBS_42 = $(LIBS_42) libhttp.lib
 
 build\$(CONFIG)\bin\makeme-ejsc.exe: $(DEPS_42)
 	@echo ..... [Link] build\$(CONFIG)\bin\makeme-ejsc.exe
-	"$(LD)" -nologo -out:$(BUILD)\bin\makeme-ejsc.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS)  "$(BUILD)\obj\ejsc.obj" $(LIBPATHS_42) $(LIBS_42) $(LIBS_42) $(LIBS)  $(LOG)
+	"$(LD)" -nologo -out:$(BUILD)\bin\makeme-ejsc.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS)  "$(BUILD)\obj\ejsc.obj" $(LIBPATHS_42) $(LIBS_42) $(LIBS)  $(LOG)
 !ENDIF
 
 !IF "$(ME_COM_EJSCRIPT)" == "1"
@@ -941,15 +941,15 @@ LIBS_46 = $(LIBS_46) libmpr-openssl.lib
 !ENDIF
 !IF "$(ME_COM_OPENSSL)" == "1"
 LIBS_46 = $(LIBS_46) gdi32.lib
-LIBPATHS_46 = $(LIBPATHS_46) -libpath:$(ME_COM_OPENSSL_PATH)
+LIBPATHS_46 = $(LIBPATHS_46) -libpath:$(ME_COM_OPENSSL_PATH)/out32
 !ENDIF
 !IF "$(ME_COM_OPENSSL)" == "1"
 LIBS_46 = $(LIBS_46) libeay32.lib
-LIBPATHS_46 = $(LIBPATHS_46) -libpath:$(ME_COM_OPENSSL_PATH)
+LIBPATHS_46 = $(LIBPATHS_46) -libpath:$(ME_COM_OPENSSL_PATH)/out32
 !ENDIF
 !IF "$(ME_COM_OPENSSL)" == "1"
 LIBS_46 = $(LIBS_46) ssleay32.lib
-LIBPATHS_46 = $(LIBPATHS_46) -libpath:$(ME_COM_OPENSSL_PATH)
+LIBPATHS_46 = $(LIBPATHS_46) -libpath:$(ME_COM_OPENSSL_PATH)/out32
 !ENDIF
 !IF "$(ME_COM_ZLIB)" == "1"
 LIBS_46 = $(LIBS_46) libzlib.lib
@@ -984,7 +984,7 @@ LIBS_46 = $(LIBS_46) libhttp.lib
 
 build\$(CONFIG)\bin\makeme-ejs.exe: $(DEPS_46)
 	@echo ..... [Link] build\$(CONFIG)\bin\makeme-ejs.exe
-	"$(LD)" -nologo -out:$(BUILD)\bin\makeme-ejs.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS)  "$(BUILD)\obj\ejs.obj" $(LIBPATHS_46) $(LIBS_46) $(LIBS_46) $(LIBS)  $(LOG)
+	"$(LD)" -nologo -out:$(BUILD)\bin\makeme-ejs.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS)  "$(BUILD)\obj\ejs.obj" $(LIBPATHS_46) $(LIBS_46) $(LIBS)  $(LOG)
 !ENDIF
 
 #
@@ -1023,15 +1023,15 @@ LIBS_48 = $(LIBS_48) libmpr-openssl.lib
 !ENDIF
 !IF "$(ME_COM_OPENSSL)" == "1"
 LIBS_48 = $(LIBS_48) gdi32.lib
-LIBPATHS_48 = $(LIBPATHS_48) -libpath:$(ME_COM_OPENSSL_PATH)
+LIBPATHS_48 = $(LIBPATHS_48) -libpath:$(ME_COM_OPENSSL_PATH)/out32
 !ENDIF
 !IF "$(ME_COM_OPENSSL)" == "1"
 LIBS_48 = $(LIBS_48) libeay32.lib
-LIBPATHS_48 = $(LIBPATHS_48) -libpath:$(ME_COM_OPENSSL_PATH)
+LIBPATHS_48 = $(LIBPATHS_48) -libpath:$(ME_COM_OPENSSL_PATH)/out32
 !ENDIF
 !IF "$(ME_COM_OPENSSL)" == "1"
 LIBS_48 = $(LIBS_48) ssleay32.lib
-LIBPATHS_48 = $(LIBPATHS_48) -libpath:$(ME_COM_OPENSSL_PATH)
+LIBPATHS_48 = $(LIBPATHS_48) -libpath:$(ME_COM_OPENSSL_PATH)/out32
 !ENDIF
 !IF "$(ME_COM_ZLIB)" == "1"
 LIBS_48 = $(LIBS_48) libzlib.lib
@@ -1057,7 +1057,7 @@ LIBS_48 = $(LIBS_48) libmpr.lib
 
 build\$(CONFIG)\bin\http.exe: $(DEPS_48)
 	@echo ..... [Link] build\$(CONFIG)\bin\http.exe
-	"$(LD)" -nologo -out:$(BUILD)\bin\http.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS)  "$(BUILD)\obj\http.obj" $(LIBPATHS_48) $(LIBS_48) $(LIBS_48) $(LIBS)  $(LOG)
+	"$(LD)" -nologo -out:$(BUILD)\bin\http.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS)  "$(BUILD)\obj\http.obj" $(LIBPATHS_48) $(LIBS_48) $(LIBS)  $(LOG)
 !ENDIF
 
 #
@@ -1229,15 +1229,15 @@ LIBS_53 = $(LIBS_53) libmpr-openssl.lib
 !ENDIF
 !IF "$(ME_COM_OPENSSL)" == "1"
 LIBS_53 = $(LIBS_53) gdi32.lib
-LIBPATHS_53 = $(LIBPATHS_53) -libpath:$(ME_COM_OPENSSL_PATH)
+LIBPATHS_53 = $(LIBPATHS_53) -libpath:$(ME_COM_OPENSSL_PATH)/out32
 !ENDIF
 !IF "$(ME_COM_OPENSSL)" == "1"
 LIBS_53 = $(LIBS_53) libeay32.lib
-LIBPATHS_53 = $(LIBPATHS_53) -libpath:$(ME_COM_OPENSSL_PATH)
+LIBPATHS_53 = $(LIBPATHS_53) -libpath:$(ME_COM_OPENSSL_PATH)/out32
 !ENDIF
 !IF "$(ME_COM_OPENSSL)" == "1"
 LIBS_53 = $(LIBS_53) ssleay32.lib
-LIBPATHS_53 = $(LIBPATHS_53) -libpath:$(ME_COM_OPENSSL_PATH)
+LIBPATHS_53 = $(LIBPATHS_53) -libpath:$(ME_COM_OPENSSL_PATH)/out32
 !ENDIF
 !IF "$(ME_COM_ZLIB)" == "1"
 LIBS_53 = $(LIBS_53) libzlib.lib
@@ -1274,7 +1274,7 @@ LIBS_53 = $(LIBS_53) libhttp.lib
 
 build\$(CONFIG)\bin\me.exe: $(DEPS_53)
 	@echo ..... [Link] build\$(CONFIG)\bin\me.exe
-	"$(LD)" -nologo -out:$(BUILD)\bin\me.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS)  "$(BUILD)\obj\me.obj" $(LIBPATHS_53) $(LIBS_53) $(LIBS_53) $(LIBS)  $(LOG)
+	"$(LD)" -nologo -out:$(BUILD)\bin\me.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS)  "$(BUILD)\obj\me.obj" $(LIBPATHS_53) $(LIBS_53) $(LIBS)  $(LOG)
 
 #
 #   testme.mod
@@ -1315,15 +1315,15 @@ LIBS_55 = $(LIBS_55) libmpr-openssl.lib
 !ENDIF
 !IF "$(ME_COM_OPENSSL)" == "1"
 LIBS_55 = $(LIBS_55) gdi32.lib
-LIBPATHS_55 = $(LIBPATHS_55) -libpath:$(ME_COM_OPENSSL_PATH)
+LIBPATHS_55 = $(LIBPATHS_55) -libpath:$(ME_COM_OPENSSL_PATH)/out32
 !ENDIF
 !IF "$(ME_COM_OPENSSL)" == "1"
 LIBS_55 = $(LIBS_55) libeay32.lib
-LIBPATHS_55 = $(LIBPATHS_55) -libpath:$(ME_COM_OPENSSL_PATH)
+LIBPATHS_55 = $(LIBPATHS_55) -libpath:$(ME_COM_OPENSSL_PATH)/out32
 !ENDIF
 !IF "$(ME_COM_OPENSSL)" == "1"
 LIBS_55 = $(LIBS_55) ssleay32.lib
-LIBPATHS_55 = $(LIBPATHS_55) -libpath:$(ME_COM_OPENSSL_PATH)
+LIBPATHS_55 = $(LIBPATHS_55) -libpath:$(ME_COM_OPENSSL_PATH)/out32
 !ENDIF
 !IF "$(ME_COM_ZLIB)" == "1"
 LIBS_55 = $(LIBS_55) libzlib.lib
@@ -1360,7 +1360,7 @@ LIBS_55 = $(LIBS_55) libhttp.lib
 
 build\$(CONFIG)\bin\testme.exe: $(DEPS_55)
 	@echo ..... [Link] build\$(CONFIG)\bin\testme.exe
-	"$(LD)" -nologo -out:$(BUILD)\bin\testme.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS)  "$(BUILD)\obj\testme.obj" $(LIBPATHS_55) $(LIBS_55) $(LIBS_55) $(LIBS)  $(LOG)
+	"$(LD)" -nologo -out:$(BUILD)\bin\testme.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS)  "$(BUILD)\obj\testme.obj" $(LIBPATHS_55) $(LIBS_55) $(LIBS)  $(LOG)
 
 #
 #   testme.es
