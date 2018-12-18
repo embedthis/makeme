@@ -94,12 +94,21 @@ function findWindowsCompiler(results) {
         } else {
             let pf = me.dir.programFiles32
             for (v = 2030; v >= 2017; v--) {
-                let comdir = pf.join('Microsoft Visual Studio', v, 'Community')
+                let comdir = pf.join('Microsoft Visual Studio', v, 'Professional')
                 if (comdir.exists) {
                     vcvars = comdir.join('VC/Auxiliary/Build/vcvarsall.bat')
                     if (vcvars.exists) {
                         version = '15.0'
                         break
+                    }
+                } else {
+                    comdir = pf.join('Microsoft Visual Studio', v, 'Community')
+                    if (comdir.exists) {
+                        vcvars = comdir.join('VC/Auxiliary/Build/vcvarsall.bat')
+                        if (vcvars.exists) {
+                            version = '15.0'
+                            break
+                        }
                     }
                 }
             }
@@ -151,9 +160,16 @@ function findWindowsCompiler(results) {
     }
     version ||= vsdir.name.match(/\d*\.\d/)[0]
     let cver = version.replace('.', '')
-    let crt = vsdir.join('VC/redist', me.platform.arch, 
-        'Microsoft.VC' + cver + '.CRT', (version < 14 ? 'msvcr' : 'vcruntime') + cver + '.dll')
 
+    let crt
+    if (version < 14) {
+        crt = vsdir.join('VC/redist', me.platform.arch, 'Microsoft.VC' + cver + '.CRT', 'msvcr' + cver + '.dll')
+    } else if (version == 14) {
+        crt = vsdir.join('VC/redist', me.platform.arch, 'Microsoft.VC' + cver + '.CRT', 'vcruntime' + cver + '.dll')
+    } else {
+        let redist = vsdir.parent.join('redist/MSVC').files('*').sort()[0]
+        crt = redist.join(me.platform.arch).files('*.CRT')[0].files('vcruntime*.dll')[0]
+    }
     blend(results, {
         path: path,
         env: env,
@@ -409,21 +425,16 @@ function setCompilerOptions(results, settings) {
         } else {
             results.compiler.push('-O2')
         }
-        if (platform.os != 'macosx') {
-            /* GCC not mac */
-            if (!me.settings.static) {
-                results.compiler.push('-fPIC')
-                results.defines.push('_REENTRANT', 'PIC')
-            }
-            /* 
-            if (arch.startsWith('arm')) {
-                results.compiler.push('-mno-sched-prolog')
-            } else 
-            */
-            if (arch.startsWith('ppc')) {
-                results.defines.push('_GNU_TOOL')
-            }
+
+        /* Was !mac */
+        if (!me.settings.static) {
+            results.compiler.push('-fPIC')
+            results.defines.push('_REENTRANT', 'PIC')
         }
+        if (arch.startsWith('ppc')) {
+            results.defines.push('_GNU_TOOL')
+        }
+        
         if (me.settings.compiler && me.settings.compiler.fortify) {
             if (!me.settings.debug) {
                 results.defines.push(
@@ -533,7 +544,7 @@ function setCompilerOptions(results, settings) {
     } else if (platform.os == 'windows') {
         results.compiler.push('-nologo', '-GR-', '-W3')
         results.libraries.push('ws2_32.lib', 'advapi32.lib', 'user32.lib', 'kernel32.lib', 'oldnames.lib', 'shell32.lib')
-        results.linker.push('-nologo', '-incremental:no')
+        results.linker.push('-nologo', '-incremental:no', '-dynamicbase', '-highentropyva', '-nxcompat')
         if (me.settings.single) {
             if (me.settings.debug) {
                 results.compiler.push('-Zi', '-Od', '-MTd')

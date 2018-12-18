@@ -525,7 +525,11 @@ class InstallsInner {
 
         let generic = me.dir.rel.join(me.settings.name + '-' + fmt + '.tgz')
         generic.remove()
-        zname.basename.link(generic)
+        if (Config.OS == 'windows') {
+            zname.copy(generic)
+        } else {
+            zname.basename.link(generic)
+        }
 
         let sumline = checksum(zname) + ' ' + zname.basename + '\n'
         me.dir.rel.join('sha256-' + me.platform.vname + '-' + fmt + '.tgz.txt').write(sumline)
@@ -613,7 +617,11 @@ class InstallsInner {
 
         let generic = me.dir.rel.join(me.settings.name + '-tar' + '.tgz')
         generic.remove()
-        zname.basename.link(generic)
+        if (Config.OS == 'windows') {
+            zname.copy(generic)
+        } else {
+            zname.basename.link(generic)
+        }
     }
 
     function makeNativeInstall(prefixes) {
@@ -882,7 +890,7 @@ class InstallsInner {
 
         /* Sign */
         let cert = 'c:/crt/signing.pfx'
-        if (Path(cert).exists) {
+        if (me.settings.package && me.package.sign && Path(cert).exists) {
             let pass = Path('c:/crt/signing.pass').readString().trim()
             trace('Sign', outfile)
             let sign = Cmd.locate('signtool.exe', me.targets.compiler.search)
@@ -974,7 +982,11 @@ class InstallsInner {
     }
 
     function checksum(filename) {
-        return(Cmd.run('shasum -a 256 ' + filename).split(' ')[0])
+        if (Config.OS == 'windows') {
+            return(Cmd.run('sha256sum ' + filename).split(' ')[0])
+        } else {
+            return(Cmd.run('shasum -a 256 ' + filename).split(' ')[0])
+        }
     }
 
     function md5sum(filename: Path) {
@@ -985,21 +997,9 @@ class InstallsInner {
 } /* embedthis.me */
 
 /*
-    @copy   default
-
-    Copyright (c) Embedthis Software. All Rights Reserved.
-
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis Open Source license or you may acquire a 
     commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
     this software for full details and other copyrights.
-
-    Local variables:
-    tab-width: 4
-    c-basic-offset: 4
-    End:
-    vim: sw=4 ts=4 expandtab
-
-    @end
  */
