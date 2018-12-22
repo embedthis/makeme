@@ -90,16 +90,25 @@ function findWindowsCompiler(results) {
             vsdir = App.getenv('VSINSTALLDIR')
         }
         if (vsdir) {
-            vcvars = vsdir.join('VC/vcvarsall.bat')
+            vcvars = vsdir.join('VC/Auxiliary/Build/vcvarsall.bat')
         } else {
             let pf = me.dir.programFiles32
             for (v = 2030; v >= 2017; v--) {
-                let comdir = pf.join('Microsoft Visual Studio', v, 'Community')
+                let comdir = pf.join('Microsoft Visual Studio', v, 'Professional')
                 if (comdir.exists) {
                     vcvars = comdir.join('VC/Auxiliary/Build/vcvarsall.bat')
                     if (vcvars.exists) {
-                        version = '15.0'
+                        version = 15
                         break
+                    }
+                } else {
+                    comdir = pf.join('Microsoft Visual Studio', v, 'Community')
+                    if (comdir.exists) {
+                        vcvars = comdir.join('VC/Auxiliary/Build/vcvarsall.bat')
+                        if (vcvars.exists) {
+                            version = 15
+                            break
+                        }
                     }
                 }
             }
@@ -107,14 +116,13 @@ function findWindowsCompiler(results) {
                 for each (v in [14, 13, 12, 11, 10, 9]) {
                     vcvars = pf.join('Microsoft Visual Studio ' + v + '.0/VC/vcvarsall.bat')
                     if (vcvars.exists) {
+                        version = v
                         break
                     }
                     vcvars = null
                 }
             }
-            if (vcvars) {
-                vsdir = vcvars.parent.parent
-            }
+            vsdir = vcvars.parent.parent.parent.parent
         }
         if (!vcvars || !vcvars.exists) {
             throw 'Cannot find Visual Studio installation'
@@ -136,24 +144,38 @@ function findWindowsCompiler(results) {
             'INCLUDE': true,
             'PATH': true,
             'VSINSTALLDIR': true,
-            'WindowsSdkDir': true,
-            'WindowsSdkLibVersion': true,
+            'WINDOWSSDKDIR': true,
+            'WINDOWSSDKLIBVERSION': true,
         }
         for each (line in cmd.readLines()) {
             let [key,value] = line.split('=')
-            if (required[key]) {
+            if (required[key.toUpper()]) {
+                if (key.toUpper() == 'PATH') {
+                    key = key.toUpper()
+                }
                 env[key] = value
             }
         }
+        if (!env.PATH) {
+            throw 'PATH is not defined in environment'
+        }
         search = env.PATH.split(';').map(function(e) Path(e))
-
         path ||= probe(path || 'cl.exe', {fullpath: true, search: search})
+        if (!version) {
+            version = env.VisualStudioVersion
+        }
     }
-    version ||= vsdir.name.match(/\d*\.\d/)[0]
-    let cver = version.replace('.', '')
-    let crt = vsdir.join('VC/redist', me.platform.arch, 
-        'Microsoft.VC' + cver + '.CRT', (version < 14 ? 'msvcr' : 'vcruntime') + cver + '.dll')
-
+    let crt
+    version = version || 15
+    let cver = version + '0'
+    if (version < 14) {
+        crt = vsdir.join('VC/redist', me.platform.arch, 'Microsoft.VC' + cver + '.CRT', 'msvcr' + cver + '.dll')
+    } else if (version == 14) {
+        crt = vsdir.join('VC/redist', me.platform.arch, 'Microsoft.VC' + cver + '.CRT', 'vcruntime' + cver + '.dll')
+    } else {
+        let redist = vsdir.join('VC/redist/MSVC').files('*').sort()[0]
+        crt = redist.join(me.platform.arch).files('*.CRT')[0].files('vcruntime*.dll')[0]
+    }
     blend(results, {
         path: path,
         env: env,
@@ -162,6 +184,9 @@ function findWindowsCompiler(results) {
         version: version,
         crt: crt,
     })
+    vtrace('VSDIR', vsdir)
+    vtrace('VCVARS', vcvars)
+    vtrace('CRT', crt)
 }
 
 
@@ -409,21 +434,16 @@ function setCompilerOptions(results, settings) {
         } else {
             results.compiler.push('-O2')
         }
-        if (platform.os != 'macosx') {
-            /* GCC not mac */
-            if (!me.settings.static) {
-                results.compiler.push('-fPIC')
-                results.defines.push('_REENTRANT', 'PIC')
-            }
-            /* 
-            if (arch.startsWith('arm')) {
-                results.compiler.push('-mno-sched-prolog')
-            } else 
-            */
-            if (arch.startsWith('ppc')) {
-                results.defines.push('_GNU_TOOL')
-            }
+
+        /* Was !mac */
+        if (!me.settings.static) {
+            results.compiler.push('-fPIC')
+            results.defines.push('_REENTRANT', 'PIC')
         }
+        if (arch.startsWith('ppc')) {
+            results.defines.push('_GNU_TOOL')
+        }
+        
         if (me.settings.compiler && me.settings.compiler.fortify) {
             if (!me.settings.debug) {
                 results.defines.push(
@@ -533,7 +553,7 @@ function setCompilerOptions(results, settings) {
     } else if (platform.os == 'windows') {
         results.compiler.push('-nologo', '-GR-', '-W3')
         results.libraries.push('ws2_32.lib', 'advapi32.lib', 'user32.lib', 'kernel32.lib', 'oldnames.lib', 'shell32.lib')
-        results.linker.push('-nologo', '-incremental:no')
+        results.linker.push('-nologo', '-incremental:no', '-dynamicbase', '-highentropyva', '-nxcompat')
         if (me.settings.single) {
             if (me.settings.debug) {
                 results.compiler.push('-Zi', '-Od', '-MTd')

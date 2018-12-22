@@ -91,11 +91,6 @@ class Make {
             let name = target.name
             if (needed[name]) {
                 let enable = target.enable
-                if (me.platform.os == 'windows' || me.platform.os == 'vxworks') {
-                    if (target.name == 'ssl' /* KEEP || target.name == 'openssl' */) {
-                        enable = false
-                    }
-                }
                 if (me.platform.os == 'windows' ) {
                     genWriteLine('!IF "$(ME_COM_' + name.toUpper() + ')" == ""')
                     genWriteLine('%-21s = %s'.format(['ME_COM_' + name.toUpper(), enable ? 1 : 0]))
@@ -1253,10 +1248,19 @@ class Make {
         if (found) {
             genWriteLine('')
             if (command.contains('$(LIBS)')) {
-                command = command.replace('$(LIBS)',
-                    '$(LIBPATHS_' + nextID + ') $(LIBS_' + nextID + ') $(LIBS_' + nextID + ') $(LIBS)')
+                if (me.platform.os == 'windows') {
+                    command = command.replace('$(LIBS)',
+                        '$(LIBPATHS_' + nextID + ') $(LIBS_' + nextID + ') $(LIBS)')
+                } else {
+                    command = command.replace('$(LIBS)',
+                        '$(LIBPATHS_' + nextID + ') $(LIBS_' + nextID + ') $(LIBS_' + nextID + ') $(LIBS)')
+                }
             } else {
-                command += ' $(LIBPATHS_' + nextID + ') $(LIBS_' + nextID + ') $(LIBS_' + nextID + ')'
+                if (me.platform.os == 'windows') {
+                    command += ' $(LIBPATHS_' + nextID + ') $(LIBS_' + nextID + ')'
+                } else {
+                    command += ' $(LIBPATHS_' + nextID + ') $(LIBS_' + nextID + ') $(LIBS_' + nextID + ')'
+                }
             }
         }
         return command
@@ -1368,21 +1372,9 @@ class Make {
 } /* embedthis.me module */
 
 /*
-    @copy   default
-
-    Copyright (c) Embedthis Software. All Rights Reserved.
-
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis Open Source license or you may acquire a
     commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
     this software for full details and other copyrights.
-
-    Local variables:
-    tab-width: 4
-    c-basic-offset: 4
-    End:
-    vim: sw=4 ts=4 expandtab
-
-    @end
  */
