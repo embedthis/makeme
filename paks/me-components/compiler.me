@@ -112,7 +112,7 @@ function findWindowsCompiler(results) {
                     }
                 }
             }
-            if (!vcvars.exists) {
+            if (!vcvars || !vcvars.exists) {
                 for each (v in [14, 13, 12, 11, 10, 9]) {
                     vcvars = pf.join('Microsoft Visual Studio ' + v + '.0/VC/vcvarsall.bat')
                     if (vcvars.exists) {
