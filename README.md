@@ -12,9 +12,9 @@ See [LICENSE.md](https://github.com/embedthis/makeme/blob/master/LICENSE.md) for
 
     See https://www.embedthis.com/makeme/doc/index.html
 
-### To build first time:
+### To build
 
-    make boot
+    make
 
 ### To install on Linux:
 
