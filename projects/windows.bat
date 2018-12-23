@@ -6,7 +6,7 @@ REM
 
 if DEFINED VSINSTALLDIR GOTO :done
 
-for %%e in (Professional, Community) do (
+for %%e in (%VSEDITION%, Professional, Community) do (
     for /l %%v in (2025, -1, 2017) do (
         set VS=%%v
         IF EXIST  "%PROGRAMFILES(x86)%\Microsoft Visual Studio\%%v\%%e\VC\Auxiliary\Build\vcvarsall.bat" call "%PROGRAMFILES(x86)%\Microsoft Visual Studio\%%v\%%e\VC\Auxiliary\Build\vcvarsall.bat" %1
