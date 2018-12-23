@@ -41,6 +41,7 @@
         "me-make": "~0.1",
         "me-os": "~0.8",
         "me-vstudio": "~0.8",
+        "me-win": "~0.1",
         "me-xcode": "~0.8",
         "mpr": "~8",
         "mpr-mbedtls": "~2",

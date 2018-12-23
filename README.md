@@ -16,6 +16,10 @@ See [LICENSE.md](https://github.com/embedthis/makeme/blob/master/LICENSE.md) for
 
     make
 
+On windows, make.bat runs projects/windows.bat to locate the Visual Studio compiler. If you have setup
+your CMD environment for Visual Studio by running the Visual Studio vsvarsall.bat, then that edition of 
+Visual Studio will be used. If not, windows.bat will attempt to locate the most recent Visual Studio version. 
+
 ### To install on Linux:
 
     make install
