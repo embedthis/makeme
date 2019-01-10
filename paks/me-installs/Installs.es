@@ -986,7 +986,7 @@ class InstallsInner {
             return(Cmd.run('sha256sum ' + filename).split(' ')[0])
         } else if (Cmd.locate('sha256sum')) {
             return(Cmd.run('sha256sum ' + filename).split(' ')[0])
-        } else 
+        } else {
             return(Cmd.run('shasum -a 256 ' + filename).split(' ')[0])
         }
     }
