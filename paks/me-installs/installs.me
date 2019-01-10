@@ -142,9 +142,11 @@ Me.load({
         packageBinary: {
             depends: ['all'],
             action: `
-                require embedthis.me
-                makeme.loader.blendFile('${ORIGIN}/manifest.me')
-                Installs().packageBinary()
+                if ("${OS}" != "linux") {
+                    require embedthis.me
+                    makeme.loader.blendFile('${ORIGIN}/manifest.me')
+                    Installs().packageBinary()
+                }
             `,
             home: '${TOP}',
         },
