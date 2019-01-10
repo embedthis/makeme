@@ -3,7 +3,7 @@
 #
 
 NAME                  := makeme
-VERSION               := 1.0.1
+VERSION               := 1.0.2
 PROFILE               ?= default
 ARCH                  ?= $(shell uname -m | sed 's/i.86/x86/;s/x86_64/x64/;s/arm.*/arm/;s/mips.*/mips/')
 CC_ARCH               ?= $(shell echo $(ARCH) | sed 's/x86/i686/;s/x64/x86_64/')
@@ -1048,6 +1048,10 @@ DEPS_51 += paks/me-os/windows.me
 DEPS_51 += paks/me-vstudio/Vstudio.es
 DEPS_51 += paks/me-vstudio/pak.json
 DEPS_51 += paks/me-vstudio/vstudio.me
+DEPS_51 += paks/me-win/make.bat
+DEPS_51 += paks/me-win/pak.json
+DEPS_51 += paks/me-win/win.me
+DEPS_51 += paks/me-win/windows.bat
 DEPS_51 += paks/me-xcode/Xcode.es
 DEPS_51 += paks/me-xcode/pak.json
 DEPS_51 += paks/me-xcode/xcode.me
@@ -1088,6 +1092,11 @@ $(BUILD)/.pakrun-modified: $(DEPS_51)
 	cp paks/me-vstudio/Vstudio.es $(BUILD)/bin/paks/me-vstudio/Vstudio.es
 	cp paks/me-vstudio/pak.json $(BUILD)/bin/paks/me-vstudio/pak.json
 	cp paks/me-vstudio/vstudio.me $(BUILD)/bin/paks/me-vstudio/vstudio.me
+	mkdir -p "$(BUILD)/bin/paks/me-win"
+	cp paks/me-win/make.bat $(BUILD)/bin/paks/me-win/make.bat
+	cp paks/me-win/pak.json $(BUILD)/bin/paks/me-win/pak.json
+	cp paks/me-win/win.me $(BUILD)/bin/paks/me-win/win.me
+	cp paks/me-win/windows.bat $(BUILD)/bin/paks/me-win/windows.bat
 	mkdir -p "$(BUILD)/bin/paks/me-xcode"
 	cp paks/me-xcode/Xcode.es $(BUILD)/bin/paks/me-xcode/Xcode.es
 	cp paks/me-xcode/pak.json $(BUILD)/bin/paks/me-xcode/pak.json

@@ -3,7 +3,7 @@
 #
 
 NAME                  := makeme
-VERSION               := 1.0.1
+VERSION               := 1.0.2
 PROFILE               ?= default
 ARCH                  ?= $(shell uname -m | sed 's/i.86/x86/;s/x86_64/x64/;s/arm.*/arm/;s/mips.*/mips/')
 CC_ARCH               ?= $(shell echo $(ARCH) | sed 's/x86/i686/;s/x64/x86_64/')
@@ -44,8 +44,8 @@ ifeq ($(ME_COM_EJSCRIPT),1)
     ME_COM_ZLIB := 1
 endif
 
-CFLAGS                += -g -w
-DFLAGS                += -DME_DEBUG=1 $(patsubst %,-D%,$(filter ME_%,$(MAKEFLAGS))) -DME_COM_COMPILER=$(ME_COM_COMPILER) -DME_COM_EJSCRIPT=$(ME_COM_EJSCRIPT) -DME_COM_HTTP=$(ME_COM_HTTP) -DME_COM_LIB=$(ME_COM_LIB) -DME_COM_MATRIXSSL=$(ME_COM_MATRIXSSL) -DME_COM_MBEDTLS=$(ME_COM_MBEDTLS) -DME_COM_MPR=$(ME_COM_MPR) -DME_COM_NANOSSL=$(ME_COM_NANOSSL) -DME_COM_OPENSSL=$(ME_COM_OPENSSL) -DME_COM_OSDEP=$(ME_COM_OSDEP) -DME_COM_PCRE=$(ME_COM_PCRE) -DME_COM_SSL=$(ME_COM_SSL) -DME_COM_VXWORKS=$(ME_COM_VXWORKS) -DME_COM_ZLIB=$(ME_COM_ZLIB) 
+CFLAGS                += -fPIC -w
+DFLAGS                += -DME_DEBUG=1 -D_REENTRANT -DPIC $(patsubst %,-D%,$(filter ME_%,$(MAKEFLAGS))) -DME_COM_COMPILER=$(ME_COM_COMPILER) -DME_COM_EJSCRIPT=$(ME_COM_EJSCRIPT) -DME_COM_HTTP=$(ME_COM_HTTP) -DME_COM_LIB=$(ME_COM_LIB) -DME_COM_MATRIXSSL=$(ME_COM_MATRIXSSL) -DME_COM_MBEDTLS=$(ME_COM_MBEDTLS) -DME_COM_MPR=$(ME_COM_MPR) -DME_COM_NANOSSL=$(ME_COM_NANOSSL) -DME_COM_OPENSSL=$(ME_COM_OPENSSL) -DME_COM_OSDEP=$(ME_COM_OSDEP) -DME_COM_PCRE=$(ME_COM_PCRE) -DME_COM_SSL=$(ME_COM_SSL) -DME_COM_VXWORKS=$(ME_COM_VXWORKS) -DME_COM_ZLIB=$(ME_COM_ZLIB) 
 IFLAGS                += "-I$(BUILD)/inc"
 LDFLAGS               += '-Wl,-rpath,@executable_path/' '-Wl,-rpath,@loader_path/'
 LIBPATHS              += -L$(BUILD)/bin
@@ -1007,6 +1007,10 @@ DEPS_44 += paks/me-os/windows.me
 DEPS_44 += paks/me-vstudio/Vstudio.es
 DEPS_44 += paks/me-vstudio/pak.json
 DEPS_44 += paks/me-vstudio/vstudio.me
+DEPS_44 += paks/me-win/make.bat
+DEPS_44 += paks/me-win/pak.json
+DEPS_44 += paks/me-win/win.me
+DEPS_44 += paks/me-win/windows.bat
 DEPS_44 += paks/me-xcode/Xcode.es
 DEPS_44 += paks/me-xcode/pak.json
 DEPS_44 += paks/me-xcode/xcode.me
@@ -1047,6 +1051,11 @@ $(BUILD)/.pakrun-modified: $(DEPS_44)
 	cp paks/me-vstudio/Vstudio.es $(BUILD)/bin/paks/me-vstudio/Vstudio.es
 	cp paks/me-vstudio/pak.json $(BUILD)/bin/paks/me-vstudio/pak.json
 	cp paks/me-vstudio/vstudio.me $(BUILD)/bin/paks/me-vstudio/vstudio.me
+	mkdir -p "$(BUILD)/bin/paks/me-win"
+	cp paks/me-win/make.bat $(BUILD)/bin/paks/me-win/make.bat
+	cp paks/me-win/pak.json $(BUILD)/bin/paks/me-win/pak.json
+	cp paks/me-win/win.me $(BUILD)/bin/paks/me-win/win.me
+	cp paks/me-win/windows.bat $(BUILD)/bin/paks/me-win/windows.bat
 	mkdir -p "$(BUILD)/bin/paks/me-xcode"
 	cp paks/me-xcode/Xcode.es $(BUILD)/bin/paks/me-xcode/Xcode.es
 	cp paks/me-xcode/pak.json $(BUILD)/bin/paks/me-xcode/pak.json

@@ -1967,6 +1967,10 @@ cd ..
 ../paks/me-vstudio/Vstudio.es,
 ../paks/me-vstudio/pak.json,
 ../paks/me-vstudio/vstudio.me,
+../paks/me-win/make.bat,
+../paks/me-win/pak.json,
+../paks/me-win/win.me,
+../paks/me-win/windows.bat,
 ../paks/me-xcode/Xcode.es,
 ../paks/me-xcode/pak.json,
 ../paks/me-xcode/xcode.me
@@ -2001,6 +2005,10 @@ cd ..
 ../build/macosx-x64-default/bin/Vstudio.es,
 ../build/macosx-x64-default/bin/pak.json,
 ../build/macosx-x64-default/bin/vstudio.me,
+../build/macosx-x64-default/bin/make.bat,
+../build/macosx-x64-default/bin/pak.json,
+../build/macosx-x64-default/bin/win.me,
+../build/macosx-x64-default/bin/windows.bat,
 ../build/macosx-x64-default/bin/Xcode.es,
 ../build/macosx-x64-default/bin/pak.json,
 ../build/macosx-x64-default/bin/xcode.me
@@ -2043,6 +2051,11 @@ cd ..
 	cp paks/me-vstudio/Vstudio.es build/macosx-x64-default/bin/paks/me-vstudio/Vstudio.es
 	cp paks/me-vstudio/pak.json build/macosx-x64-default/bin/paks/me-vstudio/pak.json
 	cp paks/me-vstudio/vstudio.me build/macosx-x64-default/bin/paks/me-vstudio/vstudio.me
+	mkdir -p \"build/macosx-x64-default/bin/paks/me-win\"
+	cp paks/me-win/make.bat build/macosx-x64-default/bin/paks/me-win/make.bat
+	cp paks/me-win/pak.json build/macosx-x64-default/bin/paks/me-win/pak.json
+	cp paks/me-win/win.me build/macosx-x64-default/bin/paks/me-win/win.me
+	cp paks/me-win/windows.bat build/macosx-x64-default/bin/paks/me-win/windows.bat
 	mkdir -p \"build/macosx-x64-default/bin/paks/me-xcode\"
 	cp paks/me-xcode/Xcode.es build/macosx-x64-default/bin/paks/me-xcode/Xcode.es
 	cp paks/me-xcode/pak.json build/macosx-x64-default/bin/paks/me-xcode/pak.json
@@ -3103,6 +3116,8 @@ ENABLE_TESTABILITY = YES;
 					"$(inherited)"
 				);
 				GCC_PREPROCESSOR_DEFINITIONS = (
+					"_REENTRANT",
+					"PIC",
 					"ME_DEBUG=1",
 					"$(inherited)"
 				);
@@ -3189,6 +3204,8 @@ ENABLE_TESTABILITY = YES;
 					"$(inherited)"
 				);
 				GCC_PREPROCESSOR_DEFINITIONS = (
+					"_REENTRANT",
+					"PIC",
 					"ME_DEBUG=0",
 					"$(inherited)"
 				);

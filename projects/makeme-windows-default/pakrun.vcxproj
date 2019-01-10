@@ -158,6 +158,14 @@ if exist $(BinDir)\pak.json del /Q $(BinDir)\pak.json
 copy /Y paks\me-vstudio\pak.json $(BinDir)\pak.json
 if exist $(BinDir)\vstudio.me del /Q $(BinDir)\vstudio.me
 copy /Y paks\me-vstudio\vstudio.me $(BinDir)\vstudio.me
+if exist $(BinDir)\make.bat del /Q $(BinDir)\make.bat
+copy /Y paks\me-win\make.bat $(BinDir)\make.bat
+if exist $(BinDir)\pak.json del /Q $(BinDir)\pak.json
+copy /Y paks\me-win\pak.json $(BinDir)\pak.json
+if exist $(BinDir)\win.me del /Q $(BinDir)\win.me
+copy /Y paks\me-win\win.me $(BinDir)\win.me
+if exist $(BinDir)\windows.bat del /Q $(BinDir)\windows.bat
+copy /Y paks\me-win\windows.bat $(BinDir)\windows.bat
 if exist $(BinDir)\Xcode.es del /Q $(BinDir)\Xcode.es
 copy /Y paks\me-xcode\Xcode.es $(BinDir)\Xcode.es
 if exist $(BinDir)\pak.json del /Q $(BinDir)\pak.json
