@@ -984,7 +984,9 @@ class InstallsInner {
     function checksum(filename) {
         if (Config.OS == 'windows') {
             return(Cmd.run('sha256sum ' + filename).split(' ')[0])
-        } else {
+        } else if (Cmd.locate('sha256sum')) {
+            return(Cmd.run('sha256sum ' + filename).split(' ')[0])
+        } else 
             return(Cmd.run('shasum -a 256 ' + filename).split(' ')[0])
         }
     }
