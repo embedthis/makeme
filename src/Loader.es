@@ -900,6 +900,8 @@ public class Loader {
             settings.version = package.version
             settings.author = package.author ? package.author.name : package.name
             settings.company = package.company
+            settings.profile = package.profile
+            settings.parts = package.parts
             if (package.directories && package.directories.paks) {
                 dir.paks = Path(package.directories.paks)
             }
