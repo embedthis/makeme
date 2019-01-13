@@ -33,6 +33,7 @@
         }
     ],
     "dependencies": {
+        "assist": "~0.1",
         "certs": "~0.1",
         "ejs.version": "~0.8",
         "ejscript": "~2.7",
