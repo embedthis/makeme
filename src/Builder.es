@@ -1014,7 +1014,8 @@ public class Builder {
                             loader.expand(item.script, {missing: ''}))
                     }
                 } else {
-                    runShell(target, item.interpreter, item.script)
+                    let script = loader.expand(item.script)
+                    runShell(target, item.interpreter, script)
                 }
             } catch (e) {
                 if (options.rethrow) {
