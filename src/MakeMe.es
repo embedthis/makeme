@@ -318,7 +318,9 @@ public class MakeMe {
         }
         if (args.rest.contains('deploy')) {
             let platforms = loader.readFile(Loader.START).platforms
-            options.deploy = me.dir.work.join(Loader.BUILD, platforms[0], 'deploy')
+            if (platforms) {
+                options.deploy = me.dir.work.join(Loader.BUILD, platforms[0], 'deploy')
+            }
         }
         if (options.deploy) {
             options.deploy = Path(options.deploy).absolute
