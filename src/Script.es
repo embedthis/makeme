@@ -811,6 +811,9 @@ public function repcmd(command: String): String {
         if (me.targets.rc) {
             command = repCmd(command, me.targets.rc.path, '$(RC)')
         }
+        if (me.targets.lib) {
+            command = repCmd(command, me.targets.lib.path, '$(AR)')
+        }
 
     } else if (generating == 'sh') {
         if (mappings.linker != '') {
