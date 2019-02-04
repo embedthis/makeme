@@ -9,7 +9,7 @@
 
 GPG_PASSFILE=/etc/farm/gpg.key
 
-local PARTS="app, ui, web"
+PARTS="app, ui, web"
 while [[ $# -gt 0 ]] ; do
     arg="$1"
     case ${arg} in

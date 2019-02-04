@@ -5,7 +5,7 @@
 
 function publishParts() {
     unset CDPATH
-    local PARTS="app, ui, web"
+    local PARTS="api, app, ui, web"
     while [[ $# -gt 0 ]] ; do
         arg="$1"
         case ${arg} in
@@ -23,12 +23,16 @@ function publishParts() {
 
     for part in ${PARTS} ; do
         [ ! -d "${part}" ] && continue
-        if [ -f ${part}/CONFIG/keys.json ] ; then
-            eval $(paks/assist/json2env app/CONFIG/keys.json app/product.json pak.json)
-        fi
+        local files=""
+        for f in CONFIG/keys.json ${part}/CONFIG/keys.json ${part}/product.json pak.json ; do
+            [ -f ${f} ] && files="${files} ${f}"
+        done
+        eval $(paks/assist/json2env ${files})
         cd "./${part}"
         echo -e "\nPublish ${part} $*"
-        if [ -f gulpfile.ts ] ; then
+        if [ -f bin/publish ] ; then
+            ./bin/publish $*
+        elif [ -f gulpfile.ts ] ; then
             gulp publish $*
         elif [ -f main.me ] ; then
             me publish

@@ -5,7 +5,7 @@
 
 function packageParts() {
     unset CDPATH
-    local PARTS="app, ui, web"
+    local PARTS="api, app, ui, web"
     while [[ $# -gt 0 ]] ; do
         arg="$1"
         case ${arg} in

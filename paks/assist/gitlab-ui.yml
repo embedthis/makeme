@@ -2,7 +2,7 @@
 #   gitlab-ui.yml - Template CI/CD for building a UI hosted in S3
 #
 #   Inputs:
-#       AWS_ACCOUNT     mobsense
+#       AWS_PROFILE     mobsense
 #       PROFILE         dev, release, prod, ...
 #       UI              "ui"
 #   Outputs
@@ -14,17 +14,11 @@ stages:
     - publish
 
 variables:
-    ui: 'ui'
-
-#cache:
-#    key: ${CI_COMMIT_REF_SLUG}
-#    paths:
-#        - ${UI}/node_modules/
+    UI: 'ui'
 
 before_script:
     - ./configure --profile ${PROFILE}
-    - npm link gulp
-    - eval $(paks/assist/secrets --env '' --profile "${PROFILE}" --aws-profile "${AWS_ACCOUNT}" get)
+    - eval $(paks/assist/secrets --env '' --profile "${PROFILE}" --aws-profile "${AWS_PROFILE}" get)
 
 build-ui:
     stage: build
