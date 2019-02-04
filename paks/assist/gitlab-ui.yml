@@ -1,12 +1,12 @@
 #
-#   gitlab-website.yml - Template CI/CD for gulp
+#   gitlab-ui.yml - Template CI/CD for building a UI hosted in S3
 #
 #   Inputs:
 #       AWS_ACCOUNT     mobsense
 #       PROFILE         dev, release, prod, ...
-#       WEB             "web"
+#       UI              "ui"
 #   Outputs
-#       build/web/      rendered pages
+#       build/ui/       rendered pages
 #
 
 stages:
@@ -14,19 +14,19 @@ stages:
     - publish
 
 variables:
-    - WEB: "web"
+    ui: 'ui'
 
 #cache:
 #    key: ${CI_COMMIT_REF_SLUG}
 #    paths:
-#        - ${WEB}/node_modules/
+#        - ${UI}/node_modules/
 
 before_script:
     - ./configure --profile ${PROFILE}
     - npm link gulp
     - eval $(paks/assist/secrets --env '' --profile "${PROFILE}" --aws-profile "${AWS_ACCOUNT}" get)
 
-build-website:
+build-ui:
     stage: build
     script:
         - ./paks/assist/build-parts --profile "${PROFILE}"
@@ -34,10 +34,10 @@ build-website:
         expire_in: 1 hour
         name: "rendered"
         paths:
-            - ${WEB}/build/
+            - ${UI}/build/
     tags: ['macosx']
 
-publish-website:
+publish-ui:
     stage: publish
     script:
         - ./paks/assist/publish-parts --profile "${PROFILE}"

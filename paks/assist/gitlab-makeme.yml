@@ -52,14 +52,23 @@ publish-linux:
     extends: .publish
     dependencies: ['build-linux']
     tags: ['linux']
+    except:
+        variables:
+            - $DEPLOY =~ /no-deploy/
 
 publish-macosx:
     extends: .publish
     dependencies: ['build-macosx']
     tags: ['macosx']
+    except:
+        variables:
+            - $DEPLOY =~ /no-deploy/
 
 publish-windows:
     extends: .publish
     dependencies: ['build-windows']
     tags: ['windows']
+    except:
+        variables:
+            - $DEPLOY =~ /no-deploy/
     when: manual

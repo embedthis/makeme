@@ -14,6 +14,9 @@ stages:
     - publish
     - deploy
 
+variables:
+    - APP: "app"
+
 #cache:
 #    key: ${CI_COMMIT_REF_SLUG}
 #    paths:
@@ -41,6 +44,9 @@ publish-app:
     script:
         - ./paks/assist/publish-parts --profile "${PROFILE}"
     only: [ 'tags', 'triggers', 'schedules', 'web', 'api' ]
+    except:
+        variables:
+            - ${DEPLOY} =~ /no-deploy/
     tags: ['macosx']
 
 deploy-app:
@@ -48,5 +54,8 @@ deploy-app:
     script:
         - ./paks/assist/deploy-parts --profile "${PROFILE}"
     only: [ 'tags', 'triggers', 'schedules', 'web', 'api' ]
+    except:
+        variables:
+            - ${DEPLOY} =~ /no-deploy/
     tags: ['macosx']
     when: manual

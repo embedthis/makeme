@@ -346,6 +346,9 @@ class Make {
         if (me.targets.link) {
             genWriteLine('LD                    ?= ' + me.targets.link.path)
         }
+        if (me.targets.lib) {
+            genWriteLine('AR                    ?= ' + me.targets.lib.path)
+        }
         genWriteLine('CONFIG                ?= $(OS)-$(ARCH)-$(PROFILE)')
         genWriteLine('BUILD                 ?= ' + loader.BUILD + '/$(CONFIG)')
         genWriteLine('LBIN                  ?= $(BUILD)/bin')
