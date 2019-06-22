@@ -372,7 +372,7 @@ if not exist "$(IncDir)" md "$(IncDir)"
     function projHeader(base, target) {
         me.SUBSYSTEM = (target.rule == 'gui') ? 'Windows' : 'Console'
         me.INC = target.includes ? target.includes.map(function(path) {
-            if (path.isAbsolute || path.startsWith('$(')) {
+            if (/* path.isAbsolute || */ path.startsWith('$(')) {
                 return path
             } else { 
                 return wpath(path.relativeTo(base))
