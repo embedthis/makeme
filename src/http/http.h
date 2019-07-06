@@ -3381,6 +3381,18 @@ PUBLIC void httpAfterEvent(HttpConn *conn);
 PUBLIC void httpPrepClientConn(HttpConn *conn, bool keepHeaders);
 
 /**
+    Get more output by invoking the handler's writable callback.
+    Called by processRunning.
+    Also issues an HTTP_EVENT_WRITABLE for application level notification.
+    @description Get more output by invoking the handler's writable callback. Called by processRunning.
+    Also issues an HTTP_EVENT_WRITABLE for application level notification.
+    @param conn HttpConn object created via #httpCreateConn
+    @ingroup HttpConn
+    @stability Internal
+ */
+PUBLIC bool httpPumpOutput(HttpConn *conn);
+
+/**
     Run the handler ready callback.
     @description This will be called when all incoming data for the request has been fully received.
     @param conn HttpConn object created via #httpCreateConn
@@ -6530,7 +6542,7 @@ PUBLIC cchar *httpGetBodyInput(HttpConn *conn);
     Read response data as a string. This will read all rx body and return a string that the caller should free.
     This will block and should not be used in async mode.
     @param conn HttpConn connection object created via #httpCreateConn
-    @returns A string containing the rx body. Caller should free.
+    @returns A string containing the rx body.
     @ingroup HttpRx
     @stability Stable
  */
@@ -8029,6 +8041,25 @@ typedef struct HttpDir {
     @internal
  */
 PUBLIC HttpDir *httpGetDirObj(HttpRoute *route);
+
+/************************************ Invoke ***************************************/
+/**
+    Event callback function
+    @ingroup HttpConn
+    @stability Prototype
+ */
+typedef void (*HttpInvokeProc)(HttpConn *conn, void *data);
+
+/**
+    Invoke a callback on an Appweb thread from a non-appweb thread.
+    @description Used to safely call back into Apppweb. This API provides a wrapper over mprCreateEvent.
+    @param conn HttpConn connection object created via #httpCreateConn
+    @param callback Callback function to invoke
+    @param data Data to pass to the callback. Caller is responsible to free in the callback if required.
+    @ingroup HttpConn
+    @stability Prototype
+ */
+PUBLIC void httpInvoke(HttpConn *conn, HttpInvokeProc callback, void *data);
 
 /************************************ Misc *****************************************/
 /**

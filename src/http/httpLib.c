@@ -3175,6 +3175,7 @@ PUBLIC int httpConnect(HttpConn *conn, cchar *method, cchar *uri, struct MprSsl 
      */
     httpCreateTxPipeline(conn, conn->http->clientRoute);
     httpSetState(conn, HTTP_STATE_CONNECTED);
+    httpPumpOutput(conn);
     setDefaultHeaders(conn);
     return 0;
 }
@@ -5220,10 +5221,14 @@ static void parseSslProtocols(HttpRoute *route, cchar *key, MprJson *prop)
             bit = MPR_PROTO_SSLV3;
         } else if (scaselessmatch(value, "tlsv1") || scaselessmatch(value, "tls")) {
             bit = MPR_PROTO_TLSV1;
+        } else if (scaselessmatch(value, "tlsv1.0")) {
+            bit = MPR_PROTO_TLSV1_0;
         } else if (scaselessmatch(value, "tlsv1.1")) {
             bit = MPR_PROTO_TLSV1_1;
         } else if (scaselessmatch(value, "tlsv1.2")) {
             bit = MPR_PROTO_TLSV1_2;
+        } else if (scaselessmatch(value, "tlsv1.3")) {
+            bit = MPR_PROTO_TLSV1_3;
         }
         if (clear) {
             mask &= ~bit;
@@ -5658,6 +5663,14 @@ PUBLIC int httpInitParser()
 
 
 
+/********************************** Locals ************************************/
+
+typedef struct HttpInvoke {
+    HttpInvokeProc  callback;
+    void            *data;         //  User data - caller must free if required in callback
+    HttpConn        *conn;         //  Relevant conn
+} HttpInvoke;
+
 /***************************** Forward Declarations ***************************/
 
 static HttpPacket *getPacket(HttpConn *conn, ssize *bytesToRead);
@@ -5888,7 +5901,7 @@ static void commonPrep(HttpConn *conn)
         mprRemoveEvent(conn->timeoutEvent);
         conn->timeoutEvent = 0;
     }
-    conn->lastActivity = conn->http->now;
+    conn->lastActivity = conn->http->now = mprGetTicks();
     conn->error = 0;
     conn->errorMsg = 0;
     conn->state = 0;
@@ -6149,6 +6162,10 @@ PUBLIC void httpIO(HttpConn *conn, int eventMask)
         Process one or more complete requests in the packet
      */
     do {
+        if (conn->state == HTTP_STATE_BEGIN && conn->error) {
+            /* Detect a disconnect with no outstanding request */
+            break;
+        }
         /* This is and must be the only place httpProtocol is ever called */
         httpProtocol(conn);
     } while (conn->endpoint && conn->state == HTTP_STATE_COMPLETE && prepForNext(conn));
@@ -6629,6 +6646,27 @@ PUBLIC void httpSetConnData(HttpConn *conn, void *data)
 PUBLIC void httpSetConnReqData(HttpConn *conn, void *data)
 {
     conn->reqData = data;
+}
+
+
+static void invokeWrapper(HttpInvoke *invoke)
+{
+    invoke->callback(invoke->conn, invoke->data);
+    pfree(invoke);
+}
+
+
+PUBLIC void httpInvoke(HttpConn *conn, HttpInvokeProc callback, void *data)
+{
+    HttpInvoke  *invoke;
+
+    if ((invoke = palloc(sizeof(HttpInvoke))) != NULL) {
+        invoke->callback = callback;
+        invoke->data = data;
+        invoke->conn = conn;
+        mprCreateEvent(conn->dispatcher, "httpInvoke", 0, (MprEventProc) invokeWrapper, invoke, 
+            MPR_EVENT_FOREIGN | MPR_EVENT_STATIC_DATA);
+    }
 }
 
 /*
@@ -11023,7 +11061,7 @@ static void readyPass(HttpQueue *q)
 }
 
 
-static void readyError(HttpQueue *q)
+static void errorPass(HttpQueue *q)
 {
     if (!q->conn->error) {
         httpError(q->conn, HTTP_CODE_NOT_FOUND, "The requested resource is not available");
@@ -11067,6 +11105,12 @@ static void handleTrace(HttpConn *conn)
 }
 
 
+static void incomingPass(HttpQueue *q, HttpPacket *packet)
+{
+    /* Simply discard incoming data */
+}
+
+
 PUBLIC int httpOpenPassHandler()
 {
     HttpStage     *stage;
@@ -11085,7 +11129,8 @@ PUBLIC int httpOpenPassHandler()
         return MPR_ERR_CANT_CREATE;
     }
     stage->start = startPass;
-    stage->ready = readyError;
+    stage->ready = errorPass;
+    stage->incoming = incomingPass;
     return 0;
 }
 
@@ -15789,12 +15834,16 @@ PUBLIC HttpLimits *httpGraduateLimits(HttpRoute *route, HttpLimits *limits)
 
 
 
+/*********************************** Locals ***********************************/
+
+#define HEADER_KEY      0x1         /* Validate token as a header key */
+#define HEADER_VALUE    0x2         /* Validate token as a header value */
+
 /***************************** Forward Declarations ***************************/
 
 static void addMatchEtag(HttpConn *conn, char *etag);
 static void delayAwake(HttpConn *conn, MprEvent *event);
-static char *getToken(HttpConn *conn, cchar *delim);
-static bool getOutput(HttpConn *conn);
+static char *getToken(HttpConn *conn, cchar *delim, int validation);
 static void manageRange(HttpRange *range, int flags);
 static void manageRx(HttpRx *rx, int flags);
 static bool parseHeaders(HttpConn *conn, HttpPacket *packet);
@@ -16185,21 +16234,30 @@ static bool parseRequestLine(HttpConn *conn, HttpPacket *packet)
     start = content->start;
     headers = httpTracing(conn) ? snclone(start, rx->headerPacketLength) : 0;
 
-    method = getToken(conn, 0);
+    method = getToken(conn, NULL, 0);
+    if (method == NULL || *method == '\0') {
+        httpBadRequestError(conn, HTTP_ABORT | HTTP_CODE_BAD_REQUEST, "Bad HTTP request. Empty Method");
+        return 0;
+    }
     rx->originalMethod = rx->method = supper(method);
     parseMethod(conn);
 
-    uri = getToken(conn, 0);
-    len = slen(uri);
-    if (*uri == '\0') {
+    uri = getToken(conn, NULL, 0);
+    if (uri == NULL || *uri == '\0') {
         httpBadRequestError(conn, HTTP_ABORT | HTTP_CODE_BAD_REQUEST, "Bad HTTP request. Empty URI");
         return 0;
-    } else if (len >= limits->uriSize) {
+    }
+    len = slen(uri);
+    if (len >= limits->uriSize) {
         httpLimitError(conn, HTTP_ABORT | HTTP_CODE_REQUEST_URL_TOO_LARGE,
             "Bad request. URI too long. Length %zd vs limit %zd", len, limits->uriSize);
         return 0;
     }
-    protocol = getToken(conn, "\r\n");
+    protocol = getToken(conn, "\r\n", 0);
+    if (protocol == NULL || *protocol == '\0') {
+        httpBadRequestError(conn, HTTP_ABORT | HTTP_CODE_BAD_REQUEST, "Bad HTTP request. Empty protocol");
+        return 0;
+    }
     conn->protocol = supper(protocol);
     if (smatch(conn->protocol, "HTTP/1.0") || *conn->protocol == 0) {
         if (rx->flags & (HTTP_POST|HTTP_PUT)) {
@@ -16239,13 +16297,18 @@ static bool parseResponseLine(HttpConn *conn, HttpPacket *packet)
     HttpTx      *tx;
     MprBuf      *content;
     cchar       *endp;
-    char        *protocol, *status;
+    char        *message, *protocol, *status;
     ssize       len;
 
     rx = conn->rx;
     tx = conn->tx;
 
-    protocol = conn->protocol = supper(getToken(conn, 0));
+    protocol = getToken(conn, NULL, 0);
+    if (protocol == NULL || protocol == '\0') {
+        httpBadRequestError(conn, HTTP_ABORT | HTTP_CODE_NOT_ACCEPTABLE, "Unsupported HTTP protocol");
+        return 0;
+    }
+    conn->protocol = supper(protocol);
     if (strcmp(protocol, "HTTP/1.0") == 0) {
         conn->http10 = 1;
         if (!scaselessmatch(tx->method, "HEAD")) {
@@ -16255,17 +16318,23 @@ static bool parseResponseLine(HttpConn *conn, HttpPacket *packet)
         httpBadRequestError(conn, HTTP_ABORT | HTTP_CODE_NOT_ACCEPTABLE, "Unsupported HTTP protocol");
         return 0;
     }
-    status = getToken(conn, 0);
-    if (*status == '\0') {
+    status = getToken(conn, NULL, 0);
+    if (status == NULL || *status == '\0') {
         httpBadRequestError(conn, HTTP_ABORT | HTTP_CODE_NOT_ACCEPTABLE, "Bad response status code");
         return 0;
     }
     rx->status = atoi(status);
-    rx->statusMessage = sclone(getToken(conn, "\r\n"));
+
+    message = getToken(conn, "\r\n", 0);
+    if (message == NULL || *message == '\0') {
+        httpBadRequestError(conn, HTTP_ABORT | HTTP_CODE_NOT_ACCEPTABLE, "Bad response status code");
+        return 0;
+    }
+    rx->statusMessage = sclone(message);
 
     len = slen(rx->statusMessage);
     if (len >= conn->limits->uriSize) {
-        httpLimitError(conn, HTTP_CLOSE | HTTP_CODE_REQUEST_URL_TOO_LARGE,
+        httpLimitError(conn, HTTP_ABORT | HTTP_CODE_REQUEST_URL_TOO_LARGE,
             "Bad response. Status message too long. Length %zd vs limit %zd", len, conn->limits->uriSize);
         return 0;
     }
@@ -16286,7 +16355,7 @@ static bool parseResponseLine(HttpConn *conn, HttpPacket *packet)
 
 
 /*
-    Parse the request headers. Return true if the header parsed.
+    Parse the request headers. Return true if the headers are parsed and validate.
  */
 static bool parseHeaders(HttpConn *conn, HttpPacket *packet)
 {
@@ -16305,21 +16374,19 @@ static bool parseHeaders(HttpConn *conn, HttpPacket *packet)
     limits = conn->limits;
     keepAliveHeader = 0;
 
-    for (count = 0; content->start[0] != '\r' && !conn->error; count++) {
+    for (count = 0; mprGetBufLength(content) > 0 && content->start[0] != '\r' && !conn->error; count++) {
         if (count >= limits->headerMax) {
             httpLimitError(conn, HTTP_ABORT | HTTP_CODE_BAD_REQUEST, "Too many headers");
             return 0;
         }
-        if ((key = getToken(conn, ":")) == 0 || *key == '\0') {
+        key = getToken(conn, ":", HEADER_KEY);
+        if (key == NULL || *key == '\0' || mprGetBufLength(content) == 0) {
             httpBadRequestError(conn, HTTP_ABORT | HTTP_CODE_BAD_REQUEST, "Bad header format");
             return 0;
         }
-        value = getToken(conn, "\r\n");
-        while (isspace((uchar) *value)) {
-            value++;
-        }
-        if (strspn(key, "%<>/\\") > 0) {
-            httpBadRequestError(conn, HTTP_ABORT | HTTP_CODE_BAD_REQUEST, "Bad header key value");
+        value = getToken(conn, "\r\n", HEADER_VALUE);
+        if (value == NULL || mprGetBufLength(content) == 0 || content->start[0] == '\0') {
+            httpBadRequestError(conn, HTTP_ABORT | HTTP_CODE_BAD_REQUEST, "Bad header value");
             return 0;
         }
         if ((oldValue = mprLookupKey(rx->headers, key)) != 0) {
@@ -16620,9 +16687,14 @@ static bool parseHeaders(HttpConn *conn, HttpPacket *packet)
             break;
         }
     }
+    if (mprGetBufLength(content) < 2) {
+        httpBadRequestError(conn, HTTP_ABORT | HTTP_CODE_BAD_REQUEST, "Bad headers");
+        return 0;
+    }
     if (rx->form && rx->length >= conn->limits->rxFormSize && conn->limits->rxFormSize != HTTP_UNLIMITED) {
-        httpLimitError(conn, HTTP_CLOSE | HTTP_CODE_REQUEST_TOO_LARGE,
+        httpLimitError(conn, HTTP_ABORT | HTTP_CODE_REQUEST_TOO_LARGE,
             "Request form of %lld bytes is too big. Limit %lld", rx->length, conn->limits->rxFormSize);
+        return 0;
     }
     if (conn->error) {
         /* Cannot reliably continue with keep-alive as the headers have not been correctly parsed */
@@ -16642,7 +16714,7 @@ static bool parseHeaders(HttpConn *conn, HttpPacket *packet)
     }
     if (!(rx->flags & HTTP_CHUNKED)) {
         /*
-            Step over "\r\n" after headers.
+            Step over "\r\n" after headers. Tested for at least 2 chars above.
             Don't do this if chunked so chunking can parse a single chunk delimiter of "\r\nSIZE ...\r\n"
          */
         mprAdjustBufStart(content, 2);
@@ -16679,7 +16751,7 @@ static bool processParsed(HttpConn *conn)
             can be defined per route.
          */
         if (!rx->upload && rx->length >= conn->limits->rxBodySize && conn->limits->rxBodySize != HTTP_UNLIMITED) {
-            httpLimitError(conn, HTTP_CLOSE | HTTP_CODE_REQUEST_TOO_LARGE,
+            httpLimitError(conn, HTTP_ABORT | HTTP_CODE_REQUEST_TOO_LARGE,
                 "Request content length %lld bytes is too big. Limit %lld", rx->length, conn->limits->rxBodySize);
             return 0;
         }
@@ -16867,7 +16939,7 @@ static bool processContent(HttpConn *conn)
         /*
             Some requests (websockets) remain in the content state while still generating output
          */
-        moreData += getOutput(conn);
+        moreData += httpPumpOutput(conn);
     }
     return (conn->connError || moreData || mprNeedYield());
 }
@@ -16896,7 +16968,7 @@ static bool processRunning(HttpConn *conn)
         return 1;
     }
     if (httpServerConn(conn)) {
-        return getOutput(conn) || httpQueuesNeedService(conn) || mprNeedYield();
+        return httpPumpOutput(conn) || httpQueuesNeedService(conn) || mprNeedYield();
     }
     return 0;
 }
@@ -16906,7 +16978,7 @@ static bool processRunning(HttpConn *conn)
     Get more output by invoking the handler's writable callback. Called by processRunning.
     Also issues an HTTP_EVENT_WRITABLE for application level notification.
  */
-static bool getOutput(HttpConn *conn)
+PUBLIC bool httpPumpOutput(HttpConn *conn)
 {
     HttpQueue   *q;
     HttpTx      *tx;
@@ -16918,7 +16990,7 @@ static bool getOutput(HttpConn *conn)
         count = q->count;
         if (!tx->finalizedOutput) {
             HTTP_NOTIFY(conn, HTTP_EVENT_WRITABLE, 0);
-            if (tx->handler->writable) {
+            if (tx->handler && tx->handler->writable) {
                 tx->handler->writable(q);
             }
         }
@@ -17412,20 +17484,26 @@ static void addMatchEtag(HttpConn *conn, char *etag)
 
 
 /*
-    Get the next input token. The content buffer is advanced to the next token. This routine always returns a
-    non-null token. The empty string means the delimiter was not found. The delimiter is a string to match and not
-    a set of characters. If null, it means use white space (space or tab) as a delimiter.
+    Get the next input token. The content buffer is advanced to the next token.
+    The delimiter is a string to match and not a set of characters.
+    If the delimeter null, it means use white space (space or tab) as a delimiter.
  */
-static char *getToken(HttpConn *conn, cchar *delim)
+static char *getToken(HttpConn *conn, cchar *delim, int validation)
 {
     MprBuf  *buf;
-    char    *token, *endToken, *nextToken;
+    char    *t, *token, *endToken, *nextToken;
 
     buf = conn->input->content;
     nextToken = mprGetBufEnd(buf);
 
+    /*
+        Eat white space
+     */
     for (token = mprGetBufStart(buf); (*token == ' ' || *token == '\t') && token < nextToken; token++) {}
     if (token >= nextToken) {
+        if (validation == HEADER_KEY) {
+            return NULL;
+        }
         return "";
     }
     if (delim == 0) {
@@ -17433,12 +17511,47 @@ static char *getToken(HttpConn *conn, cchar *delim)
         if ((endToken = strpbrk(token, delim)) != 0) {
             nextToken = endToken + strspn(endToken, delim);
             *endToken = '\0';
+        } else {
+            return NULL;
         }
+
     } else {
         if ((endToken = strstr(token, delim)) != 0) {
             *endToken = '\0';
             /* Only eat one occurence of the delimiter */
             nextToken = endToken + strlen(delim);
+        } else {
+            return NULL;
+        }
+    }
+
+    if (validation == HEADER_KEY) {
+        if (strpbrk(token, "\"\\/ \t\r\n(),:;<=>?@[]{}")) {
+            return NULL;
+        }
+        for (t = token; *t; t++) {
+            if (!isprint(*t)) {
+                return NULL;
+            }
+        }
+    } else if (validation == HEADER_VALUE) {
+        /* Trim white space */
+        if (slen(token) > 0) {
+            for (t = &token[slen(token) - 1]; t >= token; t--) {
+                if (isspace((uchar) *t)) {
+                    *t = '\0';
+                } else {
+                    break;
+                }
+            }
+        }
+        while (isspace((uchar) *token)) {
+            token++;
+        }
+        for (t = token; *t; t++) {
+            if (!isprint(*t)) {
+                return NULL;
+            }
         }
     }
     buf->start = nextToken;
@@ -17650,10 +17763,9 @@ PUBLIC char *httpGetExt(HttpConn *conn)
 }
 
 
-//  FUTURE - can this just use the default compare
 static int compareLang(char **s1, char **s2)
 {
-    return scmp(*s1, *s2);
+    return scmp(*s2, *s1);
 }
 
 
@@ -17676,7 +17788,7 @@ PUBLIC HttpLang *httpGetLanguage(HttpConn *conn, MprHash *spoken, cchar *default
     list = mprCreateList(-1, MPR_LIST_STABLE);
     if ((accept = httpGetHeader(conn, "Accept-Language")) != 0) {
         for (tok = stok(sclone(accept), ",", &nextTok); tok; tok = stok(nextTok, ",", &nextTok)) {
-            language = stok(tok, ";", &quality);
+            language = stok(tok, ";q=", &quality);
             if (quality == 0) {
                 quality = "1";
             }

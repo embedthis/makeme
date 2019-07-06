@@ -1553,6 +1553,7 @@ PUBLIC size_t psize(void *ptr)
 
 /*
     WARNING: this does not mark component members. If that is required, use mprAddRoot.
+    WARNING: this should only ever be used by MPR threads that are not yielded when this API is called.
  */
 PUBLIC void mprHold(cvoid *ptr)
 {
@@ -9759,7 +9760,7 @@ PUBLIC int mprServiceEvents(MprTicks timeout, int flags)
         if (flags & MPR_SERVICE_NO_BLOCK) {
             break;
         }
-        if (mprIsStopping() && (mprIsStopped() || mprIsIdle(0))) {
+        if (mprIsStopping()) {
             break;
         }
     }
@@ -10306,7 +10307,6 @@ PUBLIC bool mprDispatcherHasEvents(MprDispatcher *dispatcher)
     }
     return !isEmpty(dispatcher);
 }
-
 
 /*
     Copyright (c) Embedthis Software. All Rights Reserved.
@@ -11036,32 +11036,30 @@ PUBLIC MprEvent *mprCreateEventQueue()
     Create and queue a new event for service. Period is used as the delay before running the event and as the period
     between events for continuous events.
 
-    This routine is foreign thread-safe, i.e. it can be called by non-mpr threads where it runs in parallel with the GC.
+    This routine is foreign thread-safe when used with the MPR_EVENT_FOREIGN flag and a named dispatcher.
+    i.e. it can be called by non-mpr threads where it runs in parallel with the GC.
  */
 PUBLIC MprEvent *mprCreateEvent(MprDispatcher *dispatcher, cchar *name, MprTicks period, void *proc, void *data, int flags)
 {
     MprEvent    *event;
+    bool        scheduled;
     int         aflags;
 
     aflags = MPR_ALLOC_MANAGER | MPR_ALLOC_ZERO;
     if (flags & MPR_EVENT_FOREIGN) {
         /*
-            Foreign threads cannot safely reference a dispatcher as it may be deleted anytime.
+            Hold event memory for foreign threads to be immune from GC.
+            Supplied user data should be static (non mpr) or be held via mprHold.
          */
-        flags &= ~MPR_EVENT_DONT_QUEUE;
-        flags |= MPR_EVENT_QUICK;
-        dispatcher = 0;
-        /*
-            Hold memory for foreign threads to be immune from GC.
-            Supplied data should be static (non mpr) or be held via mprHold.
-         */
-        aflags |= MPR_ALLOC_HOLD | MPR_EVENT_STATIC_DATA;
+        flags = flags | MPR_EVENT_STATIC_DATA;
+        if (!(flags & MPR_EVENT_DONT_QUEUE)) {
+            aflags |= MPR_ALLOC_HOLD;
+        }
     }
     if ((event = mprAllocMem(sizeof(MprEvent), aflags)) == 0) {
         return 0;
     }
     mprSetManager(event, (MprManager) manageEvent);
-
     if (dispatcher == 0 || (dispatcher->flags & MPR_DISPATCHER_DESTROYED)) {
         dispatcher = (flags & MPR_EVENT_QUICK) ? MPR->nonBlock : MPR->dispatcher;
     }
@@ -11083,11 +11081,11 @@ PUBLIC MprEvent *mprCreateEvent(MprDispatcher *dispatcher, cchar *name, MprTicks
     event->due = event->timestamp + period;
 
     if (!(flags & MPR_EVENT_DONT_QUEUE)) {
-        mprQueueEvent(dispatcher, event);
+        scheduled = mprQueueEvent(dispatcher, event);
         if (flags & MPR_EVENT_FOREIGN) {
             mprRelease(event);
-            /* Warning: event may collected by GC here */
-            return 0;
+            /* Warning: event may collected by GC here, if it has already run */
+            return scheduled ? event : NULL;
         }
     }
     return event;
@@ -11118,34 +11116,40 @@ PUBLIC MprEvent *mprCreateTimerEvent(MprDispatcher *dispatcher, cchar *name, Mpr
 }
 
 
-PUBLIC void mprQueueEvent(MprDispatcher *dispatcher, MprEvent *event)
+PUBLIC bool mprQueueEvent(MprDispatcher *dispatcher, MprEvent *event)
 {
     MprEventService     *es;
     MprEvent            *prior, *q;
+    bool                scheduled;
 
     assert(dispatcher);
     assert(event);
     assert(event->timestamp);
 
     es = dispatcher->service;
-
     lock(es);
-    q = dispatcher->eventQ;
-    for (prior = q->prev; prior != q; prior = prior->prev) {
-        if (event->due > prior->due) {
-            break;
-        } else if (event->due == prior->due) {
-            break;
+    if (!(dispatcher->flags & MPR_DISPATCHER_DESTROYED)) {
+        q = dispatcher->eventQ;
+        for (prior = q->prev; prior != q; prior = prior->prev) {
+            if (event->due > prior->due) {
+                break;
+            } else if (event->due == prior->due) {
+                break;
+            }
         }
-    }
-    assert(prior->next);
-    assert(prior->prev);
+        assert(prior->next);
+        assert(prior->prev);
 
-    queueEvent(prior, event);
-    event->dispatcher = dispatcher;
-    es->eventCount++;
-    mprScheduleDispatcher(dispatcher);
+        queueEvent(prior, event);
+        event->dispatcher = dispatcher;
+        es->eventCount++;
+        mprScheduleDispatcher(dispatcher);
+        scheduled = 1;
+    } else {
+        scheduled = 0;
+    }
     unlock(es);
+    return scheduled;
 }
 
 
@@ -11323,7 +11327,6 @@ PUBLIC void mprDequeueEvent(MprEvent *event)
         event->prev = 0;
     }
 }
-
 
 /*
     Copyright (c) Embedthis Software. All Rights Reserved.
@@ -23489,6 +23492,7 @@ static void manageSsl(MprSsl *ssl, int flags)
         mprMark(ssl->caFile);
         mprMark(ssl->ciphers);
         mprMark(ssl->config);
+        mprMark(ssl->device);
         mprMark(ssl->keyFile);
         mprMark(ssl->hostname);
         mprMark(ssl->mutex);
@@ -23509,7 +23513,7 @@ PUBLIC MprSsl *mprCreateSsl(int server)
     if ((ssl = mprAllocObj(MprSsl, manageSsl)) == 0) {
         return 0;
     }
-    ssl->protocols = MPR_PROTO_TLSV1_1 | MPR_PROTO_TLSV1_2;
+    ssl->protocols = MPR_PROTO_TLSV1_1 | MPR_PROTO_TLSV1_2 | MPR_PROTO_TLSV1_3;
 
     /*
         The default for servers is not to verify client certificates.
@@ -23677,6 +23681,12 @@ PUBLIC void mprSetSslCiphers(MprSsl *ssl, cchar *ciphers)
     assert(ssl);
     ssl->ciphers = sclone(ciphers);
     ssl->changed = 1;
+}
+
+
+PUBLIC void mprSetSslDevice(MprSsl *ssl, cchar *device)
+{
+    ssl->device = sclone(device);
 }
 
 
@@ -25624,7 +25634,7 @@ PUBLIC void mprGetWorkerStats(MprWorkerStats *stats)
 PUBLIC int mprAvailableWorkers()
 {
     MprWorkerStats  wstats;
-    int             activeWorkers, spareThreads, spareCores, result;
+    int             spareThreads, result;
 
     memset(&wstats, 0, sizeof(wstats));
     mprGetWorkerStats(&wstats);
@@ -25634,13 +25644,19 @@ PUBLIC int mprAvailableWorkers()
         SpareCores      == Cores available on the system
         Result          == Idle workers + lesser of SpareCores|SpareThreads
      */
-    spareThreads = wstats.max - wstats.busy - wstats.idle;
+    result = spareThreads = wstats.max - wstats.busy - wstats.idle;
+#if ME_MPR_THREAD_LIMIT_BY_CORES
+{
+    int     activeWorkers, spareCores;
+
     activeWorkers = wstats.busy - wstats.yielded;
     spareCores = MPR->heap->stats.cpuCores - activeWorkers;
     if (spareCores <= 0) {
         return 0;
     }
     result = wstats.idle + min(spareThreads, spareCores);
+}
+#endif
 #if DEBUG_TRACE
     printf("Avail %d, busy %d, yielded %d, idle %d, spare-threads %d, spare-cores %d, mustYield %d\n", result, wstats.busy,
         wstats.yielded, wstats.idle, spareThreads, spareCores, MPR->heap->mustYield);
@@ -25691,7 +25707,7 @@ PUBLIC int mprStartWorker(MprWorkerProc proc, void *data)
         unlock(ws);
         return MPR_ERR_BUSY;
     }
-    if (!ws->pruneTimer && (ws->numThreads < ws->minThreads)) {
+    if (!ws->pruneTimer && (ws->numThreads > ws->minThreads)) {
         ws->pruneTimer = mprCreateTimerEvent(NULL, "pruneWorkers", MPR_TIMEOUT_PRUNER, pruneWorkers, ws, MPR_EVENT_QUICK);
     }
     unlock(ws);
