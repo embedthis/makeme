@@ -12,3 +12,21 @@ if [ "${PATH/$_MMPRODUCT\/build//}" = "${PATH}" ] ; then
     echo Setup \"${_MMPRODUCT}\" Environment
     echo
 fi
+
+if [ -z "${CI}" ] ; then
+    if [ -f .profile ] ; then
+        PROFILE=$(cat .profile)
+    else
+        PROFILE=prod
+        echo "${PROFILE}" >.profile
+        echo "Using default profile \"${PROFILE}\". Edit \".profile\" to change"
+    fi
+    export PROFILE
+    export AWS_DEFAULT_REGION=us-east-1
+    export AWS_PROFILE=embedthis
+    export BUCKET="embedthis.software"
+
+    # export TF_VAR_profile=${PROFILE}
+    export TF_VAR_profile=prod
+    export TF_VAR_aws_profile=${AWS_PROFILE}
+fi
