@@ -553,7 +553,7 @@ function setCompilerOptions(results, settings) {
     } else if (platform.os == 'windows') {
         results.compiler.push('-nologo', '-GR-', '-W3')
         results.libraries.push('ws2_32.lib', 'advapi32.lib', 'user32.lib', 'kernel32.lib', 'oldnames.lib', 'shell32.lib')
-        results.linker.push('-nologo', '-incremental:no', '-dynamicbase', '-highentropyva', '-nxcompat')
+        results.linker.push('-nologo', '-incremental:no', '-dynamicbase', '-nxcompat')
         if (me.settings.single) {
             if (me.settings.debug) {
                 results.compiler.push('-Zi', '-Od', '-MTd')
