@@ -3334,7 +3334,7 @@ PUBLIC char *httpReadString(HttpConn *conn)
     if (rx->length < 0) {
         return 0;
     }
-    remaining = (rx->length > MAXSSIZE) ? MAXSIZE: rx->length;
+    remaining = (rx->length > MAXSSIZE) ? MAXSSIZE : (ssize) rx->length;
 
     if (remaining > 0) {
         if ((content = mprAlloc(remaining + 1)) == 0) {
