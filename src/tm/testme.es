@@ -28,6 +28,7 @@ enumerable class TestMe {
     var skipTest: Boolean                   //  Skip current test or directory
     var options: Object                     //  Command line options
     var program: String                     //  Program name
+    var iterations: Number = 1
     var log: Logger = App.log
     var start = Date.now()
     var startTest
@@ -64,7 +65,8 @@ enumerable class TestMe {
             'continue': { alias: 's' },
             debug: { alias: 'D' },
             depth: { range: Number, alias: 'd' },
-            ide: { alias: 'i' },
+            ide: {},
+            iterations: { alias: 'i', range: Number },
             log: { alias: 'l', range: String },
             more: { alias: 'm' },
             noserver: { alias: 'n' },
@@ -93,6 +95,7 @@ enumerable class TestMe {
             '  --debug               # Run in debug mode. Sets TM_DEBUG\n' + 
             '  --depth number        # Zero == basic, 1 == throrough, 2 extensive\n' + 
             '  --ide                 # Run the test in an IDE debugger\n' + 
+            '  --iterations number   # Repeat the tests\n' + 
             '  --log file:level      # Log output to file at verbosity level\n' + 
             '  --more                # Pass output through "more"\n' + 
             '  --noserver            # Do not run server side of tests\n' + 
@@ -265,7 +268,10 @@ enumerable class TestMe {
     function runAllTests(): Void {
         trace('Test', 'Starting tests. Test depth: ' + depth)
         setupEnv()
-        runDirTests('.', topEnv)
+        for (let i = 0; i < options.iterations; i++) {
+            trace('Iteration', i + 1)
+            runDirTests('.', topEnv)
+        }
     }
 
     function runDirTests(dir: Path, parentEnv) {
