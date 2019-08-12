@@ -28,7 +28,6 @@ enumerable class TestMe {
     var skipTest: Boolean                   //  Skip current test or directory
     var options: Object                     //  Command line options
     var program: String                     //  Program name
-    var iterations: Number = 1
     var log: Logger = App.log
     var start = Date.now()
     var startTest
@@ -152,6 +151,9 @@ enumerable class TestMe {
         if (options.verbose) {
             verbosity++
         }
+        if (!options.iterations) {
+            options.iterations = 1
+        }
         if (options.project) {
             /* Convenient alias */
             options.projects = options.project
@@ -269,7 +271,9 @@ enumerable class TestMe {
         trace('Test', 'Starting tests. Test depth: ' + depth)
         setupEnv()
         for (let i = 0; i < options.iterations; i++) {
-            trace('Iteration', i + 1)
+            if (!options.clean) {
+                trace('Iteration', i + 1)
+            }
             runDirTests('.', topEnv)
         }
     }
