@@ -925,6 +925,9 @@ public class Builder {
             }
             cmd.env = env
         }
+        if (copt.env) {
+            cmd.env = blend(cmd.env, copt.env)
+        }
         App.log.debug(2, "Command " + command)
         App.log.debug(3, "Env " + serialize(cmd.env, {pretty: true, indent: 4, commas: true, quotes: false}))
 
