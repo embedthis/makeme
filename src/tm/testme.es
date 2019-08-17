@@ -272,9 +272,12 @@ enumerable class TestMe {
         setupEnv()
         for (let i = 0; i < options.iterations; i++) {
             if (!options.clean) {
-                trace('Iteration', i + 1)
+                trace('Iteration', i + 1, App.dir)
             }
             runDirTests('.', topEnv)
+            if (this.failedCount > 0 && !keepGoing) {
+                break
+            }
         }
     }
 
