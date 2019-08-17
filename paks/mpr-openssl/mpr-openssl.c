@@ -600,6 +600,7 @@ static int configOss(MprSsl *ssl, int flags, char **errorMsg)
     if (!(ssl->protocols & MPR_PROTO_TLSV1_3)) {
         cfg->setFlags |= SSL_OP_NO_TLSv1_3;
     }
+#endif
 #ifdef SSL_OP_MSIE_SSLV2_RSA_PADDING
     cfg->setFlags |= SSL_OP_MSIE_SSLV2_RSA_PADDING;
 #endif

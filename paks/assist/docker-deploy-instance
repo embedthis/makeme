@@ -1,11 +1,11 @@
 #!/bin/bash
 #
-#   UNUSED - NOT YET UPGRADED
+#   NOT YET UPGRADED
 #   docker-deploy - Deploy docker image to an instance
 #
 #   usage: docker-deploy
 #
-echo UNUSED - NOT YET UPGRADED
+echo NOT YET UPGRADED
 exit 255
 
 IMAGE=${NAME}
