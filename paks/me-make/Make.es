@@ -476,6 +476,7 @@ class Make {
         let dflags = componentDefs()
         genWriteLine('CC                    = cl')
         genWriteLine('LD                    = link')
+        genWriteLine('AR                    = lib')
         genWriteLine('RC                    = rc')
         genWriteLine('CFLAGS                = ' + mappings.compiler)
         genWriteLine('DFLAGS                = ' + mappings.defines + ' ' + dflags)
