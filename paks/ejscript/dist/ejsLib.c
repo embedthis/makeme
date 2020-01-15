@@ -41857,6 +41857,14 @@ PUBLIC int ejsSetPathAttributes(Ejs *ejs, cchar *path, EjsObj *attributes)
             ejsThrowIOError(ejs, "Cannot change permissions. Error %d", mprGetError());
         }
     }
+#if FUTURE
+    EjsObj *modified;
+    if ((modified = ejsGetPropertyByName(ejs, attributes, EN("modified"))) != 0) {
+        if (modified == ESV(true)) {
+            utime(path)
+        }
+    }
+#endif
     return 0;
 }
 
