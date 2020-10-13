@@ -261,6 +261,7 @@ static void     manageOpenConfig(OpenConfig *cfg, int flags);
 static void     manageOpenProvider(MprSocketProvider *provider, int flags);
 static void     manageOpenSocket(OpenSocket *ssp, int flags);
 static cchar    *mapCipherNames(cchar *ciphers);
+static int      preloadOss(MprSsl *ssl, int flags);
 static ssize    readOss(MprSocket *sp, void *buf, ssize len);
 static void     setSecured(MprSocket *sp);
 static int      setCertFile(SSL_CTX *ctx, cchar *certFile);
@@ -302,6 +303,7 @@ PUBLIC int mprSslInit(void *unused, MprModule *module)
         return MPR_ERR_MEMORY;
     }
     openProvider->name = sclone("openssl");
+    openProvider->preload = preloadOss;
     openProvider->upgradeSocket = upgradeOss;
     openProvider->closeSocket = closeOss;
     openProvider->disconnectSocket = disconnectOss;
@@ -892,6 +894,26 @@ static void closeOss(MprSocket *sp, bool gracefully)
 }
 
 
+static int preloadOss(MprSsl *ssl, int flags)
+{
+    char    *errorMsg;
+
+    assert(ssl);
+
+    if (ssl == 0) {
+        ssl = mprCreateSsl(flags & MPR_SOCKET_SERVER);
+    }
+    lock(ssl);
+    if (configOss(ssl, flags, &errorMsg) < 0) {
+        mprLog("error mpr ssl openssl", 4, "Cannot configure SSL %s", errorMsg);
+        unlock(ssl);
+        return MPR_ERR_CANT_INITIALIZE;
+    }
+    unlock(ssl);
+    return 0;
+}
+
+
 /*
     Upgrade a standard socket to use SSL/TLS. Used by both clients and servers to upgrade a socket for SSL.
     If a client, this may block while connecting.
@@ -1015,19 +1037,20 @@ static ssize readOss(MprSocket *sp, void *buf, ssize len)
     retries = 5;
     for (i = 0; i < retries; i++) {
         rc = SSL_read(osp->handle, buf, (int) len);
-        if (rc < 0) {
+        if (rc <= 0) {
             error = SSL_get_error(osp->handle, rc);
             if (error == SSL_ERROR_WANT_READ || error == SSL_ERROR_WANT_CONNECT || error == SSL_ERROR_WANT_ACCEPT) {
                 continue;
             }
             mprLog("info mpr ssl openssl", 5, "SSL_read %s", getOssError(sp));
+            sp->flags |= MPR_SOCKET_EOF | MPR_SOCKET_ERROR;
         }
         break;
     }
     if (osp->cfg->maxHandshakes && osp->handshakes > osp->cfg->maxHandshakes) {
         mprLog("error mpr ssl openssl", 4, "TLS renegotiation attack");
         rc = -1;
-        sp->flags |= MPR_SOCKET_EOF;
+        sp->flags |= MPR_SOCKET_EOF | MPR_SOCKET_ERROR;
         return MPR_ERR_BAD_STATE;
     }
     if (rc <= 0) {
@@ -1040,17 +1063,18 @@ static ssize readOss(MprSocket *sp, void *buf, ssize len)
             sp->flags |= MPR_SOCKET_EOF;
             rc = -1;
         } else if (error == SSL_ERROR_SYSCALL) {
-            sp->flags |= MPR_SOCKET_EOF;
+            sp->flags |= MPR_SOCKET_EOF | MPR_SOCKET_ERROR;
             rc = -1;
         } else if (error != SSL_ERROR_ZERO_RETURN) {
             /* SSL_ERROR_SSL */
             mprLog("info mpr ssl openssl", 4, "%s", getOssError(sp));
             rc = -1;
-            sp->flags |= MPR_SOCKET_EOF;
+            sp->flags |= MPR_SOCKET_EOF | MPR_SOCKET_ERROR;
         }
     } else {
         if (!(sp->flags & MPR_SOCKET_SERVER) && !sp->secured) {
             if (checkPeerCertName(sp) < 0) {
+                sp->flags |= MPR_SOCKET_EOF | MPR_SOCKET_CERT_ERROR;
                 return MPR_ERR_BAD_STATE;
             }
         }
