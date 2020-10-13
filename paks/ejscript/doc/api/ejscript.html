@@ -214,7 +214,7 @@
 <tr class="apiDef"><td class="apiType"><a href="#group___ejs_worker" class="ref">EjsWorker*</a></td><td><a href="#group___ejs_worker_1ga6fe839d13cc75c1b934ea042241cf5bf" class="nameRef">ejsCreateWorker</a>(<a href="#group___ejs" class="ref">Ejs</a> *ejs)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Create a worker.</td></tr>
 <tr class="apiDef"><td class="apiType"><a href="#group___ejs_x_m_l" class="ref">EjsXML*</a></td><td><a href="#group___ejs_x_m_l_1ga0fe5fac1a54834bb2f00bcdc955c4aa2" class="nameRef">ejsCreateXML</a>(<a href="#group___ejs" class="ref">Ejs</a> *ejs, int kind, <a href="#group___ejs_name" class="ref">EjsName</a> name, <a href="#group___ejs_x_m_l" class="ref">EjsXML</a> *parent, <a href="#group___ejs_string" class="ref">EjsString</a> *value)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Create an XML node object.</td></tr>
 <tr class="apiDef"><td class="apiType"><a href="#group___ejs_x_m_l" class="ref">EjsXML*</a></td><td><a href="#group___ejs_x_m_l_1ga06ebe56f1b1705be503969940047a7c5" class="nameRef">ejsCreateXMLList</a>(<a href="#group___ejs" class="ref">Ejs</a> *ejs, <a href="#group___ejs_x_m_l" class="ref">EjsXML</a> *targetObject, <a href="#group___ejs_name" class="ref">EjsName</a> targetProperty)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Create an XML list object.</td></tr>
-<tr class="apiDef"><td class="apiType">int</td><td><a href="#group___ejs_type_1ga85ea30ec19e970f8c36374da77fcb3ce" class="nameRef">ejsDefineGlobalFunction</a>(<a href="#group___ejs" class="ref">Ejs</a> *ejs, <a href="#group___ejs_string" class="ref">EjsString</a> *name, <a href="#group___ejs_function_1ga154ff59b6e236d13c28765946349c884" class="ref">EjsProc</a> fn)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Define a global function.</td></tr>
+<tr class="apiDef"><td class="apiType">int</td><td><a href="#group___ejs_type_1ga85ea30ec19e970f8c36374da77fcb3ce" class="nameRef">ejsDefineGlobalFunction</a>(<a href="#group___ejs" class="ref">Ejs</a> *ejs, <a href="#group___ejs_string" class="ref">EjsString</a> *name, <a href="#group___ejs_function_1ga2473d1d00a84c54db45f361206541697" class="ref">EjsProc</a> fn)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Define a global function.</td></tr>
 <tr class="apiDef"><td class="apiType">int</td><td><a href="#group___ejs_type_1ga7db7fe9549a45074b1cd21d3a34942a5" class="nameRef">ejsDefineInstanceProperty</a>(<a href="#group___ejs" class="ref">Ejs</a> *ejs, <a href="#group___ejs_type" class="ref">EjsType</a> *type, int slotNum, <a href="#group___ejs_name" class="ref">EjsName</a> name, <a href="#group___ejs_type" class="ref">EjsType</a> *propType, int attributes, <a href="#ejscript_8h_1a6b33ea7ff8884b09e08ff69d698eb4e9" class="ref">EjsAny</a> *value)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Define an instance property.</td></tr>
 <tr class="apiDef"><td class="apiType">int</td><td><a href="#group___ejs_obj_1gabae9345552bc5c55d435589f881e5d4e" class="nameRef">ejsDefineProperty</a>(<a href="#group___ejs" class="ref">Ejs</a> *ejs, <a href="#ejscript_8h_1a6b33ea7ff8884b09e08ff69d698eb4e9" class="ref">EjsAny</a> *obj, int slotNum, <a href="#group___ejs_name" class="ref">EjsName</a> qname, struct EjsType *type, <a href="osdep.html#osdep_8h_1a168afaa12b2c08e4ae1d11ea4c296e64" class="ref">int64</a> attributes, <a href="#ejscript_8h_1a6b33ea7ff8884b09e08ff69d698eb4e9" class="ref">EjsAny</a> *value)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Define a property.</td></tr>
 <tr class="apiDef"><td class="apiType"><a href="#group___ejs_namespace" class="ref">EjsNamespace*</a></td><td><a href="#group___ejs_namespace_1ga26256811d200826f0aa85262c7787d9c" class="nameRef">ejsDefineReservedNamespace</a>(<a href="#group___ejs" class="ref">Ejs</a> *ejs, <a href="#group___ejs_block" class="ref">EjsBlock</a> *block, <a href="#group___ejs_name" class="ref">EjsName</a> *typeName, <a href="osdep.html#osdep_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *name)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Define a reserved namespace on a block.</td></tr>
@@ -406,8 +406,8 @@
 <tr class="apiDef"><td class="apiName"><a href="#struct_ejs_intern" class="nameRef">EjsIntern</a></td><td class="apiBrief">Interned string hash shared over all interpreters.</td></tr>
 <tr class="apiDef"><td class="apiName"><a href="#struct_ejs_line" class="nameRef">EjsLine</a></td><td class="apiBrief">Symbolic debugging storage for source code in module files.</td></tr>
 <tr class="apiDef"><td class="apiName"><a href="#struct_ejs_lookup" class="nameRef">EjsLookup</a></td><td class="apiBrief">Lookup State.</td></tr>
-<tr class="apiDef"><td class="apiName"><a href="#group___ejs_module_1ga550b9b21fc9598fbe012216e1d9745fe" class="nameRef">EjsNativeCallback</a></td><td class="apiBrief">Native module initialization callback.</td></tr>
-<tr class="apiDef"><td class="apiName"><a href="#group___ejs_function_1ga154ff59b6e236d13c28765946349c884" class="nameRef">EjsProc</a></td><td class="apiBrief">Native Function signature.</td></tr>
+<tr class="apiDef"><td class="apiName"><a href="#group___ejs_module_1ga80650e09233f467ad2c7c214868ead58" class="nameRef">EjsNativeCallback</a></td><td class="apiBrief">Native module initialization callback.</td></tr>
+<tr class="apiDef"><td class="apiName"><a href="#group___ejs_function_1ga2473d1d00a84c54db45f361206541697" class="nameRef">EjsProc</a></td><td class="apiBrief">Native Function signature.</td></tr>
 <tr class="apiDef"><td class="apiName"><a href="#struct_ejs_properties" class="nameRef">EjsProperties</a></td><td class="apiBrief">Object properties.</td></tr>
 <tr class="apiDef"><td class="apiName"><a href="#struct_ejs_service" class="nameRef">EjsService</a></td><td class="apiBrief">Ejscript Service structure.</td></tr>
 <tr class="apiDef"><td class="apiName"><a href="#struct_ejs_slot" class="nameRef">EjsSlot</a></td><td class="apiBrief">Property slot structure.</td></tr>
@@ -943,7 +943,7 @@
     <dl><dt>Fields:</dt><dd>
     <table class="parameters" title="Parameters">
     <tr><td class="param">uint</td><td><td>abandoned</td><td>
-Pooled VM is released awaiting GC.
+Pooled VM is released awaiting GC <br/>
 </td>
     <tr><td class="param">int</td><td><td>argc</td><td>
 Count of command line args.
@@ -969,7 +969,7 @@ Interpreter is being destroyed.
     <tr><td class="param">MprDispatcher *</td><td><td>dispatcher</td><td>
 Event dispatcher.
 </td>
-    <tr><td class="param"><a class="ref" href="#struct_mpr_hash" external="mpr.dtags">MprHash</a> *</td><td><td>doc</td><td>
+    <tr><td class="param"><a class="ref" href="#struct_mpr_hash" external="/Users/mob/dev/ejscript/paks/mpr/doc/api/mpr.dtags">MprHash</a> *</td><td><td>doc</td><td>
 Documentation.
 </td>
     <tr><td class="param">uint</td><td><td>dontExit</td><td>
@@ -1041,7 +1041,7 @@ Name of a specific method to run for a program.
     <tr><td class="param">MprList *</td><td><td>modules</td><td>
 Loaded modules.
 </td>
-    <tr><td class="param"><a class="ref" href="#struct_mpr_mutex" external="mpr.dtags">MprMutex</a> *</td><td><td>mutex</td><td>
+    <tr><td class="param"><a class="ref" href="#struct_mpr_mutex" external="/Users/mob/dev/ejscript/paks/mpr/doc/api/mpr.dtags">MprMutex</a> *</td><td><td>mutex</td><td>
 Multithread locking.
 </td>
     <tr><td class="param">char *</td><td><td>name</td><td>
@@ -2067,10 +2067,10 @@ Boolean value.
   <div class="apiDetail">
 <p>ByteArray class.</p>
     <dl><dt><b>Description</b>:</dt><dd>ByteArrays provide a resizable, integer indexed, in-memory store for bytes. ByteArrays can be used as a simple array type to store and encode data as bytes or they can be used as buffered Streams implementing the Stream interface. <br/><br/>
- When used as a simple byte array, the ByteArray class offers a low level set of methods to insert and extract bytes. The index operator [] can be used to access individual bytes and the copyIn and copyOut methods can be used to get and put blocks of data. In this mode, the read and write position properties are ignored. Access to the byte array is from index zero up to the size defined by the length property. When constructed, the ByteArray can be designated as resizable, in which case the initial size will grow as required to accomodate data and the length property will be updated accordingly. <br/><br/>
- When used as a Stream, the byte array additional write methods to store data at the location specified by the $writePosition property and read methods to read from the $readPosition property. The $available method indicates how much data is available between the read and write position pointers. The $reset method can reset the pointers to the start of the array. When used with for/in, ByteArrays will iterate or enumerate over the available data between the read and write pointers. <br/><br/>
- If numeric values are read or written, they will be encoded according to the value of the endian property which can be set to either LittleEndian or BigEndian. <br/><br/>
- In Stream mode ByteArrays can be configured to run in sync or async mode. Adding observers via the $addObserver method will put a stream into async mode. Events will then be issued for close, EOF, read and write events.</dd></dl>
+When used as a simple byte array, the ByteArray class offers a low level set of methods to insert and extract bytes. The index operator [] can be used to access individual bytes and the copyIn and copyOut methods can be used to get and put blocks of data. In this mode, the read and write position properties are ignored. Access to the byte array is from index zero up to the size defined by the length property. When constructed, the ByteArray can be designated as resizable, in which case the initial size will grow as required to accomodate data and the length property will be updated accordingly. <br/><br/>
+When used as a Stream, the byte array additional write methods to store data at the location specified by the $writePosition property and read methods to read from the $readPosition property. The $available method indicates how much data is available between the read and write position pointers. The $reset method can reset the pointers to the start of the array. When used with for/in, ByteArrays will iterate or enumerate over the available data between the read and write pointers. <br/><br/>
+If numeric values are read or written, they will be encoded according to the value of the endian property which can be set to either LittleEndian or BigEndian. <br/><br/>
+In Stream mode ByteArrays can be configured to run in sync or async mode. Adding observers via the $addObserver method will put a stream into async mode. Events will then be issued for close, EOF, read and write events.</dd></dl>
     <dl><dt>See Also:</dt><dd>
     <a href="#group___ejs_byte_array_1ga0a3fff1a0c61911846644a5d3b79943b" class="ref">ejsCopyToByteArray</a>, <a href="#group___ejs_byte_array_1ga4587936a91ae2826232be299da064cdf" class="ref">ejsCreateByteArray</a>, <a href="#group___ejs_byte_array_1ga826d8a10b067ba49318dc329cb670439" class="ref">ejsGetByteArrayAvailableData</a>, <a href="#group___ejs_byte_array_1gab768a2dedd251a82e37ea3e2b732f425" class="ref">ejsGetByteArrayRoom</a>, <a href="#group___ejs_byte_array_1ga7c90ce987f93e29f571a243ebcf5f138" class="ref">ejsGrowByteArray</a>, <a href="#group___ejs_byte_array_1ga9e27e074496d87d332a6bb4fab13bce9" class="ref">ejsMakeRoomInByteArray</a>, <a href="#group___ejs_byte_array_1gab64a1e0c64be0f33f83a58e66da4f4e8" class="ref">ejsResetByteArray</a>, <a href="#group___ejs_byte_array_1gae53317802b2494990f39a29403e74343" class="ref">ejsSetByteArrayPositions</a>, <a href="#group___ejs_byte_array_1ga3b2aac807171ed5c62fd35c43e5289d5" class="ref">ejsWriteToByteArray</a></dd></dl>
     <dl><dt><b>API</b> Stability:</dt><dd>Internal.</dd></dl>
@@ -2506,7 +2506,7 @@ Stdout from the command.
     <tr><td class="param">int</td><td><td>throw</td><td>
 Set to true if the command should throw exceptions for failures.
 </td>
-    <tr><td class="param"><a class="ref" href="#mpr_8h_1adbceeccda24c35e7b4c6090db7065319" external="mpr.dtags">MprTicks</a></td><td><td>timeout</td><td>
+    <tr><td class="param"><a class="ref" href="#mpr_8h_1adbceeccda24c35e7b4c6090db7065319" external="/Users/mob/dev/ejscript/paks/mpr/doc/api/mpr.dtags">MprTicks</a></td><td><td>timeout</td><td>
 Command timeout in milliseconds.
 </td>
     </table></dd></dl>
@@ -3245,7 +3245,7 @@ Count of formal parameters.
     <tr><td class="param">uint</td><td><td>numDefault</td><td>
 Count of formal parameters with default initializers.
 </td>
-    <tr><td class="param"><a class="ref" href="#group___ejs_function_1ga154ff59b6e236d13c28765946349c884">EjsProc</a></td><td><td>proc</td><td>
+    <tr><td class="param"><a class="ref" href="#group___ejs_function_1ga2473d1d00a84c54db45f361206541697">EjsProc</a></td><td><td>proc</td><td>
 Native function pointer.
 </td>
     <tr><td class="param">uint</td><td><td>rest</td><td>
@@ -3643,10 +3643,7 @@ Functions can be either native - meaning the implementation is via a C function,
   <div class="prototype">EjsHttp</div>
   <div class="apiDetail">
 <p>Http Class.</p>
-    <dl><dt><b>Description</b>:</dt><dd><verbatim>Http objects represents a Hypertext Transfer Protocol version 1.1 client connection and are used 
-HTTP requests and capture responses. This class supports the HTTP/1.1 standard including methods for GET, POST, 
-PUT, DELETE, OPTIONS, and TRACE. It also supports Keep-Alive and SSL connections. 
-</verbatim></dd></dl>
+    <dl><dt><b>Description</b>:</dt><dd>Http objects represents a Hypertext Transfer Protocol version 1.1 client connection and are used HTTP requests and capture responses. This class supports the HTTP/1.1 standard including methods for GET, POST, PUT, DELETE, OPTIONS, and TRACE. It also supports Keep-Alive and SSL connections.</dd></dl>
     <dl><dt>See Also:</dt><dd>
     <a href="#group___ejs_http_1ga35375f154c987c2f3838c2e58a76ca3c" class="ref">ejsCreateHttp</a>, <a href="#group___ejs_http_1ga60a89e801d85e336886d45983d9f1f61" class="ref">ejsGetHttpLimits</a>, <a href="#group___ejs_path_1ga7d27ac819b3827b66dd3fee21707700b" class="ref">ejsLoadHttpService</a>, <a href="#group___ejs_http_1gaf24460df769dbdfc75e5cb162acf64c0" class="ref">ejsSetHttpLimits</a>, <a href="#group___ejs_path_1gaad418e9cce3ebf26addcddf7c6355a3a" class="ref">ejsSetupHttpTrace</a></dd></dl>
     <dl><dt><b>API</b> Stability:</dt><dd>Internal.</dd></dl>
@@ -3703,7 +3700,7 @@ Cached response (only used if response() is used).
     <tr><td class="param">MprBuf *</td><td><td>responseContent</td><td>
 Response data.
 </td>
-    <tr><td class="param"><a class="ref" href="#struct_mpr_ssl" external="mpr.dtags">MprSsl</a> *</td><td><td>ssl</td><td>
+    <tr><td class="param"><a class="ref" href="#struct_mpr_ssl" external="/Users/mob/dev/ejscript/paks/mpr/doc/api/mpr.dtags">MprSsl</a> *</td><td><td>ssl</td><td>
 SSL configuration.
 </td>
     <tr><td class="param">char *</td><td><td>uri</td><td>
@@ -3779,10 +3776,7 @@ Count of bytes written via write().
   <div class="prototype">EjsHttpServer</div>
   <div class="apiDetail">
 <p>HttpServer Class.</p>
-    <dl><dt><b>Description</b>:</dt><dd><verbatim>HttpServer objects represents a Hypertext Transfer Protocol version 1.1 client connection and are used 
-HTTP requests and capture responses. This class supports the HTTP/1.1 standard including methods for GET, POST, 
-PUT, DELETE, OPTIONS, and TRACE. It also supports Keep-Alive and SSL connections. 
-</verbatim></dd></dl>
+    <dl><dt><b>Description</b>:</dt><dd>HttpServer objects represents a Hypertext Transfer Protocol version 1.1 client connection and are used HTTP requests and capture responses. This class supports the HTTP/1.1 standard including methods for GET, POST, PUT, DELETE, OPTIONS, and TRACE. It also supports Keep-Alive and SSL connections.</dd></dl>
     <dl><dt><b>API</b> Stability:</dt><dd>Prototype.</dd></dl>
     <dl><dt>See Also:</dt><dd>
     <a href="#group___ejs_http_server_1gab1aadc348f8ffa4c6ed2e90e78e681bb" class="ref">ejsCloneHttpServer</a></dd></dl>
@@ -3842,7 +3836,7 @@ Extends Object.
     <tr><td class="param">char *</td><td><td>protocols</td><td>
 SSL protocols.
 </td>
-    <tr><td class="param">struct <a class="ref" href="#struct_mpr_ssl" external="mpr.dtags">MprSsl</a> *</td><td><td>ssl</td><td>
+    <tr><td class="param">struct <a class="ref" href="#struct_mpr_ssl" external="/Users/mob/dev/ejscript/paks/mpr/doc/api/mpr.dtags">MprSsl</a> *</td><td><td>ssl</td><td>
 SSL configuration.
 </td>
     <tr><td class="param">HttpTrace *</td><td><td>trace</td><td>
@@ -3898,7 +3892,7 @@ Collection length prior to iteration.
     <tr><td class="param">EjsArray *</td><td><td>namespaces</td><td>
 Namespaces to consider in iteration.
 </td>
-    <tr><td class="param"><a class="ref" href="#group___ejs_function_1ga154ff59b6e236d13c28765946349c884">EjsProc</a></td><td><td>nativeNext</td><td>
+    <tr><td class="param"><a class="ref" href="#group___ejs_function_1ga2473d1d00a84c54db45f361206541697">EjsProc</a></td><td><td>nativeNext</td><td>
 Native next function.
 </td>
     <tr><td class="param">EjsObj</td><td><td>obj</td><td>
@@ -4015,7 +4009,7 @@ Maximum version when used as a dependency.
     <tr><td class="param">int</td><td><td>minVersion</td><td>
 Minimum version when used as a dependency.
 </td>
-    <tr><td class="param"><a class="ref" href="#struct_mpr_mutex" external="mpr.dtags">MprMutex</a> *</td><td><td>mutex</td><td>
+    <tr><td class="param"><a class="ref" href="#struct_mpr_mutex" external="/Users/mob/dev/ejscript/paks/mpr/doc/api/mpr.dtags">MprMutex</a> *</td><td><td>mutex</td><td>
 Multithread locking.
 </td>
     <tr><td class="param">EjsString *</td><td><td>name</td><td>
@@ -4320,8 +4314,8 @@ Textual name of the namespace.
   <div class="apiDetail">
 <p>Format a reserved namespace name to create a unique namespace.</p>
     <dl><dt><b>Description</b>:</dt><dd>This is used to extend the &quot;internal&quot;, &quot;public&quot;, &quot;private&quot;, and &quot;protected&quot; namespaces to be unique for their owning class. <br/><br/>
- Namespaces are formatted as strings using the following format, where type is optional. Types may be qualified. [type,space] <br/><br/>
- Example: [debug::Shape,public] where Shape was declared as &quot;debug class Shape&quot;.</dd></dl>
+Namespaces are formatted as strings using the following format, where type is optional. Types may be qualified. [type,space] <br/><br/>
+Example: [debug::Shape,public] where Shape was declared as &quot;debug class Shape&quot;.</dd></dl>
     <dl><dt>Parameters:</dt><dd>
     <table class="parameters" title="Parameters">
     <tr><td class="param">ejs</td><td>Ejs reference returned from <a class="ref" href="#group___ejs_1ga98a567fe16481c6bf5368749d831ae77">ejsCreateVM</a></td>
@@ -5423,7 +5417,7 @@ Documents directory for hosted HttpServer.
     <tr><td class="param">char *</td><td><td>hostedHome</td><td>
 Home directory for hosted HttpServer.
 </td>
-    <tr><td class="param"><a class="ref" href="#mpr_8h_1adbceeccda24c35e7b4c6090db7065319" external="mpr.dtags">MprTicks</a></td><td><td>lastActivity</td><td>
+    <tr><td class="param"><a class="ref" href="#mpr_8h_1adbceeccda24c35e7b4c6090db7065319" external="/Users/mob/dev/ejscript/paks/mpr/doc/api/mpr.dtags">MprTicks</a></td><td><td>lastActivity</td><td>
 When a VM was last used.
 </td>
     <tr><td class="param">MprList *</td><td><td>list</td><td>
@@ -5432,7 +5426,7 @@ Free list.
     <tr><td class="param">int</td><td><td>max</td><td>
 Maximum number of VMs.
 </td>
-    <tr><td class="param"><a class="ref" href="#struct_mpr_mutex" external="mpr.dtags">MprMutex</a> *</td><td><td>mutex</td><td>
+    <tr><td class="param"><a class="ref" href="#struct_mpr_mutex" external="/Users/mob/dev/ejscript/paks/mpr/doc/api/mpr.dtags">MprMutex</a> *</td><td><td>mutex</td><td>
 Multithread lock.
 </td>
     <tr><td class="param">char *</td><td><td>startScript</td><td>
@@ -5481,7 +5475,7 @@ VM prune timer.
   </div>
   <div class="apiDetail">
 <p>Create a pool for virutal machines.</p>
-    <dl><dt><b>Description</b>:</dt><dd></dd></dl>
+    <dl><dt><b>Description</b>:</dt><dd><br/></dd></dl>
     <dl><dt>Parameters:</dt><dd>
     <table class="parameters" title="Parameters">
     <tr><td class="param">poolMax</td><td>Maximum number of VMs in the pool.</td>
@@ -5999,8 +5993,7 @@ Start of the last match.
   <div class="prototype">EjsRequest</div>
   <div class="apiDetail">
 <p>Request Class.</p>
-    <dl><dt><b>Description</b>:</dt><dd><verbatim>Request objects represent a single Http request.
-</verbatim></dd></dl>
+    <dl><dt><b>Description</b>:</dt><dd>Request objects represent a single Http request.</dd></dl>
     <dl><dt><b>API</b> Stability:</dt><dd>Prototype.</dd></dl>
     <dl><dt>See Also:</dt><dd>
     <a href="#group___ejs_request_1ga1f8c776a032ffd7b147cbb0dc094c2e7" class="ref">ejsCloneRequest</a>, <a href="#group___ejs_request_1gae4d5165d879868c4cea4a78939c46cb8" class="ref">ejsCreateRequest</a></dd></dl>
@@ -6174,9 +6167,7 @@ Create a new request object associated with the given Http connection
   <div class="prototype">EjsSession</div>
   <div class="apiDetail">
 <p>Session Class.</p>
-    <dl><dt><b>Description</b>:</dt><dd><verbatim>Session objects represent a shared session state object into which Http Requests and store and retrieve data
-that persists beyond a single request.
-</verbatim></dd></dl>
+    <dl><dt><b>Description</b>:</dt><dd>Session objects represent a shared session state object into which Http Requests and store and retrieve data that persists beyond a single request.</dd></dl>
     <dl><dt><b>API</b> Stability:</dt><dd>Prototype.</dd></dl>
     <dl><dt>See Also:</dt><dd>
     <a href="#group___ejs_session_1gaceee664902b7431cacd92456152c3478" class="ref">ejsDestroySession</a>, <a href="#group___ejs_session_1gacfdf3f7f5fee5eea23b1152b089a3135" class="ref">ejsGetSession</a></dd></dl>
@@ -6275,7 +6266,7 @@ Event emitter.
     <tr><td class="param">int</td><td><td>mask</td><td>
 IO event mask.
 </td>
-    <tr><td class="param"><a class="ref" href="#struct_mpr_mutex" external="mpr.dtags">MprMutex</a> *</td><td><td>mutex</td><td>
+    <tr><td class="param"><a class="ref" href="#struct_mpr_mutex" external="/Users/mob/dev/ejscript/paks/mpr/doc/api/mpr.dtags">MprMutex</a> *</td><td><td>mutex</td><td>
 Multithread sync.
 </td>
     <tr><td class="param">EjsObj</td><td><td>obj</td><td>
@@ -6317,7 +6308,7 @@ Underlying MPR socket object.
   <div class="apiDetail">
 <p>String Class.</p>
     <dl><dt><b>Description</b>:</dt><dd>The String class provides the base class for all strings. Each String object represents a single immutable linear sequence of characters. Strings have operators for: comparison, concatenation, copying, searching, conversion, matching, replacement, and, subsetting. <br/><br/>
- Strings are currently sequences of Unicode characters. Depending on the configuration, they may be 8, 16 or 32 bit code point values.</dd></dl>
+Strings are currently sequences of Unicode characters. Depending on the configuration, they may be 8, 16 or 32 bit code point values.</dd></dl>
     <dl><dt>See Also:</dt><dd>
     <a href="#group___ejs_string_1ga08fa834f19c7fbeb614331c5c871f014" class="ref">ejsAtoi</a>, <a href="#group___ejs_string_1ga708e6a95d92ab7af1861baba3897b54c" class="ref">ejsCompareAsc</a>, <a href="#group___ejs_string_1gaf28e0939340fb995a9bd04a75a2900f2" class="ref">ejsCompareString</a>, <a href="#group___ejs_string_1ga4e12fe4a6a110a8f00f8e122aba83df4" class="ref">ejsCompareSubstring</a>, <a href="#group___ejs_string_1ga6a260927bd3df5edad13557d56808a8f" class="ref">ejsCompareWide</a>, <a href="#group___ejs_string_1ga5d5cca539016553a28e76ac08d55257e" class="ref">ejsContainsAsc</a>, <a href="#group___ejs_string_1ga7a74bde1b88538e1bb746a5a1ce2bb53" class="ref">ejsContainsChar</a>, <a href="#group___ejs_string_1ga113cc39c09635fddd20894865bdbab79" class="ref">ejsContainsString</a>, <a href="#group___ejs_string_1ga062ee027f2845d94ecb15c6941cbe42b" class="ref">ejsCreateBareString</a>, <a href="#group___ejs_string_1ga8aeef72a34295c9e4df136996628c413" class="ref">ejsCreateString</a>, <a href="#group___ejs_string_1gab1fbea44cd70dc28d8a49b70d0de0556" class="ref">ejsCreateStringFromAsc</a>, <a href="#group___ejs_string_1ga905a81a7379527321346e86ffacea04b" class="ref">ejsCreateStringFromBytes</a>, <a href="#group___ejs_string_1ga25f6078b7d29fdcfdcd8b9353589906a" class="ref">ejsCreateStringFromConst</a>, <a href="#group___ejs_string_1ga560852e85d46275143be21477a869899" class="ref">ejsCreateStringFromMulti</a>, <a href="#group___ejs_string_1ga38175856fcea3440ebd5c4076b695ff9" class="ref">ejsDestroyIntern</a>, <a href="#group___ejs_string_1ga379df95eb6203fed78a5ef432ba7376f" class="ref">ejsInternAsc</a>, <a href="#group___ejs_string_1gac34c3f60b9801b24289e1414d6d9a230" class="ref">ejsInternMulti</a>, <a href="#group___ejs_string_1ga634237154071579455c008c164c39553" class="ref">ejsInternString</a>, <a href="#group___ejs_string_1ga6558ec0637c52d1350554bc302cb2d6d" class="ref">ejsInternWide</a>, <a href="#group___ejs_string_1gaabb7adcb083b6b8c6224bef090642e23" class="ref">ejsJoinString</a>, <a href="#group___ejs_string_1ga62e62d18a3a13356dd03e1f738b08024" class="ref">ejsJoinStrings</a>, <a href="#group___ejs_string_1gadd7d642dc5c034432868c46c63ab0708" class="ref">ejsSerialize</a>, <a href="#group___ejs_string_1ga6aa007bc9cb28bc124139b3e26e7fe3d" class="ref">ejsSerializeWithOptions</a>, <a href="#group___ejs_string_1ga4806e79a09974744c3e1fad813239b4f" class="ref">ejsSprintf</a>, <a href="#group___ejs_string_1ga91477dd51b0f6255001e5e8c22ef0e87" class="ref">ejsStartsWithAsc</a>, <a href="#group___ejs_string_1gabe2191ba4ab5e97c1f621605dcfcd611" class="ref">ejsSubstring</a>, <a href="#group___ejs_string_1ga0d892b6a5ea4591b8c1a663b7e3122ac" class="ref">ejsToJSON</a>, <a href="#group___ejs_string_1ga1055b572a9a6dc51b5c9f96bf997024c" class="ref">ejsToLower</a>, <a href="#group___ejs_string_1ga5f09bb624333fce4fca9206d7687f4fa" class="ref">ejsToMulti</a>, <a href="#group___ejs_string_1gaebbc0b0666e25fddfbb39055ef427cea" class="ref">ejsToString</a>, <a href="#group___ejs_string_1ga1554254812932883bd7c301661a4b624" class="ref">ejsToUpper</a>, <a href="#group___ejs_string_1ga4497cce6148677baa8e35887c6baee45" class="ref">ejsTruncateString</a></dd></dl>
     <dl><dt><b>API</b> Stability:</dt><dd>Internal.</dd></dl>
@@ -7100,7 +7091,7 @@ Interface vs class.
     <tr><td class="param">uint</td><td><td>isPot</td><td>
 Instances are based on EjsPot.
 </td>
-    <tr><td class="param"><a class="ref" href="#group___mpr_mem_1gaacdb6d1a5cec32a0758f636353fff782" external="mpr.dtags">MprManager</a></td><td><td>manager</td><td>
+    <tr><td class="param"><a class="ref" href="#group___mpr_mem_1gad5e84d898dd29853b54cc1b49fcb4041" external="/Users/mob/dev/ejscript/paks/mpr/doc/api/mpr.dtags">MprManager</a></td><td><td>manager</td><td>
 Manager callback.
 </td>
     <tr><td class="param">struct EjsModule *</td><td><td>module</td><td>
@@ -7109,7 +7100,7 @@ Module owning the type - stores the constant pool.
     <tr><td class="param">uint</td><td><td>mutableInstances</td><td>
 Instances are mutable.
 </td>
-    <tr><td class="param"><a class="ref" href="#struct_mpr_mutex" external="mpr.dtags">MprMutex</a> *</td><td><td>mutex</td><td>
+    <tr><td class="param"><a class="ref" href="#struct_mpr_mutex" external="/Users/mob/dev/ejscript/paks/mpr/doc/api/mpr.dtags">MprMutex</a> *</td><td><td>mutex</td><td>
 Optional locking for types that require it.
 </td>
     <tr><td class="param">uint</td><td><td>needFixup</td><td>
@@ -7374,7 +7365,7 @@ Properties are not stored in slots[].
   <div class="prototype">
     int
     ejsDefineGlobalFunction
-(<a href="#group___ejs" class="ref">Ejs</a> *ejs, <a href="#group___ejs_string" class="ref">EjsString</a> *name, <a href="#group___ejs_function_1ga154ff59b6e236d13c28765946349c884" class="ref">EjsProc</a> fn)
+(<a href="#group___ejs" class="ref">Ejs</a> *ejs, <a href="#group___ejs_string" class="ref">EjsString</a> *name, <a href="#group___ejs_function_1ga2473d1d00a84c54db45f361206541697" class="ref">EjsProc</a> fn)
   </div>
   <div class="apiDetail">
 <p>Define a global function.</p>
@@ -7878,7 +7869,7 @@ Protocol selected by the server.
     <tr><td class="param">char *</td><td><td>protocols</td><td>
 Set of supported protocols.
 </td>
-    <tr><td class="param"><a class="ref" href="#struct_mpr_ssl" external="mpr.dtags">MprSsl</a> *</td><td><td>ssl</td><td>
+    <tr><td class="param"><a class="ref" href="#struct_mpr_ssl" external="/Users/mob/dev/ejscript/paks/mpr/doc/api/mpr.dtags">MprSsl</a> *</td><td><td>ssl</td><td>
 SSL configuration.
 </td>
     <tr><td class="param">char *</td><td><td>uri</td><td>
@@ -8337,10 +8328,10 @@ Value of text|attribute|comment|pi.
   </div>
 </div>
 <h2>Typedefs</h2>
-<a name="group___ejs_function_1ga154ff59b6e236d13c28765946349c884"></a>
+<a name="group___ejs_function_1ga2473d1d00a84c54db45f361206541697"></a>
 <div class="api">
   <div class="prototype">
-    typedef EjsObj*(* EjsProc)(Ejs *ejs, EjsAny *thisObj, int argc, struct EjsObj **argv).
+    typedef EjsObj*(* EjsProc) (Ejs *ejs, EjsAny *thisObj, int argc, struct EjsObj **argv).
   </div>
   <div class="apiDetail">
 <p>Native Function signature.</p>
@@ -8358,10 +8349,10 @@ Value of text|attribute|comment|pi.
     <a href="#group___ejs_function" class="ref">EjsFunction</a>, <a href="#group___ejs_type_1gab82b7d4399c850e420a2c5388c836cb5" class="ref">ejsBindFunction</a>, <a href="#group___ejs_function_1ga51f9d52aa357e85dff215d853de3675f" class="ref">ejsCloneFunction</a>, <a href="#group___ejs_function_1ga51f9d52aa357e85dff215d853de3675f" class="ref">ejsCloneFunction</a>, <a href="#group___ejs_function_1ga66b17be4ac9a1c3fd798617568f8c340" class="ref">ejsCreateActivation</a>, <a href="#group___ejs_function_1ga7a6c27facb1b996fa170194c7ed5ed8d" class="ref">ejsCreateBareFunction</a>, <a href="#group___ejs_function_1ga5bf8e2a9af6557492e6ba315d5a3188b" class="ref">ejsCreateFunction</a>, <a href="#group___ejs_function_1ga5bf8e2a9af6557492e6ba315d5a3188b" class="ref">ejsCreateFunction</a>, <a href="#group___ejs_function_1ga887cfa2cc87c9e0736bebecbbeeee156" class="ref">ejsInitFunction</a>, <a href="#group___ejs_function_1ga7127ecf0788bd034597366ea9e8eb215" class="ref">ejsIsFunction</a>, <a href="#group___ejs_function_1ga7127ecf0788bd034597366ea9e8eb215" class="ref">ejsIsFunction</a>, <a href="#group___ejs_function_1gafe317233b001bbca1b86cedf96c3b5a7" class="ref">ejsIsInitializer</a>, <a href="#group___ejs_function_1gab8d9707a7fb66beea580dab3f897a65d" class="ref">ejsIsNativeFunction</a>, <a href="#group___ejs_function_1gaef490e640f5b309ffb75596134f40ac0" class="ref">ejsRemoveConstructor</a>, <a href="#group___ejs_function_1gad27776daa4c1446ecf1ea222d8ec5080" class="ref">ejsRunFunction</a>, <a href="#group___ejs_function_1gad27776daa4c1446ecf1ea222d8ec5080" class="ref">ejsRunFunction</a>, <a href="#group___ejs_function_1ga9b6990680a7a2201f9c67aa0f8ec7e16" class="ref">ejsRunFunctionBySlot</a>, <a href="#group___ejs_function_1ga9b6990680a7a2201f9c67aa0f8ec7e16" class="ref">ejsRunFunctionBySlot</a>, <a href="#group___ejs_function_1ga5a7d2ad5dd3cf09e90d6288ac2ba73fc" class="ref">ejsRunInitializer</a>, <a href="#group___ejs_function_1ga5a7d2ad5dd3cf09e90d6288ac2ba73fc" class="ref">ejsRunInitializer</a></dd></dl>
   </div>
 </div>
-<a name="group___ejs_module_1ga550b9b21fc9598fbe012216e1d9745fe"></a>
+<a name="group___ejs_module_1ga80650e09233f467ad2c7c214868ead58"></a>
 <div class="api">
   <div class="prototype">
-    typedef int(* EjsNativeCallback)(Ejs *ejs).
+    typedef int(* EjsNativeCallback) (Ejs *ejs).
   </div>
   <div class="apiDetail">
 <p>Native module initialization callback.</p>
@@ -8442,7 +8433,7 @@ Length of used bytes in constant pool.
     <tr><td class="param">ssize</td><td><td>poolSize</td><td>
 Size of constant pool storage in bytes.
 </td>
-    <tr><td class="param"><a class="ref" href="#struct_mpr_hash" external="mpr.dtags">MprHash</a> *</td><td><td>table</td><td>
+    <tr><td class="param"><a class="ref" href="#struct_mpr_hash" external="/Users/mob/dev/ejscript/paks/mpr/doc/api/mpr.dtags">MprHash</a> *</td><td><td>table</td><td>
 Hash table for fast lookup when compiling.
 </td>
     </table></dd></dl>
@@ -8662,7 +8653,7 @@ Default EjsBlock helpers.
     <tr><td class="param">uint</td><td><td>dontExit</td><td>
 Prevent App.exit() from exiting.
 </td>
-    <tr><td class="param"><a class="ref" href="#struct_mpr_spin" external="mpr.dtags">MprSpin</a> *</td><td><td>dtoaSpin[2]</td><td>
+    <tr><td class="param"><a class="ref" href="#struct_mpr_spin" external="/Users/mob/dev/ejscript/paks/mpr/doc/api/mpr.dtags">MprSpin</a> *</td><td><td>dtoaSpin[2]</td><td>
 Dtoa thread synchronization.
 </td>
     <tr><td class="param">Http *</td><td><td>http</td><td>
@@ -8680,10 +8671,10 @@ Interned Unicode string hash - shared over all interps.
     <tr><td class="param">uint</td><td><td>logging</td><td>
 Using <ndash/>log.
 </td>
-    <tr><td class="param"><a class="ref" href="#struct_mpr_mutex" external="mpr.dtags">MprMutex</a> *</td><td><td>mutex</td><td>
+    <tr><td class="param"><a class="ref" href="#struct_mpr_mutex" external="/Users/mob/dev/ejscript/paks/mpr/doc/api/mpr.dtags">MprMutex</a> *</td><td><td>mutex</td><td>
 Multithread locking.
 </td>
-    <tr><td class="param"><a class="ref" href="#struct_mpr_hash" external="mpr.dtags">MprHash</a> *</td><td><td>nativeModules</td><td>
+    <tr><td class="param"><a class="ref" href="#struct_mpr_hash" external="/Users/mob/dev/ejscript/paks/mpr/doc/api/mpr.dtags">MprHash</a> *</td><td><td>nativeModules</td><td>
 Set of loaded native modules.
 </td>
     <tr><td class="param"><a class="ref" href="#struct_ejs_helpers">EjsHelpers</a></td><td><td>objHelpers</td><td>

@@ -1,7 +1,21 @@
 Embedthis Ejscript Language
 ===
 
-A complete, integrated JavaScript environment.
+## Ejscript is archived and not maintained.
+
+A complete, integrated JavaScript environment suitable for education purposes when studying
+compilers, language parsers, virtual machines and JavaScript.
+
+I implements most of the abandoned ES4 specification including:
+
+* Classes
+* Namespaces
+* Optional typing
+* Operator overloading
+
+Ejscript has a stand-alone compiler that generates byte code modules. 
+
+See https://www.embedthis.com/ejscript/doc for details.
 
 Licensing
 ---

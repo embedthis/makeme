@@ -99,6 +99,9 @@ struct HttpWebSocket;
 #ifndef ME_HTTP_DELAY
     #define ME_HTTP_DELAY          (2000)               /**< 2 second delay per request - while delay enforced */
 #endif
+#ifndef ME_DIGEST_NONCE_DURATION
+    #define ME_DIGEST_NONCE_DURATION 60                  /**< Lifespan for Digest auth request nonce */
+#endif
 #ifndef ME_MAX_URI
     #define ME_MAX_URI             512                  /**< Reasonable URI size */
 #endif

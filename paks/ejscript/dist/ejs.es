@@ -5997,9 +5997,11 @@ UNUSED
             if (fields) {
                 for (let [key,value] in fields) {
                     write('--' + boundary + "\r\n")
-                    write('Content-Disposition: form-data; name=' + Uri.encode(key) + "\r\n")
+                    // write('Content-Disposition: form-data; name=' + Uri.encode(key) + "\r\n")
+                    write('Content-Disposition: form-data; name=' + key + "\r\n")
                     write('Content-Type: application/x-www-form-urlencoded\r\n\r\n')
-                    write(Uri.encode(value) + "\r\n")
+                    // write(Uri.encode(value) + "\r\n")
+                    write(value + "\r\n")
                 }
             }
             if (files is String || files is Path) {

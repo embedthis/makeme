@@ -56298,6 +56298,7 @@ static EjsVoid *hs_passRequest(Ejs *ejs, EjsHttpServer *server, int argc, EjsAny
     }
     event = mprCreateEvent(conn->dispatcher, "RequestWorker", 0, receiveRequest, nreq, MPR_EVENT_DONT_QUEUE);
     httpUseWorker(conn, nejs->dispatcher, event);
+    mprRelease(event);
     return 0;
 }
 
