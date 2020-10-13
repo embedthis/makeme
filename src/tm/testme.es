@@ -415,6 +415,14 @@ enumerable class TestMe {
                 let cmd = new Cmd
                 cmd.env = env
                 strace('Run', command)
+                let data = new ByteArray
+                cmd.on("readable", function(event, c) {
+                    assert(event == "readable")
+                    cmd.read(data, -1)
+                    // parseOutput(phase, topPath, file, data.toString(), env)
+                    // data.flush()
+                })
+
                 cmd.start(command, blend({detach: true}, options))
                 cmd.finalize()
                 cmd.wait(TIMEOUT)
@@ -428,8 +436,7 @@ enumerable class TestMe {
                     }
                     this.failedCount++
                 } else {
-                    let output = cmd.readString()
-                    parseOutput(phase, topPath, file, output, env)
+                    parseOutput(phase, topPath, file, data.toString(), env)
                     if (cmd.error) {
                         trace('Stderr', '\n' + cmd.error)
                     }
@@ -522,14 +529,7 @@ enumerable class TestMe {
                 break
 
             default:
-                /* 
-                    Now just ignore unexpected output
-
-                    success = false
-                    this.failedCount++
-                    trace('FAIL', 'Unexpected output from ' + topPath + ': ' + kind + ' ' + rest)
-                 */
-                print(line)
+                trace('Output', line)
             }
         }
         if (success == null) {
@@ -660,6 +660,9 @@ Me.load({
                 let switches = ''
                 if (options.log) {
                     switches += '--log ' + options.log
+                }
+                if (Debug.mode) {
+                    switches += ' --debugger '
                 }
                 if (options.trace) {
                     switches += ' --trace ' + options.trace
