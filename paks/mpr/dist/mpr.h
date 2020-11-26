@@ -675,6 +675,17 @@ PUBLIC void mprGlobalUnlock(void);
     Lock free primitives
  */
 
+ /*
+     AtomicBarrier memory models
+  */
+ #define MPR_ATOMIC_RELAXED      __ATOMIC_RELAXED
+ #define MPR_ATOMIC_CONSUME      __ATOMIC_CONSUME
+ #define MPR_ATOMIC_ACQUIRE      __ATOMIC_ACQUIRE
+ #define MPR_ATOMIC_RELEASE      __ATOMIC_RELEASE
+ #define MPR_ATOMIC_ACQ_REL      __ATOMIC_ACQ_REL
+ #define MPR_ATOMIC_SEQUENTIAL   __ATOMIC_SEQ_CST
+
+
 /**
     Open and initialize the atomic subystem
     @ingroup MprSync
@@ -684,10 +695,12 @@ PUBLIC void mprAtomicOpen(void);
 
 /**
     Apply a full (read+write) memory barrier
+    @param model Memory model. Set to MPR_ATOMIC_RELAXED, MPR_ATOMIC_CONSUME, MPR_ATOMIC_ACQUIRE,
+        MPR_ATOMIC_RELEASE, MPR_ATOMIC_ACQREL, MPR_ATOMIC_SEQUENTIAL
     @ingroup MprSync
-    @stability Stable.
+    @stability Evolving.
  */
-PUBLIC void mprAtomicBarrier(void);
+PUBLIC void mprAtomicBarrier(int model);
 
 /**
     Atomic list insertion. Inserts "item" at the "head" of the list. The "link" field is the next field in item.
@@ -728,6 +741,23 @@ PUBLIC void mprAtomicAdd(volatile int *target, int value);
     @stability Stable.
  */
 PUBLIC void mprAtomicAdd64(volatile int64 *target, int64 value);
+
+#if ME_COMPILER_HAS_ATOMIC
+    #define mprAtomicLoad(ptr, ret, model) __atomic_load(ptr, ret, model)
+    #define mprAtomicStore(ptr, val, model) __atomic_store(ptr, val, model)
+#else
+    #define mprAtomicLoad(ptr, ret, model) \
+        if (1) { \
+            mprAtomicBarrier(model); \
+            *ret = *ptr; \
+        } else
+    #define mprAtomicStore(ptr, val, model) \
+        if (1) { \
+            mprAtomicBarrier(model); \
+            *ptr = val; \
+        } else
+
+#endif
 
 /********************************* Memory Allocator ***************************/
 /*
@@ -4178,6 +4208,7 @@ PUBLIC int mprStartLogging(cchar *logSpec, int flags);
  */
 PUBLIC void mprDebug(cchar *tags, int level, cchar *fmt, ...);
 #endif
+
 PUBLIC void mprLogProc(cchar *tags, int level, cchar *fmt, ...) PRINTF_ATTRIBUTE(3,4);
 
 /**
@@ -8143,7 +8174,7 @@ PUBLIC ssize mprWriteSocketVector(MprSocket *sp, MprIOVec *iovec, int count);
     #define ME_MPR_SSL_CACHE 512
 #endif
 #ifndef ME_MPR_SSL_LOG_LEVEL
-    #define ME_MPR_SSL_LOG_LEVEL 6
+    #define ME_MPR_SSL_LOG_LEVEL 7
 #endif
 #ifndef ME_MPR_SSL_RENEGOTIATE
     #define ME_MPR_SSL_RENEGOTIATE 1

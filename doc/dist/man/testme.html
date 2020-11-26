@@ -3,43 +3,47 @@
 <head>
 <title>Testme Man Page</title>
 </head>
-<BODY><PRE>
-TESTME(1)                        User Commands                       TESTME(1)
+<HTML>
+<BODY>
+<PRE>
+<!-- Manpage converted by man2html 3.0.1 -->
 
-<B>NAME</B>
-       testme - TestMe -- Utility to run unit tests
-
-<B>SYNOPSIS</B>
+</PRE>
+<H2>SYNOPSIS</H2><PRE>
        <B>testme</B>
-           <B>--chdir dir</B>
+           <B>--chdir</B> <B>dir</B>
            <B>--clean</B>
            <B>--clobber</B>
            <B>--compile</B>
            <B>--continue</B>
            <B>--debug</B>
-           <B>--depth level</B>
+           <B>--depth</B> <B>level</B>
            <B>--ide</B>
-           <B>--log logSpec</B>
+           <B>--log</B> <B>logSpec</B>
            <B>--noserver</B>
            <B>--projects</B>
            <B>--quiet</B>
            <B>--rebuild</B>
            <B>--show</B>
-           <B>--trace traceSpec</B>
+           <B>--trace</B> <B>traceSpec</B>
            <B>--version</B>
            <B>--verbose</B>
            <B>--why</B>
-           <B>[filters ...]</B>
+           <B>[filters</B> <B>...]</B>
 
-<B>DESCRIPTION</B>
+
+</PRE>
+<H2>DESCRIPTION</H2><PRE>
        TestMe is a dynamic unit test runner. It will traverse a directory tree
        and automatically build required unit tests and run them with output to
        the console.
+
 
        Unit  tests are stand-alone programs that have a '.tst' extension after
        the normal file extension. For example, a C unit  test  file  would  be
        named  'file.c.tst',  while  an  Ejscript unit test file would be named
        'file.es.tst' and a shell script test would be named 'file.sh.tst'.
+
 
        Test parameters are passed to unit tests as environment strings with  a
        'TM_' prefix.  Unit tests emit results to their standard output and are
@@ -50,28 +54,20 @@ TESTME(1)                        User Commands                       TESTME(1)
        in the environment for subsequent tests by  emitting  a  'set'  command
        (see below).
 
+
        TestMe  will  automatically  compile  and  recompile  C  unit  tests as
        required. Ejscript unit tests can be run  directly  without  recompila-
        tion.
 
-<B>OPERATION</B>
+
+
+</PRE>
+<H2>OPERATION</H2><PRE>
        When  TestMe  is  invoked,  testme traverses the current directory tree
        looking for unit test files.  At each directory level,  it  first  runs
-       any setup test files that have a '*.set' extension. The purpose of set-
-       up files is to define the environment and configuration for  all  tests
-       at or below that directory level.
-
-       Next,  TestMe  will compile any Ejscript common files with a '*.es.com'
-       extension. The purpose of common files it to define  shared  code  that
-       will  be  used  by  Ejscript  unit  tests. Common files should wrap all
-       script in a 'module' directive of the same name  as  the  file  without
-       extensions.  For  example: 'support.es.com' would use 'module support {
-       /* code */ }'. The compiled common file will be placed in  a  generated
-       'testme' directory.
-
-       For all C unit tests with a '*.c.tst' extension, TestMe will first cre-
        ate a 'testme' directory with a MakeMe file for the unit test. It  will
        then use MakeMe to build the unit test into a stand-alone executable.
+
 
        When all is ready, TestMe will run all unit tests with a '*.tst' exten-
        sion. For subdirectories, TestMe will recurse and  run  unit  tests  in
@@ -80,7 +76,10 @@ TESTME(1)                        User Commands                       TESTME(1)
        mand  to  define a key value in the environment, it will only be passed
        to unit tests at that directory level or below.
 
-<B>TEST ENVIRONMENT</B>
+
+
+</PRE>
+<H2>TEST ENVIRONMENT</H2><PRE>
        TestMe communicates test parameters to unit tests via the  environment.
 
              TM_INB      -- Set to the local binary directory.
@@ -96,7 +95,11 @@ TESTME(1)                        User Commands                       TESTME(1)
              TM_*         --  All  defines  in  the  me.h are converted to TM_
             defines.
 
-<B>TEST OUTPUT</B>
+
+
+
+</PRE>
+<H2>TEST OUTPUT</H2><PRE>
        A unit test should emit results to the standard out. The following com-
        mands are supported.
 
@@ -116,94 +119,106 @@ TESTME(1)                        User Commands                       TESTME(1)
        subsequent  unit  tests.  The  'skip' command will cause all subsequent
        unit tests in or below the current directory to be skipped.
 
-<B>TESTME UNIT TEST C API</B>
-       The follow C API is supported for C unit tests.
 
-             bool  ttrue(expression);
-             bool  tfalse(expression);
-             bool  ttest(cchar *loc, cchar *expression, bool success);
-             cchar *tget(cchar *key, cchar *def);
-             int   tgetInt(cchar *key, int def);
-             void  tinfo(cchar *fmt, ...);
-             void  tset(cchar *key, cchar *value);
-             void  tskip(bool skip);
-             void  twrite(cchar *fmt, ...);
 
-<B>OPTIONS</B>
-       <B>--chdir dir</B>
+</PRE>
+<H2>TESTME UNIT TEST C API</H2><PRE>
+
+</PRE>
+<H2>OPTIONS</H2><PRE>
+       <B>--chdir</B> <B>dir</B>
               Change to the given directory before running tests.
+
 
        <B>--clean</B>
               Clean the contents of all generated 'testme' directories.
 
+
        <B>--clobber</B>
               Remove all generated 'testme' directories.
+
 
        <B>--compile</B>
               Compile required C unit tests but do not run. Use  --rebuild  to
               force  a  recompile regardless of whether the unit test file has
               been updated or not.
 
+
        <B>--continue</B>
               Continue to run tests despite any previous errors. Normal opera-
               tion is to stop testing if any tests fail.
 
+
        <B>--debug</B>
               Run in debug mode. Sets TM_DEBUG in the environment.
 
-       <B>--depth level</B>
+
+       <B>--depth</B> <B>level</B>
               Set the unit test depth level.
 
-       <B>--ide  </B>Run  the specified test in an IDE debugger. Supported on Mac OSX
+
+       <B>--ide</B>  Run  the specified test in an IDE debugger. Supported on Mac OSX
               only.
 
-       <B>--log logName[:logLevel]</B>
+
+       <B>--log</B> <B>logName[:logLevel]</B>
               Specify a file to log test messages. TestMe will  normally  dis-
               play  test output to the console. The --log option will redirect
               this output to the specified log file. The log  level  specifies
               the  desired  verbosity  of output. Level 0 is the least verbose
               and level 5 is the most.
 
+
        <B>--noserver</B>
               Do not run server side support code. This emits TM_NOSERVER into
               the environment for unit tests.
 
-              <B>--projects  </B>Generate  IDE projects for the specified unit tests.
+              <B>--projects</B>  Generate  IDE projects for the specified unit tests.
               At least one test must be specified by name on the command line.
               The IDE projects are generated in the 'testme' directory.
 
-       <B>--quiet</B>
-              Run in quiet mode without trace.
-
-       <B>--rebuild</B>
-              Force a recompilation of all C unit tests.
-
-       <B>--show </B>Show the actual commands executed by TestMe.
-
-       <B>--trace logName[:logLevel]</B>
-              Specify  a  file to trace HTTP requests. The level specifies the
               desired verbosity of output.  Level 0 is the least  verbose  and
               level 5 is the most.
 
+
        <B>--version</B>
-              Print the <B>ejs </B>command version and exit.
+              Print the <B>ejs</B> command version and exit.
+
 
        <B>--verbose</B>
               Run in verbose mode with more trace about TestMe activities.
 
-       <B>--why  </B>Display  why  various tests were run or not and why actions were
+
+       <B>--why</B>  Display  why  various tests were run or not and why actions were
               taken.
 
-<B>REPORTING BUGS</B>
+
+
+
+</PRE>
+<H2>REPORTING BUGS</H2><PRE>
        Report bugs to dev@embedthis.com.
 
-<B>COPYRIGHT</B>
+
+</PRE>
+<H2>COPYRIGHT</H2><PRE>
        Copyright (C) Embedthis Software. TestMe and Ejscript are a  trademarks
        of Embedthis Software.
 
-<B>SEE ALSO</B>
+
+</PRE>
+<H2>SEE ALSO</H2><PRE>
        me pak
 
-testme                           January 2014                        TESTME(1)
-</PRE></BODY>
+
+
+testme                           January 2014                        <B>TESTME(1)</B>
+</PRE>
+<HR>
+<ADDRESS>
+Man(1) output converted with
+<a href="http://www.oac.uci.edu/indiv/ehood/man2html.html">man2html</a>
+</ADDRESS>
+</BODY>
+</HTML>
 </html>

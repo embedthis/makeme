@@ -16813,7 +16813,7 @@ static bool parseHeaders(HttpConn *conn, HttpPacket *packet)
     if (conn->http10 && !keepAliveHeader) {
         conn->keepAliveCount = 0;
     }
-    if (httpClientConn(conn) && conn->mustClose && rx->length < 0) {
+    if (httpClientConn(conn) && conn->mustClose && rx->length < 0 && rx->status != 204) {
         /*
             Google does responses with a body and without a Content-Lenght like this:
                 Connection: close

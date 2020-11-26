@@ -15,4 +15,4 @@ Test certificates.
 
 ## Get Pak
 
-[https://www.embedthis.com/pak/](https://www.embedthis.com/pak/)
+[https://embedthis.com/pak/](https://embedthis.com/pak/)

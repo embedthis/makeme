@@ -45,6 +45,7 @@
         "me-win": "~0.1",
         "me-xcode": "~0.8",
         "mpr": "~8",
+        "http": "~7",
         "mpr-mbedtls": "~2",
         "ssl": "~0.9"
     },

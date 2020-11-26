@@ -487,8 +487,8 @@ enumerable class TestMe {
                 break
 
             case 'info':
-                if (success) {
-                    vtrace('Info', rest)
+                if (success != false) {
+                    vtrace('VVInfo', rest)
                 } else {
                     trace('Info', rest)
                 }
@@ -503,7 +503,6 @@ enumerable class TestMe {
                 break
 
             case 'skip':
-                success = true
                 skippedCount++
                 skipTest = true
                 if (true || options.verbose || options.why) {
