@@ -345,7 +345,7 @@ class Xcode {
         output('\n/* Begin PBXFileReference section */')
         let lib = '\t\t${REF} /* ${NAME} */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = ${PATH}; sourceTree = BUILT_PRODUCTS_DIR; };'
         let exe = '\t\t${REF} /* ${NAME} */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ${PATH}; sourceTree = BUILT_PRODUCTS_DIR; };'
-        let source = '\t\t${REF} /* ${NAME} */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ${NAME}; path = ${PATH}; sourceTree = "<group>"; };'
+        let source = '\t\t${REF} /* ${NAME} */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.${EXT}.${EXT}; name = ${NAME}; path = ${PATH}; sourceTree = "<group>"; };'
         let header = '\t\t${REF} /* ${NAME} */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ${NAME}; path = ${PATH}; sourceTree = "<group>"; };'
 
         for each (target in me.targets) {
@@ -361,14 +361,14 @@ class Xcode {
                     for each (src in obj.files) {
                         let path = src.relativeTo(me.dir.top)
                         let ref = getid('ID_TargetSrc:' + src)
-                        output(source.expand({REF: ref, NAME: src.basename, PATH: path}))
+                        output(source.expand({REF: ref, NAME: src.basename, PATH: path, EXT: path.extension}))
                     }
                     for each (hdr in obj.depends) {
                         if (hdr is Path && hdr.extension == 'h') {
                             let path = Path(hdr).relativeTo(me.dir.top)
                             if (!ids['ID_TargetHdr:' + hdr]) {
                                 let ref = makeid('ID_TargetHdr:' + hdr)
-                                output(header.expand({REF: ref, NAME: hdr.basename, PATH: path}))
+                                output(header.expand({REF: ref, NAME: hdr.basename, PATH: path, EXT: path.extension}))
                             }
                         }
                     }

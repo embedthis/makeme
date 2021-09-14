@@ -151,6 +151,15 @@ Me.load({
             home: '${TOP}',
         },
 
+        packageGpl: {
+            depends: ['all'],
+            action: `
+                require embedthis.me
+                makeme.loader.blendFile('${ORIGIN}/manifest.me')
+                Installs().packageGpl()
+            `,
+        },
+
         packageSource: {
             depends: ['all'],
             action: `

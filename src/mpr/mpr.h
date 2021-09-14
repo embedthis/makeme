@@ -128,6 +128,13 @@ struct  MprXml;
 #define MPR_SOCKET_MESSAGE      (WM_USER + 32)
 
 /*
+    Coalesce vectored write packets when using SSL
+ */
+#ifndef ME_MPR_SOCKET_VECTOR_JOIN
+    #define ME_MPR_SOCKET_VECTOR_JOIN 1
+#endif
+
+/*
     Priorities
  */
 #define MPR_BACKGROUND_PRIORITY 15          /**< May only get CPU if idle */
@@ -675,16 +682,24 @@ PUBLIC void mprGlobalUnlock(void);
     Lock free primitives
  */
 
- /*
-     AtomicBarrier memory models
-  */
- #define MPR_ATOMIC_RELAXED      __ATOMIC_RELAXED
- #define MPR_ATOMIC_CONSUME      __ATOMIC_CONSUME
- #define MPR_ATOMIC_ACQUIRE      __ATOMIC_ACQUIRE
- #define MPR_ATOMIC_RELEASE      __ATOMIC_RELEASE
- #define MPR_ATOMIC_ACQ_REL      __ATOMIC_ACQ_REL
- #define MPR_ATOMIC_SEQUENTIAL   __ATOMIC_SEQ_CST
-
+/*
+    AtomicBarrier memory models
+*/
+#if ME_UNIX_LIKE
+    #define MPR_ATOMIC_RELAXED      __ATOMIC_RELAXED
+    #define MPR_ATOMIC_CONSUME      __ATOMIC_CONSUME
+    #define MPR_ATOMIC_ACQUIRE      __ATOMIC_ACQUIRE
+    #define MPR_ATOMIC_RELEASE      __ATOMIC_RELEASE
+    #define MPR_ATOMIC_ACQ_REL      __ATOMIC_ACQ_REL
+    #define MPR_ATOMIC_SEQUENTIAL   __ATOMIC_SEQ_CST
+#else
+    #define MPR_ATOMIC_RELAXED      0
+    #define MPR_ATOMIC_CONSUME      1
+    #define MPR_ATOMIC_ACQUIRE      2
+    #define MPR_ATOMIC_RELEASE      3
+    #define MPR_ATOMIC_ACQ_REL      4
+    #define MPR_ATOMIC_SEQUENTIAL   5
+#endif
 
 /**
     Open and initialize the atomic subystem
@@ -744,17 +759,17 @@ PUBLIC void mprAtomicAdd64(volatile int64 *target, int64 value);
 
 #if ME_COMPILER_HAS_ATOMIC
     #define mprAtomicLoad(ptr, ret, model) __atomic_load(ptr, ret, model)
-    #define mprAtomicStore(ptr, val, model) __atomic_store(ptr, val, model)
+    #define mprAtomicStore(ptr, valptr, model) __atomic_store(ptr, valptr, model)
 #else
     #define mprAtomicLoad(ptr, ret, model) \
         if (1) { \
             mprAtomicBarrier(model); \
-            *ret = *ptr; \
+            *ret = *(ptr); \
         } else
-    #define mprAtomicStore(ptr, val, model) \
+    #define mprAtomicStore(ptr, valptr, model) \
         if (1) { \
             mprAtomicBarrier(model); \
-            *ptr = val; \
+            *ptr = *(valptr); \
         } else
 
 #endif
@@ -820,9 +835,9 @@ PUBLIC void mprAtomicAdd64(volatile int64 *target, int64 value);
 #endif
 #ifndef ME_MPR_ALLOC_QUOTA
     #if ME_TUNE_SIZE
-        #define ME_MPR_ALLOC_QUOTA  (200 * 1024)        /* Total allocations before a GC is worthwhile */
+        #define ME_MPR_ALLOC_QUOTA  (100 * 1024)        /* Allocations before a GC. Scaled by workers/2 */
     #else
-        #define ME_MPR_ALLOC_QUOTA  (512 * 1024)
+        #define ME_MPR_ALLOC_QUOTA  (200 * 1024)
     #endif
 #endif
 #ifndef ME_MPR_ALLOC_REGION_SIZE
@@ -1188,7 +1203,6 @@ typedef struct MprHeap {
     int              gcEnabled;             /**< GC is enabled */
     int              gcRequested;           /**< GC has been requested */
     int              hasError;              /**< Memory allocation error */
-    int              mark;                  /**< Mark version */
     int              marking;               /**< Actually marking objects now */
     int              mustYield;             /**< Threads must yield for GC which is due */
     int              nextSeqno;             /**< Next sequence number */
@@ -1202,6 +1216,7 @@ typedef struct MprHeap {
     int              verify;                /**< Verify memory contents (very slow) */
     uint64           workDone;              /**< Count of allocations weighted by block size */
     uint64           workQuota;             /**< Quota of work done before idle GC worthwhile */
+    uchar            mark;                  /**< Mark version */
 } MprHeap;
 
 /**
@@ -1861,7 +1876,7 @@ PUBLIC int scaselesscmp(cchar *s1, cchar *s2);
     @param pattern String pattern to search for.
     @return Returns a reference to the start of the pattern in the string. If not found, returns NULL.
     @ingroup MprString
-    @stability Prototype
+    @stability Evolving
  */
 PUBLIC char *scaselesscontains(cchar *str, cchar *pattern);
 
@@ -2077,6 +2092,17 @@ PUBLIC char *slower(cchar *str);
     @stability Stable
  */
 PUBLIC bool smatch(cchar *s1, cchar *s2);
+
+/**
+    Secure compare strings.
+    @description Compare two strings in constant time. This is similar to #smatch but will not fail fast on first char mismatch.
+    @param s1 First string to compare.
+    @param s2 Second string to compare.
+    @return Returns true if the strings are equivalent, otherwise false.
+    @ingroup MprString
+    @stability Prototype
+ */
+PUBLIC bool smatchsec(cchar *s1, cchar *s2);
 
 /**
     Compare strings ignoring case.
@@ -3105,7 +3131,7 @@ PUBLIC int mprSetBufSize(MprBuf *buf, ssize size, ssize maxSize);
         as a string pointer.
     @param buf Buffer created via mprCreateBuf
     @ingroup MprBuf
-    @stability Prototype
+    @stability Evolving
   */
 PUBLIC void mprAddNullToWideBuf(MprBuf *buf);
 
@@ -5864,6 +5890,7 @@ PUBLIC int mprUnloadModule(MprModule *mp);
 #define MPR_EVENT_DONT_QUEUE        0x4     /**< Don't queue the event. User must call mprQueueEvent */
 #define MPR_EVENT_STATIC_DATA       0x8     /**< Event data is permanent and should not be marked by GC */
 #define MPR_EVENT_ALWAYS            0x10    /**< Always invoke the callback even if the event not run  */
+#define MPR_EVENT_LOCAL             0x20    /**< Invoked from an MPR local thread */
 
 #define MPR_EVENT_MAX_PERIOD (MAXINT64 / 2)
 
@@ -5922,7 +5949,7 @@ typedef struct MprEvent {
 typedef struct MprDispatcher {
     cchar           *name;              /**< Static debug dispatcher name / purpose */
     MprEvent        *eventQ;            /**< Event queue */
-    MprEvent        *currentQ;          /**< Currently executing events */
+    MprEvent        *currentQ;          /**< Currently executing event */
     MprCond         *cond;              /**< Multi-thread sync */
     int             flags;              /**< Dispatcher control flags */
     int64           mark;               /**< Last event sequence mark (may reuse over time) */
@@ -6135,12 +6162,27 @@ PUBLIC void mprSignalDispatcher(MprDispatcher *dispatcher);
  */
 PUBLIC MprEvent *mprCreateEvent(MprDispatcher *dispatcher, cchar *name, MprTicks period, void *proc, void *data, int flags);
 
-/*
+/**
+    Optimized variety of mprCreateEvent for use by local MPR threads only
+    @param dispatcher Event dispatcher created via mprCreateDispatcher
+    @param name Static string name of the event used for debugging.
+    @param period Time in milliseconds used by continuous events between firing of the event.
+    @param proc Function to invoke when the event is run.
+    @param data Data to associate with the event. See #mprCreateEvent for details.
+    @param flags Flags. See #mprCreateEvent for details.
+    @see MprEvent MprWaitHandler mprCreateEvent mprCreateWaitHandler mprQueueIOEvent
+    @ingroup MprEvent
+    @stability Evolving
+ */
+PUBLIC MprEvent *mprCreateLocalEvent(MprDispatcher *dispatcher, cchar *name, MprTicks period, void *proc, void *data, int flags);
+
+/**
     Create and queue an IO event for a wait handler
     @param dispatcher Event dispatcher created via mprCreateDispatcher
     @param proc Function to invoke when the event is run.
     @param data Data to associate with the event. See #mprCreateEvent for details.
-    @param wp WaitHandler reference created via #mprWaitHandler
+    @param wp WaitHandler reference created via mprWaitHandler
+    @param sock Socket for the I/O event.
     @see MprEvent MprWaitHandler mprCreateEvent mprCreateWaitHandler mprQueueIOEvent
     @ingroup MprEvent
     @stability Internal
@@ -6245,7 +6287,8 @@ PUBLIC int mprStopDispatcher(MprDispatcher *dispatcher);
 PUBLIC MprEvent *mprCreateEventQueue(void);
 PUBLIC MprEventService *mprCreateEventService(void);
 PUBLIC void mprDedicateWorkerToDispatcher(MprDispatcher *dispatcher, struct MprWorker *worker);
-PUBLIC void mprDequeueEvent(MprEvent *event);
+PUBLIC void mprLinkEvent(MprEvent *prior, MprEvent *event);
+PUBLIC void mprUnlinkEvent(MprEvent *event);
 PUBLIC bool mprDispatcherHasEvents(MprDispatcher *dispatcher);
 PUBLIC int mprDispatchersAreIdle(void);
 PUBLIC int mprGetEventCount(MprDispatcher *dispatcher);
@@ -6703,7 +6746,7 @@ PUBLIC MprJson *mprHashToJson(MprHash *hash);
     @param list MprList to hold environment strings. Set to NULL and this routine will create a list.
     @return A list of environment strings
     @ingroup MprJson
-    @stability Prototype
+    @stability Evolving
  */
 PUBLIC MprList *mprJsonToEnv(MprJson *json, cchar *prefix, MprList *list);
 
@@ -7395,7 +7438,7 @@ PUBLIC void mprRemoveWaitHandler(MprWaitHandler *wp);
 
 /**
     Queue an IO event for dispatch on the wait handler dispatcher
-    @param wp Wait handler created via #mprCreateWaitHandler
+    @param wp Wait handler created via mprCreateWaitHandler
     @stability Stable
  */
 PUBLIC void mprQueueIOEvent(MprWaitHandler *wp);
@@ -7423,7 +7466,7 @@ PUBLIC void mprRecallWaitHandlerByFd(Socket fd);
 /**
     Subscribe for desired wait events
     @description Subscribe to the desired wait events for a given wait handler.
-    @param wp Wait handler created via #mprCreateWaitHandler
+    @param wp Wait handler created via mprCreateWaitHandler
     @param desiredMask Mask of desired events (MPR_READABLE | MPR_WRITABLE)
     @ingroup MprWaitHandler
     @stability Stable
@@ -7504,7 +7547,7 @@ typedef struct MprSocketProvider {
         @param ssl SSL configurations to use.
         @param flags Set to MPR_SOCKET_SERVER for server side use.
         @returns Zero if successful, otherwise a negative MPR error code.
-        @stability Prototype
+        @stability Evolving
      */
     int  (*preload)(struct MprSsl *ssl, int flags);
 
@@ -7609,7 +7652,7 @@ PUBLIC int mprSetMaxSocketAccept(int max);
     Set the prebind callback for a socket
     @param callback Callback to invoke
     @ingroup MprSocket
-    @stability Prototype
+    @stability Evolving
  */
 PUBLIC void mprSetSocketPrebindCallback(MprSocketPrebind callback);
 
@@ -8151,11 +8194,12 @@ PUBLIC ssize mprWriteSocket(MprSocket *sp, cvoid *buf, ssize len);
 PUBLIC ssize mprWriteSocketString(MprSocket *sp, cchar *str);
 
 /**
-    Write a vector to a socket
-    @description Do scatter/gather I/O by writing a vector of buffers to a socket.
+    Write a vector of buffers to a socket
+    @description Do scatter/gather I/O by writing a vector of buffers to a socket. May return with a short write having written
+        less than the total.
     @param sp Socket object returned from #mprCreateSocket
     @param iovec Vector of data to write before the file contents
-    @param count Count of entries in beforeVect
+    @param count Count of entries in iovec
     @return A count of bytes actually written. Return a negative MPR error code on errors and if the socket cannot absorb any
         more data. If the transport is saturated, will return a negative error and mprGetError() returns EAGAIN or EWOULDBLOCK
     @ingroup MprSocket
@@ -8279,14 +8323,14 @@ PUBLIC int mprSslInit(void *unused, MprModule *module);
 /**
     Preload SSL configuration
     @ingroup MprSsl
-    @stability Prototype
+    @stability Evolving
  */
 PUBLIC int mprPreloadSsl(struct MprSsl *ssl, int flags);
 
 /**
     Set the ALPN protocols for SSL
     @ingroup MprSsl
-    @stability Prototype
+    @stability Evolving
  */
 PUBLIC void mprSetSslAlpn(struct MprSsl *ssl, cchar *protocols);
 
@@ -8675,6 +8719,9 @@ PUBLIC char *mprDecode64Block(cchar *buf, ssize *len, int flags);
  */
 PUBLIC char *mprEncode64(cchar *str);
 
+//  Internal
+PUBLIC void mprEncodeGenerate(void);
+
 /**
     Encode buffer using base-46 encoding.
     @param buf Buffer to encode
@@ -8788,10 +8835,10 @@ PUBLIC bool mprCheckPassword(cchar *plainTextPassword, cchar *passwordHash);
 /*
     Character encoding masks
  */
-#define MPR_ENCODE_HTML             0x1
-#define MPR_ENCODE_SHELL            0x2
-#define MPR_ENCODE_URI              0x4             /* Encode for ejs Uri.encode */
-#define MPR_ENCODE_URI_COMPONENT    0x8             /* Encode for ejs Uri.encodeComponent */
+#define MPR_ENCODE_HTML             0x1             /* Encode HTML specials */
+#define MPR_ENCODE_SHELL            0x2             /* Encode shell specials */
+#define MPR_ENCODE_URI              0x4             /* Encode for Uri.encode */
+#define MPR_ENCODE_URI_COMPONENT    0x8             /* Encode for Uri.encodeComponent */
 #define MPR_ENCODE_JS_URI           0x10            /* Encode according to ECMA encodeUri() */
 #define MPR_ENCODE_JS_URI_COMPONENT 0x20            /* Encode according to ECMA encodeUriComponent */
 #define MPR_ENCODE_SQL              0x40            /* Encode for a SQL command */
@@ -10627,9 +10674,6 @@ PUBLIC void mprWriteToOsLog(cchar *msg, int level);
 
 /*
     Copyright (c) Embedthis Software. All Rights Reserved.
-    This software is distributed under commercial and open source licenses.
-    You may use the Embedthis Open Source license or you may acquire a
-    commercial license from Embedthis Software. You agree to be fully bound
-    by the terms of either license. Consult the LICENSE.md distributed with
-    this software for full details and other copyrights.
+    This software is distributed under a commercial license. Consult the LICENSE.md
+    distributed with this software for full details and copyrights.
  */

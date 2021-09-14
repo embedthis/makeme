@@ -57,8 +57,8 @@ class Generate {
             Create project per-platform prototype me.h header
          */
         let path = me.dir.inc.join('me.h')
-        let hfile = me.dir.top.join('projects', 
-                me.settings.name + '-' + me.platform.os + '-' + me.platform.profile + '-me.h')
+        let projects: Path = me.dir.proj || me.dir.top.join('projects') 
+        let hfile = projects.join(me.settings.name + '-' + me.platform.os + '-' + me.platform.profile + '-me.h')
         if (path.exists) {
             trace('Generate', 'project header: ' + hfile.relative)
             path.copy(hfile)

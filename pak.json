@@ -1,7 +1,7 @@
 {
     "name": "makeme",
     "description": "Embedthis MakeMe",
-    "version": "1.0.3",
+    "version": "1.0.4",
     "keywords": [
         "me",
         "makeme",
@@ -22,30 +22,17 @@
         "email": "dev@embedthis.com",
         "url": "http://github.com/embedthis/makeme/issues"
     },
-    "licenses": [
-        {
-            "type": "GPL",
-            "url": "http://www.gnu.org/licenses/gpl-2.0.html"
-        },
-        {
-            "type": "Commercial",
-            "url": "http://embedthis.com/licensing/"
-        }
-    ],
+    "licenses": {
+        "type": "Commercial",
+        "url": "http://embedthis.com/licensing/"
+    },
     "dependencies": {
         "assist": "~0.1",
         "certs": "~0.1",
         "ejs.version": "~0.8",
         "ejscript": "~2.7",
-        "me-components": "~0.9",
-        "me-installs": "~0.9",
-        "me-make": "~0.1",
-        "me-os": "~0.8",
-        "me-vstudio": "~0.8",
         "me-win": "~0.1",
-        "me-xcode": "~0.8",
-        "mpr": "~8",
-        "http": "~7",
+        "mpr": "~9",
         "mpr-mbedtls": "~2",
         "ssl": "~0.9"
     },
@@ -53,7 +40,8 @@
         "mpr-openssl": "~1"
     },
     "devDependencies": {
-        "pak": ">=0.11.0"
+        "makeme": ">=1.0",
+        "pak": ">=1.0"
     },
     "import": true
 }

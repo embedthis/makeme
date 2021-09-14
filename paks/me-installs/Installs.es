@@ -320,6 +320,15 @@ class InstallsInner {
         }
     }
 
+    public function packageGpl() {
+        let [manifest, package, prefixes] = setupInstall('gpl')
+        if (package) {
+            trace('Create', me.settings.title + ' GPL Source')
+            deploy(manifest, package)
+            makeSimpleInstall(package, prefixes, 'src')
+        }
+    }
+
     public function packageSource() {
         let [manifest, package, prefixes] = setupInstall('source')
         if (package) {
@@ -506,7 +515,7 @@ class InstallsInner {
     }
 
     function makeSimpleInstall(package, prefixes, fmt) {
-    /*
+        /*
         if (fmt == 'pak') {
             let base = prefixes.staging.join(me.platform.vname)
             let package = base.join('package.json')
