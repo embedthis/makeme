@@ -4,6 +4,6 @@
     "description": "Build Assist",
     "version": "1.0.0",
     "license": "UNLICENSED",
-    "export": false,
-    "origin": "embedthis/assist"
+    "main": "index.js",
+    "export": false
 }

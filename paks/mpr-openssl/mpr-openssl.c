@@ -45,7 +45,6 @@
     #include    <openssl/x509v3.h>
 #ifndef OPENSSL_NO_ENGINE
     #include    <openssl/engine.h>
-#else
     #define MPR_HAS_CRYPTO_ENGINE 1
 #endif
 #endif
@@ -284,6 +283,10 @@ static void     sslStaticLock(int mode, int n, cchar *file, int line);
 static ulong    sslThreadId(void);
 #endif
 
+#if MPR_HAS_CRYPTO_ENGINE
+static void initEngine(MprSsl *ssl)
+#endif
+
 /************************************* Code ***********************************/
 /*
     Initialize the MPR SSL layer
@@ -345,6 +348,8 @@ PUBLIC int mprSslInit(void *unused, MprModule *module)
         SSL_load_error_strings();
 #if MPR_HAS_CRYPTO_ENGINE
         ENGINE_load_builtin_engines();
+        ENGINE_add_conf_module();
+        CONF_modules_load_file(NULL, NULL, 0);
 #endif
     }
     mprGlobalUnlock();
@@ -782,21 +787,22 @@ static int configOss(MprSsl *ssl, int flags, char **errorMsg)
 }
 
 #if MPR_HAS_CRYPTO_ENGINE
-static void initEngine(MprSsl *ssl)
+static int initEngine(MprSsl *ssl)
 {
     ENGINE  engine;
 
     if (!(engine = ENGINE_by_id(ssl->device))) {
         mprLog("mpr ssl openssl error", "Cannot find crypto device %s", ssl->device);
-        return MPR_CANT_FIND;
+        return MPR_ERR_CANT_FIND;
     }
     if (!ENGINE_set_default(engine, ENGINE_METHOD_ALL)) {
         mprLog("mpr ssl openssl error", "Cannot find crypto device %s", ssl->device);
         ENGINE_free(engine);
-        return MPR_CANT_FIND;
+        return MPR_ERR_CANT_FIND;
     }
     mprLog("mpr ssl openssl info", "Loaded crypto device %s", ssl->device);
     ENGINE_free(engine);
+    return 0;
 }
 #endif
 

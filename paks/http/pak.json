@@ -23,7 +23,7 @@
     "dependencies": {
         "certs": "~1",
         "mpr": "~9",
-        "mpr-mbedtls": "~2",
+        "mpr-mbedtls": "~3",
         "osdep": "~1",
         "pcre": "~1",
         "ssl": "~1"

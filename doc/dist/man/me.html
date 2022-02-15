@@ -59,34 +59,33 @@
 
 </PRE>
 <H2>DESCRIPTION</H2><PRE>
-       MakeMe  and  its  "<B>me</B>"  command is modern replacement for the venerable
-       make and not so popular autoconf utilities.  MakeMe manages the  build-
-       ing  of  programs  and products by effectively determining which pieces
-       have been updated and thus which components need to be rebuilt. It eas-
-       MakeMe  replaces  both  autoconf  and make with a single utility: 'me'.
-       MakeMe provides a higher level of abstraction  to  easily  specify  the
+       MakeMe and its "<B>me</B>" command is modern replacement for the venerable make
+       and not so popular autoconf utilities.  MakeMe manages the building of
+       programs and products by effectively determining which pieces have been
+       updated and thus which components need to be rebuilt. It easily handles
+       MakeMe provides a higher level of abstraction to easily specify the
        targets to build (libraries, executables, files and script output).  It
        can build directly on Linux, Mac or Windows and cross compile for other
-       platforms.  It  will generate native projects for Visual Studio, XCode,
-       Make, Nmake and shell scripts. MakeMe builds fast without the  complex-
-       ity of autoconf and make.
+       platforms. It will generate native projects for Visual Studio, XCode,
+       Make, Nmake and shell scripts. MakeMe builds fast without the complexity
+       of autoconf and make.
 
-       MakeMe  was  initiated  after evaluating Make, CMake and GYP for use by
-       Appweb and Ejscript  in  an  embedded,  cross-compilation  environment.
-       While  all three can be made to work, at Embedthis, we were expending a
-       large percentage of time on the build system and  less  on  the  actual
-       product. Our design goals were:
+       MakeMe was initiated after evaluating Make, CMake and GYP for use by
+       Appweb and Ejscript in an embedded, cross-compilation environment. While
+       all three can be made to work, at Embedthis, we were expending a large
+       percentage of time on the build system and less on the actual product.
+       Our design goals were:
 
            . Create a build too to be used by Embedthis for its own products
            . Be portable across the major Unix platforms and Windows
-           .  Easily manage cross-compilation and cross-compilers for embedded
+           . Easily manage cross-compilation and cross-compilers for embedded
        targets
            . Generate native projects for IDE integration
            . Build quickly, reliably and flexibly on Windows without requiring
        Cygwin
-           .  Support for the entire build cycle: C dependencies, compilation,
+           . Support for the entire build cycle: C dependencies, compilation,
        test and packaging
-           . Support  modular  discovery,  configuration  and  integration  of
+           . Support modular discovery, configuration and integration of
        external third-party packages
            . Be hackable and extendable
 
@@ -98,15 +97,15 @@
            . Configuration and component discovery (replaces autoconf)
            . Compiler capability sleuthing
            . Generation of a configuration source header (me.h)
-           .  Generation of Xcode, Visual Studio, Make, Nmake and shell script
+           . Generation of Xcode, Visual Studio, Make, Nmake and shell script
        projects
            . Automatic C/C++ source code dependencies
-           . Projects can aggregate multiple MakeMe files without using recur-
-       sion
+           . Projects can aggregate multiple MakeMe files without using
+       recursion
            . Cross platform. Easily handles Windows, Linux and Mac builds
            . Easy cross-compilation
            . Building outside source tree for read-only file systems
-           .  MakeMe  files  are Javascript source and are easily modified and
+           . MakeMe files are Javascript source and are easily modified and
        extended
            . Multiple build profiles (debug, release, ...)
            . Very fast configuration and building, even on windows
@@ -114,16 +113,12 @@
 
 </PRE>
 <H2>NICE BITS</H2><PRE>
-       While MakeMe has a strong feature set, there are  some  characteristics
+       While MakeMe has a strong feature set, there are some characteristics
        that make building with MakeMe especially nice:
 
            . Unified project view. No "make" style recursion required.
            . MakeMe configuration may be comprised by multiple MakeMe files
-
-       A  MakeMe file is a Javascript file with a '.me' extension that invokes
-       Me.load() to process a set of build instructions.  The  build  instruc-
-       tions are expressed as a Javascript object literal that Me.load() inte-
-       grates into the master set of build instructions.
+           . MakeMe file targets and scripts are relative to their own directory
 
             Me.load({
                 targets: {
@@ -143,17 +138,16 @@
 
 </PRE>
 <H2>INVOCATION</H2><PRE>
-       When 'me' is invoked, it searches for a 'start.me' file in the  current
-       directory.  If  one  if  not found, it searches up the parent directory
-       chain for one. MakeMe then loads this  'start.me'  file  and  commences
-       processing  its  build instuctions. A 'start.me' may in turn load other
-       MakeMe files.
+       When 'me' is invoked, it searches for a 'start.me' file in the current
+       directory. If one if not found, it searches up the parent directory chain
+       for one. MakeMe then loads this 'start.me' file and commences processing
+       its build instuctions. A 'start.me' may in turn load other MakeMe files.
 
 
 
 </PRE>
 <H2>STANDALONE USES</H2><PRE>
-       A standalone start.me file may be used to express simple build  targets
+       A standalone start.me file may be used to express simple build targets
        that do not requiring any prior configuration step. The 'start.me' file
        contains targets that specify the recipies to build those targets.
 
@@ -161,31 +155,30 @@
 
 </PRE>
 <H2>CONFIGURED PRODUCTS</H2><PRE>
-       Some products require a configuration  phase  prior  to  building  with
-       MakeMe.  Configuration  involves  discovering  the tools and components
-       available on the current system and the available compiler  tool  chain
-       support.   For  configured products, 'me' is first invoked with a "con-
-       figure" target. MakeMe then reads a 'main.me' file which describes  the
-       project,  and  generates  a  'start.me'  and  'platform.me'  file  that
+       Some products require a configuration phase prior to building with
+       MakeMe. Configuration involves discovering the tools and components
+       available on the current system and the available compiler tool chain
+       support.  For configured products, 'me' is first invoked with a
+       "configure" target. MakeMe then reads a 'main.me' file which describes
+       the project, and generates a 'start.me' and 'platform.me' file that
        describes the system.
 
 
 
 </PRE>
 <H2>TARGETS</H2><PRE>
-       MakeMe is typically invoked with zero or  more  targets  to  build.  If
-       invoked  with  zero targets, MakeMe will build all the out-of-date tar-
-       gets. If a one or more targets are specified, only those  targets  will
-       be brought up to date.
+       MakeMe is typically invoked with zero or more targets to build. If
+       invoked with zero targets, MakeMe will build all the out-of-date targets.
+       If a one or more targets are specified, only those targets will be
+       brought up to date.
 
        To build all targets:
             <B>me</B>
 
-       To  configure  a product before building, run MakeMe using the 'me con-
-       figure' target or alternatively use the '-config' switch.  When config-
-       uring,  MakeMe  will load a 'main.me' file and use the details from the
-       'settings' properties to tailor the configuration. The settings provide
-       a 'name', 'description', and 'version'.
+       To build several named targets:
+            <B>me</B> <B>libengine</B> <B>librocket</B> <B>space-program</B>
+
+       MakeMe pre-defines several targets:
 
        For example, this is a typical 'settings' configuration.
 
@@ -195,54 +188,53 @@
                 version: '4.0.5',
             },
 
-            The  'configure' properties define the required and optional pack-
-            ages that should be discovered.
+            The 'configure' properties define the required and optional packages
+            that should be discovered.
 
             configure: {
                 requires: [ 'osdep' ],
                 discovers: [ 'ssl' ],
             },
 
-       The 'requires' property defines the packages that are  required  to  be
+       The 'requires' property defines the packages that are required to be
        present on the system to build. The
 
 
 
 </PRE>
 <H2>CROSS COMPILING</H2><PRE>
-       To  build  a product for platform different to that of the local system
-       is called cross compiling. Sometimes this cross compiling is just for a
-       different  instruction  set (say x64 instead of x86). Other times it is
-       for a completely different operating system and/or CPU architecture. In
-       such  cases  a  cross-compiler  may be required to build for the target
-       platform.
+       To build a product for platform different to that of the local system is
+       called cross compiling. Sometimes this cross compiling is just for a
+       different instruction set (say x64 instead of x86). Other times it is for
+       a completely different operating system and/or CPU architecture. In such
+       cases a cross-compiler may be required to build for the target platform.
 
-       MakeMe supports cross compiling via the 'me <B>-platform</B>  <B>OS-ARCH</B>  config-
-       ure'  switch.  This adds a platform to the list of platforms to be made
-       when building. Multiple platforms may  be  specified  and  the  'local'
-       platform alias may be used for the local development platform.
+       MakeMe supports cross compiling via the 'me <B>-platform</B> <B>OS-ARCH</B> configure'
+       switch. This adds a platform to the list of platforms to be made when
+       building. Multiple platforms may be specified and the 'local' platform
+       alias may be used for the local development platform.
 
        Some products require local building to make tools that are required to
-       build for any platform. These products  add  a  "platforms:  ['local']"
-       property  to  their settings collection in the main.me file. This auto-
-       matically adds the local platform to the platforms list and is the same
-       as adding '-platform local' on the command line when configuring.
+       build for any platform. These products add a "platforms: ['local']"
+       property to their settings collection in the main.me file. This
+       automatically adds the local platform to the platforms list and is the
+       same as adding '-platform local' on the command line when configuring.
 
             <B>me</B> --platform windows-x64-debug -configure .
 
-       This  will  create  a  windows-x64-debug.me  configuration  file  and a
-       start.es that references it. The platform switch does not  need  to  be
-       respecified after configuration.
-
-
+       This will create a windows-x64-debug.me configuration file and a start.es
+       that references it. The platform switch does not need to be respecified
+       after configuration.
 
 
 
 </PRE>
-<H2>DEPENDENCIES</H2><PRE>
-       MakeMe targets can depend on other targets that must  be  built  first.
-       MakeMe  targets  have a name which may be depended upon by another tar-
-       get. For example:
+<H2>PROJECT GENERATION</H2><PRE>
+       MakeMe can generate generate complete project files for building using:
+       make, nmake, Visual Studio, Xcode or plain shell scripts. MakeMe uses the
+       '--gen' switch to specify the projects to build. MakeMe is capable of
+       cross-generating projects for non-native platforms. For example: you can
+       generate an Xcode project for Mac OS X on a Windows system.
 
             targets {
                 first: {
@@ -253,16 +245,16 @@
                     build: "print('Build Second')",
                 }, }
 
-       Before MakeMe begins building, it parses the entire MakeMe file config-
-       uration  and  determines  which targets depend on what.  It then builds
-       the targets in the required build order. It  successfully  detects  and
-       handles dependency loops.
+       Before MakeMe begins building, it parses the entire MakeMe file
+       configuration and determines which targets depend on what.  It then
+       builds the targets in the required build order. It successfully detects
+       and handles dependency loops.
 
 
 
 </PRE>
 <H2>DEFAULTS</H2><PRE>
-       Often  targets  need  very  similar  configuration.  MakeMe  provides a
+       Often targets need very similar configuration. MakeMe provides a
        'defaults' set of properties that are inherited by all targets. It also
        provides an 'internal' set of properties that are inherited by only the
        targets in the same MakeMe file. For example:
@@ -272,20 +264,20 @@
                 '+libraries': [ 'math' ],
             }
 
-       This will use the  'TUNE=SPEED'  compiler  define  when  compiling  all
-       source  files,  and  the  'math'  library when linking executables (and
-       libraries on some systems).
+       This will use the 'TUNE=SPEED' compiler define when compiling all source
+       files, and the 'math' library when linking executables (and libraries on
+       some systems).
 
 
 
 </PRE>
 <H2>OVERRIDING</H2><PRE>
-       MakeMe has default command flags for the  compiler,  linker  and  other
-       tools.  These can be overridden by providing environment variables con-
-       taining alternate flags to use. Use CFLAGS to provide  compiler  flags,
+       MakeMe has default command flags for the compiler, linker and other
+       tools. These can be overridden by providing environment variables
+       containing alternate flags to use. Use CFLAGS to provide compiler flags,
        DFLAGS for pre-processor definitions, IFLAGS for compiler include paths
-       and LDFLAGS for linker flags. If these flags are provided to 'me'  when
-       building,  they  apply  to that run only. If the flags are provide when
+       and LDFLAGS for linker flags. If these flags are provided to 'me' when
+       building, they apply to that run only. If the flags are provide when
        configuring, they are saved in the generated platform file and apply to
        all subsequent runs.
 
@@ -293,53 +285,51 @@
 
 </PRE>
 <H2>DEBUGGING</H2><PRE>
-       With  Make  and  other  build tools, it is difficult to determine why a
-       target is or is not being built. MakeMe provides a  '--why'  switch  to
+       With Make and other build tools, it is difficult to determine why a
+       target is or is not being built. MakeMe provides a '--why' switch to
+       diagnose problematic build sequences. This switch displays the reason why
+       each target was or was not built.
 
-
-</PRE>
-<H2>OPTIONS</H2><PRE>
-       <B>--benchmark</B>
-              Measure the elapsed time to run 'me'.
-
-
+       In a complex project containing many MakeMe files, it can be helpful to
+       see the entire MakeMe configuration in one file. Use the '--dump' switch
+       to save a copy of the entire configuration. In the dump, build defaults
        <B>--configuration</B>
-              Display  the current configuration. This displays the configura-
-              tion for each package and the build settings.
+              Display the current configuration. This displays the configuration
+              for each package and the build settings.
 
 
        <B>--configure</B> <B>/path/to/source/tree</B>
-              Configure the project to prepare for building.  This  configures
-              MakeMe for building the project based on the instructions speci-
-              fied in a 'main.me' located in the specified path  source  tree.
-              When run, 'me' will create a platform configuration MakeMe file,
-              a build output directory  and  me.h  header.  The  configuration
-              directory  is of the form: build/OS-ARCH-PROFILE where OS may be
-              freebsd, linux, macosx, solaris, vxworks, windows  and  ARCH  is
-              arm, mips, ppc, x64 or x86. PROFILE is typically set to debug or
+              Configure the project to prepare for building. This configures
+              MakeMe for building the project based on the instructions
+              specified in a 'main.me' located in the specified path source
+              tree. When run, 'me' will create a platform configuration MakeMe
+              file, a build output directory and me.h header. The configuration
+              directory is of the form: build/OS-ARCH-PROFILE where OS may be
+              freebsd, linux, macosx, solaris, vxworks, windows and ARCH is arm,
+              mips, ppc, x64 or x86. PROFILE is typically set to debug or
               release. For example: 'build/macosx-x64-debug'.
 
-              MakeMe will  use  the  settings.required  and  settings.discover
-              properties  in  the main.me for a list of packages to use.  When
-              configuring, MakeMe will search for these packages and will cre-
-              ate  definitions in the configuration MakeMe file for later use.
+              MakeMe will use the settings.required and settings.discover
+              properties in the main.me for a list of packages to use.  When
+              configuring, MakeMe will search for these packages and will create
+              definitions in the configuration MakeMe file for later use.
 
 
        <B>--continue</B>
-              Continue to build despite any build errors. Normal operation  is
-              to stop building if any build errors are encountered.
+              Continue to build despite any build errors. Normal operation is to
+              stop building if any build errors are encountered.
 
 
        <B>--debug</B>
-              Enable  a  debug build. This enables the settings.debug property
-              which controls whether debug symbols will be created  when  com-
-              piling.
+              Enable a debug build. This enables the settings.debug property
+              which controls whether debug symbols will be created when
+              compiling.
 
 
        <B>--deploy</B> <B>directory</B>
-              Install  the product to the deployment directory. This is useful
-              to stage the required files to install on a system.  Use  --sets
-              to define the file sets to deploy.
+              Install the product to the deployment directory. This is useful to
+              stage the required files to install on a system.  Use --sets to
+              define the file sets to deploy.
 
 
        <B>--depth</B> <B>level</B>
@@ -350,27 +340,27 @@
               Run MakeMe with stack backtrace display on errors.
 
 
-       <B>--force</B>
-              Override warnings and proceed with the  operation.  See  --over-
-              write to write over existing files.
+       <B>--dump</B> Dump the aggregate MakeMe configuration into a single dump MakeMe
+              file.
 
 
+       <B>--endian</B> <B>[big|little]</B>
        <B>--gen</B> <B>[make|nmake|sh|vs|xcode|main|start]</B>
-              Generate  files.  This  option  can  be used to generate initial
-              start.me or main.me files or IDE  project  and  makefiles.   The
-              --gen  start,  option can be used to create a stand-alone sample
-              start.me file. The --gen main, option can be used  to  create  a
-              sample  main.me file when starting a new product.  Project files
-              are created under the 'projects' directory.   The  projects  are
-              based   on   the   current  configuration.  If  cross-generating
-              projects, you will typically need to also use -configure.
+              Generate files. This option can be used to generate initial
+              start.me or main.me files or IDE project and makefiles.  The --gen
+              start, option can be used to create a stand-alone sample start.me
+              file. The --gen main, option can be used to create a sample
+              main.me file when starting a new product.  Project files are
+              created under the 'projects' directory.  The projects are based on
+              the current configuration. If cross-generating projects, you will
+              typically need to also use -configure.
 
 
        <B>--get</B> <B>field</B>
               Get a field from the MakeMe DOM. This can be used to display any
-              MakeMe  file value. Unlike --set, this applies to any MakeMe DOM
-              value and not just to settings.  For  example:  'me  --get  set-
-              tings.version'.
+              MakeMe file value. Unlike --set, this applies to any MakeMe DOM
+              value and not just to settings. For example: 'me --get
+              settings.version'.
 
 
        <B>--import</B>
@@ -378,20 +368,20 @@
               the local source tree.
 
 
-       <B>--keep</B> Keep some intermediate build files. This is  currently  used  by
-              some documentation generation targets.
+       <B>--keep</B> Keep some intermediate build files. This is currently used by some
+              documentation generation targets.
 
 
        <B>--log</B> <B>logName[:logLevel]</B>
-              Specify  a  file to log internal execution messages. MakeMe will
-              log execution related trace to the log file. The log level spec-
-              ifies the desired verbosity of output. Level 0 is the least ver-
-              bose and level 5 is the most. The '-v' switch is  an  alias  for
-              '--log stderr:2'.
+              Specify a file to log internal execution messages. MakeMe will log
+              execution related trace to the log file. The log level specifies
+              the desired verbosity of output. Level 0 is the least verbose and
+              level 5 is the most. The '-v' switch is an alias for '--log
+              stderr:2'.
 
 
        <B>--nocross</B>
-              Don't  cross-build. Build only for the local development system.
+              Don't cross-build. Build only for the local development system.
 
 
        <B>--nolocal</B>
@@ -400,36 +390,36 @@
 
 
        <B>--out</B> <B>path</B>
-              Save  MakeMe trace output to a file instead of displaying to the
-              linux-arm-debug --with ejscript configure
+              Save MakeMe trace output to a file instead of displaying to the
+              console.
 
 
-       <B>--pre</B>  Pre-process a source file to stdout.
-
+       <B>--overwrite</B>
+              Overwrite existing files.
 
        <B>--prefix</B> <B>dir=path</B>
-              Set the installation directory prefix. Various products  utilize
-              different  prefixes.  Typical  prefixes  are: root, base, state,
-              data, app, vapp, bin, etc, inc, log, spool, src, web.  For those
-              familiar  with autoconf, the major autoconf prefixe switches are
-              supported and mapped as follows: --prefix to root,  --bindir  to
-              bin,  --libdir to lib, --includedir to inc, --sysconfdir to etc,
-              --libexec to app, --logfiledir to log, --htdocsdir to  web,  and
+              Set the installation directory prefix. Various products utilize
+              different prefixes. Typical prefixes are: root, base, state, data,
+              app, vapp, bin, etc, inc, log, spool, src, web.  For those
+              familiar with autoconf, the major autoconf prefixe switches are
+              supported and mapped as follows: --prefix to root, --bindir to
+              bin, --libdir to lib, --includedir to inc, --sysconfdir to etc,
+              --libexec to app, --logfiledir to log, --htdocsdir to web, and
               --manualdir to man.
 
 
        <B>--prefixes</B> <B>debian|embedthis|opt</B>
-              Select  an  installation  prefix  package.  Debian specifies the
-              debian recommended installation  locations.  Embedthis  products
-              install  by  default with a prefix of /usr/local/lib/PRODUCT and
-              symlink exectuables  to  /usr/local/bin.   The  opt  prefix  set
-              installs with a prefix of "/opt".
+              Select an installation prefix package. Debian specifies the debian
+              recommended installation locations. Embedthis products install by
+              default with a prefix of /usr/local/lib/PRODUCT and symlink
+              exectuables to /usr/local/bin.  The opt prefix set installs with a
+              prefix of "/opt".
 
 
        <B>--profile</B> <B>defaultProfile</B>
-              Set  the  default  profile if unspecified. Typical profiles are:
-              'debug', 'dev', 'stage', 'prod' or 'release'.   The  profile  is
-              used in constructing the build output directory. You may specify
+              Set the default profile if unspecified. Typical profiles are:
+              'debug', 'dev', 'stage', 'prod' or 'release'.  The profile is used
+              in constructing the build output directory. You may specify
               override properties in the main.me profiles[PROFILE] collection.
 
 
@@ -446,19 +436,19 @@
 
 
        <B>--release</B>
-              Enable  a  release build. This disables the settings.debug prop-
-              erty and compiles without debug symbols.
+              Enable a release build. This disables the settings.debug property
+              and compiles without debug symbols.
 
 
-       <B>--rom</B>  Configure setting to build for systems without  a  file  system.
-              This  enables  the  ROM file system.  Use the makerom utility to
-              process required files into C source code for building with  the
+       <B>--rom</B>  Configure setting to build for systems without a file system. This
+              enables the ROM file system.  Use the makerom utility to process
+              required files into C source code for building with the
+              application.
 
-       <B>--show</B> Show the actual commands executed by MakeMe.
 
-
-       <B>--static</B>
-              Configure to  build  using  static  linking  instead  of  shared
+       <B>--set</B> <B>key=value</B>
+              Set a settings property to a given value. For example: 'me -set
+              version=1.0' will update the settings.version property.  Use this
               libraries. Same as --set static=true.
 
 
@@ -480,25 +470,24 @@
 
 
        <B>--watch</B> <B>msec</B>
-              Watch for changes and rebuild if required. This will  sleep  for
-              the  requested  number  of  milliseconds  between  checking  for
-              changes. This can also be invoked as 'me watch' which will check
-              every second for changes.
+              Watch for changes and rebuild if required. This will sleep for the
+              requested number of milliseconds between checking for changes.
+              This can also be invoked as 'me watch' which will check every
+              second for changes.
 
 
        <B>--why</B>  Display why each target was or was not built.
 
 
        <B>--with</B> <B>PACK[=path]</B>
-              Build  with  the named pack located at the optional path. If the
-              path is ommitted, a search is performed for the pack at  default
-              locations.  Packs  must  have  a pack description file installed
-              under 'makeme/packs' in the MakeMe installation.
+              Build with the named pack located at the optional path. If the
+              path is ommitted, a search is performed for the pack at default
+              locations. Packs must have a pack description file installed under
+              'makeme/packs' in the MakeMe installation.
 
 
        <B>--without</B> <B>PACK</B>
               Build without the named pack.
-
 
 
 
@@ -509,6 +498,15 @@
 
 </PRE>
 <H2>COPYRIGHT</H2><PRE>
+       Copyright © Embedthis Software. MakeMe and Ejscript are a trademarks of
+       Embedthis Software.
+
+
+</PRE>
+<H2>SEE ALSO</H2><PRE>
+       pak
+
+
 </PRE>
 <HR>
 <ADDRESS>

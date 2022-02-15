@@ -2,7 +2,7 @@
     "name": "ejscript",
     "description": "Embedthis Ejscript Javascript Language",
     "title": "Embedthis Ejscript",
-    "version": "2.7.6",
+    "version": "2.7.7",
     "keywords": [
         "ejs",
         "ejscript",
@@ -34,21 +34,21 @@
         }
     ],
     "dependencies": {
-        "assist": "~0.1",
+        "assist": "~1",
         "http": "~7",
-        "me-win": "~0.1",
+        "me-win": "~1",
         "mpr": "~8",
         "osdep": "~1",
-        "pcre": "~1.0",
+        "pcre": "~1",
         "ssl": "~1",
-        "zlib": "~1.0"
+        "zlib": "~1"
     },
     "optionalDependencies": {
-        "certs": "~0.1",
+        "certs": "~1",
         "mpr-mbedtls": "~2",
         "mpr-openssl": "~1",
         "sqlite": "~3",
-        "watchdog": "~0.2"
+        "watchdog": "~1"
     },
     "devDependencies": {
         "makeme": ">=1.0",

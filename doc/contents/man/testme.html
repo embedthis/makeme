@@ -39,69 +39,65 @@
        the console.
 
 
-       Unit  tests are stand-alone programs that have a '.tst' extension after
-       the normal file extension. For example, a C unit  test  file  would  be
-       named  'file.c.tst',  while  an  Ejscript unit test file would be named
+       Unit tests are stand-alone programs that have a '.tst' extension after
+       the normal file extension. For example, a C unit test file would be named
+       'file.c.tst', while an Ejscript unit test file would be named
        'file.es.tst' and a shell script test would be named 'file.sh.tst'.
 
 
-       Test parameters are passed to unit tests as environment strings with  a
+       Test parameters are passed to unit tests as environment strings with a
        'TM_' prefix.  Unit tests emit results to their standard output and are
-       captured by TestMe.  Unit tests emit results via  a  'pass'  or  'fail'
-       command depending on the test results.  Unit tests can control the sub-
-       sequent execution of tests via a 'skip' command and can write output to
-       the TestMe console via a 'write' command.  Unit tests can define values
-       in the environment for subsequent tests by  emitting  a  'set'  command
-       (see below).
+       captured by TestMe.  Unit tests emit results via a 'pass' or 'fail'
+       command depending on the test results.  Unit tests can control the
+       subsequent execution of tests via a 'skip' command and can write output
+       to the TestMe console via a 'write' command.  Unit tests can define
+       values in the environment for subsequent tests by emitting a 'set'
+       command (see below).
 
 
-       TestMe  will  automatically  compile  and  recompile  C  unit  tests as
-       required. Ejscript unit tests can be run  directly  without  recompila-
-       tion.
+       TestMe will automatically compile and recompile C unit tests as required.
+       Ejscript unit tests can be run directly without recompilation.
 
 
 
 </PRE>
 <H2>OPERATION</H2><PRE>
-       When  TestMe  is  invoked,  testme traverses the current directory tree
-       looking for unit test files.  At each directory level,  it  first  runs
-       ate a 'testme' directory with a MakeMe file for the unit test. It  will
-       then use MakeMe to build the unit test into a stand-alone executable.
+       When TestMe is invoked, testme traverses the current directory tree
+       looking for unit test files.  At each directory level, it first runs any
+       setup test files that have a '*.set' extension. The purpose of setup
 
 
-       When all is ready, TestMe will run all unit tests with a '*.tst' exten-
-       sion. For subdirectories, TestMe will recurse and  run  unit  tests  in
+       When all is ready, TestMe will run all unit tests with a '*.tst'
+       extension. For subdirectories, TestMe will recurse and run unit tests in
        those subdirectories. The aggregated environment is passed down to unit
-       tests in subdirectories.  Note that if a unit tests uses the 'set' com-
-       mand  to  define a key value in the environment, it will only be passed
+       tests in subdirectories.  Note that if a unit tests uses the 'set'
+       command to define a key value in the environment, it will only be passed
        to unit tests at that directory level or below.
 
 
 
 </PRE>
 <H2>TEST ENVIRONMENT</H2><PRE>
-       TestMe communicates test parameters to unit tests via the  environment.
+       TestMe communicates test parameters to unit tests via the environment.
 
              TM_INB      -- Set to the local binary directory.
-             TM_DEBUG     --  Set if testme invoked with --debug. Run in debug
+             TM_DEBUG    -- Set if testme invoked with --debug. Run in debug
             mode.
              TM_DEPTH    -- Set to the test depth instructed via --depth.
              TM_DIR      -- Set to the directory containing the test.
-             TM_NOSERVER -- Set if testme invoked with --noserver. Do not  run
+             TM_NOSERVER -- Set if testme invoked with --noserver. Do not run
             server-side programs.
              TM_OUT      -- Set to the build output configuration directory.
              TM_PHASE    -- Set to 'Setup', 'Finalize' or 'Test'.
              TM_TOP      -- Set to the top directory for the project.
-             TM_*         --  All  defines  in  the  me.h are converted to TM_
+             TM_*        -- All defines in the me.h are converted to TM_
             defines.
-
-
 
 
 </PRE>
 <H2>TEST OUTPUT</H2><PRE>
-       A unit test should emit results to the standard out. The following com-
-       mands are supported.
+       A unit test should emit results to the standard out. The following
+       commands are supported.
 
              fail reason ...
              info message ...
@@ -110,27 +106,23 @@
              skip reason ...
              write message ...
 
-       A  'fail'  command will typically terminate a test run unless testme is
-       invoked with --continue.  A 'pass' command will be counted  and  if  no
-       'fail'  commands  are  emitted  by the unit test, the unit test will be
-       PASSED.  An 'info' command will echo information message to the  testme
-       output. A 'write' message will write raw messages to the testme output.
-       A 'set' command will define a key in the environment that is passed  to
-       subsequent  unit  tests.  The  'skip' command will cause all subsequent
-       unit tests in or below the current directory to be skipped.
+       A 'fail' command will typically terminate a test run unless testme is
+       invoked with --continue.  A 'pass' command will be counted and if no
+       'fail' commands are emitted by the unit test, the unit test will be
+       PASSED.  An 'info' command will echo information message to the testme
+       output. A 'write' message will write raw messages to the testme output. A
+       'set' command will define a key in the environment that is passed to
+       subsequent unit tests. The 'skip' command will cause all subsequent unit
+       tests in or below the current directory to be skipped.
 
 
 
 </PRE>
 <H2>TESTME UNIT TEST C API</H2><PRE>
+       The follow C API is supported for C unit tests.
 
-</PRE>
-<H2>OPTIONS</H2><PRE>
-       <B>--chdir</B> <B>dir</B>
-              Change to the given directory before running tests.
-
-
-       <B>--clean</B>
+             bool  ttrue(expression);
+             bool  tfalse(expression);
               Clean the contents of all generated 'testme' directories.
 
 
@@ -139,14 +131,14 @@
 
 
        <B>--compile</B>
-              Compile required C unit tests but do not run. Use  --rebuild  to
-              force  a  recompile regardless of whether the unit test file has
+              Compile required C unit tests but do not run. Use --rebuild to
+              force a recompile regardless of whether the unit test file has
               been updated or not.
 
 
        <B>--continue</B>
-              Continue to run tests despite any previous errors. Normal opera-
-              tion is to stop testing if any tests fail.
+              Continue to run tests despite any previous errors. Normal
+              operation is to stop testing if any tests fail.
 
 
        <B>--debug</B>
@@ -157,41 +149,40 @@
               Set the unit test depth level.
 
 
-       <B>--ide</B>  Run  the specified test in an IDE debugger. Supported on Mac OSX
+       <B>--ide</B>  Run the specified test in an IDE debugger. Supported on Mac OSX
               only.
 
 
        <B>--log</B> <B>logName[:logLevel]</B>
-              Specify a file to log test messages. TestMe will  normally  dis-
-              play  test output to the console. The --log option will redirect
-              this output to the specified log file. The log  level  specifies
-              the  desired  verbosity  of output. Level 0 is the least verbose
-              and level 5 is the most.
+              Specify a file to log test messages. TestMe will normally display
+              test output to the console. The --log option will redirect this
+              output to the specified log file. The log level specifies the
+              desired verbosity of output. Level 0 is the least verbose and
+              level 5 is the most.
 
 
        <B>--noserver</B>
               Do not run server side support code. This emits TM_NOSERVER into
               the environment for unit tests.
 
-              <B>--projects</B>  Generate  IDE projects for the specified unit tests.
-              At least one test must be specified by name on the command line.
-              The IDE projects are generated in the 'testme' directory.
-
-              desired verbosity of output.  Level 0 is the least  verbose  and
-              level 5 is the most.
+              <B>--projects</B> Generate IDE projects for the specified unit tests. At
+              least one test must be specified by name on the command line.  The
+              IDE projects are generated in the 'testme' directory.
 
 
-       <B>--version</B>
-              Print the <B>ejs</B> command version and exit.
+       <B>--quiet</B>
+              Run in quiet mode without trace.
+
+
+       <B>--rebuild</B>
 
 
        <B>--verbose</B>
               Run in verbose mode with more trace about TestMe activities.
 
 
-       <B>--why</B>  Display  why  various tests were run or not and why actions were
+       <B>--why</B>  Display why various tests were run or not and why actions were
               taken.
-
 
 
 
@@ -202,8 +193,8 @@
 
 </PRE>
 <H2>COPYRIGHT</H2><PRE>
-       Copyright (C) Embedthis Software. TestMe and Ejscript are a  trademarks
-       of Embedthis Software.
+       Copyright © Embedthis Software. TestMe and Ejscript are a trademarks of
+       Embedthis Software.
 
 
 </PRE>
@@ -212,7 +203,7 @@
 
 
 
-testme                           January 2014                        <B>TESTME(1)</B>
+testme                            January 2014                         <B>TESTME(1)</B>
 </PRE>
 <HR>
 <ADDRESS>

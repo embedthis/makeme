@@ -1,7 +1,7 @@
 {
     "name": "makeme",
     "description": "Embedthis MakeMe",
-    "version": "1.0.4",
+    "version": "1.0.5",
     "keywords": [
         "me",
         "makeme",
@@ -27,14 +27,14 @@
         "url": "http://embedthis.com/licensing/"
     },
     "dependencies": {
-        "assist": "~0.1",
-        "certs": "~0.1",
+        "assist": "~1",
+        "certs": "~1",
         "ejs.version": "~0.8",
         "ejscript": "~2.7",
-        "me-win": "~0.1",
+        "me-win": "~1",
         "mpr": "~9",
         "mpr-mbedtls": "~2",
-        "ssl": "~0.9"
+        "ssl": "~1"
     },
     "optionalDependencies": {
         "mpr-openssl": "~1"
