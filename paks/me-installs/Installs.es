@@ -24,12 +24,12 @@ class InstallsInner {
         write   Write an expanded string literal to the destination
      */
     public function deploy(manifest, package): Array {
-        let sets = me.options.sets 
+        let sets = me.options.sets
         if (sets is String) {
             sets = sets.split(',')
         }
         if (me.options.deploy) {
-            sets ||= package['sets-cross'] 
+            sets ||= package['sets-cross']
         } else {
             sets ||= package.sets
         }
@@ -97,7 +97,7 @@ class InstallsInner {
                             break
                         }
                     }
-                } 
+                }
                 if (enable && item.enable) {
                     if (!(item.enable is Boolean)) {
                         let script = makeme.loader.expand(item.enable)
@@ -255,7 +255,7 @@ class InstallsInner {
                     if (pname == 'src') {
                         prefixes[pname] = prefixes.media.portable.normalize
                     } else {
-                        prefixes[pname] = Path(prefixes.media.join('contents').portable.name + 
+                        prefixes[pname] = Path(prefixes.media.join('contents').portable.name +
                             me.prefixes[pname].removeDrive().portable).normalize
                     }
                 }
@@ -397,7 +397,8 @@ class InstallsInner {
     }
 
     public function installBinary() {
-        if (me.options.deploy && me.settings.platforms.length > 1 && !me.platform.cross) {
+        if (me.options.deploy && me.settings.platforms && me.settings.platforms.length > 1 &&
+                !me.platform.cross) {
             trace('Skip', 'Deploy for ' + me.platform.name)
             return
         }
@@ -412,7 +413,7 @@ class InstallsInner {
                     trace('Install', me.settings.title)
                 }
             }
-            files = deploy(manifest, package) 
+            files = deploy(manifest, package)
             makeFilesLog(prefixes.vapp ? prefixes.vapp : prefixes.app, prefixes.root, files, me.prefixes)
         }
         delete me.installing
@@ -451,8 +452,8 @@ class InstallsInner {
                 }
             }
             for (let [key, prefix] in me.prefixes) {
-                /* 
-                    Safety, make sure product name is in prefix 
+                /*
+                    Safety, make sure product name is in prefix
                  */
                 if (!prefix.name.contains(name) || key == 'src' || key == 'app' || !prefixes[key]) {
                     continue
@@ -722,7 +723,7 @@ class InstallsInner {
             if (!pmaker) {
                 throw 'Cannot locate PackageMaker.app'
             }
-            run(pmaker + ' --target 10.5 --domain system --doc ' + pmdoc + 
+            run(pmaker + ' --target 10.5 --domain system --doc ' + pmdoc +
                 ' --id com.' + s.company + '.' + s.name + '.pkg --root-volume-only --no-relocate' +
                 ' --discard-forks --out ' + outfile)
         } else {
@@ -732,15 +733,15 @@ class InstallsInner {
             if (App.uid == 0 && signas) {
                 sign += '--sign "Developer ID Installer: ' + signas + '"'
             }
-            run('pkgbuild --quiet --install-location / ' + 
-                '--root ' + staging.join(s.name + '-' + s.version, 'contents') + ' ' + 
+            run('pkgbuild --quiet --install-location / ' +
+                '--root ' + staging.join(s.name + '-' + s.version, 'contents') + ' ' +
                 '--identifier com.' + s.company + '.' + s.name + '.pkg ' +
                 '--version ' + makeVersion(s.version) + ' ' +
                 '--scripts ' + scripts + ' ' + staging.join(s.name + '.pkg'))
 
             run('productbuild --quiet ' + sign + ' ' +
-                '--distribution ' + staging.join('distribution.xml') + ' ' + 
-                '--package-path ' + staging + ' ' + 
+                '--distribution ' + staging.join('distribution.xml') + ' ' +
+                '--package-path ' + staging + ' ' +
                 '--resources ' + staging + ' ' + outfile)
 
             if (sign) {
@@ -903,9 +904,9 @@ class InstallsInner {
             let pass = Path('c:/crt/signing.pass').readString().trim()
             trace('Sign', outfile)
             let sign = Cmd.locate('signtool.exe', me.targets.compiler.search)
-            trace('Run', [sign, 'sign', '/f', cert, '/p', pass, '/t', 
+            trace('Run', [sign, 'sign', '/f', cert, '/p', pass, '/t',
                 'http://timestamp.verisign.com/scripts/timestamp.dll', outfile])
-            Cmd.run([sign, 'sign', '/f', cert, '/p', pass, '/t', 
+            Cmd.run([sign, 'sign', '/f', cert, '/p', pass, '/t',
                 'http://timestamp.verisign.com/scripts/timestamp.dll', outfile], {filter: true})
         }
         /* Wrap in a zip archive */
@@ -1009,7 +1010,7 @@ class InstallsInner {
 
 /*
     This software is distributed under commercial and open source licenses.
-    You may use the Embedthis Open Source license or you may acquire a 
+    You may use the Embedthis Open Source license or you may acquire a
     commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
     this software for full details and other copyrights.
