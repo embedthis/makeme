@@ -3,7 +3,7 @@
 #
 
 NAME                  = makeme
-VERSION               = 1.0.5
+VERSION               = 1.0.6
 
 OS                    = windows
 PA                    = $(PROCESSOR_ARCHITECTURE)
