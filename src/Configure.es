@@ -712,7 +712,7 @@ class Configure {
         f.writeLine('\n/* Profile */')
         let args = 'me ' + App.args.slice(1).join(' ')
         def(f, 'ME_CONFIG_CMD', '"' + args + '"')
-        def(f, 'ME_' + settings.name.toUpper().replace('-', '_') + '_PRODUCT', '1')
+        def(f, 'ME_' + settings.name.toUpper().replace('-', '_').replace(/\\/g, '/') + '_PRODUCT', '1')
         def(f, 'ME_PROFILE', '"' + me.platform.profile + '"')
         def(f, 'ME_TUNE_' + (me.settings.tune || "size").toUpper(), '1')
 

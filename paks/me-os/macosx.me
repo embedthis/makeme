@@ -15,6 +15,7 @@ Me.load({
     rules: {
         'c->c':   '${targets.compiler.path} -E -arch ${CC_ARCH} ${CFLAGS} ${DEFINES} ${INCLUDES} ${PREPROCESS} ${INPUT}',
         'c->o':   '${targets.compiler.path} -c -o ${OUTPUT} -arch ${CC_ARCH} ${MTUNE} ${CFLAGS} ${DEFINES} ${INCLUDES} ${PREPROCESS} ${INPUT}',
+        'S->o':   '${targets.compiler.path} -c -o ${OUTPUT} -arch ${CC_ARCH} ${MTUNE} ${CFLAGS} ${DEFINES} ${INCLUDES} ${PREPROCESS} ${INPUT}',
         'cpp->o': '${targets.compiler.path} -c -o ${OUTPUT} -arch ${CC_ARCH} ${MTUNE} ${CFLAGS} ${DEFINES} ${INCLUDES} ${PREPROCESS} ${INPUT}',
         'c++->o': '${targets.compiler.path} -c -o ${OUTPUT} -arch ${CC_ARCH} ${MTUNE} ${CFLAGS} ${DEFINES} ${INCLUDES} ${PREPROCESS} ${INPUT}',
         'shlib':  '${targets.compiler.path} -dynamiclib -o ${OUTPUT} -arch ${CC_ARCH} ${LDFLAGS} ${LIBPATHS} -install_name @rpath/${LIBNAME} -compatibility_version ${settings.compatible} -current_version ${settings.compatible} ${INPUT} ${LIBS}',

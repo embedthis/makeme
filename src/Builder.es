@@ -472,13 +472,23 @@ public class Builder {
                     let obj = me.dir.obj.join(file.replaceExt(me.ext.o).basename)
                     let props = { name : obj, enable: true, path: obj, type: 'obj', home: target.home,
                         goals: [target.name], files: [ file ],
-                        generate: true, belongs: target.name }
+                        generate: true, belongs: target.name
+                    }
                     for each (n in ['compiler', 'defines', 'includes', 'libraries', 'linker', 'libpaths']) {
                         if (target[n] && target[n].length > 0) {
                             props[n] = target[n]
                         }
                     }
-                    let objTarget = loader.createTarget(props)
+                    /*
+                    if (target.type == 'lib') {
+                        //  Includes are already rebased
+                        let dir = target.home.relative
+                        for (i in props.includes) {
+                            props.includes[i] = props.includes[i].trimStart(dir + '/')
+                        }
+                    } */
+                    let objTarget = loader.createTarget(props, {rebase: false})
+
                     /*
                         Inherit pre-compile options from target
                      */

@@ -46,6 +46,7 @@ Me.load({
     rules: {
         'c->c':   '${targets.compiler.path} -E ${CFLAGS} ${DEFINES} ${INCLUDES} ${PREPROCESS} ${INPUT}',
         'c->o':   '${targets.compiler.path} -c -o ${OUTPUT} ${CFLAGS} ${DEFINES} ${INCLUDES} ${PREPROCESS} ${INPUT}',
+        'S->o':   '${targets.compiler.path} -c -o ${OUTPUT} ${CFLAGS} ${DEFINES} ${INCLUDES} ${PREPROCESS} ${INPUT}',
         'cpp->o': '${targets.compiler.path} -c -o ${OUTPUT} ${CFLAGS} ${DEFINES} ${INCLUDES} ${PREPROCESS} ${INPUT}',
         'shlib':  '${targets.compiler.path} -r -o ${OUTPUT} ${LDFLAGS} ${LIBPATHS} ${INPUT} ${LIBS}'
         'lib':    '${targets.lib.path} -cr ${OUTPUT} ${INPUT}'

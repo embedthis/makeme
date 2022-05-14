@@ -268,7 +268,7 @@ function findVxCompiler(results) {
         ]
         /* VxWorks 7.0 needs to fix: get_feature error on liblmapi.so */
         env.LD_LIBRARY_PATH = env.WIND_HOME + '/license/lmapi-5/' + env.WIND_HOST_TYPE + '/lib'
-        includes = [ 
+        includes = [
             vxdir.join('samples/prebuilt_projects/vsb_vxsim_linux/share/h'),
             vxdir.join('samples/prebuilt_projects/vsb_vxsim_linux/krnl/h/system'),
             vxdir.join('samples/prebuilt_projects/vsb_vxsim_linux/krnl/h/public'),
@@ -347,7 +347,7 @@ function findPosixCompiler(results) {
  */
 function getCompilerSettings(cc) {
     let settings = {}
-    if (!me.options.gen && cc && (me.platform.like == 'unix' || 
+    if (!me.options.gen && cc && (me.platform.like == 'unix' ||
         (me.platform.os == 'vxworks' && Config.OS == 'linux'))) {
         settings.hasAtomic = compile(cc, '',
             'int main() { int a, b; a = 0 ; b = 1; __atomic_add_fetch(&a, b, __ATOMIC_RELAXED); return 0; }')
@@ -375,7 +375,7 @@ function getCompilerSettings(cc) {
             'int main() { long long int a, b; a = 0 ; b = 1; __sync_add_and_fetch(&a, b); return 0; }')
         settings.hasSyncCas = compile(cc, '',
             '#include <stdio.h>\nint main() { void *ptr = 0; __sync_bool_compare_and_swap(&ptr, ptr, ptr); return 0; }')
-        settings.hasUnnamedUnions = compile(cc, '', 
+        settings.hasUnnamedUnions = compile(cc, '',
             '#include <stdio.h>\nint main() { struct test { union { int x; int y; };}; return 0; }')
         settings.warnUnused = compile(cc, '-Wno-unused-result',
             '#include <stdio.h>\n#include <stdlib.h>\nint main() { realloc(0, 1024); return 0; }')
@@ -434,8 +434,6 @@ function setCompilerOptions(results, settings) {
         } else {
             results.compiler.push('-O2')
         }
-
-        /* Was !mac */
         if (!me.settings.static) {
             results.compiler.push('-fPIC')
             results.defines.push('_REENTRANT', 'PIC')
@@ -443,7 +441,7 @@ function setCompilerOptions(results, settings) {
         if (arch.startsWith('ppc')) {
             results.defines.push('_GNU_TOOL')
         }
-        
+
         if (me.settings.compiler && me.settings.compiler.fortify) {
             if (!me.settings.debug) {
                 results.defines.push(
@@ -469,7 +467,7 @@ function setCompilerOptions(results, settings) {
                     '-Wl,-z,noexecheap'
                 )
                 if (me.settings.static) {
-                    /* 
+                    /*
                         Note: gcc -static disables pie. But we do not use -static.
                         Also note: cannot use pie with shared libraries
                      */
@@ -490,7 +488,7 @@ function setCompilerOptions(results, settings) {
         }
 
     } else if (platform.os == 'macosx') {
-        /* 
+        /*
             results.compiler.push('-Wunreachable-code')
          */
         results.linker.push('-Wl,-rpath,@executable_path/', '-Wl,-rpath,@loader_path/')
@@ -529,16 +527,16 @@ function setCompilerOptions(results, settings) {
             }
         }
         results.defines.push(
-            'VXWORKS', 
-            'RW_MULTI_THREAD', 
-            'CPU=' + cpu.toUpper(), 
-            'TOOL_FAMILY=gnu', 
-            'TOOL=gnu', 
-            '_GNU_TOOL', 
+            'VXWORKS',
+            'RW_MULTI_THREAD',
+            'CPU=' + cpu.toUpper(),
+            'TOOL_FAMILY=gnu',
+            'TOOL=gnu',
+            '_GNU_TOOL',
             '_WRS_KERNEL_')
         if (major >= 7) {
             results.defines.push(
-                '_VSB_CONFIG_FILE="' + 
+                '_VSB_CONFIG_FILE="' +
                     results.vxdir.join('samples/prebuilt_projects/vsb_vxsim_linux/h/config/vsbConfig.h') + '"'
             )
         }
@@ -650,11 +648,11 @@ function getDefaultSettings() {
         }
     } else if (platform.os == 'linux') {
         settings = {
-            hasAtomic: false,
-            hasAtomic64: false,
-            hasDoubleBraces: false,
+            hasAtomic: true,
+            hasAtomic64: true,
+            hasDoubleBraces: true,
             hasDynLoad: true,
-            hasLibEdit: false,
+            hasLibEdit: true,
             hasLibRt: true,
             hasMmu: true,
             hasMtune: true,
@@ -662,9 +660,9 @@ function getDefaultSettings() {
             hasStackProtector: true,
             hasSync: true,
             hasSync64: true,
-            hasSyncCas: false,
+            hasSyncCas: true,
             hasUnnamedUnions: true,
-            warn64to32: false,
+            warn64to32: true,
             warnUnused: true,
         }
     } else if (platform.os == 'macosx') {

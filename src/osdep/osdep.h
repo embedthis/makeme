@@ -380,6 +380,7 @@
     #include    <pthread.h>
     #include    <pwd.h>
 #if !CYGWIN
+    #include    <rpc/rpc.h>
     #include    <resolv.h>
 #endif
 #endif

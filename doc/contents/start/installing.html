@@ -27,17 +27,26 @@
             <ol>
                 <li>Download and extract the source code.</li>
                 <li>Change directory to the top level of the source code.</li>
-                <li>Do a bootstrap make via "make boot".</li>
-                <li>Install via "make install"".</li>
+                <li>Do a bootstrap make via "make boot" on Linux or MacOS and "make" on Windows.</li>
+                <li>Install via "make install" on Linux or MacOS".</li>
             </ol>
+
+            <h2>Building on Linux or MacOS</h2>
             <pre class="ui code segment">
 wget https://s3.amazonaws.com/embedthis.software/makeme-0.10.5-src.tgz
 tar xfz makeme-0.10.5-0-src.tgz
 cd me-0.10.5
 make boot
 sudo make install </pre>
+
+            <h2>Building on Windows</h2>
+            <pre class="ui code segment">
+Download and extract https://s3.amazonaws.com/embedthis.software/makeme-0.10.5-src.tgz
+make
+</pre>
+
             <a id="removing"></a>
-            <h2>Removing MakeMe</h2>
+            <h2>Removing MakeMe on Linux or MacOS</h2>
             <ol>
                 <li>Run a terminal and change directory to the installation directory for MakeMe. This is typically
                 "/usr/local/lib/makeme/latest".</li>

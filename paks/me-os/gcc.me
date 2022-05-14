@@ -6,6 +6,7 @@ Me.load({
     rules: {
         'c->c':   '${targets.compiler.path} -E ${CFLAGS} ${DEFINES} ${INCLUDES} ${PREPROCESS} ${INPUT}',
         'c->o':   '${targets.compiler.path} -c -o ${OUTPUT} ${MTUNE} ${CFLAGS} ${DEFINES} ${INCLUDES} ${PREPROCESS} ${INPUT}',
+        'S->o':   '${targets.compiler.path} -c -o ${OUTPUT} ${MTUNE} ${CFLAGS} ${DEFINES} ${INCLUDES} ${PREPROCESS} ${INPUT}',
         'cpp->o': '${targets.compiler.path} -c -o ${OUTPUT} ${MTUNE} ${CFLAGS} ${DEFINES} ${INCLUDES} ${PREPROCESS} ${INPUT}',
         'c++->o': '${targets.compiler.path} -c -o ${OUTPUT} ${MTUNE} ${CFLAGS} ${DEFINES} ${INCLUDES} ${PREPROCESS} ${INPUT}',
         'shlib':  '${targets.compiler.path} -shared -o ${OUTPUT} ${LDFLAGS} ${LIBPATHS} ${INPUT} ${LIBS}',

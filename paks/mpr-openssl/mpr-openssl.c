@@ -284,7 +284,7 @@ static ulong    sslThreadId(void);
 #endif
 
 #if MPR_HAS_CRYPTO_ENGINE
-static void initEngine(MprSsl *ssl)
+static int initEngine(MprSsl *ssl);
 #endif
 
 /************************************* Code ***********************************/
@@ -792,15 +792,15 @@ static int initEngine(MprSsl *ssl)
     ENGINE  engine;
 
     if (!(engine = ENGINE_by_id(ssl->device))) {
-        mprLog("mpr ssl openssl error", "Cannot find crypto device %s", ssl->device);
+        mprLog("mpr ssl openssl error", 0, "Cannot find crypto device %s", ssl->device);
         return MPR_ERR_CANT_FIND;
     }
     if (!ENGINE_set_default(engine, ENGINE_METHOD_ALL)) {
-        mprLog("mpr ssl openssl error", "Cannot find crypto device %s", ssl->device);
+        mprLog("mpr ssl openssl error", 0, "Cannot find crypto device %s", ssl->device);
         ENGINE_free(engine);
         return MPR_ERR_CANT_FIND;
     }
-    mprLog("mpr ssl openssl info", "Loaded crypto device %s", ssl->device);
+    mprLog("mpr ssl openssl info", 0, "Loaded crypto device %s", ssl->device);
     ENGINE_free(engine);
     return 0;
 }

@@ -49,6 +49,7 @@ Me.load({
     rules: {
         'c->c':     '"${targets.compiler.path}" -E -Fd${PDB} ${CFLAGS} ${DEFINES} ${INCLUDES} ${PREPROCESS} ${INPUT}',
         'c->obj':   '"${targets.compiler.path}" -c -Fo${OUTPUT} -Fd${PDB} ${CFLAGS} ${DEFINES} ${INCLUDES} ${PREPROCESS} ${INPUT}',
+        'S->obj':   '"${targets.compiler.path}" -c -Fo${OUTPUT} -Fd${PDB} ${CFLAGS} ${DEFINES} ${INCLUDES} ${PREPROCESS} ${INPUT}',
         'cpp->obj': '"${targets.compiler.path}" -c -Fo${OUTPUT} -Fd${PDB} ${CFLAGS} ${DEFINES} ${INCLUDES} ${PREPROCESS} ${INPUT}',
         'shlib':    '"${targets.link.path}" -dll -out:${OUTPUT} -entry:${ENTRY} ${LDFLAGS} ${LIBPATHS} ${INPUT} ${LIBS}',
         'lib':      '"${targets.lib.path}" -nologo -out:${OUTPUT} ${INPUT}',

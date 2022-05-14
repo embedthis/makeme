@@ -19,7 +19,7 @@
     "licenses": "Commercial",
     "dependencies": {
         "assist": "~1",
-        "mbedtls": "~2.8",
+        "mbedtls": "~2",
         "me-win": "~1",
         "osdep": "~1"
     },

@@ -399,7 +399,7 @@ public class Loader {
     /*
         Create a target and add to me.targets
      */
-    public function createTarget(properties): Target {
+    public function createTarget(properties, options = {rebase: true}): Target {
         let target = Target()
         try {
             blend(target, mapTargetProperties(properties), {functions: true, overwrite: true})
@@ -419,7 +419,9 @@ public class Loader {
         } else {
             me.targets[target.name] = target
         }
-        rebaseTarget(target)
+        if (options.rebase) {
+            rebaseTarget(target)
+        }
         return target
     }
 
@@ -1216,9 +1218,7 @@ public class Loader {
         rebasePaths(home.relative, target, 'resources')
         rebasePaths(home.relative, target, 'sources')
         rebasePaths(home.relative, target, 'files')
-
         rebasePaths(home, target, 'relative')
-
         for (let [when, item] in target.scripts) {
             for each (script in item) {
                 if (script.home) {

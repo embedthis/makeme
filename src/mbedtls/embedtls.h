@@ -57,7 +57,7 @@
     #undef MBEDTLS_VERSION_C
     #undef MBEDTLS_VERSION_FEATURES
     #undef MBEDTLS_XTEA_C
-    #define MBEDTLS_SSL_SRV_SUPPORT_SSLV2_CLIENT_HELLO
+    #undef MBEDTLS_SSL_SRV_SUPPORT_SSLV2_CLIENT_HELLO
     #define MBEDTLS_REMOVE_ARC4_CIPHERSUITES
 #endif
 
@@ -123,16 +123,6 @@
     #define MBEDTLS_XTEA_C
 #elif defined(ME_MBEDTLS_XTEA) && ME_MBEDTLS_XTEA == 0
     #undef MBEDTLS_XTEA_C
-#endif
-
-/*
-    This is needed for some old clients (baiduspider)
-    Default to enabled.
- */
-#if ME_MBEDTLS_SSLV2_HELLO
-    #define MBEDTLS_SSL_SRV_SUPPORT_SSLV2_CLIENT_HELLO
-#elif defined(ME_MBEDTLS_SSLV2_HELLO) && ME_MBEDTLS_SSLV2_HELLO == 0
-    #undef MBEDTLS_SSL_SRV_SUPPORT_SSLV2_CLIENT_HELLO
 #endif
 
 #ifndef MBEDTLS_SSL_CIPHERSUITES
