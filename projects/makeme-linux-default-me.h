@@ -37,7 +37,7 @@
     #define ME_COMPILER_HAS_DYN_LOAD 1
 #endif
 #ifndef ME_COMPILER_HAS_LIB_EDIT
-    #define ME_COMPILER_HAS_LIB_EDIT 1
+    #define ME_COMPILER_HAS_LIB_EDIT 0
 #endif
 #ifndef ME_COMPILER_HAS_LIB_RT
     #define ME_COMPILER_HAS_LIB_RT 1
