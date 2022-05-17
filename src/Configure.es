@@ -80,6 +80,7 @@ class Configure {
                 envSettings.targets[tool] ||= {}
                 envSettings.targets[tool].path = path
                 envSettings.targets[tool].enable = true
+                trace('Tool', tool + ':' + path)
             }
         }
         for (let [flag, option] in envFlags) {
@@ -837,6 +838,12 @@ module embedthis.me.script {
         }
         if (me.platform.os == 'linux') {
             search += Path('/usr/lib').files('*-linux-gnu') + Path('/lib').files('*-linux-gnu')
+            let multi = Path('/usr/lib/pkg-config.multiarch')
+            if (multi.exists) {
+                let abi = multi.readString()
+                search += [Path('/usr/lib', multi), Path('/lib', multi), Path('/usr', multi) ]
+                dump("ADD", search)
+            }
         }
         return search.transform(function(path) path.absolute)
     }
