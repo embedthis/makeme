@@ -840,9 +840,8 @@ module embedthis.me.script {
             search += Path('/usr/lib').files('*-linux-gnu') + Path('/lib').files('*-linux-gnu')
             let multi = Path('/usr/lib/pkg-config.multiarch')
             if (multi.exists) {
-                let abi = multi.readString()
-                search += [Path('/usr/lib', multi), Path('/lib', multi), Path('/usr', multi) ]
-                dump("ADD", search)
+                let abi = multi.readString().trim()
+                search += [Path('/usr/lib').join(abi), Path('/lib').join(abi), Path('/usr').join(abi) ]
             }
         }
         return search.transform(function(path) path.absolute)
