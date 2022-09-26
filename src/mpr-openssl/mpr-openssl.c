@@ -779,7 +779,7 @@ static int configOss(MprSsl *ssl, int flags, char **errorMsg)
 #endif
 
 #if MPR_HAS_CRYPTO_ENGINE
-    if (initEngine(ssl) < 0) {
+    if (ssl->device && initEngine(ssl) < 0) {
         /* Continue without engine */
     }
 #endif
@@ -789,7 +789,7 @@ static int configOss(MprSsl *ssl, int flags, char **errorMsg)
 #if MPR_HAS_CRYPTO_ENGINE
 static int initEngine(MprSsl *ssl)
 {
-    ENGINE  engine;
+    ENGINE  *engine;
 
     if (!(engine = ENGINE_by_id(ssl->device))) {
         mprLog("mpr ssl openssl error", 0, "Cannot find crypto device %s", ssl->device);

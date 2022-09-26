@@ -324,6 +324,10 @@
 
 /********* Start of file include/mbedtls/config.h ************/
 
+#include "config.h"
+
+#if UNUSED
+
 /**
  * \file config.h
  *
@@ -4347,6 +4351,7 @@
 
 #endif /* MBEDTLS_CONFIG_H */
 
+#endif
 
 /********* Start of file include/mbedtls/check_config.h ************/
 

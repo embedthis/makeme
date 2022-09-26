@@ -358,8 +358,8 @@ class InstallsInner {
             for each (f in dist.files('**', {depthFirst: true})) {
                 f.remove()
             }
-            let from = base.join('dist')
-            from.operate('**', dist, {relative: from})
+            let from = base.join('dist/')
+            from.operate('**', dist + '/', {relative: from})
             run('pak -f -q cache')
         } else {
             let home = App.dir

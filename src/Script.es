@@ -100,7 +100,7 @@ public function builtin(cmd: String, actionOptions: Object = {}) {
             for each (target in me.targets) {
                 if (target.enable && target.path && !target.precious && target.generate !== false &&
                         Builder.TargetsToClean[target.type]) {
-                    let path: Path = target.modify || target.path 
+                    let path: Path = target.modify || target.path
                     path = (makeme.generating) ? reppath(path) : path
                     if (sysdirs[path]) {
                         App.log.error("prevent removal of", path)
@@ -214,7 +214,7 @@ public function copy(from, to: Path, options = {}) {
 }
 
 /*
-    Wrapper for Path.operate 
+    Wrapper for Path.operate
  */
 public function copyFiles(from, to: Path, topOptions = {}, base = null) {
     base ||= topOptions.home || me.dir.top
@@ -260,9 +260,9 @@ public function copyFiles(from, to: Path, topOptions = {}, base = null) {
                 topOptions.made[path] = true
                 makeDirectory(path)
             }
-          
+
             /*
-                The 'from' path is relative to the control.base path. Must convert the 'from' path to be relative to 
+                The 'from' path is relative to the control.base path. Must convert the 'from' path to be relative to
                 the 'src' directory. Note: file targets do not change directory to target.home like scripts do.
              */
             if (from.isDir) {
@@ -276,7 +276,7 @@ public function copyFiles(from, to: Path, topOptions = {}, base = null) {
                 copyFile(from, to, control)
             }
             if (control.symlink && me.platform.like == 'unix') {
-                linkFile(to, Path(makeme.loader.expand(control.symlink)).join(to.basename), 
+                linkFile(to, Path(makeme.loader.expand(control.symlink)).join(to.basename),
                     blend({symlink: true}, control))
             }
             return true
@@ -655,8 +655,13 @@ public function genStopCapture(target): String {
     return result
 }
 
-public function genClose()
+public function genGet() {
+    return genout
+}
+
+public function genClose() {
     genout.close()
+}
 
 public function genCmd(s) {
     if (me.target) {
@@ -703,7 +708,7 @@ public function genScript(str: String) {
     capture.push(str)
 }
 
-/** 
+/**
     Generate a trace line.
     @param tag Informational tag emitted before the message
     @param args Message args to display
@@ -931,7 +936,7 @@ public function reppath(path: Path): String {
     if (me.platform.like == 'windows') {
         path = (makeme.generating == 'nmake') ? path.windows : path.portable
     } else if (Config.OS == 'windows' && makeme.generating && makeme.generating != 'nmake')  {
-        path = path.portable 
+        path = path.portable
     }
     return repvar(path)
 }
@@ -957,5 +962,3 @@ public function reppath(path: Path): String {
 
     @end
  */
-
-

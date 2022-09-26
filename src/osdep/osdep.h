@@ -1,5 +1,9 @@
 /**
-    osdep.h -- O/S abstraction for products using MakeMe.
+    osdep.h -- O/S abstraction layer.
+
+    This module provides a portable cross-platform abstraction layer.
+    By including "osdep.h", you will include most common O/S headers and define
+    a set of useful cross-platform constants.
  */
 
 #ifndef _h_OSDEP
@@ -380,7 +384,6 @@
     #include    <pthread.h>
     #include    <pwd.h>
 #if !CYGWIN
-    #include    <rpc/rpc.h>
     #include    <resolv.h>
 #endif
 #endif
@@ -457,6 +460,7 @@
     #include    <mach/mach_time.h>
     #include    <mach/task.h>
     #include    <libkern/OSAtomic.h>
+    #include    <net/if_dl.h>
 #endif
 #if VXWORKS
     #include    <vxWorks.h>
@@ -733,6 +737,9 @@ typedef int64 Offset;
     #endif
 #endif
 
+/**
+    Time in milliseconds since Jan 1, 1970.
+*/
 typedef int64 Time;
 
 /**

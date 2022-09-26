@@ -11239,7 +11239,7 @@ static MprEvent *createEvent(MprDispatcher *dispatcher, cchar *name, MprTicks pe
         dispatcher = (flags & MPR_EVENT_QUICK) ? MPR->nonBlock : MPR->dispatcher;
     }
     if (dispatcher && dispatcher->flags & MPR_DISPATCHER_DESTROYED) {
-        return 0;
+        dispatcher = (flags & MPR_EVENT_QUICK) ? MPR->nonBlock : MPR->dispatcher;
     }
     /*
         The hold is for allocations via foreign threads which retains the event until it is queued.

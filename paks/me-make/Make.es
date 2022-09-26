@@ -84,6 +84,7 @@ class Make {
         /*
             Emit ME_COM_* definitions
          */
+        genWriteLine('#\n# Components\n#')
         for each (let target in me.targets) {
             if (!target.configurable) {
                 continue
@@ -196,6 +197,10 @@ class Make {
         }
         genWriteLine('')
 
+        genWriteLine('#\n# Settings\n#')
+        writeSettings(genGet(), '', me.settings);
+        genWriteLine('')
+
         /*
             Compute the dflags
          */
@@ -206,9 +211,43 @@ class Make {
                 dflags += '-DME_COM_' + name.toUpper() + '=$(ME_COM_' + name.toUpper() + ') '
             }
         }
+        for (let [name, value] in me.settings) {
+            if (name == 'compiler') continue
+            if (Object.getOwnPropertyCount(value) > 0 && !(value is Array)) {
+                for (let [k, v] in value) {
+                    let prop = 'ME_' + name.toUpper() + '_' + k.toUpper()
+                    dflags += '-D' + prop + '=$(' + prop + ') '
+                }
+            }
+        }
         return dflags
     }
 
+    function def(f: TextStream, key, value) {
+        if (me.platform.os == 'windows' ) {
+            f.writeLine('!IF "$(ME_' + key.toUpper() + ')" == ""')
+            f.writeLine('%-21s = %s'.format(['ME_' + key.toUpper(), value]))
+            f.writeLine('!ENDIF')
+        } else {
+            f.writeLine('%-21s ?= %s'.format(['ME_' + key.toUpper(), value]))
+        }
+    }
+
+    function writeSettings(f: TextStream, prefix: String, obj) {
+        Object.sortProperties(obj)
+        for (let [key,value] in obj) {
+            key = (prefix ? prefix + '_' : '') + key.replace(/[A-Z]/g, '_$&').replace(/-/g, '_').toUpper()
+            if (value is Number) {
+                def(f, key, value)
+            } else if (value is Boolean) {
+                def(f, key, value cast Number)
+            } else if (Object.getOwnPropertyCount(value) > 0 && !(value is Array)) {
+                writeSettings(f, key, value)
+            } else if (typeOf(value) != 'Object') {
+                def(f, key, '\\"' + value + '\\"')
+            }
+        }
+    }
     /*
         Generate environment variable defintions
      */
