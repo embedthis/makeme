@@ -7,8 +7,8 @@
 /**
     @file mpr.h
     The Multithreaded Portable Runtime (MPR) is a portable runtime library for embedded applications.
-    @description The MPR provides management for logging, error handling, events, files, http, memory, ssl,
-    sockets, strings, xml parsing, and date/time functions. It also provides a foundation of safe routines for secure
+    @description The MPR provides management for logging, error handling, events, files, memory, ssl,
+    sockets, strings, JSON, and date/time functions. It also provides a foundation of safe routines for secure
     programming, that help to prevent buffer overflows and other security threats. The MPR is a library and a C API that can
     be used in both C and C++ programs.
     \n\n
@@ -8259,7 +8259,7 @@ typedef struct MprSsl {
     bool            configured;         /**< Set if this SSL configuration has been processed */
     bool            ticket;             /**< Enable session tickets */
     bool            renegotiate;        /**< Renegotiate sessions */
-    bool            verifyPeer;         /**< Verify the peer verificate */
+    bool            verifyPeer;         /**< Verify the peer certificate */
     bool            verifyIssuer;       /**< Set if the certificate issuer should be also verified */
     bool            verified;           /**< Peer has been verified */
     int             logLevel;           /**< Level at which to start tracing SSL events */

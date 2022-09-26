@@ -8,5 +8,5 @@ This software is distributed under the MIT open source license.
 Trademarks and Copyrights
 ---
 Copyright (c) Embedthis Software. All Rights Reserved.
-Embedthis and Embedthis ESP are trademarks of Embedthis Software, LLC.
+Embedthis is a trademark of Embedthis Software, LLC.
 Other brands and their products are trademarks of their respective holders.

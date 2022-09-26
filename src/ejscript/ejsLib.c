@@ -39294,14 +39294,13 @@ static EjsNumber *lf_emit(Ejs *ejs, EjsObj *unused, int argc, EjsObj **argv)
     EjsObj          *vp;
     EjsString       *str;
     char            *msg, *arg;
-    ssize           len, written;
+    ssize           len;
     int             i, level, paused;
 
     assert(argc >= 2 && ejsIs(ejs, argv[1], Array));
 
     level = ejsGetInt(ejs, argv[0]);
     args = (EjsArray*) argv[1];
-    written = 0;
     msg = 0;
     paused = ejsBlockGC(ejs);
 
@@ -39331,7 +39330,6 @@ static EjsNumber *lf_emit(Ejs *ejs, EjsObj *unused, int argc, EjsObj **argv)
     }
     if (msg) {
         mprLog(NULL, level, "%s", strim(msg, "\n", MPR_TRIM_END));
-        written += slen(msg);
     }
     ejsUnblockGC(ejs, paused);
     return ejsCreateNumber(ejs, (MprNumber) slen(msg));

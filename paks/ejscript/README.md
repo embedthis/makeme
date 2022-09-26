@@ -6,7 +6,7 @@ Embedthis Ejscript Language
 A complete, integrated JavaScript environment suitable for education purposes when studying
 compilers, language parsers, virtual machines and JavaScript.
 
-I implements most of the abandoned ES4 specification including:
+It implements most of the abandoned ES4 specification including:
 
 * Classes
 * Namespaces

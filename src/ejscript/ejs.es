@@ -8616,7 +8616,7 @@ module ejs {
 /********* Start of file src/core/Path.es ************/
 
 /*
-    Path.es --  Path class. Path's represent files in a file system. The file may or may not exist.  
+    Path.es --  Path class. Path's represent files in a file system. The file may or may not exist.
 
     Copyright (c) All Rights Reserved. See details at the end of the file.
  */
@@ -8624,7 +8624,7 @@ module ejs {
 module ejs {
 
     /**
-        Paths are filename objects and may or may not represent physical files in a file system. That is, the 
+        Paths are filename objects and may or may not represent physical files in a file system. That is, the
         corresponding file or directory for the Path  may or may not exist. Once created, Paths are immutable and their
         path value cannot be changed.
         @spec ejs
@@ -8636,7 +8636,7 @@ module ejs {
 
         /**
             Create a new Path object and set the path's location.
-            @param path Name of the path to associate with this path object. 
+            @param path Name of the path to associate with this path object.
          */
         native function Path(path: String = '.')
 
@@ -8644,9 +8644,9 @@ module ejs {
             An equivalent absolute path equivalent for the current path. The path is normalized and uses the native system
             directory separator.
             On Windows, this path with contain a drive specifier and will have back-slash directory separators.
-            On Cygwin, this path will be a Cygwin style path without a drive specifier and with forward-slash 
-            directory separators. If the path is outside the Cygwin filesystem (outside c:/cygwin), the path 
-            will have a /cygdrive/DRIVE prefix. 
+            On Cygwin, this path will be a Cygwin style path without a drive specifier and with forward-slash
+            directory separators. If the path is outside the Cygwin filesystem (outside c:/cygwin), the path
+            will have a /cygdrive/DRIVE prefix.
             To get a Windows style path, use the $windows property accessor.
          */
         native function get absolute(): Path
@@ -8669,7 +8669,7 @@ module ejs {
 
         /**
             File security permissions.
-            @return the file attributes object hash. Fields include: 
+            @return the file attributes object hash. Fields include:
             @options user String representing the file user name
             @options group String representing the file group name
             @options uid Number representing the file user id
@@ -8680,9 +8680,9 @@ module ejs {
 
         /**
             Define file security permissions.
-            @options user String representing the file user name If both user and uid are specified, user takes precedence. 
+            @options user String representing the file user name If both user and uid are specified, user takes precedence.
             @options group String representing the file group name If both group and gid are specified, group takes
-                precedence.  
+                precedence.
             @options uid Number representing the file user id
             @options gid Number representing the file group id
             @options permissions Number File Posix permissions mask
@@ -8701,15 +8701,15 @@ module ejs {
          */
         function childOf(dir: Path): Boolean
             absolute.startsWith(dir.absolute)
-        
+
         /**
-            Path components. The path is normalized and then broken into components for each directory level. 
-            The result is an array object with an element for each segment of the path. If the path is an absolute path, 
-            the first element represents the file system root and will be the empty string or drive spec 
+            Path components. The path is normalized and then broken into components for each directory level.
+            The result is an array object with an element for each segment of the path. If the path is an absolute path,
+            the first element represents the file system root and will be the empty string or drive spec
             on a Windows like systems. Array.join('/') can be used to put components back into a complete path.
          */
         native function get components(): Array
-  
+
         /**
             Test if the path name contains a substring. The pattern must be in portable format.
             @param pattern String pattern to search for
@@ -8720,12 +8720,12 @@ module ejs {
 
         /**
             Copy a file to the destination
-            @param destination New file location. If the destination is a directory or ends with the file separator ('/'), 
+            @param destination New file location. If the destination is a directory or ends with the file separator ('/'),
                 the file is copied to that directory using the basename portion of the source filename.
             @param options Object hash
             @options permissions Set to a numeric Posix permissions mask. Not implemented.
             @options user String representing the file user name or numeric user id.
-                If both user and uid are specified, user takes precedence. 
+                If both user and uid are specified, user takes precedence.
             @options group String representing the file group name or numeric group id.
                 If both group and gid are specified, group takes precedence.
          */
@@ -8737,7 +8737,7 @@ module ejs {
         native function get created(): Date?
 
         /**
-            The directory portion of a file. The directory portion is the leading portion including all 
+            The directory portion of a file. The directory portion is the leading portion including all
             directory elements and excluding the base name. On some systems, it will include a drive specifier.
             See also $parent which will determine the parent directory of relative paths.
          */
@@ -8754,13 +8754,13 @@ module ejs {
         /**
             Does a file exist for this path.
          */
-        native function get exists(): Boolean 
+        native function get exists(): Boolean
 
         /**
             File extension portion of the path. The file extension is the portion after (and not including) the last '.'.
             Returns empty string if there is no extension
          */
-        native function get extension(): String 
+        native function get extension(): String
 
         /**
             TODO - should do pattern matching
@@ -8778,7 +8778,7 @@ module ejs {
         }
 
         /**
-            Get a list of matching files. This does Posix style glob file matching on supplied patterns and returns an 
+            Get a list of matching files. This does Posix style glob file matching on supplied patterns and returns an
             array of matching files.
 
             This method supports several invocation forms:
@@ -8789,12 +8789,12 @@ module ejs {
                 <li>files([{files: pattern, options...}])</li>
             </ul>
 
-            A single pattern may be supplied with or with out options. Multiple patterns may be provided in an array. 
+            A single pattern may be supplied with or with out options. Multiple patterns may be provided in an array.
             Alternatively, the pattern or patterns may be provided via an object with a 'files' property. In this case, the
             options are provided in the same object. If the pattern is omitted, the default is to search for all files
             under the Path by using '**' as the pattern.
 
-            @param patterns Pattern to match files. This can be a String, Path or array of String/Paths. 
+            @param patterns Pattern to match files. This can be a String, Path or array of String/Paths.
             If the Path is a directory, then files that match the specified patterns are returned.
             If the Path is not a directory, then the path itself is matched against the pattern.
             The following special sequences are supported:
@@ -8805,20 +8805,20 @@ module ejs {
                 <li>! Negates pattern. This removes matching patterns from the set. These are applied after all source
                       patterns have been processed. Use !! to escape or set noneg in options.
             </ul>
-            If a pattern ends with '/', then the directory contents will also match and be returned. 
+            If a pattern ends with '/', then the directory contents will also match and be returned.
 
             @param options Optional properties to control the matching.
             @option contents Boolean If contents is set to true and the path pattern matches a directory, then return the
-                contents of the directory in addition to the directory itself. This applies if the pattern matches an 
+                contents of the directory in addition to the directory itself. This applies if the pattern matches an
                 existing directory or the pattern ends with '/'. This is implemented by appending '**' to the pattern.
 
-            @option depthFirst Boolean Do a depth first traversal of directories. If true, then the directories will be 
+            @option depthFirst Boolean Do a depth first traversal of directories. If true, then the directories will be
                 shown after the files in the directory. Otherwise, directories will be listed first. Defaults to false.
 
             @option directories Boolean Include directories in the results. Defaults to true.
 
-            @option exclude String | Regular | Function Blacklist of files to exclude from the results. 
-                Matches the full source path including the Path value. Only for the purpose of this match, 
+            @option exclude String | Regular | Function Blacklist of files to exclude from the results.
+                Matches the full source path including the Path value. Only for the purpose of this match,
                 directories will have '/' appended.
 
                 If 'exclude' is a function, the file is not processed if the function returns true. The function callback
@@ -8829,10 +8829,10 @@ module ejs {
                 The file argument is the filename being considered, it include the Path value.
                 The value of "this" is set to the Path value.
 
-                By default, exclude is set to exclude hidden files starting with '.' and files that look like temporary 
-                files. 
+                By default, exclude is set to exclude hidden files starting with '.' and files that look like temporary
+                files.
 
-            @option expand Object | Function Expand tokens in filenames using this object or function. If 'expand' 
+            @option expand Object | Function Expand tokens in filenames using this object or function. If 'expand'
                 is an object, then expand filename tokens of the form '${token}' using the object key values.
                 If 'expand' is a function, it should have the signature:
 
@@ -8841,7 +8841,7 @@ module ejs {
             @option hidden Boolean Include hidden files starting with '.' Defaults to false.
 
             @option include String | RegExp | Function Whitelist of files to include in the results.
-                Matches the full source path including the Path value. Only for the purpose of this match, 
+                Matches the full source path including the Path value. Only for the purpose of this match,
                 directories will have '/' appended.
 
                 If 'include' is a function, the file is processed if the function returns true. The function callback
@@ -8853,7 +8853,7 @@ module ejs {
                 The value of "this" is set to the Path value.
 
             @option missing String Determine what happens if a pattern does not match any files.
-                Set to undefined to report patterns that don't resolve by throwing an exception. 
+                Set to undefined to report patterns that don't resolve by throwing an exception.
                 Set to null to do nothing and omit the pattern from the results.
                 Set to the empty string to use the pattern itself in the results.
                 Set to other value to be used in the results in place of the pattern when there are no matching
@@ -8863,24 +8863,24 @@ module ejs {
             @option noneg Boolean Do not process negated file patterns.
 
             @option relative Boolean | String | Path Return filesnames relative to the path provided by the 'relative'
-                option, otherwise results include the Path value. If set to true, the results will be relative to the 
-                current directory. Defaults to false. 
+                option, otherwise results include the Path value. If set to true, the results will be relative to the
+                current directory. Defaults to false.
 
             @return An Array of Path objects for each file in the directory.
                 The returned file list includes the Path itself. If the 'relative' option is provided, a path
                 relative to that option is returned.
          */
-        native function files(patterns: Object! = '*', options: Object? = null): Array 
+        native function files(patterns: Object! = '*', options: Object? = null): Array
 
         /**
-            The file system containing this Path 
+            The file system containing this Path
             @return The FileSystem object for this path
          */
         function get fileSystem(): FileSystem
             FileSystem(this)
 
         /**
-            Get iterate over any files contained under this path (assuming it is a directory) 'for (v in files)'. 
+            Get iterate over any files contained under this path (assuming it is a directory) 'for (v in files)'.
                 This operates the same as getValues on a Path object.
             @return An iterator object.
             @example:
@@ -8889,7 +8889,7 @@ module ejs {
         override iterator native function get(): Iterator
 
         /**
-            Get an iterator for this file to be used by 'for each (v in obj)'. Return 
+            Get an iterator for this file to be used by 'for each (v in obj)'. Return
                 This operates the same as $get on a Path object.
             @return An iterator object.
             @example
@@ -8915,7 +8915,7 @@ module ejs {
             Does the file path have a drive spec (C:) in it's name. Only relevant on Windows like systems.
             @return True if the file path has a drive spec
          */
-        native function get hasDrive(): Boolean 
+        native function get hasDrive(): Boolean
 
         /**
             Is the path absolute, i.e. Beginning at the file system's root.
@@ -8948,7 +8948,7 @@ module ejs {
 
         /**
             Join paths. Joins one more more paths together. If the other path is absolute, return it. Otherwise
-            add a separator, and continue joining. The separator is chosen to match the first separator found in 
+            add a separator, and continue joining. The separator is chosen to match the first separator found in
             either path. If none found, the default file system path separator is used.
             @return A new joined, normalized Path object.
          */
@@ -8956,7 +8956,7 @@ module ejs {
 
         /**
             Join an extension to a path. If the base name of the path already has an extension, this call does nothing.
-            @param ext Extension to add. The extension may or may not contain a leading period. Best practice is to 
+            @param ext Extension to add. The extension may or may not contain a leading period. Best practice is to
                 not have leading periods on extensions.
             @param force Set to true to always add the extension.
             @return A new Path object with the given extension if the path did not already have one.
@@ -8966,7 +8966,7 @@ module ejs {
         /**
             The length of the path name in bytes. Note: this is not the file size. For that, use Path.size
          */
-        native function get length(): Number 
+        native function get length(): Number
 
         /**
             Create a target link to refer to the path
@@ -8978,20 +8978,20 @@ module ejs {
         native function link(target: Path, hard: Boolean = false): Void
 
         /**
-            Symbolic link target. This is the actual symbolic link. If relative, use this.dirname.join(linkTarget) to 
-            get the actual target of the symbolic link. Not available on some platforms such as Windows and 
+            Symbolic link target. This is the actual symbolic link. If relative, use this.dirname.join(linkTarget) to
+            get the actual target of the symbolic link. Not available on some platforms such as Windows and
             VxWorks. If the path is not a symbolic link, it is set to null.
          */
         native function get linkTarget(): Path?
 
         /**
-            Make a new directory and all required intervening directories. If the directory already exists, 
-                the function returns without any further action. 
+            Make a new directory and all required intervening directories. If the directory already exists,
+                the function returns without any further action.
             @param options
-            @options permissions Directory permissions to use for all created directories. Set to a numeric 
+            @options permissions Directory permissions to use for all created directories. Set to a numeric
                 Posix permissions mask.
             @options user String representing the file user.
-                If both user and uid are specified, user takes precedence. 
+                If both user and uid are specified, user takes precedence.
             @options group String representing the file group.
                 If both group and gid are specified, group takes precedence.
             @options uid Number representing the file user id
@@ -9011,7 +9011,7 @@ module ejs {
         native function makeLink(target: Path, hard: Boolean = false): Void
 
         /**
-            Create a new temporary file. The temp file is located in the directory specified by the Path object. 
+            Create a new temporary file. The temp file is located in the directory specified by the Path object.
             If the path object is created with an empty path value, the temporary file will be created in the standard
             system location for temp files. This is typically /tmp or /temp.
             @returns a new Path object for the temp file.
@@ -9033,7 +9033,7 @@ module ejs {
         function match(pattern: RegExp): Array?
             this.toString().match(pattern)
 
-        /** 
+        /**
             Get the mime type for a path or extension string. The path's extension is used to lookup the corresponding
             mime type.
             @returns The mime type string
@@ -9048,18 +9048,18 @@ module ejs {
         /**
             Name of the Path as a string. This is the same as $toString().
          */
-        native function get name(): String 
+        native function get name(): String
 
         /**
-            Natural (native) respresentation of the path for the platform. This uses the platform file system path 
-            separator, this is '\' on Windows and '/' on unix and Cygwin. The returned path is normalized. 
+            Natural (native) respresentation of the path for the platform. This uses the platform file system path
+            separator, this is '\' on Windows and '/' on unix and Cygwin. The returned path is normalized.
             See also $portable for a portable representation.
          */
-        native function get natural(): Path 
+        native function get natural(): Path
 
         /**
-            Normalized representation of the path. This removes 'segment/..' and './' components. Separators are made 
-            uniform by converting all separators to be the same as the first separator found in the path. Note: the 
+            Normalized representation of the path. This removes 'segment/..' and './' components. Separators are made
+            uniform by converting all separators to be the same as the first separator found in the path. Note: the
             result is not converted to an absolute path.
          */
         native function get normalize(): Path
@@ -9096,7 +9096,7 @@ module ejs {
         /**
             Open a file and return a BinaryStream object.
             @param options Optional options object
-            @options mode optional file access mode with values ored from: Read, Write, Append, Create, Open, Truncate. 
+            @options mode optional file access mode with values ored from: Read, Write, Append, Create, Open, Truncate.
                 Defaults to Read.
             @options permissions optional Posix permissions number mask. Defaults to 0664.
             @options user String representing the file user
@@ -9116,17 +9116,17 @@ module ejs {
             attributes including group/user. The perms should be broken down into world:group:user */
         //  TODO - should not use a setter should be functions
         /**
-            The file permissions of a path. This number contains the Posix style permissions value or null if the file 
-            does not exist. NOTE: this is not a string representation of an octal posix mask. 
+            The file permissions of a path. This number contains the Posix style permissions value or null if the file
+            does not exist. NOTE: this is not a string representation of an octal posix mask.
          */
         native function get perms(): Number?
         native function set perms(perms: Number): Void
 
         /**
-            The path in a portable (like Unix) representation. This uses '/' separators. The value is is normalized and 
+            The path in a portable (like Unix) representation. This uses '/' separators. The value is is normalized and
             the separators are mapped to '/'. See also $natural for convertion to the O/S native path representation.
          */
-        native function get portable(): Path 
+        native function get portable(): Path
 
         /**
             Read the file contents as a ByteArray. This method opens the file, reads the contents, closes the file and
@@ -9144,7 +9144,7 @@ module ejs {
         }
 
         /**
-            Read the file containing a JSON string and return a deserialized object. 
+            Read the file containing a JSON string and return a deserialized object.
             This method opens the file, reads the contents, deserializes the object and closes the file.
             @return An object.
             @throws IOError if the file cannot be read
@@ -9159,7 +9159,7 @@ module ejs {
         }
 
         /**
-            Read the file contents as an array of lines. Each line is a string. This method opens the file, reads the 
+            Read the file contents as an array of lines. Each line is a string. This method opens the file, reads the
                 contents and closes the file.
             @return An array of strings.
             @throws IOError if the file cannot be read
@@ -9219,14 +9219,14 @@ module ejs {
             Delete the file associated with the Path object. If this is a directory without contents it will be removed.
             @return True if the file is sucessfully deleted or does not exist.
          */
-        native function remove(): Boolean 
+        native function remove(): Boolean
 
         //  TODO - consider remove({contents: true})
         /**
             Removes a directory and its contents
             If the path is a directory, this call will remove all subdirectories and their contents and finally the
             directory itself. If the directory does not exist, this call does not error and does nothing.
-            @return True if all the contents are sucessfully deleted or if the directory does not exist. 
+            @return True if all the contents are sucessfully deleted or if the directory does not exist.
                 Otherwise return false.
          */
         function removeAll(): Boolean {
@@ -9260,7 +9260,7 @@ module ejs {
             @throws IOError if the rename fails.
          */
         native function rename(target: Path): Void
-        
+
         /**
             Replace the path extension and return a new path.
             @return A new path with the given extension.
@@ -9273,15 +9273,15 @@ module ejs {
         }
 
         /**
-            Search and replace. Search for the given pattern which can be either a string or a regular expression 
+            Search and replace. Search for the given pattern which can be either a string or a regular expression
             and replace it with the replace text. If the pattern is a string, only the first occurrence is replaced.
             @param pattern The regular expression or string pattern to search for.
             @param replacement The string to replace the match with or a function to generate the replacement text. The
                 replacement string can contain special replacement patterns: '$$' inserts a '\$', '\$&' inserts the
                 matched substring, '\$`' inserts the portion that preceeds the matched substring, '\$'' inserts the
                 portion that follows the matched substring, and '\$N' inserts the Nth parenthesized substring.
-                The replacement parameter can also be a function which will be invoked and the function return value 
-                will be used as the resplacement text. The function will be invoked multiple times for each match to be 
+                The replacement parameter can also be a function which will be invoked and the function return value
+                will be used as the resplacement text. The function will be invoked multiple times for each match to be
                 replaced if the regular expression is global. The function will be invoked with the signature:
 
                 function (matched, submatch_1, submatch_2, ..., matched_offset, original_string)
@@ -9292,20 +9292,20 @@ module ejs {
             Path(name.replace(pattern, replacement))
 
         /**
-            Resolve paths in the neighborhood of this path. Resolve operates like join, except that it joins the 
-            given paths to the directory portion of the current ('this') path. For example: 
+            Resolve paths in the neighborhood of this path. Resolve operates like join, except that it joins the
+            given paths to the directory portion of the current ('this') path. For example:
             Path('/usr/bin/ejs/bin').resolve('lib') will return '/usr/lib/ejs/lib'. i.e. it will return the
             sibling directory 'lib'.
 
-            Resolve operates by determining a virtual current directory for this Path object. It then successively 
-            joins the given paths to the directory portion of the current result. If the next path is an absolute path, 
-            it is used unmodified.  The effect is to find the given paths with a virtual current directory set to the 
+            Resolve operates by determining a virtual current directory for this Path object. It then successively
+            joins the given paths to the directory portion of the current result. If the next path is an absolute path,
+            it is used unmodified.  The effect is to find the given paths with a virtual current directory set to the
             directory containing the prior path.
 
-            Resolve is useful for creating paths in the region of the current path and gracefully handles both 
+            Resolve is useful for creating paths in the region of the current path and gracefully handles both
             absolute and relative path segments.
             @param otherPaths Paths to resolve in the region of this path.
-            @return A new Path object that is resolved against the prior path. 
+            @return A new Path object that is resolved against the prior path.
          */
         native function resolve(...otherPaths): Path
 
@@ -9332,7 +9332,7 @@ module ejs {
             Size of the file associated with this Path object. Set to the number of bytes in the file or -1 if the
             size determination failed.
          */
-        native function get size(): Number 
+        native function get size(): Number
 
         /**
             Return true if the path starts with the given prefix
@@ -9353,7 +9353,7 @@ module ejs {
         native function symlink(target: Path): Void
 
         /**
-            Convert the path to a JSON string. 
+            Convert the path to a JSON string.
             @return a JSON string representing the path.
          */
         native override function toJSON(): String
@@ -9385,37 +9385,37 @@ module ejs {
             The 'options' may supply a desired 'operation' property that may be set to 'copy', 'move', 'append' or custom
             action. This defaults to 'copy'.
 
-            The 'from' patterns are resolved using the #Path.files method to create an input files list. 
+            The 'from' patterns are resolved using the #Path.files method to create an input files list.
             All the options for Path.files are supported.
 
             Operate will resolve the input patterns relative to the Path itself. If copying, that directory portion relative
-            to the Path will be appended to the destination 'to' argument. In this manner, entire directory trees can be 
+            to the Path will be appended to the destination 'to' argument. In this manner, entire directory trees can be
             easily copied.
 
             @return The number of files processed. If the operation is 'list', returns the expanded source file list.
 
-            @param from Path | String | Object | Array This may be a String or Path containing the source paths to 
-                process. Alternatively, it may be an object that supplies 'from', 'to' and 'options' as processing 
+            @param from Path | String | Object | Array This may be a String or Path containing the source paths to
+                process. Alternatively, it may be an object that supplies 'from', 'to' and 'options' as processing
                 instructions. It may also be an array of Paths, Strings or Objects. The 'from' patterns may contain:
                     *
                     **
                     ?
                     !   Negates pattern. This removes matching patterns from the set. These are applied after all source
                         patterns have been processed. Use !! to escape.
-                If item is a directory or ends with '/', then "**" is automatically appended to match the directory 
+                If item is a directory or ends with '/', then "**" is automatically appended to match the directory
                 contents.
 
-            @param to String | Path Destination target. If 'from' is a Path or String, then the 'to' argument 
+            @param to String | Path Destination target. If 'from' is a Path or String, then the 'to' argument
                 must be a destination Path or String. If 'from' is an Object or Array of instruction objects that contains
-                a 'to' property, then 'to' should be omitted and will be ignored. If multiple source files are specified 
-                or the destination ends in the separator '/', the destination is assumed to be a directory. If the 
-                destination is a directory, the destination filename is created by appending the the source path to the 
+                a 'to' property, then 'to' should be omitted and will be ignored. If multiple source files are specified
+                or the destination ends in the separator '/', the destination is assumed to be a directory. If the
+                destination is a directory, the destination filename is created by appending the the source path to the
                 directory.
 
-            @param control Additional processing instructions. All the options provided by #Path.files are 
+            @param control Additional processing instructions. All the options provided by #Path.files are
                 also supported.
 
-            @option active Boolean If destination is an active executable or library, rename the active file using a '.old' 
+            @option active Boolean If destination is an active executable or library, rename the active file using a '.old'
                 extension and retry.
 
             @option compress Boolean Compress destination file using Zlib. Results in a '.gz' extension.
@@ -9426,7 +9426,7 @@ module ejs {
 
             @option extension String | Path Extension to use for the destination filenames.
 
-            @option extensionDot String Specifies where the filename extension begins for filenames with multiple dots. 
+            @option extensionDot String Specifies where the filename extension begins for filenames with multiple dots.
                 Set to 'first' or 'last'.
 
             @option filter RegExp Pattern of lines to filter out from appended files.
@@ -9439,7 +9439,7 @@ module ejs {
 
             @option header String Header prepend when appending files.
 
-            @option isDir Assume the destination is a directory. Create if it does not exist. Same as appending a 
+            @option isDir Assume the destination is a directory. Create if it does not exist. Same as appending a
                 trailing '/' to the 'to' argument.
 
             @option keep Boolean Keep uncompressed file after compressing.
@@ -9447,12 +9447,12 @@ module ejs {
             @option operation String Set to 'append' to append files, 'copy' to copy files and 'move' to move files.
                 Set to 'list' to return a file list in options.list and perform no operations. Defaults to 'copy' if unset.
 
-            @option patch Object. Expand file contents tokens using this object. Object hash containing properties to use 
+            @option patch Object. Expand file contents tokens using this object. Object hash containing properties to use
                 when replacing tokens of the form ${token} in file contents.
 
-            @option perform Function Callback function to perform the operation on a matching file. 
+            @option perform Function Callback function to perform the operation on a matching file.
                 This function should return true if it handles the file and default processing is not required.
-                Note that post processing still occurs including compression and stripping if required regardless of the 
+                Note that post processing still occurs including compression and stripping if required regardless of the
                 return value.
 
                 Function(from: Path, to: Path, options: Object): Boolean
@@ -9465,11 +9465,11 @@ module ejs {
             @option prePerform Function. Callback function to invoke before performing the operation.
                 Function(from, to, options): Path
 
-            @option relative Boolean | String | Path Create destination filenames relative to the path provided by the 
+            @option relative Boolean | String | Path Create destination filenames relative to the path provided by the
                 'relative' option, otherwise destination filenames include the Path value. If set to true, the destination
-                 will be relative to the current directory. If set, implies flatten == false. Defaults to false. 
+                 will be relative to the current directory. If set, implies flatten == false. Defaults to false.
 
-            @option rename Function Callback function to provide a new destination filename. 
+            @option rename Function Callback function to provide a new destination filename.
                 Function(from, to, options): Path
 
             @option strip Boolean Run 'strip' on the destination files.
@@ -9477,7 +9477,7 @@ module ejs {
             @option symlink String | Path Create a symbolic link to the destination. If symlink has a trailing '/'
                 a link is created in the directory specified by 'symlink' using the source file basename as the link name.
 
-            @option trim Number of path components to trim from the start of the source filename. 
+            @option trim Number of path components to trim from the start of the source filename.
                 If set, implies flatten == false.
 
             @option user String | Number System user account name or number to use for destination files.
@@ -9524,7 +9524,7 @@ module ejs {
                 if (options.flatten == undefined) {
                     options.flatten = true
                 }
-                //  LEGACY 
+                //  LEGACY
                 if (options.cat) {
                     print('Warn: using legacy "cat" property for Path.operate, use "append" instead.')
                     options.append = options.cat
@@ -9576,7 +9576,7 @@ module ejs {
                     }
                     return list
                 }
-                /* 
+                /*
                     Process matching files and build list of commands
                     Note: 'src' is relative to 'this' and may not be addressible unless 'this' is '.'
                  */
@@ -9663,7 +9663,7 @@ module ejs {
                         options.prePerform.call(this, src, dest, options)
                     }
                     if (options.dry) {
-                        print('Dry Run', '\n    From:    ' + src + '\n    To:      ' + dest + '\n    Options: ' + 
+                        print('Dry Run', '\n    From:    ' + src + '\n    To:      ' + dest + '\n    Options: ' +
                             serialize(options, {pretty: true}))
 
                     } else if (options.perform && options.perform.call(this, src, dest, options)) {
@@ -9821,8 +9821,8 @@ module ejs {
         }
 
         /**
-            Reduce the size of the file by truncating it. 
-            @param size The new size of the file. If the truncate argument is greater than or equal to the 
+            Reduce the size of the file by truncating it.
+            @param size The new size of the file. If the truncate argument is greater than or equal to the
                 current file size nothing happens.
             @throws IOError if the truncate failed.
          */
@@ -9838,7 +9838,7 @@ module ejs {
         //  TODO - last arg should be permissions?
         /**
             Write the file contents. This method opens the file, writes the contents and closes the file.
-            @param args The data to write to the file. Data is serialized in before writing. Note that numbers will not 
+            @param args The data to write to the file. Data is serialized in before writing. Note that numbers will not
                 be written in a cross platform manner. If that is required, use the BinaryStream class to write Numbers.
             @throws IOError if the data cannot be written
          */
@@ -9852,7 +9852,7 @@ module ejs {
                         file.write(serialize(item))
                     }
                 }
-            } 
+            }
             catch (es) {
                 throw new IOError('Cannot write to file')
             }
@@ -9861,8 +9861,8 @@ module ejs {
             }
         }
 
-        /** 
-            Create a new temporary file. The temp file is located in the directory specified by the Path object. 
+        /**
+            Create a new temporary file. The temp file is located in the directory specified by the Path object.
             @returns a new Path object for the temp file.
             @hide
             @deprecated 1.0.0
@@ -9872,7 +9872,7 @@ module ejs {
 
         /**
             Return a compact representation of the path
-            This returns a relative path if the path is under the given home directory. Otherwise it returns an 
+            This returns a relative path if the path is under the given home directory. Otherwise it returns an
             absolute path.
             @param home Absolute path to a base home directory. Defaults to the current directory.
             @return an equivalent Path
@@ -9891,7 +9891,7 @@ module ejs {
     Copyright (c) Embedthis Software. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
-    You may use the Embedthis Open Source license or you may acquire a 
+    You may use the Embedthis Open Source license or you may acquire a
     commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
     this software for full details and other copyrights.
