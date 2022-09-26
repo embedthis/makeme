@@ -92,7 +92,7 @@
         <CustomBuildBeforeTargets Condition="'$(Configuration)|$(Platform)'=='Release|x64'">PreBuildEvent</CustomBuildBeforeTargets>
   </PropertyGroup>
     <PropertyGroup>
-        <TargetName></TargetName>
+        <TargetName>certs</TargetName>
     </PropertyGroup>
 
       <ItemDefinitionGroup>
@@ -100,26 +100,26 @@
 
       <CustomBuildStep>
         <Command>cd ..\..\src\certs
-if exist $(BinDir)\ca.crt del /Q $(BinDir)\ca.crt
-copy /Y samples\ca.crt $(BinDir)\ca.crt
-if exist $(BinDir)\ca.key del /Q $(BinDir)\ca.key
-copy /Y samples\ca.key $(BinDir)\ca.key
-if exist $(BinDir)\ec.crt del /Q $(BinDir)\ec.crt
-copy /Y samples\ec.crt $(BinDir)\ec.crt
-if exist $(BinDir)\ec.key del /Q $(BinDir)\ec.key
-copy /Y samples\ec.key $(BinDir)\ec.key
-if exist $(BinDir)\roots.crt del /Q $(BinDir)\roots.crt
-copy /Y samples\roots.crt $(BinDir)\roots.crt
-if exist $(BinDir)\self.crt del /Q $(BinDir)\self.crt
-copy /Y samples\self.crt $(BinDir)\self.crt
-if exist $(BinDir)\self.key del /Q $(BinDir)\self.key
-copy /Y samples\self.key $(BinDir)\self.key
-if exist $(BinDir)\test.crt del /Q $(BinDir)\test.crt
-copy /Y samples\test.crt $(BinDir)\test.crt
-if exist $(BinDir)\test.key del /Q $(BinDir)\test.key
-copy /Y samples\test.key $(BinDir)\test.key
+if exist ..\..\certs\ca.crt del /Q ..\..\certs\ca.crt
+copy /Y samples\ca.crt ..\..\certs\ca.crt
+if exist ..\..\certs\ca.key del /Q ..\..\certs\ca.key
+copy /Y samples\ca.key ..\..\certs\ca.key
+if exist ..\..\certs\ec.crt del /Q ..\..\certs\ec.crt
+copy /Y samples\ec.crt ..\..\certs\ec.crt
+if exist ..\..\certs\ec.key del /Q ..\..\certs\ec.key
+copy /Y samples\ec.key ..\..\certs\ec.key
+if exist ..\..\certs\roots.crt del /Q ..\..\certs\roots.crt
+copy /Y samples\roots.crt ..\..\certs\roots.crt
+if exist ..\..\certs\self.crt del /Q ..\..\certs\self.crt
+copy /Y samples\self.crt ..\..\certs\self.crt
+if exist ..\..\certs\self.key del /Q ..\..\certs\self.key
+copy /Y samples\self.key ..\..\certs\self.key
+if exist ..\..\certs\test.crt del /Q ..\..\certs\test.crt
+copy /Y samples\test.crt ..\..\certs\test.crt
+if exist ..\..\certs\test.key del /Q ..\..\certs\test.key
+copy /Y samples\test.key ..\..\certs\test.key
 cd ..\..\projects\makeme-windows-default</Command>
-        <Outputs>$(BinDir)</Outputs>
+        <Outputs>..\..\certs</Outputs>
       </CustomBuildStep>
   </ItemDefinitionGroup>
 

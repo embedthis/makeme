@@ -3,7 +3,7 @@
 
       <ItemDefinitionGroup>
         <ClCompile>
-          <PreprocessorDefinitions>ME_DEBUG=1;MBEDTLS_USER_CONFIG_FILE="embedtls.h";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+          <PreprocessorDefinitions>ME_DEBUG=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
           <AdditionalIncludeDirectories>$(IncDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -109,6 +109,10 @@
   </ItemGroup>
 
       <ItemGroup>
+    <ClInclude Include="$(IncDir)\config.h" />
+  </ItemGroup>
+
+      <ItemGroup>
     <ClInclude Include="$(IncDir)\embedtls.h" />
   </ItemGroup>
 
@@ -130,6 +134,7 @@
 
       <CustomBuildStep>
         <Command>cd ..\..\src\mbedtls
+copy /Y /B config.h $(IncDir)
 copy /Y /B embedtls.h $(IncDir)
 copy /Y /B mbedtls-config.h $(IncDir)
 copy /Y /B mbedtls.h $(IncDir)
