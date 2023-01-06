@@ -957,9 +957,10 @@ public class Loader {
         g.CPU = platform.cpu || 'generic'
         g.ARCH = platform.arch
         g.PROFILE = platform.profile
-        /* Apple gcc only */
         if (platform['arch-map']) {
             g.CC_ARCH = platform['arch-map'][platform.arch] || platform.arch
+        } else {
+            g.CC_ARCH = platform.arch
         }
         g.CONFIG = platform.name
 
