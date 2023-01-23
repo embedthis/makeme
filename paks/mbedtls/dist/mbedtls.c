@@ -38,7 +38,7 @@
 
 #if defined(MBEDTLS_AES_C)
 
-#include <string.h>
+ #include <string.h>
 
 
 
@@ -55,7 +55,7 @@
 #if defined(MBEDTLS_PLATFORM_C)
 
 #else
-#include <stdio.h>
+ #include <stdio.h>
 #define mbedtls_printf printf
 #endif /* MBEDTLS_PLATFORM_C */
 #endif /* MBEDTLS_SELF_TEST */
@@ -2271,7 +2271,7 @@ exit:
 
 
 
-#include <string.h>
+ #include <string.h>
 
 #ifndef asm
 #define asm __asm
@@ -2767,13 +2767,13 @@ int mbedtls_aesni_setkey_enc( unsigned char *rk,
 
 
 
-#include <string.h>
+ #include <string.h>
 
 #if defined(MBEDTLS_SELF_TEST)
 #if defined(MBEDTLS_PLATFORM_C)
 
 #else
-#include <stdio.h>
+ #include <stdio.h>
 #define mbedtls_printf printf
 #endif /* MBEDTLS_PLATFORM_C */
 #endif /* MBEDTLS_SELF_TEST */
@@ -2999,13 +2999,13 @@ exit:
 
 
 
-#include <string.h>
+ #include <string.h>
 
 #if defined(MBEDTLS_SELF_TEST)
 #if defined(MBEDTLS_PLATFORM_C)
 
 #else
-#include <stdio.h>
+ #include <stdio.h>
 #define mbedtls_printf printf
 #endif /* MBEDTLS_PLATFORM_C */
 #endif /* MBEDTLS_SELF_TEST */
@@ -4090,7 +4090,7 @@ exit:
 
 
 
-#include <string.h>
+ #include <string.h>
 
 #if defined(MBEDTLS_BIGNUM_C)
 
@@ -4099,7 +4099,7 @@ exit:
 #if defined(MBEDTLS_PLATFORM_C)
 
 #else
-#include <stdlib.h>
+ #include <stdlib.h>
 #define mbedtls_calloc    calloc
 #define mbedtls_free       free
 #endif
@@ -4607,12 +4607,12 @@ mbedtls_asn1_named_data *mbedtls_asn1_find_named_data( mbedtls_asn1_named_data *
 
 
 
-#include <string.h>
+ #include <string.h>
 
 #if defined(MBEDTLS_PLATFORM_C)
 
 #else
-#include <stdlib.h>
+ #include <stdlib.h>
 #define mbedtls_calloc    calloc
 #define mbedtls_free       free
 #endif
@@ -5124,14 +5124,14 @@ mbedtls_asn1_named_data *mbedtls_asn1_store_named_data(
 
 
 
-#include <stdint.h>
+ #include <stdint.h>
 
 #if defined(MBEDTLS_SELF_TEST)
-#include <string.h>
+ #include <string.h>
 #if defined(MBEDTLS_PLATFORM_C)
 
 #else
-#include <stdio.h>
+ #include <stdio.h>
 #define mbedtls_printf printf
 #endif /* MBEDTLS_PLATFORM_C */
 #endif /* MBEDTLS_SELF_TEST */
@@ -5457,14 +5457,14 @@ int mbedtls_base64_self_test( int verbose )
 
 
 
-#include <limits.h>
-#include <string.h>
+ #include <limits.h>
+ #include <string.h>
 
 #if defined(MBEDTLS_PLATFORM_C)
 
 #else
-#include <stdio.h>
-#include <stdlib.h>
+ #include <stdio.h>
+ #include <stdlib.h>
 #define mbedtls_printf     printf
 #define mbedtls_calloc    calloc
 #define mbedtls_free       free
@@ -8574,7 +8574,7 @@ cleanup:
 
 
 
-#include <string.h>
+ #include <string.h>
 
 #if !defined(MBEDTLS_BLOWFISH_ALT)
 
@@ -9278,13 +9278,13 @@ static const uint32_t S[4][256] = {
 
 
 
-#include <string.h>
+ #include <string.h>
 
 #if defined(MBEDTLS_SELF_TEST)
 #if defined(MBEDTLS_PLATFORM_C)
 
 #else
-#include <stdio.h>
+ #include <stdio.h>
 #define mbedtls_printf printf
 #endif /* MBEDTLS_PLATFORM_C */
 #endif /* MBEDTLS_SELF_TEST */
@@ -10406,13 +10406,13 @@ exit:
 
 
 
-#include <string.h>
+ #include <string.h>
 
 #if defined(MBEDTLS_SELF_TEST) && defined(MBEDTLS_AES_C)
 #if defined(MBEDTLS_PLATFORM_C)
 
 #else
-#include <stdio.h>
+ #include <stdio.h>
 #define mbedtls_printf printf
 #endif /* MBEDTLS_PLATFORM_C */
 #endif /* MBEDTLS_SELF_TEST && MBEDTLS_AES_C */
@@ -12767,14 +12767,14 @@ const size_t mbedtls_test_cas_pem_len = sizeof( mbedtls_test_cas_pem );
 
 
 
-#include <stddef.h>
-#include <string.h>
+ #include <stddef.h>
+ #include <string.h>
 
 #if defined(MBEDTLS_SELF_TEST)
 #if defined(MBEDTLS_PLATFORM_C)
 
 #else
-#include <stdio.h>
+ #include <stdio.h>
 #define mbedtls_printf printf
 #endif /* MBEDTLS_PLATFORM_C */
 #endif /* MBEDTLS_SELF_TEST */
@@ -13359,13 +13359,13 @@ int mbedtls_chacha20_self_test( int verbose )
 
 
 
-#include <string.h>
+ #include <string.h>
 
 #if defined(MBEDTLS_SELF_TEST)
 #if defined(MBEDTLS_PLATFORM_C)
 
 #else
-#include <stdio.h>
+ #include <stdio.h>
 #define mbedtls_printf printf
 #endif /* MBEDTLS_PLATFORM_C */
 #endif /* MBEDTLS_SELF_TEST */
@@ -13925,8 +13925,8 @@ int mbedtls_chachapoly_self_test( int verbose )
 
 
 
-#include <stdlib.h>
-#include <string.h>
+ #include <stdlib.h>
+ #include <string.h>
 
 #if defined(MBEDTLS_CHACHAPOLY_C)
 
@@ -13949,7 +13949,7 @@ int mbedtls_chachapoly_self_test( int verbose )
 #endif
 
 #if defined(MBEDTLS_USE_PSA_CRYPTO)
-#include "psa/crypto.h"
+ #include "psa/crypto.h"
 
 #endif /* MBEDTLS_USE_PSA_CRYPTO */
 
@@ -15630,13 +15630,13 @@ int mbedtls_cipher_auth_decrypt_ext( mbedtls_cipher_context_t *ctx,
 #endif
 
 #if defined(MBEDTLS_CIPHER_NULL_CIPHER)
-#include <string.h>
+ #include <string.h>
 #endif
 
 #if defined(MBEDTLS_PLATFORM_C)
 
 #else
-#include <stdlib.h>
+ #include <stdlib.h>
 #define mbedtls_calloc    calloc
 #define mbedtls_free       free
 #endif
@@ -18047,7 +18047,7 @@ int mbedtls_cipher_supported[NUM_CIPHERS];
 
 
 
-#include <string.h>
+ #include <string.h>
 
 #if !defined(MBEDTLS_CMAC_ALT) || defined(MBEDTLS_SELF_TEST)
 
@@ -19168,7 +19168,7 @@ int mbedtls_cmac_self_test( int verbose )
 
 #endif
 
-#include <string.h>
+ #include <string.h>
 
 int mbedtls_ct_memcmp( const void *a,
                        const void *b,
@@ -20010,17 +20010,17 @@ int mbedtls_ct_rsaes_pkcs1_v15_unpadding( int mode,
 
 
 
-#include <string.h>
+ #include <string.h>
 
 #if defined(MBEDTLS_FS_IO)
-#include <stdio.h>
+ #include <stdio.h>
 #endif
 
 #if defined(MBEDTLS_SELF_TEST)
 #if defined(MBEDTLS_PLATFORM_C)
 
 #else
-#include <stdio.h>
+ #include <stdio.h>
 #define mbedtls_printf printf
 #endif /* MBEDTLS_PLATFORM_C */
 #endif /* MBEDTLS_SELF_TEST */
@@ -20939,7 +20939,7 @@ int mbedtls_ctr_drbg_self_test( int verbose )
 #if defined(MBEDTLS_PLATFORM_C)
 
 #else
-#include <stdlib.h>
+ #include <stdlib.h>
 #define mbedtls_calloc      calloc
 #define mbedtls_free        free
 #define mbedtls_time_t      time_t
@@ -20950,9 +20950,9 @@ int mbedtls_ctr_drbg_self_test( int verbose )
 
 
 
-#include <stdarg.h>
-#include <stdio.h>
-#include <string.h>
+ #include <stdarg.h>
+ #include <stdio.h>
+ #include <string.h>
 
 #if ( defined(__ARMCC_VERSION) || defined(_MSC_VER) ) && \
     !defined(inline) && !defined(__cplusplus)
@@ -21405,13 +21405,13 @@ void mbedtls_debug_printf_ecdh( const mbedtls_ssl_context *ssl, int level,
 
 
 
-#include <string.h>
+ #include <string.h>
 
 #if defined(MBEDTLS_SELF_TEST)
 #if defined(MBEDTLS_PLATFORM_C)
 
 #else
-#include <stdio.h>
+ #include <stdio.h>
 #define mbedtls_printf printf
 #endif /* MBEDTLS_PLATFORM_C */
 #endif /* MBEDTLS_SELF_TEST */
@@ -22506,7 +22506,7 @@ exit:
 
 
 
-#include <string.h>
+ #include <string.h>
 
 #if defined(MBEDTLS_PEM_PARSE_C)
 
@@ -22519,8 +22519,8 @@ exit:
 #if defined(MBEDTLS_PLATFORM_C)
 
 #else
-#include <stdlib.h>
-#include <stdio.h>
+ #include <stdlib.h>
+ #include <stdio.h>
 #define mbedtls_printf     printf
 #define mbedtls_calloc    calloc
 #define mbedtls_free       free
@@ -23261,7 +23261,7 @@ exit:
 
 
 
-#include <string.h>
+ #include <string.h>
 
 /* Parameter validation macros based on platform_util.h */
 #define ECDH_VALIDATE_RET( cond )    \
@@ -24025,7 +24025,7 @@ int mbedtls_ecdh_calc_secret( mbedtls_ecdh_context *ctx, size_t *olen,
 
 
 
-#include <string.h>
+ #include <string.h>
 
 #if defined(MBEDTLS_ECDSA_DETERMINISTIC)
 
@@ -24034,7 +24034,7 @@ int mbedtls_ecdh_calc_secret( mbedtls_ecdh_context *ctx, size_t *olen,
 #if defined(MBEDTLS_PLATFORM_C)
 
 #else
-#include <stdlib.h>
+ #include <stdlib.h>
 #define mbedtls_calloc    calloc
 #define mbedtls_free       free
 #endif
@@ -25074,7 +25074,7 @@ void mbedtls_ecdsa_restart_free( mbedtls_ecdsa_restart_ctx *ctx )
 
 
 
-#include <string.h>
+ #include <string.h>
 
 #if !defined(MBEDTLS_ECJPAKE_ALT)
 
@@ -25841,7 +25841,7 @@ cleanup:
 #if defined(MBEDTLS_PLATFORM_C)
 
 #else
-#include <stdio.h>
+ #include <stdio.h>
 #define mbedtls_printf     printf
 #endif
 
@@ -26302,7 +26302,7 @@ cleanup:
 
 
 
-#include <string.h>
+ #include <string.h>
 
 #if !defined(MBEDTLS_ECP_ALT)
 
@@ -26315,8 +26315,8 @@ cleanup:
 #if defined(MBEDTLS_PLATFORM_C)
 
 #else
-#include <stdlib.h>
-#include <stdio.h>
+ #include <stdlib.h>
+ #include <stdio.h>
 #define mbedtls_printf     printf
 #define mbedtls_calloc    calloc
 #define mbedtls_free       free
@@ -29891,7 +29891,7 @@ cleanup:
 
 
 
-#include <string.h>
+ #include <string.h>
 
 #if !defined(MBEDTLS_ECP_ALT)
 
@@ -31410,10 +31410,10 @@ static int ecp_mod_p256k1( mbedtls_mpi *N )
 
 
 
-#include <string.h>
+ #include <string.h>
 
 #if defined(MBEDTLS_FS_IO)
-#include <stdio.h>
+ #include <stdio.h>
 #endif
 
 #if defined(MBEDTLS_ENTROPY_NV_SEED)
@@ -31424,7 +31424,7 @@ static int ecp_mod_p256k1( mbedtls_mpi *N )
 #if defined(MBEDTLS_PLATFORM_C)
 
 #else
-#include <stdio.h>
+ #include <stdio.h>
 #define mbedtls_printf     printf
 #endif /* MBEDTLS_PLATFORM_C */
 #endif /* MBEDTLS_SELF_TEST */
@@ -32176,7 +32176,7 @@ cleanup:
 
 
 
-#include <string.h>
+ #include <string.h>
 
 #if defined(MBEDTLS_ENTROPY_C)
 
@@ -32207,8 +32207,8 @@ cleanup:
 #if !defined(_WIN32_WINNT)
 #define _WIN32_WINNT 0x0400
 #endif
-#include <windows.h>
-#include <wincrypt.h>
+ #include <windows.h>
+ #include <wincrypt.h>
 
 int mbedtls_platform_entropy_poll( void *data, unsigned char *output, size_t len,
                            size_t *olen )
@@ -32242,11 +32242,11 @@ int mbedtls_platform_entropy_poll( void *data, unsigned char *output, size_t len
  * available in GNU libc and compatible libc's (eg uClibc).
  */
 #if ((defined(__linux__) && defined(__GLIBC__)) || defined(__midipix__))
-#include <unistd.h>
-#include <sys/syscall.h>
+ #include <unistd.h>
+ #include <sys/syscall.h>
 #if defined(SYS_getrandom)
 #define HAVE_GETRANDOM
-#include <errno.h>
+ #include <errno.h>
 
 static int getrandom_wrapper( void *buf, size_t buflen, unsigned int flags )
 {
@@ -32262,11 +32262,11 @@ static int getrandom_wrapper( void *buf, size_t buflen, unsigned int flags )
 #endif /* __linux__ || __midipix__ */
 
 #if defined(__FreeBSD__) || defined(__DragonFly__)
-#include <sys/param.h>
+ #include <sys/param.h>
 #if (defined(__FreeBSD__) && __FreeBSD_version >= 1200000) || \
     (defined(__DragonFly__) && __DragonFly_version >= 500700)
-#include <errno.h>
-#include <sys/random.h>
+ #include <errno.h>
+ #include <sys/random.h>
 #define HAVE_GETRANDOM
 static int getrandom_wrapper( void *buf, size_t buflen, unsigned int flags )
 {
@@ -32285,8 +32285,8 @@ static int getrandom_wrapper( void *buf, size_t buflen, unsigned int flags )
  * Documentation: https://netbsd.gw.com/cgi-bin/man-cgi?sysctl+7
  */
 #if (defined(__FreeBSD__) || defined(__NetBSD__)) && !defined(HAVE_GETRANDOM)
-#include <sys/param.h>
-#include <sys/sysctl.h>
+ #include <sys/param.h>
+ #include <sys/sysctl.h>
 #if defined(KERN_ARND)
 #define HAVE_SYSCTL_ARND
 
@@ -32311,7 +32311,7 @@ static int sysctl_arnd_wrapper( unsigned char *buf, size_t buflen )
 #endif /* KERN_ARND */
 #endif /* __FreeBSD__ || __NetBSD__ */
 
-#include <stdio.h>
+ #include <stdio.h>
 
 int mbedtls_platform_entropy_poll( void *data,
                            unsigned char *output, size_t len, size_t *olen )
@@ -32511,8 +32511,8 @@ int mbedtls_nv_seed_poll( void *data,
 #define mbedtls_snprintf snprintf
 #endif
 
-#include <stdio.h>
-#include <string.h>
+ #include <stdio.h>
+ #include <string.h>
 
 #if defined(MBEDTLS_AES_C)
 
@@ -33532,7 +33532,7 @@ void (*mbedtls_test_hook_error_add)( int, int, const char *, int );
 
 
 
-#include <string.h>
+ #include <string.h>
 
 #if defined(MBEDTLS_AESNI_C)
 
@@ -33542,7 +33542,7 @@ void (*mbedtls_test_hook_error_add)( int, int, const char *, int );
 
 
 #if !defined(MBEDTLS_PLATFORM_C)
-#include <stdio.h>
+ #include <stdio.h>
 #define mbedtls_printf printf
 #endif /* MBEDTLS_PLATFORM_C */
 #endif /* MBEDTLS_SELF_TEST && MBEDTLS_AES_C */
@@ -34569,8 +34569,8 @@ exit:
 
 
 
-#include <stdint.h>
-#include <string.h>
+ #include <stdint.h>
+ #include <string.h>
 
 /* ------------------------------------------------------------------------
  * On average, one iteration accesses two 8-word blocks in the havege WALK
@@ -34831,7 +34831,7 @@ int mbedtls_havege_random( void *p_rng, unsigned char *buf, size_t len )
 
 #if defined(MBEDTLS_HKDF_C)
 
-#include <string.h>
+ #include <string.h>
 
 
 
@@ -35068,17 +35068,17 @@ exit:
 
 
 
-#include <string.h>
+ #include <string.h>
 
 #if defined(MBEDTLS_FS_IO)
-#include <stdio.h>
+ #include <stdio.h>
 #endif
 
 #if defined(MBEDTLS_SELF_TEST)
 #if defined(MBEDTLS_PLATFORM_C)
 
 #else
-#include <stdio.h>
+ #include <stdio.h>
 #define mbedtls_printf printf
 #endif /* MBEDTLS_SELF_TEST */
 #endif /* MBEDTLS_PLATFORM_C */
@@ -35744,15 +35744,15 @@ int mbedtls_hmac_drbg_self_test( int verbose )
 #if defined(MBEDTLS_PLATFORM_C)
 
 #else
-#include <stdlib.h>
+ #include <stdlib.h>
 #define mbedtls_calloc    calloc
 #define mbedtls_free       free
 #endif
 
-#include <string.h>
+ #include <string.h>
 
 #if defined(MBEDTLS_FS_IO)
-#include <stdio.h>
+ #include <stdio.h>
 #endif
 
 #if defined(MBEDTLS_MD2_C)
@@ -36661,13 +36661,13 @@ const char *mbedtls_md_get_name( const mbedtls_md_info_t *md_info )
 
 
 
-#include <string.h>
+ #include <string.h>
 
 #if defined(MBEDTLS_SELF_TEST)
 #if defined(MBEDTLS_PLATFORM_C)
 
 #else
-#include <stdio.h>
+ #include <stdio.h>
 #define mbedtls_printf printf
 #endif /* MBEDTLS_PLATFORM_C */
 #endif /* MBEDTLS_SELF_TEST */
@@ -37058,13 +37058,13 @@ fail:
 
 
 
-#include <string.h>
+ #include <string.h>
 
 #if defined(MBEDTLS_SELF_TEST)
 #if defined(MBEDTLS_PLATFORM_C)
 
 #else
-#include <stdio.h>
+ #include <stdio.h>
 #define mbedtls_printf printf
 #endif /* MBEDTLS_PLATFORM_C */
 #endif /* MBEDTLS_SELF_TEST */
@@ -37555,13 +37555,13 @@ fail:
 
 
 
-#include <string.h>
+ #include <string.h>
 
 #if defined(MBEDTLS_SELF_TEST)
 #if defined(MBEDTLS_PLATFORM_C)
 
 #else
-#include <stdio.h>
+ #include <stdio.h>
 #define mbedtls_printf printf
 #endif /* MBEDTLS_PLATFORM_C */
 #endif /* MBEDTLS_SELF_TEST */
@@ -38064,10 +38064,10 @@ fail:
 
 
 
-#include <string.h>
+ #include <string.h>
 
 #if defined(MBEDTLS_MEMORY_BACKTRACE)
-#include <execinfo.h>
+ #include <execinfo.h>
 #endif
 
 #if defined(MBEDTLS_THREADING_C)
@@ -38841,11 +38841,11 @@ cleanup:
 
 #if defined(MBEDTLS_SSL_PROTO_TLS1_3_EXPERIMENTAL)
 
-#include "mps_reader.h"
+ #include "mps_reader.h"
 
-#include "mps_trace.h"
+ #include "mps_trace.h"
 
-#include <string.h>
+ #include <string.h>
 
 #if ( defined(__ARMCC_VERSION) || defined(_MSC_VER) ) && \
     !defined(inline) && !defined(__cplusplus)
@@ -39446,8 +39446,8 @@ int mbedtls_mps_reader_reclaim( mbedtls_mps_reader *rd,
 
 #if defined(MBEDTLS_MPS_ENABLE_TRACE)
 
-#include "mps_trace.h"
-#include <stdarg.h>
+ #include "mps_trace.h"
+ #include <stdarg.h>
 
 static int trace_depth = 0;
 
@@ -39623,13 +39623,13 @@ void mbedtls_mps_trace_indent( int level, mbedtls_mps_trace_type ty )
 #if defined(MBEDTLS_PLATFORM_C)
 
 #else
-#include <stdlib.h>
+ #include <stdlib.h>
 #endif
 
 
 
 
-#include <string.h>
+ #include <string.h>
 
 #if (defined(_WIN32) || defined(_WIN32_WCE)) && !defined(EFIX64) && \
     !defined(EFI32)
@@ -39641,12 +39641,12 @@ void mbedtls_mps_trace_indent( int level, mbedtls_mps_trace_type ty )
 #define _WIN32_WINNT 0x0501
 #endif
 
-#include <ws2tcpip.h>
+ #include <ws2tcpip.h>
 
-#include <winsock2.h>
-#include <windows.h>
+ #include <winsock2.h>
+ #include <windows.h>
 #if (_WIN32_WINNT < 0x0501)
-#include <wspiapi.h>
+ #include <wspiapi.h>
 #endif
 
 #if defined(_MSC_VER)
@@ -39665,16 +39665,16 @@ static int wsa_init_done = 0;
 
 #else /* ( _WIN32 || _WIN32_WCE ) && !EFIX64 && !EFI32 */
 
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <sys/time.h>
-#include <unistd.h>
-#include <signal.h>
-#include <fcntl.h>
-#include <netdb.h>
-#include <errno.h>
+ #include <sys/types.h>
+ #include <sys/socket.h>
+ #include <netinet/in.h>
+ #include <arpa/inet.h>
+ #include <sys/time.h>
+ #include <unistd.h>
+ #include <signal.h>
+ #include <fcntl.h>
+ #include <netdb.h>
+ #include <errno.h>
 
 #define IS_EINTR( ret ) ( ( ret ) == EINTR )
 
@@ -39688,11 +39688,11 @@ static int wsa_init_done = 0;
 #define MSVC_INT_CAST
 #endif
 
-#include <stdio.h>
+ #include <stdio.h>
 
-#include <time.h>
+ #include <time.h>
 
-#include <stdint.h>
+ #include <stdint.h>
 
 /*
  * Prepare for using the sockets interface
@@ -40369,14 +40369,14 @@ void mbedtls_net_free( mbedtls_net_context *ctx )
 
 
 
-#include <stdint.h>
-#include <string.h>
+ #include <stdint.h>
+ #include <string.h>
 
 #if defined(MBEDTLS_SELF_TEST) && defined(MBEDTLS_AES_C)
 #if defined(MBEDTLS_PLATFORM_C)
 
 #else
-#include <stdio.h>
+ #include <stdio.h>
 #define mbedtls_printf printf
 #endif /* MBEDTLS_PLATFORM_C */
 #endif /* MBEDTLS_SELF_TEST && MBEDTLS_AES_C */
@@ -41110,8 +41110,8 @@ end:
 
 
 
-#include <stdio.h>
-#include <string.h>
+ #include <stdio.h>
+ #include <string.h>
 
 #if defined(MBEDTLS_PLATFORM_C)
 
@@ -41916,7 +41916,7 @@ int mbedtls_oid_get_numeric_string( char *buf, size_t size,
 
 
 
-#include <string.h>
+ #include <string.h>
 
 #ifndef asm
 #define asm __asm
@@ -42118,12 +42118,12 @@ int mbedtls_padlock_xcryptcbc( mbedtls_aes_context *ctx,
 
 
 
-#include <string.h>
+ #include <string.h>
 
 #if defined(MBEDTLS_PLATFORM_C)
 
 #else
-#include <stdlib.h>
+ #include <stdlib.h>
 #define mbedtls_calloc    calloc
 #define mbedtls_free       free
 #endif
@@ -42654,8 +42654,8 @@ int mbedtls_pem_write_buffer( const char *header, const char *footer,
 
 #endif
 
-#include <limits.h>
-#include <stdint.h>
+ #include <limits.h>
+ #include <stdint.h>
 
 /* Parameter validation macros based on platform_util.h */
 #define PK_VALIDATE_RET( cond )    \
@@ -43319,7 +43319,7 @@ int mbedtls_pk_wrap_as_opaque( mbedtls_pk_context *pk,
 /* Even if RSA not activated, for the sake of RSA-alt */
 
 
-#include <string.h>
+ #include <string.h>
 
 #if defined(MBEDTLS_ECP_C)
 
@@ -43338,7 +43338,7 @@ int mbedtls_pk_wrap_as_opaque( mbedtls_pk_context *pk,
 #endif
 
 #if defined(MBEDTLS_USE_PSA_CRYPTO)
-#include "psa/crypto.h"
+ #include "psa/crypto.h"
 
 
 #endif
@@ -43346,13 +43346,13 @@ int mbedtls_pk_wrap_as_opaque( mbedtls_pk_context *pk,
 #if defined(MBEDTLS_PLATFORM_C)
 
 #else
-#include <stdlib.h>
+ #include <stdlib.h>
 #define mbedtls_calloc    calloc
 #define mbedtls_free       free
 #endif
 
-#include <limits.h>
-#include <stdint.h>
+ #include <limits.h>
+ #include <stdint.h>
 
 #if defined(MBEDTLS_RSA_C)
 static int rsa_can_do( mbedtls_pk_type_t type )
@@ -44431,12 +44431,12 @@ const mbedtls_pk_info_t mbedtls_pk_opaque_info = {
 #if defined(MBEDTLS_PLATFORM_C)
 
 #else
-#include <stdlib.h>
+ #include <stdlib.h>
 #define mbedtls_calloc    calloc
 #define mbedtls_free       free
 #endif
 
-#include <string.h>
+ #include <string.h>
 
 void mbedtls_pkcs11_init( mbedtls_pkcs11_context *ctx )
 {
@@ -44707,7 +44707,7 @@ int mbedtls_pkcs11_sign( mbedtls_pkcs11_context *ctx,
 
 
 
-#include <string.h>
+ #include <string.h>
 
 #if defined(MBEDTLS_ARC4_C)
 
@@ -45155,12 +45155,12 @@ exit:
 
 #endif /* MBEDTLS_ASN1_PARSE_C */
 
-#include <string.h>
+ #include <string.h>
 
 #if defined(MBEDTLS_PLATFORM_C)
 
 #else
-#include <stdio.h>
+ #include <stdio.h>
 #define mbedtls_printf printf
 #endif
 
@@ -45599,7 +45599,7 @@ exit:
 
 
 
-#include <string.h>
+ #include <string.h>
 
 #if defined(MBEDTLS_RSA_C)
 
@@ -45623,7 +45623,7 @@ exit:
 #if defined(MBEDTLS_PLATFORM_C)
 
 #else
-#include <stdlib.h>
+ #include <stdlib.h>
 #define mbedtls_calloc    calloc
 #define mbedtls_free       free
 #endif
@@ -47175,7 +47175,7 @@ int mbedtls_pk_parse_public_key( mbedtls_pk_context *ctx,
 
 
 
-#include <string.h>
+ #include <string.h>
 
 #if defined(MBEDTLS_RSA_C)
 
@@ -47193,13 +47193,13 @@ int mbedtls_pk_parse_public_key( mbedtls_pk_context *ctx,
 #endif
 
 #if defined(MBEDTLS_USE_PSA_CRYPTO)
-#include "psa/crypto.h"
+ #include "psa/crypto.h"
 
 #endif
 #if defined(MBEDTLS_PLATFORM_C)
 
 #else
-#include <stdlib.h>
+ #include <stdlib.h>
 #define mbedtls_calloc    calloc
 #define mbedtls_free       free
 #endif
@@ -47886,7 +47886,7 @@ int mbedtls_platform_set_calloc_free( void * (*calloc_func)( size_t, size_t ),
              defined(MBEDTLS_PLATFORM_FREE_MACRO) ) */
 
 #if defined(MBEDTLS_PLATFORM_HAS_NON_CONFORMING_SNPRINTF)
-#include <stdarg.h>
+ #include <stdarg.h>
 int mbedtls_platform_win32_snprintf( char *s, size_t n, const char *fmt, ... )
 {
     int ret = MBEDTLS_ERR_ERROR_CORRUPTION_DETECTED;
@@ -47931,7 +47931,7 @@ int mbedtls_platform_set_snprintf( int (*snprintf_func)( char * s, size_t n,
 #endif /* MBEDTLS_PLATFORM_SNPRINTF_ALT */
 
 #if defined(MBEDTLS_PLATFORM_HAS_NON_CONFORMING_VSNPRINTF)
-#include <stdarg.h>
+ #include <stdarg.h>
 int mbedtls_platform_win32_vsnprintf( char *s, size_t n, const char *fmt, va_list arg )
 {
     int ret = MBEDTLS_ERR_ERROR_CORRUPTION_DETECTED;
@@ -48263,8 +48263,8 @@ void mbedtls_platform_teardown( mbedtls_platform_context *ctx )
 
 
 
-#include <stddef.h>
-#include <string.h>
+ #include <stddef.h>
+ #include <string.h>
 
 #if !defined(MBEDTLS_PLATFORM_ZEROIZE_ALT)
 /*
@@ -48305,11 +48305,11 @@ void mbedtls_platform_zeroize( void *buf, size_t len )
 #endif /* MBEDTLS_PLATFORM_ZEROIZE_ALT */
 
 #if defined(MBEDTLS_HAVE_TIME_DATE) && !defined(MBEDTLS_PLATFORM_GMTIME_R_ALT)
-#include <time.h>
+ #include <time.h>
 #if !defined(_WIN32) && (defined(unix) || \
     defined(__unix) || defined(__unix__) || (defined(__APPLE__) && \
     defined(__MACH__)))
-#include <unistd.h>
+ #include <unistd.h>
 #endif /* !_WIN32 && (unix || __unix || __unix__ ||
         * (__APPLE__ && __MACH__)) */
 
@@ -48427,13 +48427,13 @@ struct tm *mbedtls_platform_gmtime_r( const mbedtls_time_t *tt,
 
 
 
-#include <string.h>
+ #include <string.h>
 
 #if defined(MBEDTLS_SELF_TEST)
 #if defined(MBEDTLS_PLATFORM_C)
 
 #else
-#include <stdio.h>
+ #include <stdio.h>
 #define mbedtls_printf printf
 #endif /* MBEDTLS_PLATFORM_C */
 #endif /* MBEDTLS_SELF_TEST */
@@ -49007,13 +49007,13 @@ int mbedtls_poly1305_self_test( int verbose )
 
 
 
-#include <string.h>
+ #include <string.h>
 
 #if defined(MBEDTLS_SELF_TEST)
 #if defined(MBEDTLS_PLATFORM_C)
 
 #else
-#include <stdio.h>
+ #include <stdio.h>
 #define mbedtls_printf printf
 #endif /* MBEDTLS_PLATFORM_C */
 #endif /* MBEDTLS_SELF_TEST */
@@ -49596,20 +49596,20 @@ fail:
 
 
 
-#include <string.h>
+ #include <string.h>
 
 #if defined(MBEDTLS_PKCS1_V21)
 
 #endif
 
 #if defined(MBEDTLS_PKCS1_V15) && !defined(__OpenBSD__) && !defined(__NetBSD__)
-#include <stdlib.h>
+ #include <stdlib.h>
 #endif
 
 #if defined(MBEDTLS_PLATFORM_C)
 
 #else
-#include <stdio.h>
+ #include <stdio.h>
 #define mbedtls_printf printf
 #define mbedtls_calloc calloc
 #define mbedtls_free   free
@@ -52728,13 +52728,13 @@ cleanup:
 
 
 
-#include <string.h>
+ #include <string.h>
 
 #if defined(MBEDTLS_SELF_TEST)
 #if defined(MBEDTLS_PLATFORM_C)
 
 #else
-#include <stdio.h>
+ #include <stdio.h>
 #define mbedtls_printf printf
 #endif /* MBEDTLS_PLATFORM_C */
 #endif /* MBEDTLS_SELF_TEST */
@@ -53318,14 +53318,14 @@ exit:
 
 
 
-#include <string.h>
+ #include <string.h>
 
 #if defined(MBEDTLS_SELF_TEST)
 #if defined(MBEDTLS_PLATFORM_C)
 
 #else
-#include <stdio.h>
-#include <stdlib.h>
+ #include <stdio.h>
+ #include <stdlib.h>
 #define mbedtls_printf printf
 #define mbedtls_calloc    calloc
 #define mbedtls_free       free
@@ -53946,14 +53946,14 @@ exit:
   #define UL64(x) x##ULL
 #endif
 
-#include <string.h>
+ #include <string.h>
 
 #if defined(MBEDTLS_SELF_TEST)
 #if defined(MBEDTLS_PLATFORM_C)
 
 #else
-#include <stdio.h>
-#include <stdlib.h>
+ #include <stdio.h>
+ #include <stdlib.h>
 #define mbedtls_printf printf
 #define mbedtls_calloc    calloc
 #define mbedtls_free       free
@@ -54636,7 +54636,7 @@ exit:
 #if defined(MBEDTLS_PLATFORM_C)
 
 #else
-#include <stdlib.h>
+ #include <stdlib.h>
 #define mbedtls_calloc    calloc
 #define mbedtls_free      free
 #endif
@@ -54644,7 +54644,7 @@ exit:
 
 
 
-#include <string.h>
+ #include <string.h>
 
 void mbedtls_ssl_cache_init( mbedtls_ssl_cache_context *cache )
 {
@@ -55016,13 +55016,13 @@ void mbedtls_ssl_cache_free( mbedtls_ssl_cache_context *cache )
 #if defined(MBEDTLS_PLATFORM_C)
 
 #else
-#include <stdlib.h>
+ #include <stdlib.h>
 #endif
 
 
 
 
-#include <string.h>
+ #include <string.h>
 
 #undef HAVE_SHA384
 #if defined(MBEDTLS_SHA512_C) && !defined(MBEDTLS_SHA512_NO_SHA384)
@@ -57423,7 +57423,7 @@ int mbedtls_ssl_ciphersuite_uses_psk( const mbedtls_ssl_ciphersuite_t *info )
 #if defined(MBEDTLS_PLATFORM_C)
 
 #else
-#include <stdlib.h>
+ #include <stdlib.h>
 #define mbedtls_calloc    calloc
 #define mbedtls_free      free
 #endif
@@ -57436,12 +57436,12 @@ int mbedtls_ssl_ciphersuite_uses_psk( const mbedtls_ssl_ciphersuite_t *info )
 
 #if defined(MBEDTLS_USE_PSA_CRYPTO)
 
-#include "psa/crypto.h"
+ #include "psa/crypto.h"
 #endif /* MBEDTLS_USE_PSA_CRYPTO */
 
-#include <string.h>
+ #include <string.h>
 
-#include <stdint.h>
+ #include <stdint.h>
 
 #if defined(MBEDTLS_HAVE_TIME)
 
@@ -62006,7 +62006,7 @@ int mbedtls_ssl_handshake_client_step( mbedtls_ssl_context *ssl )
 
 
 
-#include <string.h>
+ #include <string.h>
 
 /*
  * If DTLS is in use, then at least one of SHA-1, SHA-256, SHA-512 is
@@ -62295,7 +62295,7 @@ exit:
 #if defined(MBEDTLS_PLATFORM_C)
 
 #else
-#include <stdlib.h>
+ #include <stdlib.h>
 #define mbedtls_calloc    calloc
 #define mbedtls_free      free
 #endif
@@ -62309,11 +62309,11 @@ exit:
 
 
 
-#include <string.h>
+ #include <string.h>
 
 #if defined(MBEDTLS_USE_PSA_CRYPTO)
 
-#include "psa/crypto.h"
+ #include "psa/crypto.h"
 #endif
 
 #if defined(MBEDTLS_X509_CRT_PARSE_C)
@@ -68245,7 +68245,7 @@ void mbedtls_ssl_read_version( int *major, int *minor, int transport,
 #if defined(MBEDTLS_PLATFORM_C)
 
 #else
-#include <stdlib.h>
+ #include <stdlib.h>
 #define mbedtls_calloc    calloc
 #define mbedtls_free      free
 #endif
@@ -68258,7 +68258,7 @@ void mbedtls_ssl_read_version( int *major, int *minor, int transport,
 
 
 
-#include <string.h>
+ #include <string.h>
 
 #if defined(MBEDTLS_ECP_C)
 
@@ -73066,7 +73066,7 @@ int mbedtls_ssl_handshake_server_step( mbedtls_ssl_context *ssl )
 #if defined(MBEDTLS_PLATFORM_C)
 
 #else
-#include <stdlib.h>
+ #include <stdlib.h>
 #define mbedtls_calloc    calloc
 #define mbedtls_free      free
 #endif
@@ -73076,7 +73076,7 @@ int mbedtls_ssl_handshake_server_step( mbedtls_ssl_context *ssl )
 
 
 
-#include <string.h>
+ #include <string.h>
 
 /*
  * Initialze context
@@ -73515,7 +73515,7 @@ void mbedtls_ssl_ticket_free( mbedtls_ssl_ticket_context *ctx )
 #if defined(MBEDTLS_PLATFORM_C)
 
 #else
-#include <stdlib.h>
+ #include <stdlib.h>
 #define mbedtls_calloc    calloc
 #define mbedtls_free      free
 #endif
@@ -73528,11 +73528,11 @@ void mbedtls_ssl_ticket_free( mbedtls_ssl_ticket_context *ctx )
 
 
 
-#include <string.h>
+ #include <string.h>
 
 #if defined(MBEDTLS_USE_PSA_CRYPTO)
 
-#include "psa/crypto.h"
+ #include "psa/crypto.h"
 #endif
 
 #if defined(MBEDTLS_X509_CRT_PARSE_C)
@@ -81235,10 +81235,10 @@ exit:
 
 
 
-#include "ssl_tls13_keys.h"
+ #include "ssl_tls13_keys.h"
 
-#include <stdint.h>
-#include <string.h>
+ #include <stdint.h>
+ #include <string.h>
 
 #define MBEDTLS_SSL_TLS1_3_LABEL( name, string )       \
     .name = string,
@@ -81634,7 +81634,7 @@ int mbedtls_ssl_tls1_3_evolve_secret(
 #if !defined(_WIN32) && (defined(unix) || \
     defined(__unix) || defined(__unix__) || (defined(__APPLE__) && \
     defined(__MACH__)))
-#include <unistd.h>
+ #include <unistd.h>
 #endif /* !_WIN32 && (unix || __unix || __unix__ ||
         * (__APPLE__ && __MACH__)) */
 
@@ -81844,7 +81844,7 @@ mbedtls_threading_mutex_t mbedtls_threading_gmtime_mutex MUTEX_INIT;
 #if defined(MBEDTLS_SELF_TEST) && defined(MBEDTLS_PLATFORM_C)
 
 #else
-#include <stdio.h>
+ #include <stdio.h>
 #define mbedtls_printf     printf
 #endif
 
@@ -81866,8 +81866,8 @@ mbedtls_threading_mutex_t mbedtls_threading_gmtime_mutex MUTEX_INIT;
 
 #if defined(_WIN32) && !defined(EFIX64) && !defined(EFI32)
 
-#include <windows.h>
-#include <process.h>
+ #include <windows.h>
+ #include <process.h>
 
 struct _hr_time
 {
@@ -81876,11 +81876,11 @@ struct _hr_time
 
 #else
 
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/time.h>
-#include <signal.h>
-#include <time.h>
+ #include <unistd.h>
+ #include <sys/types.h>
+ #include <sys/time.h>
+ #include <signal.h>
+ #include <time.h>
 
 struct _hr_time
 {
@@ -82411,7 +82411,7 @@ hard_test_done:
 #if defined(MBEDTLS_VERSION_C)
 
 
-#include <string.h>
+ #include <string.h>
 
 unsigned int mbedtls_version_get_number( void )
 {
@@ -82493,7 +82493,7 @@ void mbedtls_version_get_string_full( char *string )
 
 
 
-#include <string.h>
+ #include <string.h>
 
 static const char * const features[] = {
 #if defined(MBEDTLS_VERSION_FEATURES)
@@ -83415,8 +83415,8 @@ int mbedtls_version_check_feature( const char *feature )
 
 
 
-#include <stdio.h>
-#include <string.h>
+ #include <stdio.h>
+ #include <string.h>
 
 #if defined(MBEDTLS_PEM_PARSE_C)
 
@@ -83425,8 +83425,8 @@ int mbedtls_version_check_feature( const char *feature )
 #if defined(MBEDTLS_PLATFORM_C)
 
 #else
-#include <stdio.h>
-#include <stdlib.h>
+ #include <stdio.h>
+ #include <stdlib.h>
 #define mbedtls_free      free
 #define mbedtls_calloc    calloc
 #define mbedtls_printf    printf
@@ -83438,7 +83438,7 @@ int mbedtls_version_check_feature( const char *feature )
 #endif
 #if defined(MBEDTLS_HAVE_TIME_DATE)
 
-#include <time.h>
+ #include <time.h>
 #endif
 
 #define CHECK(code) if( ( ret = ( code ) ) != 0 ){ return( ret ); }
@@ -84509,7 +84509,7 @@ cleanup:
 
 
 
-#include <string.h>
+ #include <string.h>
 
 /* Structure linking OIDs for X.509 DN AttributeTypes to their
  * string representations and default string encodings used by Mbed TLS. */
@@ -84930,7 +84930,7 @@ int mbedtls_x509_write_extensions( unsigned char **p, unsigned char *start,
 
 
 
-#include <string.h>
+ #include <string.h>
 
 #if defined(MBEDTLS_PEM_PARSE_C)
 
@@ -84939,21 +84939,21 @@ int mbedtls_x509_write_extensions( unsigned char **p, unsigned char *start,
 #if defined(MBEDTLS_PLATFORM_C)
 
 #else
-#include <stdlib.h>
-#include <stdio.h>
+ #include <stdlib.h>
+ #include <stdio.h>
 #define mbedtls_free       free
 #define mbedtls_calloc    calloc
 #define mbedtls_snprintf   snprintf
 #endif
 
 #if defined(_WIN32) && !defined(EFIX64) && !defined(EFI32)
-#include <windows.h>
+ #include <windows.h>
 #else
-#include <time.h>
+ #include <time.h>
 #endif
 
 #if defined(MBEDTLS_FS_IO) || defined(EFIX64) || defined(EFI32)
-#include <stdio.h>
+ #include <stdio.h>
 #endif
 
 /*
@@ -85737,22 +85737,22 @@ void mbedtls_x509_crl_free( mbedtls_x509_crl *crl )
 
 
 
-#include <string.h>
+ #include <string.h>
 
 #if defined(MBEDTLS_PEM_PARSE_C)
 
 #endif
 
 #if defined(MBEDTLS_USE_PSA_CRYPTO)
-#include "psa/crypto.h"
+ #include "psa/crypto.h"
 
 #endif
 
 #if defined(MBEDTLS_PLATFORM_C)
 
 #else
-#include <stdio.h>
-#include <stdlib.h>
+ #include <stdio.h>
+ #include <stdlib.h>
 #define mbedtls_free       free
 #define mbedtls_calloc    calloc
 #define mbedtls_snprintf   snprintf
@@ -85763,17 +85763,17 @@ void mbedtls_x509_crl_free( mbedtls_x509_crl *crl )
 #endif
 
 #if defined(_WIN32) && !defined(EFIX64) && !defined(EFI32)
-#include <windows.h>
+ #include <windows.h>
 #else
-#include <time.h>
+ #include <time.h>
 #endif
 
 #if defined(MBEDTLS_FS_IO)
-#include <stdio.h>
+ #include <stdio.h>
 #if !defined(_WIN32) || defined(EFIX64) || defined(EFI32)
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <dirent.h>
+ #include <sys/types.h>
+ #include <sys/stat.h>
+ #include <dirent.h>
 #endif /* !_WIN32 || EFIX64 || EFI32 */
 #endif
 
@@ -89169,7 +89169,7 @@ void mbedtls_x509_crt_restart_free( mbedtls_x509_crt_restart_ctx *ctx )
 
 
 
-#include <string.h>
+ #include <string.h>
 
 #if defined(MBEDTLS_PEM_PARSE_C)
 
@@ -89178,15 +89178,15 @@ void mbedtls_x509_crt_restart_free( mbedtls_x509_crt_restart_ctx *ctx )
 #if defined(MBEDTLS_PLATFORM_C)
 
 #else
-#include <stdlib.h>
-#include <stdio.h>
+ #include <stdlib.h>
+ #include <stdio.h>
 #define mbedtls_free       free
 #define mbedtls_calloc    calloc
 #define mbedtls_snprintf   snprintf
 #endif
 
 #if defined(MBEDTLS_FS_IO) || defined(EFIX64) || defined(EFI32)
-#include <stdio.h>
+ #include <stdio.h>
 #endif
 
 /*
@@ -89618,7 +89618,7 @@ void mbedtls_x509_csr_free( mbedtls_x509_csr *csr )
 
 
 
-#include <string.h>
+ #include <string.h>
 
 #if defined(MBEDTLS_PEM_WRITE_C)
 
@@ -90197,12 +90197,12 @@ int mbedtls_x509write_crt_pem( mbedtls_x509write_cert *crt,
 
 
 #if defined(MBEDTLS_USE_PSA_CRYPTO)
-#include "psa/crypto.h"
+ #include "psa/crypto.h"
 
 #endif
 
-#include <string.h>
-#include <stdlib.h>
+ #include <string.h>
+ #include <stdlib.h>
 
 #if defined(MBEDTLS_PEM_WRITE_C)
 
@@ -90211,7 +90211,7 @@ int mbedtls_x509write_crt_pem( mbedtls_x509write_cert *crt,
 #if defined(MBEDTLS_PLATFORM_C)
 
 #else
-#include <stdlib.h>
+ #include <stdlib.h>
 #define mbedtls_calloc    calloc
 #define mbedtls_free      free
 #endif
@@ -90566,13 +90566,13 @@ int mbedtls_x509write_csr_pem( mbedtls_x509write_csr *ctx, unsigned char *buf, s
 
 
 
-#include <string.h>
+ #include <string.h>
 
 #if defined(MBEDTLS_SELF_TEST)
 #if defined(MBEDTLS_PLATFORM_C)
 
 #else
-#include <stdio.h>
+ #include <stdio.h>
 #define mbedtls_printf printf
 #endif /* MBEDTLS_PLATFORM_C */
 #endif /* MBEDTLS_SELF_TEST */

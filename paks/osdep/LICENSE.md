@@ -1,4 +1,4 @@
-osdep Licenses
+OSDEP Licenses
 ===
 
 This software is distributed under a commercial license.

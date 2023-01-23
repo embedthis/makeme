@@ -5,5 +5,6 @@
     "version": "1.0.0",
     "license": "UNLICENSED",
     "main": "index.js",
-    "export": false
+    "export": false,
+    "origin": "embedthis/assist"
 }

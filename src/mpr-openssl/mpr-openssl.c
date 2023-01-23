@@ -812,12 +812,6 @@ static int selectAlpn(SSL *ssl, cuchar **out, uchar *outlen, cuchar *in, uint in
 {
     OpenSocket  *osp;
     cchar       *alpn;
-    ssize       len;
-
-    /*
-    for (i = 0; i < inlen; i += in[i] + 1) {
-        print("Client ALPN: %*s", (int) in[i], &in[i + 1]);
-    } */
 
     if ((osp = (OpenSocket*) SSL_get_app_data(ssl)) == 0) {
         return SSL_TLSEXT_ERR_NOACK;
@@ -830,11 +824,9 @@ static int selectAlpn(SSL *ssl, cuchar **out, uchar *outlen, cuchar *in, uint in
     /*
         WARNING: this appalling API expects pbuf to be static / persistent and sets *out to refer to it.
      */
-    len = slen(alpn);
     if (SSL_select_next_proto((uchar **) out, outlen, (cuchar*) alpn, (int) slen(alpn), in, inlen) != OPENSSL_NPN_NEGOTIATED) {
         return SSL_TLSEXT_ERR_NOACK;
     }
-    /* print("SSL ALPN selected: %*s", (int) *outlen, *out); */
     return SSL_TLSEXT_ERR_OK;
 }
 #endif
@@ -1262,13 +1254,11 @@ static char *getOssState(MprSocket *sp)
  */
 static int checkPeerCertName(MprSocket *sp)
 {
-    MprSsl      *ssl;
     OpenSocket  *osp;
     X509        *cert;
     X509_NAME   *xSubject;
     char        subject[512], issuer[512], peerName[512];
 
-    ssl = sp->ssl;
     osp = (OpenSocket*) sp->sslSocket;
 
     if ((cert = SSL_get_peer_certificate(osp->handle)) == 0) {
@@ -1284,6 +1274,9 @@ static int checkPeerCertName(MprSocket *sp)
         X509_free(cert);
     }
 #if OPENSSL_VERSION_NUMBER < 0x10002000L
+    MprSsl  *ssl;
+
+    ssl = sp->ssl;
     if (ssl->verifyPeer && osp->requiredPeerName) {
         char    *target, *certName, *tp;
 

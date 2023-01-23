@@ -1482,6 +1482,18 @@ extern "C" {
     extern struct tm *gmtime_r(const time_t *t, struct tm *tp);
 #endif /* WINCE */
 
+/*
+    Help for generated documentation
+ */
+#if DOXYGEN
+    /** Argument for sockets */
+    typedef int Socket;
+    /** Unsigned integral type. Equivalent in size to void* */
+    typedef long size_t;
+    /** Unsigned time type. Time in seconds since Jan 1, 1970 */
+    typedef long time_t;
+#endif
+
 #ifdef __cplusplus
 }
 #endif

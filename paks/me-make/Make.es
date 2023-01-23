@@ -402,6 +402,7 @@ class Make {
             cflags = cflags.replace(word + ' ', ' ')
         }
         cflags += ' -w'
+        cflags = cflags.replace(/-g/, '')
         genWriteLine('CFLAGS                += ' + cflags.trim())
         genWriteLine('DFLAGS                += ' + mappings.defines.replace(/-DME_DEBUG=. */, '') +
             ' $(patsubst %,-D%,$(filter ME_%,$(MAKEFLAGS))) ' + dflags)
@@ -438,6 +439,11 @@ class Make {
         let pop = me.settings.name + '-' + me.platform.os + '-' + me.platform.profile
         genTargets()
 
+        genWriteLine('\nDEPEND := \$(strip $(wildcard ./projects/depend.mk))')
+        genWriteLine('ifneq ($(DEPEND),)')
+        genWriteLine('include $(DEPEND)')
+        genWriteLine('endif\n')
+
         genWriteLine('unexport CDPATH\n')
         genWriteLine('ifndef SHOW\n.SILENT:\nendif\n')
         genWriteLine('all build compile: prep $(TARGETS)\n')
@@ -473,6 +479,12 @@ class Make {
         builtin('cleanTargets')
         genWriteLine('\nclobber: clean\n\trm -fr ./$(BUILD)\n')
         builder.build(['gen'])
+
+        genWriteLine('\nEXTRA_MAKEFILE := \$(strip $(wildcard ./projects/extra.mk))')
+        genWriteLine('ifneq ($(EXTRA_MAKEFILE),)')
+        genWriteLine('include $(EXTRA_MAKEFILE)')
+        genWriteLine('endif')
+
         genClose()
     }
 
@@ -496,11 +508,22 @@ class Make {
         genWriteLine('')
         genWriteLine('!IF "$(PA)" == "AMD64"')
             genWriteLine('ARCH                  = x64')
+            genWriteLine('CC_ARCH               = x86_64')
             genWriteLine('ENTRY                 = _DllMainCRTStartup')
+        genWriteLine('!ELSEIF "$(PA)" == "ARM64"')
+            genWriteLine('ARCH                  = arm64')
+            genWriteLine('CC_ARCH               = aarch64')
+            genWriteLine('ENTRY                 = _DllMainCRTStartup@12')
+        genWriteLine('!ELSEIF "$(PA)" == "ARM"')
+            genWriteLine('ARCH                  = arm')
+            genWriteLine('CC_ARCH               = arm')
+            genWriteLine('ENTRY                 = _DllMainCRTStartup@12')
         genWriteLine('!ELSE')
             genWriteLine('ARCH                  = x86')
+            genWriteLine('CC_ARCH               = i686')
             genWriteLine('ENTRY                 = _DllMainCRTStartup@12')
         genWriteLine('!ENDIF\n')
+       
 
         genWriteLine('!IF "$(CONFIG)" == ""')
         genWriteLine('CONFIG                = $(OS)-$(ARCH)-$(PROFILE)')

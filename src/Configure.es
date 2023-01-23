@@ -690,6 +690,14 @@ class Configure {
         if (makeme.options.endian) {
             settings.endian = makeme.options.endian == 'little' ? 1 : 2
         }
+
+        if (me.services) {
+            f.writeLine('\n/* Services */')
+            for (let [name, value] in me.services) {
+                def(f, name.toUpper(), value)
+            }
+        }
+
         f.writeLine('\n/* Settings */')
         writeSettings(f, 'ME', settings)
 

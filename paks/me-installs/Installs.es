@@ -37,6 +37,7 @@ class InstallsInner {
             trace('Copy', 'File sets: ' + sets)
         }
         let home = App.dir
+
         if (manifest.home) {
             App.chdir(manifest.home)
         } else {
@@ -358,8 +359,8 @@ class InstallsInner {
             for each (f in dist.files('**', {depthFirst: true})) {
                 f.remove()
             }
-            let from = base.join('dist/')
-            from.operate('**', dist + '/', {relative: from})
+            let from = base.join('dist')
+            from.operate('**', dist, {relative: from})
             run('pak -f -q cache')
         } else {
             let home = App.dir
