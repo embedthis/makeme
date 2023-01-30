@@ -24,7 +24,7 @@ ifeq ($(ARCH),)
 			ARCH?=x86
 		endif
 	else
-		ARCH:= $(shell uname -m | sed 's/i.86/x86/;s/x86_64/x64/;s/arm.*/arm/;s/mips.*/mips/')
+		ARCH:= $(shell uname -m | sed 's/i.86/x86/;s/x86_64/x64/;s/mips.*/mips/')
 	endif
 endif
 

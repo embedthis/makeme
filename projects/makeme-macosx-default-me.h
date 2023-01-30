@@ -1,5 +1,5 @@
 /*
-    me.h -- MakeMe Configure Header for macosx-arm64-default
+    me.h -- MakeMe Configure Header for macosx-x64-default
 
     This header is created by Me during configuration. To change settings, re-run
     configure or define variables in your Makefile to override these default values.
@@ -223,7 +223,7 @@
 
 /* Profile */
 #ifndef ME_CONFIG_CMD
-    #define ME_CONFIG_CMD "me -d -q -platform macosx-arm64-default -configure . -gen xcode"
+    #define ME_CONFIG_CMD "me -d -q -platform macosx-x64-default -configure . -gen xcode"
 #endif
 #ifndef ME_MAKEME_PRODUCT
     #define ME_MAKEME_PRODUCT 1
