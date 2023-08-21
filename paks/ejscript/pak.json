@@ -33,23 +33,6 @@
             "url": "https://www.embedthis.com/licensing/"
         }
     ],
-    "dependencies": {
-        "assist": "~1",
-        "http": "~7",
-        "me-win": "~1",
-        "mpr": "~8",
-        "osdep": "~1",
-        "pcre": "~1",
-        "ssl": "~1",
-        "zlib": "~1"
-    },
-    "optionalDependencies": {
-        "certs": "~1",
-        "mpr-mbedtls": "~2",
-        "mpr-openssl": "~1",
-        "sqlite": "~3",
-        "watchdog": "~1"
-    },
     "devDependencies": {
         "makeme": ">=1.0",
         "pak": ">=1.0"

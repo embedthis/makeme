@@ -28882,7 +28882,7 @@ static EjsAny *invokeBooleanOperator(Ejs *ejs, EjsBoolean *lhs, int opcode, EjsB
         return ejsCreateBoolean(ejs, lhs->value / rhs->value);
 
     case EJS_OP_MUL:
-        return ejsCreateBoolean(ejs, lhs->value * rhs->value);
+        return ejsCreateBoolean(ejs, ((int) lhs->value * (int) rhs->value) == 0 ? 0 : 1);
 
     case EJS_OP_OR:
         return ejsCreateBoolean(ejs, lhs->value | rhs->value);
