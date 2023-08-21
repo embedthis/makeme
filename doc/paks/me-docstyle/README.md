@@ -1,5 +1,4 @@
-me-docstyle
-===
+# me-docstyle
 
 Pak for me-docstyle
 
@@ -9,4 +8,4 @@ pak install me-docstyle
 
 ### Get Pak from
 
-[https://embedthis.com/pak](https://embedthis.com/pak)
+[https://www.embedthis.com/pak](https://www.embedthis.com/pak)

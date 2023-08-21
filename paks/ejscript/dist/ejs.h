@@ -4078,7 +4078,6 @@ PUBLIC EjsNamespace *ejsCreateReservedNamespace(Ejs *ejs, EjsName *typeName, Ejs
     @param block Block to modify
     @param typeName Type on which to base the formatted namespace name
     @param name Formatted base name for the namespace
-    @param block Block to modify
     @return A new namespace object
     @ingroup EjsNamespace
  */
@@ -4606,7 +4605,6 @@ PUBLIC void ejsLoadXMLString(Ejs *ejs, EjsXML *xml, EjsString *xmlString);
     @param ejs Ejs reference returned from #ejsCreateVM
     @param xml XML node to hold the parsed XML data.
     @param xmlString String containing XML data to parse
-    @return A new XML object
     @ingroup EjsXML
  */
 PUBLIC void ejsLoadXMLAsc(Ejs *ejs, EjsXML *xml, cchar *xmlString);
@@ -4786,7 +4784,6 @@ PUBLIC int ejsBindAccess(Ejs *ejs, EjsAny *obj, int slotNum, void *getter, void 
     @param ejs Interpreter instance returned from #ejsCreateVM
     @param type Type to modify
     @param constructor Native C constructor function to bind.
-    @return Zero if successful, otherwise a negative MPR error code.
     @ingroup EjsType
  */
 PUBLIC void ejsBindConstructor(Ejs *ejs, EjsType *type, void *constructor);

@@ -1,5 +1,4 @@
-exp-css
-===
+# exp-css
 
 Expansive plugin for CSS files.
 
@@ -15,11 +14,11 @@ The exp-css plugin provides build tooling for stylesheets. It provides the **css
 
 Provides the following transforms
 
-* css
-* css-prefix
-* css-minify
-* css-render
-* css-extract
+- css
+- css-prefix
+- css-minify
+- css-render
+- css-extract
 
 ## css
 
@@ -27,18 +26,18 @@ The **css** service provides configuration control for the css transforms.
 
 ### Configuration
 
-* dotmin &mdash; Use '.min.css' as the output file extension after minification. Otherwise will be
-    '.css'.  Default to true.
-* enable &mdash; Enable the service. Defaults to true.
-* extract &mdash; Extract inline syltes into external stylesheet. Defaults to to false. Set to true to enable or set
-    to a filename to contain all extracted styles.
-* files &mdash; List of stylesheets to manage. Defaults to [ '**.css*', '!**.map', '!*.less*' ].
-* force &mdash; Force minification even if a minified source file exists.
-* minify &mdash; Enable minifying of Javascript files. Default to false.
-* prefix &mdash; Autoprefix styles using vendor specific browser prefixes. Defaults to true.
-* usemap &mdash; Use minified stylesheet if corresponding source maps is present. Defaults to true.
-* usemin &mdash; Use minified stylesheet if present. Defaults to null. Set explicitly to false
-    to disable the use of minified resources.
+- dotmin &mdash; Use '.min.css' as the output file extension after minification. Otherwise will be
+  '.css'. Default to true.
+- enable &mdash; Enable the service. Defaults to true.
+- extract &mdash; Extract inline syltes into external stylesheet. Defaults to to false. Set to true to enable or set
+  to a filename to contain all extracted styles.
+- files &mdash; List of stylesheets to manage. Defaults to [ '**.css*', '!**.map', '!*.less*' ].
+- force &mdash; Force minification even if a minified source file exists.
+- minify &mdash; Enable minifying of Javascript files. Default to false.
+- prefix &mdash; Autoprefix styles using vendor specific browser prefixes. Defaults to true.
+- usemap &mdash; Use minified stylesheet if corresponding source maps is present. Defaults to true.
+- usemin &mdash; Use minified stylesheet if present. Defaults to null. Set explicitly to false
+  to disable the use of minified resources.
 
 ## Transforms
 
@@ -48,7 +47,7 @@ The css.prefix service processes CSS files to automatically add browser specific
 
 ### css.render
 
-The css.render service smartly selects supplied stylesheets. By default, it selects minified stylesheets if a corresponding source map file with a 'css.map' extension is present. Otherwise, non-minified stylesheets files with a plain 'css' extension  will be selected.
+The css.render service smartly selects supplied stylesheets. By default, it selects minified stylesheets if a corresponding source map file with a 'css.map' extension is present. Otherwise, non-minified stylesheets files with a plain 'css' extension will be selected.
 
 The renderStyles API will generate the HTML for the page to include the specified stylesheets. The styles are taken from the current 'styles' collection for the page. Use 'addItems' and 'removeItems' to modify the styles collection.
 
@@ -90,4 +89,4 @@ release: {
 
 ## Get Pak
 
-[https://embedthis.com/pak/](https://embedthis.com/pak/)
+[https://www.embedthis.com/pak/](https://www.embedthis.com/pak/)

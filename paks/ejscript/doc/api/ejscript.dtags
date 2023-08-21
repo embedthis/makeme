@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8' standalone='yes' ?>
-<tagfile>
+<tagfile doxygen_version="1.9.6">
   <compound kind="struct">
     <name>EjsCode</name>
     <filename>struct_ejs_code.html</filename>
@@ -687,14 +687,14 @@
       <type>Ejs *</type>
       <name>ejsCloneVM</name>
       <anchorfile>group___ejs.html</anchorfile>
-      <anchor>ga38ea40a46f5f5cd037c45f65ef6d42f9</anchor>
+      <anchor>ga5954007846dc599df3680627c2bc7cc7</anchor>
       <arglist>(Ejs *ejs)</arglist>
     </member>
     <member kind="function">
       <type>Ejs *</type>
       <name>ejsCreateVM</name>
       <anchorfile>group___ejs.html</anchorfile>
-      <anchor>ga98a567fe16481c6bf5368749d831ae77</anchor>
+      <anchor>ga14efe4d7ed8bc5e9f245de5eff863b5a</anchor>
       <arglist>(int argc, cchar **argv, int flags)</arglist>
     </member>
     <member kind="function">
@@ -729,28 +729,28 @@
       <type>void *</type>
       <name>ejsGetHandle</name>
       <anchorfile>group___ejs.html</anchorfile>
-      <anchor>ga219502088780c6399a9a49241c477dbe</anchor>
+      <anchor>gab3ca86fe39dafe9c59c9e68d04992a7f</anchor>
       <arglist>(Ejs *ejs)</arglist>
     </member>
     <member kind="function">
       <type>EjsAny *</type>
       <name>ejsGetImmutable</name>
       <anchorfile>group___ejs.html</anchorfile>
-      <anchor>gae497b3290296e546d4fe8bc2976e1485</anchor>
+      <anchor>ga53335b14b48c77c79e125c685ae93511</anchor>
       <arglist>(struct Ejs *ejs, int slotNum)</arglist>
     </member>
     <member kind="function">
       <type>EjsAny *</type>
       <name>ejsGetImmutableByName</name>
       <anchorfile>group___ejs.html</anchorfile>
-      <anchor>ga99cd2c246231903eace6f66550be8a80</anchor>
+      <anchor>ga9ca403e42de57d5c57b86b587d401f7e</anchor>
       <arglist>(struct Ejs *ejs, EjsName qname)</arglist>
     </member>
     <member kind="function">
       <type>EjsAny *</type>
       <name>ejsGetVarByName</name>
       <anchorfile>group___ejs.html</anchorfile>
-      <anchor>ga08a903e481dc51792c38726ebed0f850</anchor>
+      <anchor>ga95da77148ba9444337c62ae3337d559f</anchor>
       <arglist>(Ejs *ejs, EjsAny *obj, EjsName name, EjsLookup *lookup)</arglist>
     </member>
     <member kind="function">
@@ -820,7 +820,7 @@
       <type>EjsAny *</type>
       <name>ejsThrowException</name>
       <anchorfile>group___ejs.html</anchorfile>
-      <anchor>gad9e9706ca5052d72c1416219fffd0c31</anchor>
+      <anchor>ga4479d7bacb6a69f3305c69aaeb928ecc</anchor>
       <arglist>(Ejs *ejs, EjsAny *error)</arglist>
     </member>
     <member kind="function">
@@ -860,49 +860,49 @@
       <type>EjsArray *</type>
       <name>ejsCloneArray</name>
       <anchorfile>group___ejs_array.html</anchorfile>
-      <anchor>ga5d858aa540449fe0aea905833c2a9b48</anchor>
+      <anchor>gabb9115406e10d21b64040bd859dc55a2</anchor>
       <arglist>(Ejs *ejs, EjsArray *ap, bool deep)</arglist>
     </member>
     <member kind="function">
       <type>EjsArray *</type>
       <name>ejsCreateArray</name>
       <anchorfile>group___ejs_array.html</anchorfile>
-      <anchor>ga43cacbf358fdf4d364706dd01a5ebdc0</anchor>
+      <anchor>ga460080e10a973fecf52b9fc53ea57562</anchor>
       <arglist>(Ejs *ejs, int size)</arglist>
     </member>
     <member kind="function">
       <type>EjsAny *</type>
       <name>ejsGetFirstItem</name>
       <anchorfile>group___ejs_array.html</anchorfile>
-      <anchor>gac6508d102cf522ce7a9c1d5c6df5ff09</anchor>
+      <anchor>gaed2cc609bb0830e6d4c7518d2ec065e7</anchor>
       <arglist>(Ejs *ejs, EjsArray *ap)</arglist>
     </member>
     <member kind="function">
       <type>EjsAny *</type>
       <name>ejsGetItem</name>
       <anchorfile>group___ejs_array.html</anchorfile>
-      <anchor>ga5746695bda59a012c676df397543d705</anchor>
+      <anchor>gac6915b96dcabc19b9e1c162e959d5939</anchor>
       <arglist>(Ejs *ejs, EjsArray *ap, int index)</arglist>
     </member>
     <member kind="function">
       <type>EjsAny *</type>
       <name>ejsGetLastItem</name>
       <anchorfile>group___ejs_array.html</anchorfile>
-      <anchor>gaaa818bc25cfa75a0da2872985cc764db</anchor>
+      <anchor>gaa4065055f922c14a8be4ebd4edf8f591</anchor>
       <arglist>(Ejs *ejs, EjsArray *ap)</arglist>
     </member>
     <member kind="function">
       <type>EjsAny *</type>
       <name>ejsGetNextItem</name>
       <anchorfile>group___ejs_array.html</anchorfile>
-      <anchor>ga3a823345abdbbe6043de660356d163cc</anchor>
+      <anchor>ga9f97b6ede461c04e621c387f64a5d891</anchor>
       <arglist>(Ejs *ejs, EjsArray *ap, int *next)</arglist>
     </member>
     <member kind="function">
       <type>EjsAny *</type>
       <name>ejsGetPrevItem</name>
       <anchorfile>group___ejs_array.html</anchorfile>
-      <anchor>ga29dd01855d3fc312ccadee7003544144</anchor>
+      <anchor>gaa7a1be00db66bdd883094328211b1a36</anchor>
       <arglist>(Ejs *ejs, EjsArray *ap, int *prev)</arglist>
     </member>
     <member kind="function">
@@ -916,7 +916,7 @@
       <type>EjsString *</type>
       <name>ejsJoinArray</name>
       <anchorfile>group___ejs_array.html</anchorfile>
-      <anchor>ga64db5544fc6c25811c91b9c90f62c55c</anchor>
+      <anchor>gaa5adec945fb0efb0349b9312132cf3b9</anchor>
       <arglist>(Ejs *ejs, EjsArray *ap, EjsString *join)</arglist>
     </member>
     <member kind="function">
@@ -944,7 +944,7 @@
       <type>EjsArray *</type>
       <name>ejsRemoveItems</name>
       <anchorfile>group___ejs_array.html</anchorfile>
-      <anchor>gab31dedace83a801464ad335f68860da6</anchor>
+      <anchor>gaea675890ad8a0bd7a128c26b52cbba78</anchor>
       <arglist>(Ejs *ejs, EjsArray *ap, EjsArray *items)</arglist>
     </member>
     <member kind="function">
@@ -975,7 +975,7 @@
       <type>EjsBoolean *</type>
       <name>ejsCreateBoolean</name>
       <anchorfile>group___ejs_boolean.html</anchorfile>
-      <anchor>ga52a502e93b5f5a05d5619ce53fbcfe48</anchor>
+      <anchor>gaf02360608f47642034457585bdbfb8b0</anchor>
       <arglist>(Ejs *ejs, int value)</arglist>
     </member>
     <member kind="function">
@@ -989,7 +989,7 @@
       <type>EjsBoolean *</type>
       <name>ejsToBoolean</name>
       <anchorfile>group___ejs_boolean.html</anchorfile>
-      <anchor>ga9281b223fa8eff9c0c9f1ea176576d93</anchor>
+      <anchor>gaead73b3f45ff0c590482ebd0375618f3</anchor>
       <arglist>(Ejs *ejs, EjsAny *obj)</arglist>
     </member>
   </compound>
@@ -1008,7 +1008,7 @@
       <type>EjsByteArray *</type>
       <name>ejsCreateByteArray</name>
       <anchorfile>group___ejs_byte_array.html</anchorfile>
-      <anchor>ga4587936a91ae2826232be299da064cdf</anchor>
+      <anchor>gadd1d0eb8005899af05315a8094849af5</anchor>
       <arglist>(Ejs *ejs, ssize size)</arglist>
     </member>
     <member kind="function">
@@ -1057,7 +1057,7 @@
       <type>struct EjsNumber *</type>
       <name>ejsWriteToByteArray</name>
       <anchorfile>group___ejs_byte_array.html</anchorfile>
-      <anchor>ga3b2aac807171ed5c62fd35c43e5289d5</anchor>
+      <anchor>gae50d4e64952bee3e9ca2a53896e3033a</anchor>
       <arglist>(Ejs *ejs, EjsByteArray *ba, int argc, EjsObj **argv)</arglist>
     </member>
   </compound>
@@ -1069,49 +1069,49 @@
       <type>EjsAny *</type>
       <name>ejsCacheExpire</name>
       <anchorfile>group___ejs_cache.html</anchorfile>
-      <anchor>gaa69aed6d67365a635b0ba749c9296d25</anchor>
+      <anchor>gaf1001e6d9d8455b6303270b607577101</anchor>
       <arglist>(Ejs *ejs, EjsObj *cache, struct EjsString *key, struct EjsDate *when)</arglist>
     </member>
     <member kind="function">
       <type>EjsAny *</type>
       <name>ejsCacheRead</name>
       <anchorfile>group___ejs_cache.html</anchorfile>
-      <anchor>ga17fd2083e394298c21002acc1a9ba10b</anchor>
+      <anchor>ga41695c07562af6479085a6c43c002912</anchor>
       <arglist>(Ejs *ejs, EjsObj *cache, struct EjsString *key, EjsObj *options)</arglist>
     </member>
     <member kind="function">
       <type>EjsAny *</type>
       <name>ejsCacheReadObj</name>
       <anchorfile>group___ejs_cache.html</anchorfile>
-      <anchor>ga3feb86bba6bd8209e75ca2720afda791</anchor>
+      <anchor>ga28e9de3c161a202616663d46ecc8f726</anchor>
       <arglist>(Ejs *ejs, EjsObj *cache, struct EjsString *key, EjsObj *options)</arglist>
     </member>
     <member kind="function">
       <type>EjsBoolean *</type>
       <name>ejsCacheRemove</name>
       <anchorfile>group___ejs_cache.html</anchorfile>
-      <anchor>gab8c6645f302eb7f4156c7bf719e43ec4</anchor>
+      <anchor>ga4bc9dc2419796f18a8cc604c1e73a73d</anchor>
       <arglist>(Ejs *ejs, EjsObj *cache, struct EjsString *key)</arglist>
     </member>
     <member kind="function">
       <type>EjsAny *</type>
       <name>ejsCacheSetLimits</name>
       <anchorfile>group___ejs_cache.html</anchorfile>
-      <anchor>ga17a4f1f2a5e1d4c7a503485455a89f3b</anchor>
+      <anchor>gad61cff9951fc6e761872fc78ec8a7b54</anchor>
       <arglist>(Ejs *ejs, EjsObj *cache, EjsObj *limits)</arglist>
     </member>
     <member kind="function">
       <type>struct EjsNumber *</type>
       <name>ejsCacheWrite</name>
       <anchorfile>group___ejs_cache.html</anchorfile>
-      <anchor>gafbe3a6a9d48c07397947ebf4e36e2284</anchor>
+      <anchor>ga8e0d3b470ebb68ac8ea360dd52c31afd</anchor>
       <arglist>(Ejs *ejs, EjsObj *cache, struct EjsString *key, struct EjsString *value, EjsObj *options)</arglist>
     </member>
     <member kind="function">
       <type>struct EjsNumber *</type>
       <name>ejsCacheWriteObj</name>
       <anchorfile>group___ejs_cache.html</anchorfile>
-      <anchor>gaa378ab9b39d5251c1d003a4931ebb5f2</anchor>
+      <anchor>gaa1f178a98e845741727d9c01bc883435</anchor>
       <arglist>(Ejs *ejs, EjsObj *cache, struct EjsString *key, EjsAny *value, EjsObj *options)</arglist>
     </member>
   </compound>
@@ -1128,7 +1128,7 @@
       <type>EjsDate *</type>
       <name>ejsCreateDate</name>
       <anchorfile>group___ejs_date.html</anchorfile>
-      <anchor>gad85120109dc8c4d6a399d5e81be3cc78</anchor>
+      <anchor>ga9175bc7e8440ea136bb33b55e7dce1a9</anchor>
       <arglist>(Ejs *ejs, MprTime value)</arglist>
     </member>
     <member kind="function">
@@ -1147,28 +1147,28 @@
       <type>EjsArray *</type>
       <name>ejsCaptureStack</name>
       <anchorfile>group___ejs_error.html</anchorfile>
-      <anchor>ga7e5c81aa6006db8540df5835022cc101</anchor>
+      <anchor>gacfb6b34d2a48402cefe2730d9b5d97b4</anchor>
       <arglist>(Ejs *ejs, int skip)</arglist>
     </member>
     <member kind="function">
       <type>EjsError *</type>
       <name>ejsCreateError</name>
       <anchorfile>group___ejs_error.html</anchorfile>
-      <anchor>ga975b06311da83fea1088a8be55d9c5fb</anchor>
+      <anchor>ga666c6281b2f3d02272ff40ee591c5f2d</anchor>
       <arglist>(Ejs *ejs, struct EjsType *type, EjsObj *message)</arglist>
     </member>
     <member kind="function">
       <type>cchar *</type>
       <name>ejsGetErrorMsg</name>
       <anchorfile>group___ejs_error.html</anchorfile>
-      <anchor>ga26516321557d20655ded73648c787e46</anchor>
+      <anchor>gad2cfe25124b5ad4e0171e50a019a6e95</anchor>
       <arglist>(Ejs *ejs, int withStack)</arglist>
     </member>
     <member kind="function">
       <type>EjsObj *</type>
       <name>ejsGetException</name>
       <anchorfile>group___ejs_error.html</anchorfile>
-      <anchor>ga58fdca3d3629fd2020c15a20edb9d26e</anchor>
+      <anchor>ga1c7078ee367456ab641cb8bd2c926c9b</anchor>
       <arglist>(Ejs *ejs)</arglist>
     </member>
     <member kind="function">
@@ -1189,112 +1189,112 @@
       <type>EjsError *</type>
       <name>ejsThrowArgError</name>
       <anchorfile>group___ejs_error.html</anchorfile>
-      <anchor>ga1188c165c3f982e7eb662b537f6e9f80</anchor>
+      <anchor>ga99964a1920a0fb15c54dfc13333249e3</anchor>
       <arglist>(Ejs *ejs, cchar *fmt,...)</arglist>
     </member>
     <member kind="function">
       <type>EjsError *</type>
       <name>ejsThrowArithmeticError</name>
       <anchorfile>group___ejs_error.html</anchorfile>
-      <anchor>ga76ba0109091b0aa5356ab51838709267</anchor>
+      <anchor>gab04619efd743572477797ac5bb635c85</anchor>
       <arglist>(Ejs *ejs, cchar *fmt,...)</arglist>
     </member>
     <member kind="function">
       <type>EjsError *</type>
       <name>ejsThrowAssertError</name>
       <anchorfile>group___ejs_error.html</anchorfile>
-      <anchor>ga1602a9545dce6336d8388a36281a357d</anchor>
+      <anchor>gacb464016a552486a54ed221d4a839fb5</anchor>
       <arglist>(Ejs *ejs, cchar *fmt,...)</arglist>
     </member>
     <member kind="function">
       <type>EjsError *</type>
       <name>ejsThrowError</name>
       <anchorfile>group___ejs_error.html</anchorfile>
-      <anchor>ga919720ec6d9cbc16d20c469fb1b4b5f2</anchor>
+      <anchor>ga07905cff9d0f7db0e127c8cf09b4426a</anchor>
       <arglist>(Ejs *ejs, cchar *fmt,...)</arglist>
     </member>
     <member kind="function">
       <type>EjsError *</type>
       <name>ejsThrowInstructionError</name>
       <anchorfile>group___ejs_error.html</anchorfile>
-      <anchor>ga22627629d4ea7298d94cbf533ae268d5</anchor>
+      <anchor>ga98226131760fef8668354d589528e25e</anchor>
       <arglist>(Ejs *ejs, cchar *fmt,...)</arglist>
     </member>
     <member kind="function">
       <type>EjsError *</type>
       <name>ejsThrowInternalError</name>
       <anchorfile>group___ejs_error.html</anchorfile>
-      <anchor>gab03fe56b00006f9b81c812dd60c1f779</anchor>
+      <anchor>ga2b0d26eb70ce767955b9b2476ef38f76</anchor>
       <arglist>(Ejs *ejs, cchar *fmt,...)</arglist>
     </member>
     <member kind="function">
       <type>EjsError *</type>
       <name>ejsThrowIOError</name>
       <anchorfile>group___ejs_error.html</anchorfile>
-      <anchor>gaf2ef67425249cd58caecbaa77e0ff162</anchor>
+      <anchor>ga6a0e9101fc0f8f35b2ca3e3387f17e7f</anchor>
       <arglist>(Ejs *ejs, cchar *fmt,...)</arglist>
     </member>
     <member kind="function">
       <type>EjsError *</type>
       <name>ejsThrowMemoryError</name>
       <anchorfile>group___ejs_error.html</anchorfile>
-      <anchor>ga6d9cd1cc0f553159863b78fdcaabfc44</anchor>
+      <anchor>ga989ff98a366d48f4f2e4670859769b0e</anchor>
       <arglist>(Ejs *ejs)</arglist>
     </member>
     <member kind="function">
       <type>EjsError *</type>
       <name>ejsThrowOutOfBoundsError</name>
       <anchorfile>group___ejs_error.html</anchorfile>
-      <anchor>ga59e5b435003d8eb584d949b957524eb4</anchor>
+      <anchor>ga65ba291a062798f69f04060121ad5528</anchor>
       <arglist>(Ejs *ejs, cchar *fmt,...)</arglist>
     </member>
     <member kind="function">
       <type>EjsError *</type>
       <name>ejsThrowReferenceError</name>
       <anchorfile>group___ejs_error.html</anchorfile>
-      <anchor>ga43104f1c946c71b3db02dad3762b0902</anchor>
+      <anchor>ga9f32c2487cc8d636476a97ec28144fce</anchor>
       <arglist>(Ejs *ejs, cchar *fmt,...)</arglist>
     </member>
     <member kind="function">
       <type>EjsError *</type>
       <name>ejsThrowResourceError</name>
       <anchorfile>group___ejs_error.html</anchorfile>
-      <anchor>ga3f87467556879ee26e33d14e984c6de1</anchor>
+      <anchor>gad717f7b4654297ad724dc9f633c18850</anchor>
       <arglist>(Ejs *ejs, cchar *fmt,...)</arglist>
     </member>
     <member kind="function">
       <type>EjsError *</type>
       <name>ejsThrowStateError</name>
       <anchorfile>group___ejs_error.html</anchorfile>
-      <anchor>gaeb70ad53793bcb1bd9da99e6035493e7</anchor>
+      <anchor>gaabda6a0f6a6b38ee9806ca7e947aa56d</anchor>
       <arglist>(Ejs *ejs, cchar *fmt,...)</arglist>
     </member>
     <member kind="function">
       <type>EjsObj *</type>
       <name>ejsThrowStopIteration</name>
       <anchorfile>group___ejs_error.html</anchorfile>
-      <anchor>ga1e0a863535a31f998de69e7814136e52</anchor>
+      <anchor>ga75912ecd2a54a63b4e3f46cd7e2eddf2</anchor>
       <arglist>(Ejs *ejs)</arglist>
     </member>
     <member kind="function">
       <type>EjsString *</type>
       <name>ejsThrowString</name>
       <anchorfile>group___ejs_error.html</anchorfile>
-      <anchor>ga350728f64e26cb82608eb6b13972ebad</anchor>
+      <anchor>gae665b63fd3ad5a72ec0ee204435f5234</anchor>
       <arglist>(Ejs *ejs, cchar *fmt,...)</arglist>
     </member>
     <member kind="function">
       <type>EjsError *</type>
       <name>ejsThrowSyntaxError</name>
       <anchorfile>group___ejs_error.html</anchorfile>
-      <anchor>ga4d7c6ece206d663796d8eea5e6775c3e</anchor>
+      <anchor>ga2b6a71325e2e835de5b73cdd91120996</anchor>
       <arglist>(Ejs *ejs, cchar *fmt,...)</arglist>
     </member>
     <member kind="function">
       <type>EjsError *</type>
       <name>ejsThrowTypeError</name>
       <anchorfile>group___ejs_error.html</anchorfile>
-      <anchor>ga9974d313b166badf9cf7e3f2e9d09545</anchor>
+      <anchor>gae56b75467f7c1fee086169e3e56eb929</anchor>
       <arglist>(Ejs *ejs, cchar *fmt,...)</arglist>
     </member>
   </compound>
@@ -1306,14 +1306,14 @@
       <type>EjsFile *</type>
       <name>ejsCreateFile</name>
       <anchorfile>group___ejs_file.html</anchorfile>
-      <anchor>ga5f2c865e36e54f93f3caa0159982cff9</anchor>
+      <anchor>ga43aa363d3de963187cfd5e9c0179ba45</anchor>
       <arglist>(Ejs *ejs, cchar *filename)</arglist>
     </member>
     <member kind="function">
       <type>EjsFile *</type>
       <name>ejsCreateFileFromFd</name>
       <anchorfile>group___ejs_file.html</anchorfile>
-      <anchor>ga2b1b33f9ab920e964d4e34a77fe00acf</anchor>
+      <anchor>ga385a245bf9504d0d778dbeaafbbe9de0</anchor>
       <arglist>(Ejs *ejs, int fd, cchar *name, int mode)</arglist>
     </member>
   </compound>
@@ -1347,49 +1347,49 @@
       <type>EjsObj *(*</type>
       <name>EjsProc</name>
       <anchorfile>group___ejs_function.html</anchorfile>
-      <anchor>ga2473d1d00a84c54db45f361206541697</anchor>
+      <anchor>ga453a85a00b58eb08bbf16ef656599b93</anchor>
       <arglist>)(Ejs *ejs, EjsAny *thisObj, int argc, struct EjsObj **argv)</arglist>
     </member>
     <member kind="function">
       <type>EjsEx *</type>
       <name>ejsAddException</name>
       <anchorfile>group___ejs_function.html</anchorfile>
-      <anchor>gab324330507f71d03691a7ef1bf36e6a6</anchor>
+      <anchor>ga33ac4a7742060055f90e65d80499fb3f</anchor>
       <arglist>(Ejs *ejs, EjsFunction *fun, uint tryStart, uint tryEnd, struct EjsType *catchType, uint handlerStart, uint handlerEnd, int numBlocks, int numStack, int flags, int preferredIndex)</arglist>
     </member>
     <member kind="function">
       <type>EjsFunction *</type>
       <name>ejsCloneFunction</name>
       <anchorfile>group___ejs_function.html</anchorfile>
-      <anchor>ga51f9d52aa357e85dff215d853de3675f</anchor>
+      <anchor>ga1d2b454be1905af18d56e03b00cb384d</anchor>
       <arglist>(Ejs *ejs, EjsFunction *fun, int deep)</arglist>
     </member>
     <member kind="function">
       <type>EjsPot *</type>
       <name>ejsCreateActivation</name>
       <anchorfile>group___ejs_function.html</anchorfile>
-      <anchor>ga66b17be4ac9a1c3fd798617568f8c340</anchor>
+      <anchor>gaae4687fc29db550d4ee07635a11a41b4</anchor>
       <arglist>(Ejs *ejs, EjsFunction *fun, int numSlots)</arglist>
     </member>
     <member kind="function">
       <type>EjsFunction *</type>
       <name>ejsCreateBareFunction</name>
       <anchorfile>group___ejs_function.html</anchorfile>
-      <anchor>ga7a6c27facb1b996fa170194c7ed5ed8d</anchor>
+      <anchor>gac8fc8075bf173c6082331c1d5d5047f7</anchor>
       <arglist>(Ejs *ejs, EjsString *name, int attributes)</arglist>
     </member>
     <member kind="function">
       <type>EjsCode *</type>
       <name>ejsCreateCode</name>
       <anchorfile>group___ejs_function.html</anchorfile>
-      <anchor>ga4be7f507d1c5e777a9e8022f1cbba201</anchor>
+      <anchor>ga0bd64f13b1e685f64af01ecd61a55352</anchor>
       <arglist>(Ejs *ejs, EjsFunction *fun, struct EjsModule *module, cuchar *byteCode, ssize len, EjsDebug *debug)</arglist>
     </member>
     <member kind="function">
       <type>EjsFunction *</type>
       <name>ejsCreateFunction</name>
       <anchorfile>group___ejs_function.html</anchorfile>
-      <anchor>ga5bf8e2a9af6557492e6ba315d5a3188b</anchor>
+      <anchor>ga1938bf44e7784c9e9a06e184b3d1659e</anchor>
       <arglist>(Ejs *ejs, EjsString *name, cuchar *code, int codeLen, int numArgs, int numDefault, int numExceptions, struct EjsType *returnType, int attributes, struct EjsModule *module, EjsBlock *scope, int strict)</arglist>
     </member>
     <member kind="function">
@@ -1431,28 +1431,28 @@
       <type>EjsAny *</type>
       <name>ejsRunFunction</name>
       <anchorfile>group___ejs_function.html</anchorfile>
-      <anchor>gad27776daa4c1446ecf1ea222d8ec5080</anchor>
+      <anchor>gad91aeb092b2c51b3256f9c9ae7c45ff9</anchor>
       <arglist>(Ejs *ejs, EjsFunction *fn, EjsAny *thisObj, int argc, void *argv)</arglist>
     </member>
     <member kind="function">
       <type>EjsAny *</type>
       <name>ejsRunFunctionByName</name>
       <anchorfile>group___ejs_function.html</anchorfile>
-      <anchor>gaef84de6822a6963fc4fafd12525436ba</anchor>
+      <anchor>ga6a125e969701699d852c01c115121626</anchor>
       <arglist>(Ejs *ejs, EjsAny *container, EjsName qname, EjsAny *thisObj, int argc, void *argv)</arglist>
     </member>
     <member kind="function">
       <type>EjsAny *</type>
       <name>ejsRunFunctionBySlot</name>
       <anchorfile>group___ejs_function.html</anchorfile>
-      <anchor>ga9b6990680a7a2201f9c67aa0f8ec7e16</anchor>
+      <anchor>ga334c5569a310e6d4b26f741d251a3242</anchor>
       <arglist>(Ejs *ejs, EjsAny *obj, int slotNum, int argc, void *argv)</arglist>
     </member>
     <member kind="function">
       <type>EjsObj *</type>
       <name>ejsRunInitializer</name>
       <anchorfile>group___ejs_function.html</anchorfile>
-      <anchor>ga5a7d2ad5dd3cf09e90d6288ac2ba73fc</anchor>
+      <anchor>gab9cf34c4a57d75901ce7f3ec20a83cd8</anchor>
       <arglist>(Ejs *ejs, struct EjsModule *module)</arglist>
     </member>
     <member kind="function">
@@ -1471,7 +1471,7 @@
       <type>EjsHttp *</type>
       <name>ejsCreateHttp</name>
       <anchorfile>group___ejs_http.html</anchorfile>
-      <anchor>ga35375f154c987c2f3838c2e58a76ca3c</anchor>
+      <anchor>gae761ea52f02de8d0a43b0f8a30602556</anchor>
       <arglist>(Ejs *ejs)</arglist>
     </member>
     <member kind="function">
@@ -1497,7 +1497,7 @@
       <type>EjsHttpServer *</type>
       <name>ejsCloneHttpServer</name>
       <anchorfile>group___ejs_http_server.html</anchorfile>
-      <anchor>gab1aadc348f8ffa4c6ed2e90e78e681bb</anchor>
+      <anchor>ga285274f5f87e9410efbee392e46fc0a0</anchor>
       <arglist>(Ejs *ejs, EjsHttpServer *server, bool deep)</arglist>
     </member>
   </compound>
@@ -1509,7 +1509,7 @@
       <type>EjsIterator *</type>
       <name>ejsCreateIterator</name>
       <anchorfile>group___ejs_iterator.html</anchorfile>
-      <anchor>gae03a8656c8b4b158cb731db704866370</anchor>
+      <anchor>ga627c4f5d58bf5124c35861710be22fdc</anchor>
       <arglist>(Ejs *ejs, EjsAny *target, int length, void *next, bool deep, EjsArray *namespaces)</arglist>
     </member>
   </compound>
@@ -1528,7 +1528,7 @@
       <type>struct EjsArray *</type>
       <name>ejsCreateSearchPath</name>
       <anchorfile>group___ejs_module.html</anchorfile>
-      <anchor>ga2074536c4ebc6f82689d783ec5cde5bf</anchor>
+      <anchor>ga38388500a13e1db1b193129c39994294</anchor>
       <arglist>(Ejs *ejs, cchar *searchPath)</arglist>
     </member>
     <member kind="function">
@@ -1549,7 +1549,7 @@
       <type>cchar *</type>
       <name>ejsSearchForModule</name>
       <anchorfile>group___ejs_module.html</anchorfile>
-      <anchor>gaf5832f71a4c2ed1ff07bc81f2ddc000a</anchor>
+      <anchor>ga552a9f5d3c569a56f652b00a36a80bac</anchor>
       <arglist>(Ejs *ejs, cchar *name, int minVer, int maxVer)</arglist>
     </member>
     <member kind="function">
@@ -1594,28 +1594,28 @@
       <type>EjsNamespace *</type>
       <name>ejsCreateNamespace</name>
       <anchorfile>group___ejs_namespace.html</anchorfile>
-      <anchor>ga970be270f8abe248d46bedcfbc022698</anchor>
+      <anchor>gab4d62921efa745ba05207127c190b04e</anchor>
       <arglist>(Ejs *ejs, EjsString *name)</arglist>
     </member>
     <member kind="function">
       <type>EjsNamespace *</type>
       <name>ejsCreateReservedNamespace</name>
       <anchorfile>group___ejs_namespace.html</anchorfile>
-      <anchor>ga3514b104e530e365f97c03f4bc9f9b5c</anchor>
+      <anchor>gaf5c39db96d14f81b304adc79ec5921ad</anchor>
       <arglist>(Ejs *ejs, EjsName *typeName, EjsString *name)</arglist>
     </member>
     <member kind="function">
       <type>EjsNamespace *</type>
       <name>ejsDefineReservedNamespace</name>
       <anchorfile>group___ejs_namespace.html</anchorfile>
-      <anchor>ga26256811d200826f0aa85262c7787d9c</anchor>
+      <anchor>ga568e695b200cbd342438604ec97adcfa</anchor>
       <arglist>(Ejs *ejs, EjsBlock *block, EjsName *typeName, cchar *name)</arglist>
     </member>
     <member kind="function">
       <type>EjsString *</type>
       <name>ejsFormatReservedNamespace</name>
       <anchorfile>group___ejs_namespace.html</anchorfile>
-      <anchor>ga4995911001fe132d0779e962d439003c</anchor>
+      <anchor>ga3ed7d7e8ab0916a414d111897148ffc7</anchor>
       <arglist>(Ejs *ejs, EjsName *typeName, EjsString *spaceName)</arglist>
     </member>
   </compound>
@@ -1627,7 +1627,7 @@
       <type>EjsNull *</type>
       <name>ejsCreateNull</name>
       <anchorfile>group___ejs_null.html</anchorfile>
-      <anchor>ga3bf82a2a5c4511feb4776b1a0388f156</anchor>
+      <anchor>ga7b397aad69aeff6cad8e0a45bcc61982</anchor>
       <arglist>(Ejs *ejs)</arglist>
     </member>
   </compound>
@@ -1639,7 +1639,7 @@
       <type>EjsNumber *</type>
       <name>ejsCreateNumber</name>
       <anchorfile>group___ejs_number.html</anchorfile>
-      <anchor>gabbc997d13a55ae22b87abb9d3b1df9ec</anchor>
+      <anchor>ga8e93b8616e21934c68cd665d165d91ea</anchor>
       <arglist>(Ejs *ejs, MprNumber value)</arglist>
     </member>
     <member kind="function">
@@ -1688,7 +1688,7 @@
       <type>struct EjsNumber *</type>
       <name>ejsToNumber</name>
       <anchorfile>group___ejs_number.html</anchorfile>
-      <anchor>gac0e2e92ac62007eeda560430c45b8616</anchor>
+      <anchor>ga508fe39e4eda5a4045754a8d063eec76</anchor>
       <arglist>(Ejs *ejs, EjsAny *obj)</arglist>
     </member>
   </compound>
@@ -1707,28 +1707,28 @@
       <type>EjsAny *</type>
       <name>ejsAlloc</name>
       <anchorfile>group___ejs_obj.html</anchorfile>
-      <anchor>ga20db9f00da32519edbfc01ae05506d0f</anchor>
+      <anchor>gab3b418d9373709058af9588c60dc1fbc</anchor>
       <arglist>(Ejs *ejs, struct EjsType *type, ssize extra)</arglist>
     </member>
     <member kind="function">
       <type>EjsAny *</type>
       <name>ejsCastType</name>
       <anchorfile>group___ejs_obj.html</anchorfile>
-      <anchor>ga86d9596c0e3798f368f348c781794597</anchor>
+      <anchor>ga3fb1a4125c8d3dd024979d8bdf53d59f</anchor>
       <arglist>(Ejs *ejs, EjsAny *obj, struct EjsType *type)</arglist>
     </member>
     <member kind="function">
       <type>EjsAny *</type>
       <name>ejsClone</name>
       <anchorfile>group___ejs_obj.html</anchorfile>
-      <anchor>ga994ef331160672ffe24e71722af2afbd</anchor>
+      <anchor>ga6a5828fea2768c6becae0273d18eace7</anchor>
       <arglist>(Ejs *ejs, EjsAny *obj, bool deep)</arglist>
     </member>
     <member kind="function">
       <type>EjsAny *</type>
       <name>ejsClonePot</name>
       <anchorfile>group___ejs_obj.html</anchorfile>
-      <anchor>ga5b75189cd94bc67905b3bb05955737be</anchor>
+      <anchor>gae7c66ac5802626961f1e25b05c929c58</anchor>
       <arglist>(Ejs *ejs, EjsAny *src, bool deep)</arglist>
     </member>
     <member kind="function">
@@ -1742,28 +1742,28 @@
       <type>EjsAny *</type>
       <name>ejsCreateEmptyPot</name>
       <anchorfile>group___ejs_obj.html</anchorfile>
-      <anchor>ga4cc68285ab8faaa3343af1d228bdbf51</anchor>
+      <anchor>ga70496626daf9f1bf79c41376a9c5afa2</anchor>
       <arglist>(Ejs *ejs)</arglist>
     </member>
     <member kind="function">
       <type>EjsAny *</type>
       <name>ejsCreateInstance</name>
       <anchorfile>group___ejs_obj.html</anchorfile>
-      <anchor>ga6582129e0e72ac2c47d86f3da6aa70b1</anchor>
+      <anchor>ga415f8cc9444532050e91778947b49131</anchor>
       <arglist>(Ejs *ejs, struct EjsType *type, int argc, void *argv)</arglist>
     </member>
     <member kind="function">
       <type>EjsAny *</type>
       <name>ejsCreateObj</name>
       <anchorfile>group___ejs_obj.html</anchorfile>
-      <anchor>ga6fef857b0036bffaacef456cb47eff3b</anchor>
+      <anchor>gacc4cbd3ab6c080562b4dd1c425ebdaad</anchor>
       <arglist>(Ejs *ejs, struct EjsType *type, int numSlots)</arglist>
     </member>
     <member kind="function">
       <type>EjsAny *</type>
       <name>ejsCreatePot</name>
       <anchorfile>group___ejs_obj.html</anchorfile>
-      <anchor>ga64d4ced5d47388dda86a6e159ec74387</anchor>
+      <anchor>gaa148669004117811e4d88850b8be07c9</anchor>
       <arglist>(Ejs *ejs, struct EjsType *type, int size)</arglist>
     </member>
     <member kind="function">
@@ -1791,7 +1791,7 @@
       <type>EjsAny *</type>
       <name>ejsDeserialize</name>
       <anchorfile>group___ejs_obj.html</anchorfile>
-      <anchor>ga381ce31a67412e7f69205c147d4855ad</anchor>
+      <anchor>ga1e86e9160a6215aedc2e2ad2ac09b11c</anchor>
       <arglist>(Ejs *ejs, struct EjsString *str)</arglist>
     </member>
     <member kind="function">
@@ -1805,14 +1805,14 @@
       <type>EjsAny *</type>
       <name>ejsGetProperty</name>
       <anchorfile>group___ejs_obj.html</anchorfile>
-      <anchor>ga1ed91c82c9413c3954a2bb8b23e100a0</anchor>
+      <anchor>ga0cd00ce9aa480ae475cb8cf973142228</anchor>
       <arglist>(Ejs *ejs, EjsAny *obj, int slotNum)</arglist>
     </member>
     <member kind="function">
       <type>EjsAny *</type>
       <name>ejsGetPropertyByName</name>
       <anchorfile>group___ejs_obj.html</anchorfile>
-      <anchor>gae3e172b89698f1ec047b762e3a73accd</anchor>
+      <anchor>ga7d950bbf6849af67cccd35e1cc0535e4</anchor>
       <arglist>(Ejs *ejs, EjsAny *obj, EjsName qname)</arglist>
     </member>
     <member kind="function">
@@ -1826,7 +1826,7 @@
       <type>struct EjsTrait *</type>
       <name>ejsGetPropertyTraits</name>
       <anchorfile>group___ejs_obj.html</anchorfile>
-      <anchor>gaaba9b399c9cb11564755d224b9954b2d</anchor>
+      <anchor>gabd42c191a6d1b32cef10984253aef452</anchor>
       <arglist>(Ejs *ejs, EjsAny *obj, int slotNum)</arglist>
     </member>
     <member kind="function">
@@ -1840,14 +1840,14 @@
       <type>EjsAny *</type>
       <name>ejsInvokeOperator</name>
       <anchorfile>group___ejs_obj.html</anchorfile>
-      <anchor>ga0566fd5299746e61ae95de3cbaf54fa2</anchor>
+      <anchor>ga21f2aa624b7b3e84aacee3e73a643a85</anchor>
       <arglist>(Ejs *ejs, EjsAny *obj, int opCode, EjsAny *rhs)</arglist>
     </member>
     <member kind="function">
       <type>EjsAny *</type>
       <name>ejsInvokeOperatorDefault</name>
       <anchorfile>group___ejs_obj.html</anchorfile>
-      <anchor>ga0bf24478466ec195d8f8d191d0f2b7dd</anchor>
+      <anchor>ga9db613ea1a57ef5e246374718d891c61</anchor>
       <arglist>(Ejs *ejs, EjsAny *obj, int opCode, EjsAny *rhs)</arglist>
     </member>
     <member kind="function">
@@ -1868,7 +1868,7 @@
       <type>EjsAny *</type>
       <name>ejsParse</name>
       <anchorfile>group___ejs_obj.html</anchorfile>
-      <anchor>gaa3b1c78ba5216f5315d6a681c6c4a6b0</anchor>
+      <anchor>ga711923de50df63bf0a21f2668ba89517</anchor>
       <arglist>(Ejs *ejs, wchar *str, int prefType)</arglist>
     </member>
     <member kind="function">
@@ -1929,21 +1929,21 @@
       <type>EjsFileSystem *</type>
       <name>ejsCreateFileSystem</name>
       <anchorfile>group___ejs_path.html</anchorfile>
-      <anchor>ga50234ab8d65dd433fea18ff170f62f15</anchor>
+      <anchor>ga75cd93433b3d62c93164d77592626b77</anchor>
       <arglist>(Ejs *ejs, cchar *path)</arglist>
     </member>
     <member kind="function">
       <type>EjsPath *</type>
       <name>ejsCreatePath</name>
       <anchorfile>group___ejs_path.html</anchorfile>
-      <anchor>ga89c88658e009637fe471fef151e9b599</anchor>
+      <anchor>ga0bf6b87d5c941c2b9e8c93b4a0e18418</anchor>
       <arglist>(Ejs *ejs, EjsString *path)</arglist>
     </member>
     <member kind="function">
       <type>EjsPath *</type>
       <name>ejsCreatePathFromAsc</name>
       <anchorfile>group___ejs_path.html</anchorfile>
-      <anchor>gacb5b025bc35d864fc937fe4ad6a24224</anchor>
+      <anchor>ga1e5fcef9addd3a7ac44c2520fdb23e56</anchor>
       <arglist>(Ejs *ejs, cchar *path)</arglist>
     </member>
     <member kind="function">
@@ -1971,7 +1971,7 @@
       <type>EjsPath *</type>
       <name>ejsToPath</name>
       <anchorfile>group___ejs_path.html</anchorfile>
-      <anchor>gacd5f3e05c6dfd42be0bc63a684f2c138</anchor>
+      <anchor>ga327fb9ccd4cffe393cfe935e776c9a5d</anchor>
       <arglist>(Ejs *ejs, EjsAny *obj)</arglist>
     </member>
   </compound>
@@ -1983,14 +1983,14 @@
       <type>Ejs *</type>
       <name>ejsAllocPoolVM</name>
       <anchorfile>group___ejs_pool.html</anchorfile>
-      <anchor>gaffed175527ef9de7fbc2f75b441ea9da</anchor>
+      <anchor>gac8fce0d3b90886444331b80538c6b858</anchor>
       <arglist>(EjsPool *pool, int flags)</arglist>
     </member>
     <member kind="function">
       <type>EjsPool *</type>
       <name>ejsCreatePool</name>
       <anchorfile>group___ejs_pool.html</anchorfile>
-      <anchor>gae91e29c7556670788cbf87013819a949</anchor>
+      <anchor>ga12eee75978589060ee73c10a7bd94877</anchor>
       <arglist>(int poolMax, cchar *templateScript, cchar *startScript, cchar *startScriptPath, cchar *home, cchar *documents)</arglist>
     </member>
     <member kind="function">
@@ -2005,10 +2005,10 @@
     <name>EjsPot</name>
     <title>EjsPot</title>
     <filename>group___ejs_pot.html</filename>
+    <class kind="struct">EjsTrait</class>
     <class kind="struct">EjsHash</class>
     <class kind="struct">EjsProperties</class>
     <class kind="struct">EjsSlot</class>
-    <class kind="struct">EjsTrait</class>
     <member kind="function">
       <type>int</type>
       <name>ejsBlendObject</name>
@@ -2027,7 +2027,7 @@
       <type>EjsAny *</type>
       <name>ejsCoerceOperands</name>
       <anchorfile>group___ejs_pot.html</anchorfile>
-      <anchor>gacfaf39b32d58fcd2f3a02ee8ddd0a3da</anchor>
+      <anchor>gabab7cce1ca2e8ceb498349a245a20801</anchor>
       <arglist>(Ejs *ejs, EjsObj *lhs, int opcode, EjsObj *rhs)</arglist>
     </member>
     <member kind="function">
@@ -2097,14 +2097,14 @@
       <type>struct EjsString *</type>
       <name>ejsObjToJSON</name>
       <anchorfile>group___ejs_pot.html</anchorfile>
-      <anchor>ga9bb73f82b6822e9367ff7f9d72146f67</anchor>
+      <anchor>ga88830f19cf6f44a42d0fdb9aff89549e</anchor>
       <arglist>(Ejs *ejs, EjsObj *obj, int argc, EjsObj **argv)</arglist>
     </member>
     <member kind="function">
       <type>struct EjsString *</type>
       <name>ejsObjToString</name>
       <anchorfile>group___ejs_pot.html</anchorfile>
-      <anchor>ga947e94c75e5b8ec9e4bd28ab12822a65</anchor>
+      <anchor>gafadceadf842f265bfdacfb9be794ac19</anchor>
       <arglist>(Ejs *ejs, EjsObj *obj, int argc, EjsObj **argv)</arglist>
     </member>
     <member kind="function">
@@ -2130,21 +2130,21 @@
       <type>EjsRegExp *</type>
       <name>ejsCreateRegExp</name>
       <anchorfile>group___ejs_reg_exp.html</anchorfile>
-      <anchor>gaeadd405d338274acaa25acad550d4443</anchor>
+      <anchor>ga0f29d9afee05fd82d477b7fde8795a1d</anchor>
       <arglist>(Ejs *ejs, cchar *pattern, cchar *flags)</arglist>
     </member>
     <member kind="function">
       <type>EjsRegExp *</type>
       <name>ejsParseRegExp</name>
       <anchorfile>group___ejs_reg_exp.html</anchorfile>
-      <anchor>gaf10d72be3aa1eebdc3e0f3ed5998ff1b</anchor>
+      <anchor>ga69b30b0b76031b5b718924ae7ea98abc</anchor>
       <arglist>(Ejs *ejs, EjsString *pattern)</arglist>
     </member>
     <member kind="function">
       <type>EjsString *</type>
       <name>ejsRegExpToString</name>
       <anchorfile>group___ejs_reg_exp.html</anchorfile>
-      <anchor>ga638a01b979b00f6ee16a8254cd998d4d</anchor>
+      <anchor>gaeaa9fea2363dc0288f668e431f73bb20</anchor>
       <arglist>(Ejs *ejs, EjsRegExp *rp)</arglist>
     </member>
   </compound>
@@ -2156,14 +2156,14 @@
       <type>EjsRequest *</type>
       <name>ejsCloneRequest</name>
       <anchorfile>group___ejs_request.html</anchorfile>
-      <anchor>ga1f8c776a032ffd7b147cbb0dc094c2e7</anchor>
+      <anchor>ga4774e6e8940556936c903939859b9190</anchor>
       <arglist>(Ejs *ejs, EjsRequest *req, bool deep)</arglist>
     </member>
     <member kind="function">
       <type>EjsRequest *</type>
       <name>ejsCreateRequest</name>
       <anchorfile>group___ejs_request.html</anchorfile>
-      <anchor>gae4d5165d879868c4cea4a78939c46cb8</anchor>
+      <anchor>ga0e0cf552789c0827b83aea8e5733ea9a</anchor>
       <arglist>(Ejs *ejs, EjsHttpServer *server, HttpConn *conn, cchar *dir)</arglist>
     </member>
   </compound>
@@ -2182,7 +2182,7 @@
       <type>EjsSession *</type>
       <name>ejsGetSession</name>
       <anchorfile>group___ejs_session.html</anchorfile>
-      <anchor>gacfdf3f7f5fee5eea23b1152b089a3135</anchor>
+      <anchor>ga86c92f5992050cb8a27453702985557e</anchor>
       <arglist>(Ejs *ejs, EjsString *key, MprTicks timeout, int create)</arglist>
     </member>
     <member kind="function">
@@ -2201,7 +2201,7 @@
       <type>EjsSocket *</type>
       <name>ejsCreateSocket</name>
       <anchorfile>group___ejs_socket.html</anchorfile>
-      <anchor>ga96fc0527a264a6190f8b9384280a1d3f</anchor>
+      <anchor>ga85e016cdd3c610f475940099dc8ff196</anchor>
       <arglist>(Ejs *ejs, MprSocket *sock, bool async)</arglist>
     </member>
   </compound>
@@ -2269,42 +2269,42 @@
       <type>EjsString *</type>
       <name>ejsCreateBareString</name>
       <anchorfile>group___ejs_string.html</anchorfile>
-      <anchor>ga062ee027f2845d94ecb15c6941cbe42b</anchor>
+      <anchor>ga748e385fb348f5d1f682db866ebeb0a2</anchor>
       <arglist>(Ejs *ejs, ssize len)</arglist>
     </member>
     <member kind="function">
       <type>EjsString *</type>
       <name>ejsCreateString</name>
       <anchorfile>group___ejs_string.html</anchorfile>
-      <anchor>ga8aeef72a34295c9e4df136996628c413</anchor>
+      <anchor>ga2602016a05ae57ad9e24bf0381f50f9a</anchor>
       <arglist>(Ejs *ejs, wchar *value, ssize len)</arglist>
     </member>
     <member kind="function">
       <type>EjsString *</type>
       <name>ejsCreateStringFromAsc</name>
       <anchorfile>group___ejs_string.html</anchorfile>
-      <anchor>gab1fbea44cd70dc28d8a49b70d0de0556</anchor>
+      <anchor>ga139c4702ffac1c7058857c051ab2acef</anchor>
       <arglist>(Ejs *ejs, cchar *value)</arglist>
     </member>
     <member kind="function">
       <type>EjsString *</type>
       <name>ejsCreateStringFromBytes</name>
       <anchorfile>group___ejs_string.html</anchorfile>
-      <anchor>ga905a81a7379527321346e86ffacea04b</anchor>
+      <anchor>ga8845a3f9b5f19e417b1c415b8ea3ed1b</anchor>
       <arglist>(Ejs *ejs, cchar *value, ssize len)</arglist>
     </member>
     <member kind="function">
       <type>EjsString *</type>
       <name>ejsCreateStringFromConst</name>
       <anchorfile>group___ejs_string.html</anchorfile>
-      <anchor>ga25f6078b7d29fdcfdcd8b9353589906a</anchor>
+      <anchor>gacf409f883e2e0b8ff97f6dc52f8e2697</anchor>
       <arglist>(Ejs *ejs, struct EjsModule *mp, int index)</arglist>
     </member>
     <member kind="function">
       <type>EjsString *</type>
       <name>ejsCreateStringFromMulti</name>
       <anchorfile>group___ejs_string.html</anchorfile>
-      <anchor>ga560852e85d46275143be21477a869899</anchor>
+      <anchor>ga9ba132f3c74b9d74ed92aef691e9183a</anchor>
       <arglist>(Ejs *ejs, cchar *value, ssize len)</arglist>
     </member>
     <member kind="function">
@@ -2318,63 +2318,63 @@
       <type>EjsString *</type>
       <name>ejsInternAsc</name>
       <anchorfile>group___ejs_string.html</anchorfile>
-      <anchor>ga379df95eb6203fed78a5ef432ba7376f</anchor>
+      <anchor>ga03d3d0f45e36631f58c5da2d3077d40f</anchor>
       <arglist>(struct Ejs *ejs, cchar *value, ssize len)</arglist>
     </member>
     <member kind="function">
       <type>EjsString *</type>
       <name>ejsInternMulti</name>
       <anchorfile>group___ejs_string.html</anchorfile>
-      <anchor>gac34c3f60b9801b24289e1414d6d9a230</anchor>
+      <anchor>ga2973533cdd2597c358880bcd7c128c31</anchor>
       <arglist>(struct Ejs *ejs, cchar *value, ssize len)</arglist>
     </member>
     <member kind="function">
       <type>EjsString *</type>
       <name>ejsInternString</name>
       <anchorfile>group___ejs_string.html</anchorfile>
-      <anchor>ga634237154071579455c008c164c39553</anchor>
+      <anchor>ga1f7a60f7c475a2b26b4d569de851a774</anchor>
       <arglist>(EjsString *sp)</arglist>
     </member>
     <member kind="function">
       <type>EjsString *</type>
       <name>ejsInternWide</name>
       <anchorfile>group___ejs_string.html</anchorfile>
-      <anchor>ga6558ec0637c52d1350554bc302cb2d6d</anchor>
+      <anchor>ga59d4a1abe3fd46004d688c8103f1ced3</anchor>
       <arglist>(struct Ejs *ejs, wchar *value, ssize len)</arglist>
     </member>
     <member kind="function">
       <type>EjsString *</type>
       <name>ejsJoinString</name>
       <anchorfile>group___ejs_string.html</anchorfile>
-      <anchor>gaabb7adcb083b6b8c6224bef090642e23</anchor>
+      <anchor>ga54cae53e8b0d4c9801a81e9ae2e64404</anchor>
       <arglist>(Ejs *ejs, EjsString *s1, EjsString *s2)</arglist>
     </member>
     <member kind="function">
       <type>EjsString *</type>
       <name>ejsJoinStrings</name>
       <anchorfile>group___ejs_string.html</anchorfile>
-      <anchor>ga62e62d18a3a13356dd03e1f738b08024</anchor>
+      <anchor>gaf3347a3bb99d744a1b5f0a796875899d</anchor>
       <arglist>(Ejs *ejs, EjsString *src,...)</arglist>
     </member>
     <member kind="function">
       <type>EjsString *</type>
       <name>ejsSerialize</name>
       <anchorfile>group___ejs_string.html</anchorfile>
-      <anchor>gadd7d642dc5c034432868c46c63ab0708</anchor>
+      <anchor>ga0cdde64586b22d46f12e05f41d60b4d5</anchor>
       <arglist>(Ejs *ejs, EjsAny *obj, int flags)</arglist>
     </member>
     <member kind="function">
       <type>EjsString *</type>
       <name>ejsSerializeWithOptions</name>
       <anchorfile>group___ejs_string.html</anchorfile>
-      <anchor>ga6aa007bc9cb28bc124139b3e26e7fe3d</anchor>
+      <anchor>gaba95cd2b0be865721b1ce8c3ec6de83f</anchor>
       <arglist>(Ejs *ejs, EjsAny *obj, EjsObj *options)</arglist>
     </member>
     <member kind="function">
       <type>EjsString *</type>
       <name>ejsSprintf</name>
       <anchorfile>group___ejs_string.html</anchorfile>
-      <anchor>ga4806e79a09974744c3e1fad813239b4f</anchor>
+      <anchor>gac4855b0014e024c0ddf660b65cff35bb</anchor>
       <arglist>(Ejs *ejs, cchar *fmt,...)</arglist>
     </member>
     <member kind="function">
@@ -2388,49 +2388,49 @@
       <type>EjsString *</type>
       <name>ejsSubstring</name>
       <anchorfile>group___ejs_string.html</anchorfile>
-      <anchor>gabe2191ba4ab5e97c1f621605dcfcd611</anchor>
+      <anchor>ga813672dd52896bdd962053a9f5885ae9</anchor>
       <arglist>(Ejs *ejs, EjsString *src, ssize offset, ssize len)</arglist>
     </member>
     <member kind="function">
       <type>EjsString *</type>
       <name>ejsToJSON</name>
       <anchorfile>group___ejs_string.html</anchorfile>
-      <anchor>ga0d892b6a5ea4591b8c1a663b7e3122ac</anchor>
+      <anchor>ga5f5aa5cb5490a662f9b519bac16201e7</anchor>
       <arglist>(Ejs *ejs, EjsAny *obj, EjsObj *options)</arglist>
     </member>
     <member kind="function">
       <type>EjsString *</type>
       <name>ejsToLower</name>
       <anchorfile>group___ejs_string.html</anchorfile>
-      <anchor>ga1055b572a9a6dc51b5c9f96bf997024c</anchor>
+      <anchor>ga371b6d04790a44656b29cd1aacec2697</anchor>
       <arglist>(Ejs *ejs, EjsString *sp)</arglist>
     </member>
     <member kind="function">
       <type>char *</type>
       <name>ejsToMulti</name>
       <anchorfile>group___ejs_string.html</anchorfile>
-      <anchor>ga5f09bb624333fce4fca9206d7687f4fa</anchor>
+      <anchor>ga992b7aa62d3f4479b28bc8d5cd798719</anchor>
       <arglist>(Ejs *ejs, void *obj)</arglist>
     </member>
     <member kind="function">
       <type>EjsString *</type>
       <name>ejsToString</name>
       <anchorfile>group___ejs_string.html</anchorfile>
-      <anchor>gaebbc0b0666e25fddfbb39055ef427cea</anchor>
+      <anchor>ga94328b11f905f6d59aecaa7847dd15a1</anchor>
       <arglist>(Ejs *ejs, EjsAny *obj)</arglist>
     </member>
     <member kind="function">
       <type>EjsString *</type>
       <name>ejsToUpper</name>
       <anchorfile>group___ejs_string.html</anchorfile>
-      <anchor>ga1554254812932883bd7c301661a4b624</anchor>
+      <anchor>ga726ecd85de1ee42786f932370db10ef3</anchor>
       <arglist>(Ejs *ejs, EjsString *sp)</arglist>
     </member>
     <member kind="function">
       <type>EjsString *</type>
       <name>ejsTruncateString</name>
       <anchorfile>group___ejs_string.html</anchorfile>
-      <anchor>ga4497cce6148677baa8e35887c6baee45</anchor>
+      <anchor>gaa6ca53b157545425d94ec34b74b82475</anchor>
       <arglist>(Ejs *ejs, EjsString *src, ssize len)</arglist>
     </member>
   </compound>
@@ -2476,42 +2476,42 @@
       <type>EjsAny *</type>
       <name>ejsCast</name>
       <anchorfile>group___ejs_type.html</anchorfile>
-      <anchor>ga6044774cef4008019a48116e586f6b69</anchor>
+      <anchor>gaac2e2bc74d26b3a0efcc6e7f8ce04f9a</anchor>
       <arglist>(Ejs *ejs, EjsAny *obj, void *name)</arglist>
     </member>
     <member kind="function">
       <type>EjsType *</type>
       <name>ejsConfigureType</name>
       <anchorfile>group___ejs_type.html</anchorfile>
-      <anchor>ga5b2e89d60086f10116f1b0f8c4214c62</anchor>
+      <anchor>gadebd9664e8af2cc32fde771248fd1988</anchor>
       <arglist>(Ejs *ejs, EjsType *type, struct EjsModule *up, EjsType *baseType, int numTypeProp, int numInstanceProp, int64 attributes)</arglist>
     </member>
     <member kind="function">
       <type>EjsType *</type>
       <name>ejsCreateArchetype</name>
       <anchorfile>group___ejs_type.html</anchorfile>
-      <anchor>gab6cd4d40c0bb6f23b47d7d6a00963c51</anchor>
+      <anchor>ga62feeeb813ec30fca71224af76d3dec4</anchor>
       <arglist>(Ejs *ejs, struct EjsFunction *fun, EjsPot *prototype)</arglist>
     </member>
     <member kind="function">
       <type>EjsType *</type>
       <name>ejsCreateCoreType</name>
       <anchorfile>group___ejs_type.html</anchorfile>
-      <anchor>gafd299306ea4a293b211f1c4ad3fe2bfd</anchor>
+      <anchor>ga344d0e84000ac9afef200e461ae7cdfe</anchor>
       <arglist>(Ejs *ejs, EjsName qname, int size, int slotNum, int numTypeProp, void *manager, int64 attributes)</arglist>
     </member>
     <member kind="function">
       <type>EjsObj *</type>
       <name>ejsCreatePrototype</name>
       <anchorfile>group___ejs_type.html</anchorfile>
-      <anchor>gae81e1e66c98088b4e2f64dc9b4429c8e</anchor>
+      <anchor>gaf9886feb18f69f06819c59f679abc689</anchor>
       <arglist>(Ejs *ejs, EjsType *type, int numProp)</arglist>
     </member>
     <member kind="function">
       <type>EjsType *</type>
       <name>ejsCreateType</name>
       <anchorfile>group___ejs_type.html</anchorfile>
-      <anchor>ga993c24f92f1da5b0f3140d1561fc408e</anchor>
+      <anchor>gaca9b5e8b0de5f20bee8559f97daefbd3</anchor>
       <arglist>(Ejs *ejs, EjsName name, struct EjsModule *up, EjsType *baseType, EjsPot *prototype, int slotNum, int numTypeProp, int numInstanceProp, int size, void *manager, int64 attributes)</arglist>
     </member>
     <member kind="function">
@@ -2532,49 +2532,49 @@
       <type>EjsType *</type>
       <name>ejsFinalizeCoreType</name>
       <anchorfile>group___ejs_type.html</anchorfile>
-      <anchor>gaf99eb55efe267646184e8d86681ed920</anchor>
+      <anchor>ga6c5fd9260f95de45e47e56d8b16c481e</anchor>
       <arglist>(Ejs *ejs, EjsName qname)</arglist>
     </member>
     <member kind="function">
       <type>EjsType *</type>
       <name>ejsFinalizeScriptType</name>
       <anchorfile>group___ejs_type.html</anchorfile>
-      <anchor>ga0840b30591223888dd85303414e0ff2d</anchor>
+      <anchor>ga1b9039e4f66d651680ad06f490beb668</anchor>
       <arglist>(Ejs *ejs, EjsName qname, int size, void *manager, int64 attributes)</arglist>
     </member>
     <member kind="function">
       <type>EjsPot *</type>
       <name>ejsGetPrototype</name>
       <anchorfile>group___ejs_type.html</anchorfile>
-      <anchor>gaf52df85c9a82b20346d92c1de0a95371</anchor>
+      <anchor>gacd17c3d03aa847cf371f48e00f74aa4c</anchor>
       <arglist>(Ejs *ejs, EjsAny *obj)</arglist>
     </member>
     <member kind="function">
       <type>EjsType *</type>
       <name>ejsGetType</name>
       <anchorfile>group___ejs_type.html</anchorfile>
-      <anchor>gaf41edbabce385e7cb73ed6526aa2cf22</anchor>
+      <anchor>ga619560cae7d0be19313a3ae00972069b</anchor>
       <arglist>(Ejs *ejs, int slotNum)</arglist>
     </member>
     <member kind="function">
       <type>EjsType *</type>
       <name>ejsGetTypeByName</name>
       <anchorfile>group___ejs_type.html</anchorfile>
-      <anchor>gacd5d078d0fca337295cd898a1ad3f2be</anchor>
+      <anchor>gad1c7c950b62078e8ded8b044856faea3</anchor>
       <arglist>(Ejs *ejs, EjsName qname)</arglist>
     </member>
     <member kind="function">
       <type>EjsString *</type>
       <name>ejsGetTypeName</name>
       <anchorfile>group___ejs_type.html</anchorfile>
-      <anchor>gaafdf35287cba548cc03605f1617694c5</anchor>
+      <anchor>gae978cdb9a0a943f05f4427cd0cab1555</anchor>
       <arglist>(struct Ejs *ejs, EjsAny *obj)</arglist>
     </member>
     <member kind="function">
       <type>EjsString *</type>
       <name>ejsGetTypeOf</name>
       <anchorfile>group___ejs_type.html</anchorfile>
-      <anchor>gad5fcfe6a44792a9fd457d631242bc4ea</anchor>
+      <anchor>ga8086af1837c56e1d22dd7614d8714db3</anchor>
       <arglist>(struct Ejs *ejs, EjsAny *obj)</arglist>
     </member>
     <member kind="function">
@@ -2635,28 +2635,28 @@
       <type>EjsUri *</type>
       <name>ejsCreateUri</name>
       <anchorfile>group___ejs_uri.html</anchorfile>
-      <anchor>gae6752aaa05bbde3fbd49c8426b131a70</anchor>
+      <anchor>gae2c1b6224ed2063392108090385f7ada</anchor>
       <arglist>(Ejs *ejs, EjsString *uri)</arglist>
     </member>
     <member kind="function">
       <type>EjsUri *</type>
       <name>ejsCreateUriFromAsc</name>
       <anchorfile>group___ejs_uri.html</anchorfile>
-      <anchor>ga70990d61d8fc6282714f2bfa09223fe7</anchor>
+      <anchor>ga157464210238b1a154cf6f8599f04441</anchor>
       <arglist>(Ejs *ejs, cchar *uri)</arglist>
     </member>
     <member kind="function">
       <type>EjsUri *</type>
       <name>ejsCreateUriFromParts</name>
       <anchorfile>group___ejs_uri.html</anchorfile>
-      <anchor>gaeb2760117ebd7fb8f740bb75fd7ec443</anchor>
+      <anchor>ga0df4988c09311a45d1849a32effd7d3e</anchor>
       <arglist>(Ejs *ejs, cchar *scheme, cchar *host, int port, cchar *path, cchar *query, cchar *reference, int flags)</arglist>
     </member>
     <member kind="function">
       <type>EjsUri *</type>
       <name>ejsToUri</name>
       <anchorfile>group___ejs_uri.html</anchorfile>
-      <anchor>gae9febc6fc7e1e4040866f4e6c0e524c3</anchor>
+      <anchor>gabfabce2f49a9f366e7e0d06dd446adfd</anchor>
       <arglist>(Ejs *ejs, EjsAny *obj)</arglist>
     </member>
   </compound>
@@ -2668,7 +2668,7 @@
       <type>EjsVoid *</type>
       <name>ejsCreateUndefined</name>
       <anchorfile>group___ejs_void.html</anchorfile>
-      <anchor>ga66be69faabddaa5aa401e0b1037cadd4</anchor>
+      <anchor>ga018ccaebbc82112e513a261d7589c2c6</anchor>
       <arglist>(Ejs *ejs)</arglist>
     </member>
   </compound>
@@ -2680,7 +2680,7 @@
       <type>EjsWebSocket *</type>
       <name>ejsCreateWebSocket</name>
       <anchorfile>group___ejs_web_socket.html</anchorfile>
-      <anchor>ga7b78145c86d4db2408ac2c990a3d3e29</anchor>
+      <anchor>ga2ffb78e1cc47c364fef5a968b1c0b311</anchor>
       <arglist>(Ejs *ejs)</arglist>
     </member>
   </compound>
@@ -2692,7 +2692,7 @@
       <type>EjsWorker *</type>
       <name>ejsCreateWorker</name>
       <anchorfile>group___ejs_worker.html</anchorfile>
-      <anchor>ga6fe839d13cc75c1b934ea042241cf5bf</anchor>
+      <anchor>gaa01ad5ff93fd079da161c8cee0455cf4</anchor>
       <arglist>(Ejs *ejs)</arglist>
     </member>
     <member kind="function">
@@ -2719,28 +2719,28 @@
       <type>EjsXML *</type>
       <name>ejsAppendToXML</name>
       <anchorfile>group___ejs_x_m_l.html</anchorfile>
-      <anchor>ga30a98eec819837236f296ff8e9fe8560</anchor>
+      <anchor>ga0f235c9a3113867a60a9570dfe766fac</anchor>
       <arglist>(Ejs *ejs, EjsXML *dest, EjsXML *node)</arglist>
     </member>
     <member kind="function">
       <type>EjsXML *</type>
       <name>ejsCreateXML</name>
       <anchorfile>group___ejs_x_m_l.html</anchorfile>
-      <anchor>ga0fe5fac1a54834bb2f00bcdc955c4aa2</anchor>
+      <anchor>ga4494fb4e72e91f543179238ce41a8fdf</anchor>
       <arglist>(Ejs *ejs, int kind, EjsName name, EjsXML *parent, EjsString *value)</arglist>
     </member>
     <member kind="function">
       <type>EjsXML *</type>
       <name>ejsCreateXMLList</name>
       <anchorfile>group___ejs_x_m_l.html</anchorfile>
-      <anchor>ga06ebe56f1b1705be503969940047a7c5</anchor>
+      <anchor>ga35e4743ca505af78d43408359d1098f7</anchor>
       <arglist>(Ejs *ejs, EjsXML *targetObject, EjsName targetProperty)</arglist>
     </member>
     <member kind="function">
       <type>EjsXML *</type>
       <name>ejsGetXMLDescendants</name>
       <anchorfile>group___ejs_x_m_l.html</anchorfile>
-      <anchor>ga93c3341f3b56dd28b760b3b3e88a4f2c</anchor>
+      <anchor>gae134ba42e7bb40e7df2c872cc25ce55d</anchor>
       <arglist>(Ejs *ejs, EjsXML *xml, EjsName qname)</arglist>
     </member>
     <member kind="function">
@@ -2768,7 +2768,7 @@
       <type>EjsXML *</type>
       <name>ejsSetXMLElement</name>
       <anchorfile>group___ejs_x_m_l.html</anchorfile>
-      <anchor>ga80d04a5a44c4ce6d2150dba5fefa1d28</anchor>
+      <anchor>ga18e79eabe1dd9f2ab68c77a77fef7b78</anchor>
       <arglist>(Ejs *ejs, EjsXML *xml, int index, EjsXML *node)</arglist>
     </member>
     <member kind="function">

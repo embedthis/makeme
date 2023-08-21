@@ -24726,12 +24726,11 @@ PUBLIC char *stitle(cchar *str)
 PUBLIC char *spbrk(cchar *str, cchar *set)
 {
     cchar       *sp;
-    int         count;
 
     if (str == 0 || set == 0) {
         return 0;
     }
-    for (count = 0; *str; count++, str++) {
+    for (; *str; str++) {
         for (sp = set; *sp; sp++) {
             if (*str == *sp) {
                 return (char*) str;

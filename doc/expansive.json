@@ -1,42 +1,42 @@
 {
-    "meta": {
-        "site": "https://embedthis.com/esp/doc/"
-    },
-    "control": {
-        "listen": "127.0.0.1:4000"
-    },
-    "release": {
-        "services": {
-            "reload": {
-                "enable": false
-            },
-            "compress": true,
-            "css": {
-                "minify": true,
-                "usemin": true,
-                "usemap": false
-            },
-            "js": {
-                "minify": true,
-                "usemin": true,
-                "usemap": false
-            },
-            "gzip": true,
-            "html": {
-                "options": "--remove-comments --conservative-collapse --prevent-attributes-escaping --remove-empty-attributes --remove-optional-tags"
-            }
-        }
-    },
-    "debug": {
-        "services": {
-            "compress": false,
-            "html": false,
-            "js": {
-                "minify": false,
-                "usemin": true,
-                "usemap": true
-            },
-            "gzip": false
-        }
+  "meta": {
+    "site": "https://www.embedthis.com/esp/doc/"
+  },
+  "control": {
+    "listen": "127.0.0.1:4000"
+  },
+  "release": {
+    "services": {
+      "reload": {
+        "enable": false
+      },
+      "compress": true,
+      "css": {
+        "minify": true,
+        "usemin": true,
+        "usemap": false
+      },
+      "js": {
+        "minify": true,
+        "usemin": true,
+        "usemap": false
+      },
+      "gzip": true,
+      "html": {
+        "options": "--remove-comments --conservative-collapse --prevent-attributes-escaping --remove-empty-attributes --remove-optional-tags"
+      }
     }
+  },
+  "debug": {
+    "services": {
+      "compress": false,
+      "html": false,
+      "js": {
+        "minify": false,
+        "usemin": true,
+        "usemap": true
+      },
+      "gzip": false
+    }
+  }
 }

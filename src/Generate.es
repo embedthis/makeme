@@ -116,7 +116,7 @@ class Generate {
             let data = '#!/bin/bash\n#\n#   configure -- Configure for building\n#\n' +
                 'if ! type me >/dev/null 2>&1 ; then\n' +
                     '    echo -e "\\nInstall the \\"me\\" tool for configuring." >&2\n' +
-                    '    echo -e "Download from: https://embedthis.com/downloads/me/download.ejs." >&2\n' +
+                    '    echo -e "Download from: https://www.embedthis.com/downloads/me/download.ejs." >&2\n' +
                     '    echo -e "Or skip configuring and make a standard build using \\"make\\".\\n" >&2\n' +
                     '    exit 255\n' +
                 'fi\n' + 

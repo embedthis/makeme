@@ -72,7 +72,7 @@
     #define CPU_ENDIAN ME_LITTLE_ENDIAN
 
 #elif defined(__arm64__) || defined(__aarch64__)
-    #define ME_CPU "arm"
+    #define ME_CPU "arm64"
     #define ME_CPU_ARCH ME_CPU_ARM
     #define CPU_ENDIAN ME_LITTLE_ENDIAN
 

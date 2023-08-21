@@ -1870,7 +1870,7 @@ PUBLIC char *itosbuf(char *buf, ssize size, int64 value, int radix);
 PUBLIC int scaselesscmp(cchar *s1, cchar *s2);
 
 /**
-    Find a pattern in a string with a caseless comparision
+    Find a pattern in a string with a caseless comparison
     @description Locate the first occurrence of pattern in a string.
     @param str Pointer to the string to search.
     @param pattern String pattern to search for.
@@ -2119,7 +2119,7 @@ PUBLIC bool smatchsec(cchar *s1, cchar *s2);
 PUBLIC int sncaselesscmp(cchar *s1, cchar *s2, ssize len);
 
 /**
-    Find a pattern in a string with a limit and a caseless comparision
+    Find a pattern in a string with a limit and a caseless comparison
     @description Locate the first occurrence of pattern in a string, but do not search more than the given character limit.
     @param str Pointer to the string to search.
     @param pattern String pattern to search for.
@@ -2704,7 +2704,7 @@ PUBLIC int mprIsNan(double value);
 /**
     Buffer refill callback function
     @description Function to call when the buffer is depleted and needs more data.
-    @param buf Instance of an MprBuf
+    @param bp Instance of an MprBuf
     @param arg Data argument supplied to #mprSetBufRefillProc
     @returns The callback should return 0 if successful, otherwise a negative error code.
     @ingroup MprBuf
@@ -4050,10 +4050,7 @@ typedef struct MprLog { int dummy; } MprLog;
     Log handler callback type.
     @description Callback prototype for the log handler. Used by mprSetLogHandler to define
         a message logging handler to process log and error messages. See #mprLog for more details.
-    @param file Source filename. Derived by using __FILE__.
-    @param line Source line number. Derived by using __LINE__.
-    @param flags Error flags.
-    @param tags List of space separated tag words.
+    @param tags Source filename. Derived by using __FILE__.
     @param level Message logging level. Levels are 0-5 with five being the most verbose.
     @param msg Message being logged.
     @ingroup MprLog
@@ -4388,7 +4385,7 @@ PUBLIC MprHash *mprCloneHash(MprHash *table);
     @description Creates a hash table that can store arbitrary objects associated with string key values.
     @param hashSize Size of the hash table for the symbol table. Should be a prime number. Set to 0 or -1 to get
         a default (small) hash table.
-    @param flags Table control flags. Use MPR_HASH_CASELESS for case insensitive comparisions, MPR_HASH_UNICODE
+    @param flags Table control flags. Use MPR_HASH_CASELESS for case insensitive comparisons, MPR_HASH_UNICODE
         if the hash keys are unicode strings, MPR_HASH_STATIC_KEYS if the keys are permanent and should not be
         managed for Garbage collection, and MPR_HASH_STATIC_VALUES if the values are permanent.
         MPR_HASH_STABLE to create an optimized list when the contents are stable or only accessed by one thread.
@@ -5428,7 +5425,6 @@ PUBLIC int mprMakeLink(cchar *path, cchar *target, bool hard);
         backward to forward slashes when dealing with Windows paths.
     @param path Path name to examine
     @param separator Separator character to use.
-    @returns An allocated string containing the parent directory.
     @ingroup MprPath
     @stability Stable
  */
@@ -5674,7 +5670,6 @@ PUBLIC int mprStartModuleService(void);
 /**
     Stop the module service
     @description This calls the stop entry point for all registered modules
-    @return Zero if successful, otherwise a negative MPR error code.
     @ingroup MprModuleService
     @stability Internal
  */
@@ -5835,7 +5830,6 @@ PUBLIC void mprSetModuleFinalizer(MprModule *module, MprModuleProc stop);
     @description Set the directory search path used by the MPR when loading dynamic modules. This path string must
         should be a colon separated (or semicolon on Windows) set of directories.
     @param searchPath Colon separated set of directories
-    @returns The module search path.
     @ingroup MprModule
     @stability Stable
  */
@@ -6665,7 +6659,6 @@ PUBLIC MprHash *mprDeserializeInto(cchar *str, MprHash *hash);
     @param buf MprBuf instance to store the output string
     @param name Json name to format
     @param flags Serialization flags. Supported flags include MPR_JSON_QUOTES to always wrap property names in quotes.
-    @return The supplied hash if successful. Otherwise null is returned.
     @ingroup MprJson
     @stability Stable
  */
@@ -6675,7 +6668,6 @@ PUBLIC void mprFormatJsonName(MprBuf *buf, cchar *name, int flags);
     Format a string as a JSON string. This handles quotes and backquotes.
     @param buf MprBuf instance to store the output string
     @param value JSON string value to format
-    @return The supplied hash if successful. Otherwise null is returned.
     @ingroup MprJson
     @stability Stable
  */
@@ -6687,7 +6679,6 @@ PUBLIC void mprFormatJsonString(MprBuf *buf, cchar *value);
     @param type JSON type to format
     @param value JSON value to format
     @param flags Serialization flags. Supported flags include MPR_JSON_STRINGS to emit values as quoted strings.
-    @return The supplied hash if successful. Otherwise null is returned.
     @ingroup MprJson
     @stability Stable
  */
@@ -9188,7 +9179,6 @@ PUBLIC void mprEnableCmdEvents(MprCmd *cmd, int channel);
     Enable command I/O events for the command's STDOUT and STDERR channels
     @param cmd MprCmd object created via mprCreateCmd
     @param on Set to true to enable events. Set to false to disable.
-    @return true if I/O events are enabled for the given channel.
     @ingroup MprCmd
     @stability Stable
  */
@@ -10375,7 +10365,6 @@ PUBLIC void mprSetExitStatus(int status);
         logged. Calls to mprLog specify a message level. If the message level
         is greater than the defined logging level, the message is ignored.
     @param level New logging level. Must be 0-5 inclusive.
-    @return Returns the previous logging level.
     @ingroup MprLog
     @stability Stable.
  */

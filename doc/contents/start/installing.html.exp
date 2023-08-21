@@ -1,71 +1,93 @@
-{
-    title:  "Installation",
-    crumbs: [],
-}
+{ title: "Installation", crumbs: [], }
 
-            <h1>Installation Overview</h1>
-            <p>MakeMe is available as a source code distribution. Several build environments are supported:</p>
-            <ul>
-                <li><b>Linux</b> &mdash; Linux 2.6 with GNU C/C++</li>
-                <li><b>Windows</b> &mdash; Microsoft Windows 7 with Visual Studio 2010 or later</li>
-                <li><b>Mac OS X</b> &mdash; Mac OS X 10.8 (Mountain Lion) or later</li>
-            </ul>
+<h1>Installation Overview</h1>
+<p>
+  MakeMe is available as a source code distribution. Several build environments
+  are supported:
+</p>
+<ul>
+  <li><b>Linux</b> &mdash; Linux 2.6 with GNU C/C++</li>
+  <li>
+    <b>Windows</b> &mdash; Microsoft Windows 7 with Visual Studio 2010 or later
+  </li>
+  <li><b>Mac OS X</b> &mdash; Mac OS X 10.8 (Mountain Lion) or later</li>
+</ul>
 
-            <h2>Accessing the Source Code</h2>
-            <p>With each MakeMe release, a complete source code snapshot is provided. You can download a source package from the MakeMe web site or you can retrieve it from the MakeMe GitHub repository. If you download from the repository, please use the <em>master</em> branch for the most recent stable snapshot. For less stable daily builds, use the <em>dev</em> branch.</p>
+<h2>Accessing the Source Code</h2>
+<p>
+  With each MakeMe release, a complete source code snapshot is provided. You can
+  download a source package from the MakeMe web site or you can retrieve it from
+  the MakeMe GitHub repository. If you download from the repository, please use
+  the <em>master</em> branch for the most recent stable snapshot. For less
+  stable daily builds, use the <em>dev</em> branch.
+</p>
 
-            <a class="ui primary right labeled icon button"
-                href="https://embedthis.com/makeme/download.html">
-                <i class="right long arrow icon"></i>Download Source
-            </a>
-            <a class="ui secondary right labeled icon button"
-                href="https://github.com/embedthis/makeme">
-                <i class="right long arrow icon"></i>GitHub Repository
-            </a>
+<a
+  class="ui primary right labeled icon button"
+  href="https://www.embedthis.com/makeme/download.html"
+>
+  <i class="right long arrow icon"></i>Download Source
+</a>
+<a
+  class="ui secondary right labeled icon button"
+  href="https://github.com/embedthis/makeme"
+>
+  <i class="right long arrow icon"></i>GitHub Repository
+</a>
 
-            <h2>Building and Installing MakeMe</h2>
-            <ol>
-                <li>Download and extract the source code.</li>
-                <li>Change directory to the top level of the source code.</li>
-                <li>Do a bootstrap make via "make boot" on Linux or MacOS and "make" on Windows.</li>
-                <li>Install via "make install" on Linux or MacOS".</li>
-            </ol>
+<h2>Building and Installing MakeMe</h2>
+<ol>
+  <li>Download and extract the source code.</li>
+  <li>Change directory to the top level of the source code.</li>
+  <li>
+    Do a bootstrap make via "make boot" on Linux or MacOS and "make" on Windows.
+  </li>
+  <li>Install via "make install" on Linux or MacOS".</li>
+</ol>
 
-            <h2>Building on Linux or MacOS</h2>
-            <pre class="ui code segment">
+<h2>Building on Linux or MacOS</h2>
+<pre class="ui code segment">
 wget https://s3.amazonaws.com/embedthis.software/makeme-0.10.5-src.tgz
 tar xfz makeme-0.10.5-0-src.tgz
 cd me-0.10.5
 make boot
-sudo make install </pre>
+sudo make install </pre
+>
 
-            <h2>Building on Windows</h2>
-            <pre class="ui code segment">
+<h2>Building on Windows</h2>
+<pre class="ui code segment">
 Download and extract https://s3.amazonaws.com/embedthis.software/makeme-0.10.5-src.tgz
 make
 </pre>
 
-            <a id="removing"></a>
-            <h2>Removing MakeMe on Linux or MacOS</h2>
-            <ol>
-                <li>Run a terminal and change directory to the installation directory for MakeMe. This is typically
-                "/usr/local/lib/makeme/latest".</li>
-                <li>Run the uninstall script in the MakeMe install directory:</li>
-            </ol>
-            <pre class="ui code segment">cd /usr/local/lib/makeme/latest
-sudo ./uninstall</pre>
+<a id="removing"></a>
+<h2>Removing MakeMe on Linux or MacOS</h2>
+<ol>
+  <li>
+    Run a terminal and change directory to the installation directory for
+    MakeMe. This is typically "/usr/local/lib/makeme/latest".
+  </li>
+  <li>Run the uninstall script in the MakeMe install directory:</li>
+</ol>
+<pre class="ui code segment">
+cd /usr/local/lib/makeme/latest
+sudo ./uninstall</pre
+>
 
-            <a id="running"></a>
-            <h2>Running MakeMe</h2>
-            <p>You can invoke MakeMe simply as <em>me</em>
-            <pre class="ui code segment"><b>$ me</b>
+<a id="running"></a>
+<h2>Running MakeMe</h2>
+<p>You can invoke MakeMe simply as <em>me</em></p>
+<pre class="ui code segment"><b>$ me</b>
 me.es: ERROR: Can't find suitable start.me.
 Run "me --gen start" to create stub start.me
 </pre>
-            <p>This indicates you are ready to start by creating your first <em>start.me</em> file.
-            To learn more, read the <a href="../index.html ">MakeMe Overview</a>.</p>
-            <p>To display the various MakeMe command options, type:</p>
-            <pre class="ui code segment"><b>$ me help</b>
+<p>
+  This indicates you are ready to start by creating your first
+  <em>start.me</em> file. To learn more, read the
+  <a href="../index.html ">MakeMe Overview</a>.
+</p>
+<p>To display the various MakeMe command options, type:</p>
+<pre class="ui code segment"><b>$ me help</b>
 Usage: me [options] [targets|actions] ...
 Options:
 --benchmark                              # Measure elapsed time

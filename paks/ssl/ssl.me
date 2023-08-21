@@ -1,12 +1,12 @@
 /*
-    ssl.me - SSL Plugin. This is the interface above SSL providers.
+    ssl.me - TLS Plugin. This is the interface above TLS providers.
  */
 
 Me.load({
     targets: {
         ssl: {
             configurable: true,
-            description: 'Secure Socket Layer Interface',
+            description: 'Transport Layer Security',
             discovers: [ 'mbedtls', 'openssl' ],
             uses:      [ 'mbedtls', 'openssl' ],
             config: function (target) {
@@ -18,7 +18,7 @@ Me.load({
                             provider = p
                             break
                         } else if (ptarget.explicit != 'without') {
-                            throw 'Required SSL provider "' + p + '" is not enabled'
+                            throw 'Required TLS provider "' + p + '" is not enabled'
                         }
                     }
                 }

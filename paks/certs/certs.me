@@ -67,6 +67,12 @@ Me.load({
             files: [ 'samples/*.crt', 'samples/*.key' ],
         },
 
+        'install-roots': {
+            type: 'file',
+            path: '${BIN}',
+            files: [ 'samples/roots.crt' ],
+        },
+
         'generate-certs': {
             depends: [ 'ca-cert', 'self-signed-cert', 'test-cert', 'ec-cert' ],
         },

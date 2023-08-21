@@ -2,11 +2,11 @@ Embedthis MakeMe(TM)
 
 Welcome to Embedthis MakeMe. MakeMe is a modern replacement for the autoconf and make make build tools. MakeMe uses Javascript to simply describe projects with smart defaults. It then builds directly, or generates makefiles, and IDE projects.
 
-This document describes the installation procedure for the binary MakeMe package. This package contains the "me" tool and manual page. Documentation is available online at https://embedthis.com/makeme/doc/. 
+This document describes the installation procedure for the binary MakeMe package. This package contains the "me" tool and manual page. Documentation is available online at https://www.embedthis.com/makeme/doc/. 
 
 You can read the documentation for the latest release online at:
 
-    https://embedthis.com/makeme/doc/index.html
+    https://www.embedthis.com/makeme/doc/index.html
 
 This software is copyrighted and distributed under license. Please read the LICENSE.TXT for details.
 

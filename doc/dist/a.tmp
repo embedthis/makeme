@@ -1,0 +1,7 @@
+mv ./ref/syntax.html ./ref/syntax.html.exp
+mv ./ref/index.html ./ref/index.html.exp
+mv ./ref/commandline.html ./ref/commandline.html.exp
+mv ./ref/dom.html ./ref/dom.html.exp
+mv ./ref/processing.html ./ref/processing.html.exp
+mv ./ref/targets.html ./ref/targets.html.exp
+mv ./ref/events.html ./ref/events.html.exp

@@ -802,9 +802,27 @@ module embedthis.me.script {
         if (target.withpath) {
             return [Path(target.withpath).join(objdir)]
         }
+        let path
         let search = []
         if (me.platform.cross) {
             return search
+        }
+        if (me.platform.os == 'macosx') {
+            if (Config.CPU == 'arm64') {
+                path = Path('/opt/homebrew/Cellar')
+            } else {
+                path = Path('/usr/local/Cellar')
+            }
+            search.push(path)
+            if (component == 'openssl') {
+                let versions = Version.sort(path.files('openssl@1*/*'), -1)
+                if (versions && versions.length >= 1) {
+                    path = Path(versions[0])
+                    if (path) {
+                        search.push(path.join(objdir, 'lib'))
+                    }
+                }
+            }
         }
         if (me.dir) {
             if (me.dir.paks) {
@@ -851,6 +869,9 @@ module embedthis.me.script {
                 let abi = multi.readString().trim()
                 search += [Path('/usr/lib').join(abi), Path('/lib').join(abi), Path('/usr').join(abi) ]
             }
+        }
+        if (me.platform.os == 'macosx' && Config.CPU == 'arm64') {
+            search = [Path('/opt/homebrew/Cellar')] + search
         }
         return search.transform(function(path) path.absolute)
     }

@@ -55998,7 +55998,7 @@ static EjsVoid *hs_listen(Ejs *ejs, EjsHttpServer *sp, int argc, EjsObj **argv)
             return 0;
         }
         sp->endpoint = endpoint;
-        host = httpCreateHost(NULL);
+        host = httpCreateHost();
         httpSetHostName(host, sfmt("%s:%d", sp->ip, sp->port));
         route = httpCreateConfiguredRoute(host, 1);
 

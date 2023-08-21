@@ -237,6 +237,8 @@ class Make {
         Object.sortProperties(obj)
         for (let [key,value] in obj) {
             key = (prefix ? prefix + '_' : '') + key.replace(/[A-Z]/g, '_$&').replace(/-/g, '_').toUpper()
+            //  Debug handled separately
+            if (key == 'DEBUG') continue
             if (value is Number) {
                 def(f, key, value)
             } else if (value is Boolean) {
@@ -377,7 +379,7 @@ class Make {
             genWriteLine("ARCH                  ?= $(shell echo $(WIND_HOST_TYPE) | sed 's/-.*//')")
             genWriteLine("CPU                   ?= $(subst X86,PENTIUM,$(shell echo $(ARCH) | tr a-z A-Z))")
         } else {
-            genWriteLine('ARCH                  ?= $(shell uname -m | sed \'s/i.86/x86/;s/x86_64/x64/;s/arm.*/arm/;s/mips.*/mips/\')')
+            genWriteLine('ARCH                  ?= $(shell uname -m | sed \'s/i.86/x86/;s/x86_64/x64/;s/mips.*/mips/\')')
             genWriteLine('CC_ARCH               ?= $(shell echo $(ARCH) | sed \'s/x86/i686/;s/x64/x86_64/\')')
         }
         genWriteLine('OS                    ?= ' + me.platform.os)
@@ -389,7 +391,7 @@ class Make {
             genWriteLine('AR                    ?= ' + me.targets.lib.path)
         }
         genWriteLine('CONFIG                ?= $(OS)-$(ARCH)-$(PROFILE)')
-        genWriteLine('BUILD                 ?= ' + loader.BUILD + '/$(CONFIG)')
+        genWriteLine('BUILD                 ?= ' + loader.BUILD + '/$(OS)-$(ARCH)-$(PROFILE)')
         genWriteLine('LBIN                  ?= $(BUILD)/bin')
         genWriteLine('PATH                  := $(LBIN):$(PATH)\n')
 
@@ -402,7 +404,6 @@ class Make {
             cflags = cflags.replace(word + ' ', ' ')
         }
         cflags += ' -w'
-        cflags = cflags.replace(/-g/, '')
         genWriteLine('CFLAGS                += ' + cflags.trim())
         genWriteLine('DFLAGS                += ' + mappings.defines.replace(/-DME_DEBUG=. */, '') +
             ' $(patsubst %,-D%,$(filter ME_%,$(MAKEFLAGS))) ' + dflags)
@@ -414,9 +415,10 @@ class Make {
         genWriteLine('LIBPATHS              += ' + repvar(mappings.libpaths))
         genWriteLine('LIBS                  += ' + mappings.libraries + '\n')
 
-        genWriteLine('DEBUG                 ?= ' + (me.settings.debug ? 'debug' : 'release'))
+        let debug = me.platform.profile == 'prod' ? false : true
+        genWriteLine('DEBUG                 ?= ' + (debug ? 'debug' : 'release'))
         genWriteLine('CFLAGS-debug          ?= -g')
-        genWriteLine('DFLAGS-debug          ?= -DME_DEBUG')
+        genWriteLine('DFLAGS-debug          ?= -DME_DEBUG=1')
         genWriteLine('LDFLAGS-debug         ?= -g')
         genWriteLine('DFLAGS-release        ?= ')
         genWriteLine('CFLAGS-release        ?= -O2')

@@ -1,5 +1,4 @@
-exp-js
-===
+# exp-js
 
 Expansive plugin to manage Javascript files.
 
@@ -15,10 +14,10 @@ The exp-js plugin provides build tooling for script files. It provides the **js-
 
 Provides the following transformations:
 
-* js
-* js-minify
-* js-render
-* js-extract
+- js
+- js-minify
+- js-render
+- js-extract
 
 ## js
 
@@ -26,18 +25,18 @@ The **js** transform provides configuration control for the other js services.
 
 ### Configuration
 
-* compress &mdash; Enable compression of script files. Default to true.
-* dotmin &mdash; Use '.min.js' as the output file extension after minification. Otherwise will be '.js'.  Default to true.
-* enable &mdash; Enable the service. Default to true.
-* extract &mdash; Extract inline scripts into external script files. Defaults to to false. Set to true to enable or set
-    to a filename to contain all extracted scripts.
-* files &mdash; List of scripts to render. Defaults to [ 'lib/\*\*.js*, '!lib/\*\*.map' ]
-* mappings &mdash; Set of extensions to transform. Defaults to: mappings: [ 'js', 'min.js', 'min.map', 'min.js.map' ]
-* minify &mdash; Enable minifying Javascript files. Will also generate map files if the js-render transform defines 'usemap' to be true. Default to false.
-* options &mdash; Uglifyjs command options to use when minifying Javascript files. Defaults to:
---compress dead_code=true,conditionals=true,booleans=true,unused=true,if_return=true,join_vars=true,drop_console=true --mangle
-* usemap &mdash; Use minified Javascript if corresponding source maps is present. Default to true.
-* usemin &mdash; Use minified Javascript if present. Default to true.
+- compress &mdash; Enable compression of script files. Default to true.
+- dotmin &mdash; Use '.min.js' as the output file extension after minification. Otherwise will be '.js'. Default to true.
+- enable &mdash; Enable the service. Default to true.
+- extract &mdash; Extract inline scripts into external script files. Defaults to to false. Set to true to enable or set
+  to a filename to contain all extracted scripts.
+- files &mdash; List of scripts to render. Defaults to [ 'lib/\*\*.js*, '!lib/\*\*.map' ]
+- mappings &mdash; Set of extensions to transform. Defaults to: mappings: [ 'js', 'min.js', 'min.map', 'min.js.map' ]
+- minify &mdash; Enable minifying Javascript files. Will also generate map files if the js-render transform defines 'usemap' to be true. Default to false.
+- options &mdash; Uglifyjs command options to use when minifying Javascript files. Defaults to:
+  --compress dead_code=true,conditionals=true,booleans=true,unused=true,if_return=true,join_vars=true,drop_console=true --mangle
+- usemap &mdash; Use minified Javascript if corresponding source maps is present. Default to true.
+- usemin &mdash; Use minified Javascript if present. Default to true.
 
 ## js-render
 
@@ -54,7 +53,6 @@ The renderScripts API may be invoked with an argument can specify a set of patte
 ## js-minify
 
 The js-minify transform optimizes script files by minifying to remove white-space, managle names and otherwise compress the scripts. By default, the script files use a '.js' extension, but will use a '.min.js' extension if the 'dotmin' option is enabled.
-
 
 ## js-extract
 
@@ -83,4 +81,4 @@ release: {
 
 ## Get Pak
 
-[https://embedthis.com/pak/](https://embedthis.com/pak/)
+[https://www.embedthis.com/pak/](https://www.embedthis.com/pak/)

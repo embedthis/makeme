@@ -67,22 +67,23 @@ Me.load({
                     libpaths =  [ lib.parent ]
 
                 } else {
+                    search = search + 
+                        search.map(function(p:Path) p.join('lib')) +
+                        search.map(function(p:Path) p.join('include'))
                     let opt = {fullpath: true, search: search, nopath: true}
                     let inc, lib
-                    if ((lib = probe('libcrypto.' + me.ext.shobj, blend({nothrow: true}, opt))) != null) {
-                        let isearch = [ lib.dirname.join('include') ]
+                    if ((lib = probe('libcrypto.' + me.ext.shobj, blend({nothrow: true}, opt))) == null) {
                         if (!me.platform.cross) {
-                            isearch.push('/usr/include')
+                            search.push('/usr/include')
                         }
-                        inc = probe('openssl/ssl.h', {search: isearch, nothrow: true})
+                        inc = probe('openssl/ssl.h', {search: search, nothrow: true})
                     }
                     if (!lib || !inc) {
                         lib = probe('libcrypto.' + me.ext.lib, opt)
-                        let isearch = [ lib.dirname.join('include') ]
                         if (!me.platform.cross) {
-                            isearch.push('/usr/include')
+                            search.push('/usr/include')
                         }
-                        inc = probe('openssl/ssl.h', {search: isearch})
+                        inc = probe('openssl/ssl.h', {search: search})
                     }
                     includes = [ inc ]
                     libraries = [ 'ssl', 'crypto' ]

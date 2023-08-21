@@ -1,54 +1,46 @@
 {
-    "name": "me-docstyle",
-    "description": "Documentation Style",
-    "version": "0.9.3",
-    "keywords": [
-        "me"
-    ],
-    "author": {
-        "name": "Embedthis Software",
-        "email": "dev@embedthis.com",
-        "url": "https://embedthis.com"
+  "name": "me-docstyle",
+  "description": "Documentation Style",
+  "version": "0.9.3",
+  "keywords": ["me"],
+  "author": {
+    "name": "Embedthis Software",
+    "email": "dev@embedthis.com",
+    "url": "https://www.embedthis.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/embedthis/me-docstyle.git"
+  },
+  "bugs": {
+    "url": "http://github.com/embedthis/me-docstyle/issues"
+  },
+  "licenses": [
+    {
+      "type": "GPL",
+      "url": "http://www.gnu.org/licenses/gpl-2.0.html"
     },
-    "repository": {
-        "type": "git",
-        "url": "git://github.com/embedthis/me-docstyle.git"
-    },
-    "bugs": {
-        "url": "http://github.com/embedthis/me-docstyle/issues"
-    },
-    "licenses": [
-        {
-            "type": "GPL",
-            "url": "http://www.gnu.org/licenses/gpl-2.0.html"
-        },
-        {
-            "type": "Commercial",
-            "url": "https://embedthis.com/licensing/"
-        }
-    ],
-    "dependencies": {
-        "exp-css": "~0.3",
-        "exp-js": "~0.3",
-        "exp-less": "~0.3",
-        "exp-reload": "~0.3",
-        "exp-html": "~0.2",
-        "exp-canon": "~0.1",
-        "jquery": "~2",
-        "semantic-ui": "~2"
-    },
-    "export": [
-        {
-            "from": [
-                "contents/",
-                "layouts/",
-                "partials/"
-            ],
-            "to": "${TOP}/"
-        }
-    ],
-    "manage": [
-        "expansive.json"
-    ],
-    "origin": "embedthis/me-docstyle"
+    {
+      "type": "Commercial",
+      "url": "https://www.embedthis.com/licensing/"
+    }
+  ],
+  "dependencies": {
+    "exp-css": "~0.3",
+    "exp-js": "~0.3",
+    "exp-less": "~0.3",
+    "exp-reload": "~0.3",
+    "exp-html": "~0.2",
+    "exp-canon": "~0.1",
+    "jquery": "~2",
+    "semantic-ui": "~2"
+  },
+  "export": [
+    {
+      "from": ["contents/", "layouts/", "partials/"],
+      "to": "${TOP}/"
+    }
+  ],
+  "manage": ["expansive.json"],
+  "origin": "embedthis/me-docstyle"
 }

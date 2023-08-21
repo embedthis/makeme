@@ -1,5 +1,4 @@
-exp-html
-===
+# exp-html
 
 Expansive plugin for the HTML minifier.
 
@@ -11,10 +10,10 @@ Provides the 'html' service to minify HTML files.
 
 ### To configure in expansive.json:
 
-* html.enable &mdash; Enable the html service to post-process HTML files. Defaults to true.
-* html.mappings &mdash; File extensions to process. Defaults to [ 'html' ].
-* html.options &mdash; Command line options to html-minifier. Default options are:
-    --remove-comments --collapse-whitespace --prevent-attributes-escaping --remove-empty-attributes --remove-optional-tags
+- html.enable &mdash; Enable the html service to post-process HTML files. Defaults to true.
+- html.mappings &mdash; File extensions to process. Defaults to [ 'html' ].
+- html.options &mdash; Command line options to html-minifier. Default options are:
+  --remove-comments --collapse-whitespace --prevent-attributes-escaping --remove-empty-attributes --remove-optional-tags
 
 ```
 {
@@ -33,4 +32,4 @@ Provides the 'html' service to minify HTML files.
 
 ### Get Pak from
 
-[https://embedthis.com/pak/](https://embedthis.com/pak/)
+[https://www.embedthis.com/pak/](https://www.embedthis.com/pak/)

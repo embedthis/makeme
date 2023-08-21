@@ -1,5 +1,4 @@
-exp-canon
-===
+# exp-canon
 
 Expansive plugin to canonicalize index pages.
 
@@ -13,7 +12,7 @@ Provides the 'canon' service which creates canonical links for index pages to as
 
 ### To configure in expansive.json:
 
-* canon.enable &mdash; Enable the html service to post-process HTML files.
+- canon.enable &mdash; Enable the html service to post-process HTML files.
 
 ```
 {
@@ -27,4 +26,4 @@ Provides the 'canon' service which creates canonical links for index pages to as
 
 ### Get Pak from
 
-[https://embedthis.com/pak/](https://embedthis.com/pak/)
+[https://www.embedthis.com/pak/](https://www.embedthis.com/pak/)

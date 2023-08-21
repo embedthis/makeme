@@ -8,7 +8,7 @@
         "build",
         "make"
     ],
-    "homepage": "https://embedthis.com/makeme/",
+    "homepage": "https://www.embedthis.com/makeme/",
     "author": {
         "name": "Embedthis Software",
         "email": "dev@embedthis.com",
@@ -27,7 +27,6 @@
         "url": "http://embedthis.com/licensing/"
     },
     "dependencies": {
-        "assist": "~1",
         "certs": "~1",
         "ejs.version": "~0.8",
         "ejscript": "~2.7",
