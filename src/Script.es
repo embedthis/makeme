@@ -103,11 +103,11 @@ public function builtin(cmd: String, actionOptions: Object = {}) {
                     let path: Path = target.modify || target.path
                     path = (makeme.generating) ? reppath(path) : path
                     if (sysdirs[path]) {
-                        App.log.error("prevent removal of", path)
+                        // App.log.error("prevent removal of", path)
                         continue
                     }
                     if (!path.childOf(me.dir.bld) && !makeme.generating) {
-                        App.log.error("prevent removal of", path)
+                        // App.log.error("prevent removal of", path)
                         continue
                     }
                     if (path.exists) {

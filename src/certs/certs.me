@@ -63,13 +63,13 @@ Me.load({
     targets: {
         'install-certs': {
             type: 'file',
-            path: '${TOP}/certs',
+            path: '${TOP}/certs/',
             files: [ 'samples/*.crt', 'samples/*.key' ],
         },
 
         'install-roots': {
             type: 'file',
-            path: '${BIN}',
+            path: '${BIN}/',
             files: [ 'samples/roots.crt' ],
         },
 
