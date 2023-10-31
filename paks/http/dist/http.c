@@ -590,7 +590,7 @@ static int parseArgs(int argc, char **argv)
         if (app->verifyIssuer == -1) {
             app->verifyIssuer = app->verifyPeer ? 1 : 0;
         }
-        mprVerifySslPeer(app->ssl, app->verifyPeer);
+        mprVerifySslPeer(app->ssl, app->verifyPeer ? "optional": "none");
         mprVerifySslIssuer(app->ssl, app->verifyIssuer);
         if (app->ciphers) {
             mprSetSslCiphers(app->ssl, app->ciphers);

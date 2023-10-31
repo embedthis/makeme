@@ -52,7 +52,7 @@ MAIN(ejsMain, int argc, char **argv, char **envp)
     argv = (char**) mpr->argv;
     err = 0;
     logSpec = 0;
-    traceSpec = 0;
+    traceSpec = "stdout:0";
     searchPath = 0;
 
     for (nextArg = 1; nextArg < argc; nextArg++) {

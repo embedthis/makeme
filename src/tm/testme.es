@@ -419,8 +419,6 @@ enumerable class TestMe {
                 cmd.on("readable", function(event, c) {
                     assert(event == "readable")
                     cmd.read(data, -1)
-                    // parseOutput(phase, topPath, file, data.toString(), env)
-                    // data.flush()
                 })
 
                 cmd.start(command, blend({detach: true}, options))
@@ -430,6 +428,9 @@ enumerable class TestMe {
                     trace('FAIL', topPath + ' with bad exit status ' + cmd.status)
                     if (cmd.error) {
                         trace('Stderr', '\n' + cmd.error)
+                    }
+                    if (data) {
+                        trace('Stdout', '\n' + data.toString())
                     }
                     if (cmd.response) {
                         trace('Stdout', '\n' + cmd.response)
@@ -488,7 +489,7 @@ enumerable class TestMe {
 
             case 'info':
                 if (success != false) {
-                    vtrace('VVInfo', rest)
+                    vtrace('Info', rest)
                 } else {
                     trace('Info', rest)
                 }

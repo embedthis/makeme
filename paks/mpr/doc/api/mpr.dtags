@@ -5317,6 +5317,13 @@
     </member>
     <member kind="function">
       <type>PUBLIC void</type>
+      <name>mprSetSslDevice</name>
+      <anchorfile>group___mpr_ssl.html</anchorfile>
+      <anchor>ga1d7376f02b7a8872a0a60e5e49ccf5fe</anchor>
+      <arglist>(MprSsl *ssl, cchar *device)</arglist>
+    </member>
+    <member kind="function">
+      <type>PUBLIC void</type>
       <name>mprSetSslHostname</name>
       <anchorfile>group___mpr_ssl.html</anchorfile>
       <anchor>ga0cdc0b20cc0c015623015d8fc50a7242</anchor>
@@ -5760,8 +5767,8 @@
       <type>PUBLIC void</type>
       <name>mprVerifySslPeer</name>
       <anchorfile>group___mpr_ssl.html</anchorfile>
-      <anchor>ga91715e667853e203c3eed205dc259c44</anchor>
-      <arglist>(struct MprSsl *ssl, bool on)</arglist>
+      <anchor>ga95e1eb2a25ec4ac3b3cc4839aa931112</anchor>
+      <arglist>(struct MprSsl *ssl, cchar *mode)</arglist>
     </member>
     <member kind="function">
       <type>PUBLIC void *</type>
@@ -6981,10 +6988,10 @@
       <arglist></arglist>
     </member>
     <member kind="variable">
-      <type>bool</type>
+      <type>cchar *</type>
       <name>verifyPeer</name>
       <anchorfile>struct_mpr_ssl.html</anchorfile>
-      <anchor>ac9c36e5572080a0a0e22f9f5b4f7b005</anchor>
+      <anchor>a478d1ffd06930f907e7761aa98c03bf1</anchor>
       <arglist></arglist>
     </member>
   </compound>
@@ -11082,6 +11089,13 @@
     </member>
     <member kind="function">
       <type>PUBLIC void</type>
+      <name>mprSetSslDevice</name>
+      <anchorfile>group___mpr_ssl.html</anchorfile>
+      <anchor>ga1d7376f02b7a8872a0a60e5e49ccf5fe</anchor>
+      <arglist>(MprSsl *ssl, cchar *device)</arglist>
+    </member>
+    <member kind="function">
+      <type>PUBLIC void</type>
       <name>mprSetSslHostname</name>
       <anchorfile>group___mpr_ssl.html</anchorfile>
       <anchor>ga0cdc0b20cc0c015623015d8fc50a7242</anchor>
@@ -11168,8 +11182,8 @@
       <type>PUBLIC void</type>
       <name>mprVerifySslPeer</name>
       <anchorfile>group___mpr_ssl.html</anchorfile>
-      <anchor>ga91715e667853e203c3eed205dc259c44</anchor>
-      <arglist>(struct MprSsl *ssl, bool on)</arglist>
+      <anchor>ga95e1eb2a25ec4ac3b3cc4839aa931112</anchor>
+      <arglist>(struct MprSsl *ssl, cchar *mode)</arglist>
     </member>
   </compound>
   <compound kind="group">

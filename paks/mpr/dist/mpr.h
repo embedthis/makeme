@@ -7895,13 +7895,23 @@ PUBLIC int mprGetSocketPort(MprSocket *sp);
 
 /**
     Get the socket state
-    @description Get the socket state as string description in JSON format.
+    @description Get the socket state as string description in KEY=VALUE,... format.
     @param sp Socket object returned from #mprCreateSocket
-    @return The an allocated string in JSON format. Returns NULL if the state is not available or supported.
+    @return The allocated string. Returns NULL if the state is not available or supported.
     @ingroup MprSocket
     @stability Stable
  */
 PUBLIC char *mprGetSocketState(MprSocket *sp);
+
+/*
+    Get a specific key value from the socket state
+    @description Get a key value from the socket state.
+    @param sp Socket object returned from #mprCreateSocket
+    @return The key value or NULL if not found.
+    @ingroup MprSocket
+    @stability Prototype
+*/
+PUBLIC char *mprParseSocketState(MprSocket *sp, cchar *key);
 
 /**
     has the system got a dual IPv4 + IPv6 network stack
@@ -8244,13 +8254,13 @@ typedef struct MprSsl {
     cchar           *ciphers;           /**< Candidate ciphers to use */
     cchar           *device;            /**< Crypto hardware device to use */
     cchar           *hostname;          /**< Hostname when using SNI */
+    cchar           *verifyPeer;        /**< Verify the peer certificate (none, optional, require) */
     MprList         *alpn;              /**< ALPN protocols */
     void            *config;            /**< Extended provider SSL configuration */
     bool            changed;            /**< Set if there is a change in the SSL config. Reset by providers */
     bool            configured;         /**< Set if this SSL configuration has been processed */
     bool            ticket;             /**< Enable session tickets */
     bool            renegotiate;        /**< Renegotiate sessions */
-    bool            verifyPeer;         /**< Verify the peer certificate */
     bool            verifyIssuer;       /**< Set if the certificate issuer should be also verified */
     bool            verified;           /**< Peer has been verified */
     int             logLevel;           /**< Level at which to start tracing SSL events */
@@ -8364,6 +8374,15 @@ PUBLIC void mprSetSslCaPath(struct MprSsl *ssl, cchar *caPath);
 PUBLIC void mprSetSslCiphers(MprSsl *ssl, cchar *ciphers);
 
 /**
+    Set the SSL Engine to use
+    @param ssl SSL instance returned from #mprCreateSsl
+    @param device Engine name
+    @ingroup MprSsl
+    @stability Stable
+ */
+PUBLIC void mprSetSslDevice(MprSsl *ssl, cchar *device);
+
+/**
     Set the key file to use for SSL
     @param ssl SSL instance returned from #mprCreateSsl
     @param keyFile Path to the SSL key file
@@ -8464,12 +8483,13 @@ PUBLIC void mprVerifySslIssuer(struct MprSsl *ssl, bool on);
 /**
     Require verification of peer certificates
     @param ssl SSL instance returned from #mprCreateSsl
-    @param on Set to true to enable peer SSL certificate verification.
+    @param mode Set to none, optional or required.
     @ingroup MprSsl
-    @stability Stable
+    @stability Evolving
  */
-PUBLIC void mprVerifySslPeer(struct MprSsl *ssl, bool on);
+PUBLIC void mprVerifySslPeer(struct MprSsl *ssl, cchar *mode);
 
+//  DEPRECATE EST, MATRIXSSL, NONOSSL
 #if ME_COM_EST
     PUBLIC int mprCreateEstModule(void);
 #endif

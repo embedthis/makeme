@@ -5266,7 +5266,7 @@ static void parseSslTicket(HttpRoute *route, cchar *key, MprJson *prop)
 
 static void parseSslVerifyClient(HttpRoute *route, cchar *key, MprJson *prop)
 {
-    mprVerifySslPeer(route->ssl, (prop->type & MPR_JSON_TRUE) ? 1 : 0);
+    mprVerifySslPeer(route->ssl, (prop->type & MPR_JSON_TRUE) ? "optional" : "none");
 }
 
 

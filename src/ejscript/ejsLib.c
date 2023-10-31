@@ -36330,6 +36330,7 @@ static int getNumOption(Ejs *ejs, EjsObj *options, cchar *field)
 
 static void setupTrace(Ejs *ejs, HttpTrace *trace, EjsObj *options)
 {
+    httpSetTraceLevel(getNumOption(ejs, options, "level"));
     httpSetTraceEventLevel(trace, "connection", getNumOption(ejs, options, "connection"));
     httpSetTraceEventLevel(trace, "error", getNumOption(ejs, options, "error"));
     httpSetTraceEventLevel(trace, "inform", getNumOption(ejs, options, "info"));
@@ -36441,7 +36442,7 @@ static EjsObj *http_set_verify(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **argv)
         hp->ssl = mprCreateSsl(0);
     }
     mprVerifySslIssuer(hp->ssl, verify);
-    mprVerifySslPeer(hp->ssl, verify);
+    mprVerifySslPeer(hp->ssl, verify ? "required": "none");
     return 0;
 }
 
@@ -51476,7 +51477,7 @@ static EjsWebSocket *wsConstructor(Ejs *ejs, EjsWebSocket *ws, int argc, EjsObj 
     if (sstarts(ws->uri, "wss")) {
         ws->ssl = mprCreateSsl(0);
         mprVerifySslIssuer(ws->ssl, verify);
-        mprVerifySslPeer(ws->ssl, verify);
+        mprVerifySslPeer(ws->ssl, verify ? "optional" : "none");
 #if FUTURE
         if (!hp->caFile) {
             hp->caFile = mprJoinPath(mprGetAppDir(), "http-ca.crt");

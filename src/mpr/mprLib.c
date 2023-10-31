@@ -1,5 +1,5 @@
 /*
- * Embedthis MPR Library Source 9.0.2
+ * Embedthis MPR Library Source 9.0.3
  */
 
 #include "mpr.h"
@@ -23195,6 +23195,22 @@ PUBLIC char *mprGetSocketState(MprSocket *sp)
     return sp->provider->socketState(sp);
 }
 
+PUBLIC char *mprParseSocketState(MprSocket *sp, cchar *key)
+{
+    cchar   *state;
+    char    *tok, *value;
+
+    if (sp->provider == 0) {
+        return 0;
+    }
+    value = 0;
+    state = sp->provider->socketState(sp);
+    if ((tok = scontains(state, key)) != 0) {
+        stok(tok, "=", &value);
+        value = stok(value, ", ", NULL);
+    }
+    return value;
+}
 
 PUBLIC bool mprSocketHasBuffered(MprSocket *sp)
 {
@@ -23758,6 +23774,7 @@ static void manageSsl(MprSsl *ssl, int flags)
         mprMark(ssl->mutex);
         mprMark(ssl->revoke);
         mprMark(ssl->caPath);
+        mprMark(ssl->verifyPeer);
     }
 }
 
@@ -23786,8 +23803,8 @@ PUBLIC MprSsl *mprCreateSsl(int server)
     } else {
         ssl->verifyDepth = 10;
         if (MPR->verifySsl) {
-            ssl->verifyPeer = MPR->verifySsl;
-            ssl->verifyIssuer = MPR->verifySsl;
+            ssl->verifyPeer = sclone("require");
+            ssl->verifyIssuer = 1;
             path = mprJoinPath(mprGetAppDir(), ME_SSL_ROOTS_CERT);
             if (mprPathExists(path, R_OK)) {
                 ssl->caFile = path;
@@ -24031,14 +24048,17 @@ PUBLIC void mprSetSslTicket(MprSsl *ssl, bool enable)
 }
 
 
-PUBLIC void mprVerifySslPeer(MprSsl *ssl, bool on)
+PUBLIC void mprVerifySslPeer(MprSsl *ssl, cchar *mode)
 {
     if (ssl) {
-        ssl->verifyPeer = on;
-        ssl->verifyIssuer = on;
+        if (mode && !smatch(mode, "none")) {
+            ssl->verifyPeer = sclone(mode);
+        } else {
+            ssl->verifyPeer = 0;
+        }
         ssl->changed = 1;
     } else {
-        MPR->verifySsl = on;
+        MPR->verifySsl = mode ? 1 : 0;
     }
 }
 
