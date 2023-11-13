@@ -41,8 +41,10 @@ extern "C" {
 #define TM_SHORT_NAP           (5 * 1000)
 
 #define tassert(E)             ttest(TM_LOC, #E, (E) != 0)
-#define tfail(E)               ttest(TM_LOC, "assertion failed", 0)
+#define tfail(E)               ttest(TM_LOC, "assertion failed" #E, 0)
 #define ttrue(E)               ttest(TM_LOC, #E, (E) != 0)
+#define tcontains(s, p)        ttestContains(TM_LOC, #s " == " #p, (s && p && strstr(s, p) != 0), s, p)
+#define tmatch(s, p)           ttestMatch(TM_LOC, #s " == " #p, ((s == NULL && p == NULL) || (smatch(s, p))), s, p)
 #define tfalse(E)              ttest(TM_LOC, #E, (E) == 0)
 
 #ifdef assert
@@ -62,7 +64,7 @@ void tdebug(const char *fmt, ...)
 }
 
 
-int tdepth()
+int tdepth(void)
 {
     const char   *value;
 
@@ -140,7 +142,6 @@ void tskip(const char *fmt, ...)
     printf("skip %s\n", buf);
 }
 
-
 int ttest(const char *loc, const char *expression, int success)
 {
     if (success) {
@@ -164,6 +165,25 @@ int ttest(const char *loc, const char *expression, int success)
     return success;
 }
 
+int ttestContains(const char *loc, const char *expression, int success, const char *str, const char *pattern)
+{
+    ttest(loc, expression, success);
+    if (!success) {
+        printf("Expected: %s\n", pattern);
+        printf("Received: %s\n", str);
+    }
+    return success;
+}
+
+int ttestMatch(const char *loc, const char *expression, int success, const char *str, const char *pattern)
+{
+    ttest(loc, expression, success);
+    if (!success) {
+        printf("Expected: %s\n", pattern);
+        printf("Received: %s\n", str);
+    }
+    return success;
+}
 
 void tverbose(const char *fmt, ...)
 {

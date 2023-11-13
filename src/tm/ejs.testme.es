@@ -42,6 +42,18 @@ module ejs.testme {
         print('info', ...args)
     }
 
+    function tmatch(s: String, pattern: String) {
+        if (smatch(s, pattern)) {
+            let error = new Error('String "' + s + '"' + ' does not match pattern "' + pattern + '"')
+            let top = error.stack[1]
+            print('fail ' + top.filename + '@' + top.lineno + ' for ' + top.code)
+        } else {
+            let ok = new Error()
+            let top = ok.stack[1]
+            print('pass ' + top.filename + '@' + top.lineno + ' for ' + top.code)
+        }
+    }
+
     function tphase(): String?
         tget('TM_PHASE')
         
