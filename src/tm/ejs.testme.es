@@ -125,7 +125,7 @@ module ejs.testme {
         return false
     }
 
-    public function startService(cmdline: String, options = {}): Void {
+    public function startService(cmdline: String, options = {}): Boolean {
         let connected = connectToService(cmdline, options, 1)
         if (!connected && ! tget('TM_NOSERVER')) {
             let pidfile = options.pidfile || PIDFILE
@@ -139,11 +139,13 @@ module ejs.testme {
             print('Started', cmdline + ' (' + pid + ')')
             tinfo('Started', cmdline + ' (' + pid + ')')
             App.sleep(250)
-            if ((connected = connectToService(cmdline, options, 20)) != true) {
-                tinfo('Cannot connect to service: ' + cmdline + ' on ' + address)
+            if ((connected = connectToService(cmdline, options, 30)) != true) {
+                tfail('Cannot connect to service: ' + cmdline + ' on ' + address)
+                return false
             }
         }
         ttrue(connected)
+        return true
     }
 
     public function stopService(options = {}) {
