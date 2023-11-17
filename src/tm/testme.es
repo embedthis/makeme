@@ -180,7 +180,11 @@ enumerable class TestMe {
 
     function TestMe() {
         program = Path(App.args[0]).basename
-        if ((path = searchUp('configure')) != null) {
+        path = searchUp('configure')
+        if (!path) {
+            path = searchUp('start.me')
+        }
+        if (path) {
             top = path.dirname.absolute
             try {
                 if (top.join('start.me')) {
@@ -379,7 +383,7 @@ enumerable class TestMe {
         try {
             command = buildTest(phase, topPath, file, env)
         } catch (e) {
-            trace('FAIL', topPath + ' cannot build ' + topPath + '\n\n' + e.message)
+            trace('FAIL', topPath + ' cannot build ' + topPath + '\n\n' + e.toString())
             this.failedCount++
             return false
         }

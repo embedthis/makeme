@@ -13,6 +13,17 @@ module ejs.testme {
 
     function tdepth(): Number
         tget('TM_DEPTH') - 0
+
+    function teq(a, b, msg) {
+        if (a != b) {
+            let error = new Error('Assertion failed')
+            let top = error.stack[1]
+            print('fail in ' + top.filename + '@' + top.lineno + ' for ' + top.code)
+            if (msg) {
+                print('info ' + msg)
+            }
+        }
+    }
         
     function tfalse(cond: Boolean) {
         ttrue(!cond)
@@ -125,9 +136,10 @@ module ejs.testme {
             cmd.finalize()
             let pid = cmd.pid
             Path(pidfile).write(pid)
+            print('Started', cmdline + ' (' + pid + ')')
             tinfo('Started', cmdline + ' (' + pid + ')')
             App.sleep(250)
-            if ((connected = connectToService(cmdline, options, 10)) != true) {
+            if ((connected = connectToService(cmdline, options, 20)) != true) {
                 tinfo('Cannot connect to service: ' + cmdline + ' on ' + address)
             }
         }

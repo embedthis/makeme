@@ -41,8 +41,9 @@ extern "C" {
 #define TM_SHORT_NAP           (5 * 1000)
 
 #define tassert(E)             ttest(TM_LOC, #E, (E) != 0)
-#define tfail(E)               ttest(TM_LOC, "assertion failed" #E, 0)
+#define tfail(E)               ttest(TM_LOC, "assertion failed " #E, 0)
 #define ttrue(E)               ttest(TM_LOC, #E, (E) != 0)
+#define teq(a, b)              ttestEquals(TM_LOC, #a " == " #b, a == b, (int) a, (int) b)
 #define tcontains(s, p)        ttestContains(TM_LOC, #s " == " #p, (s && p && strstr(s, p) != 0), s, p)
 #define tmatch(s, p)           ttestMatch(TM_LOC, #s " == " #p, ((s == NULL && p == NULL) || (smatch(s, p))), s, p)
 #define tfalse(E)              ttest(TM_LOC, #E, (E) == 0)
@@ -161,6 +162,16 @@ int ttest(const char *loc, const char *expression, int success)
             abort();
 #endif
         }
+    }
+    return success;
+}
+
+int ttestEquals(const char *loc, const char *expression, int success, int a, int b)
+{
+    ttest(loc, expression, success);
+    if (!success) {
+        printf("Expected: %d\n", a);
+        printf("Received: %d\n", b);
     }
     return success;
 }
