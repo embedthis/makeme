@@ -127,7 +127,7 @@ module ejs.testme {
 
     public function startService(cmdline: String, options = {}): Boolean {
         let connected = connectToService(cmdline, options, 1)
-        if (!connected && ! tget('TM_NOSERVER')) {
+        if (!connected && !tget('TM_NOSERVER')) {
             let pidfile = options.pidfile || PIDFILE
             let address: Uri = Uri(options.address || tget('TM_HTTP') || App.config.uris.http).complete()
             let cmd = new Cmd
@@ -136,7 +136,6 @@ module ejs.testme {
             cmd.finalize()
             let pid = cmd.pid
             Path(pidfile).write(pid)
-            print('Started', cmdline + ' (' + pid + ')')
             tinfo('Started', cmdline + ' (' + pid + ')')
             App.sleep(250)
             if ((connected = connectToService(cmdline, options, 30)) != true) {
@@ -148,8 +147,8 @@ module ejs.testme {
         return true
     }
 
-    public function stopService(options = {}) {
-        if (tget('TM_NOSERVER')) return
+    public function stopService(options = {}): Boolean {
+        if (tget('TM_NOSERVER')) return true
         let pidfile = options.pidfile || PIDFILE
         if (Path(pidfile).exists) {
             pid = Path(pidfile).readString()
@@ -158,6 +157,7 @@ module ejs.testme {
             App.sleep(500);
             tinfo('Stopped', 'Process (' + pid + ')')
         }
+        return true
     }
 
     function failSafeKill(cmd) {
@@ -166,12 +166,12 @@ module ejs.testme {
         }
     }
 
-    public function startStopService(cmd: String, options = {}): Void {
-        if (tget('TM_NOSERVER')) return
+    public function startStopService(cmd: String, options = {}): Boolean {
+        if (tget('TM_NOSERVER')) return true
         if (tphase() == 'Setup') {
-            startService(cmd, options)
+            return startService(cmd, options)
         } else {
-            stopService()
+            return stopService()
         }
     }
 
