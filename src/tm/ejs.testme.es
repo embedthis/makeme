@@ -49,6 +49,7 @@ module ejs.testme {
     function thas(key: String): Boolean
         tget(key) - 0
 
+    //  Shown with verbose only
     function tinfo(...args) {
         print('info', ...args)
     }
@@ -94,6 +95,7 @@ module ejs.testme {
         print('verbose', ...args)
     }
 
+    //  Shown always
     function twrite(...args) {
         print('write', ...args)
     }
