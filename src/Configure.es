@@ -557,6 +557,11 @@ class Configure {
                         }
                         me.dir.bin.makeDir()
                         cp(file, me.dir.bin)
+                        let ext = Path(file).extension
+                        if (ext == 'so' || ext == 'dylib' || ext == 'exe') {
+                            let dest = me.dir.bin.join(file.basename)
+                            chmod(dest, 0755)
+                        }
                     }
                 }
             }
@@ -815,7 +820,7 @@ module embedthis.me.script {
             }
             search.push(path)
             if (component == 'openssl') {
-                let versions = Version.sort(path.files('openssl@1*/*'), -1)
+                let versions = Version.sort(path.files('openssl@3*/*'), -1)
                 if (versions && versions.length >= 1) {
                     path = Path(versions[0])
                     if (path) {
