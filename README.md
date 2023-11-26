@@ -1,7 +1,9 @@
 Embedthis MakeMe
 ===
 
-Embedthis MakeMe. A modern replacement for autoconf/make.
+Embedthis MakeMe. 
+
+This product is no longer maintained and the repository is ARCHIVED.
 
 Licensing
 ---
