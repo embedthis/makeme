@@ -18,6 +18,10 @@
     "bugs": {
         "url": "http://github.com/embedthis/ssl/issues"
     },
+    "files": [
+        "dist/",
+        "doc/api/"
+    ],
     "licenses": "MIT",
     "origin": "embedthis/ssl"
 }

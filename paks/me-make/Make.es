@@ -1042,11 +1042,15 @@ class Make {
             cmd = target.generate
         }
         if (target.generate === true && !cmd) {
-            genStartCapture(target)
-            builder.runTargetScript(target, 'build')
-            cmd = genStopCapture(target)
-            if (cmd == '') {
-                prefix = suffix = ''
+            if (target.scripts.build && target.scripts.build[0].interpreter == 'bash') {
+                cmd = target.scripts.build[0].script
+            } else {
+                genStartCapture(target)
+                builder.runTargetScript(target, 'build')
+                cmd = genStopCapture(target)
+                if (cmd == '') {
+                    prefix = suffix = ''
+                }
             }
         } else {
             if (cmd && makeme.generating != 'nmake') {

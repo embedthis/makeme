@@ -22,19 +22,7 @@
     },
     "licenses": "MIT",
     "files": [
-        "*.md",
-        "*.me",
-        "*.ans",
-        "*.srl",
-        "*.conf",
-        "samples/**",
-        "!start.me"
-    ],
-    "export": [
-        "certs.me",
-        "*.ans",
-        "*.conf",
-        "samples/**"
+        "dist/"
     ],
     "origin": "embedthis/certs"
 }

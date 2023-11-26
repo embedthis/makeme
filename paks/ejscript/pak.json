@@ -42,5 +42,14 @@
         "doc/api/"
     ],
     "import": true,
+    "dependencies": {
+        "certs": "~1.0",
+        "http": "~7",
+        "mpr": "~9.0.3",
+        "osdep": "~0.9",
+        "pcre": "~1.0",
+        "ssl": "~0.9",
+        "zlib": "~1.0"
+    },
     "origin": "embedthis/ejscript"
 }

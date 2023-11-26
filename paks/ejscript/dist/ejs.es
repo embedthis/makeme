@@ -2796,12 +2796,13 @@ module ejs {
             }
             cmd.finalize()
             cmd.wait()
-            if (cmd.status != 0 && options.exceptions !== false) {
-                throw new IOError('Command failed, status ' + cmd.status + '\n' + cmd.error)
-            }
-            /* Currently undocumented */
+            /* Currently undocumented - return the error and results via options */
             if (options.error && cmd.error) {
                 options.error = cmd.error
+                options.results = results.toString()
+            }
+            if (cmd.status != 0 && options.exceptions !== false) {
+                throw new IOError('Command failed, status ' + cmd.status + '\n' + cmd.error)
             }
             return results.toString()
         }

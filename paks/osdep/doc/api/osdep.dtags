@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8' standalone='yes' ?>
-<tagfile>
+<tagfile doxygen_version="1.9.6">
   <compound kind="group">
     <name>Osdep</name>
     <title>Osdep</title>
@@ -16,6 +16,41 @@
       <name>bool</name>
       <anchorfile>group___osdep.html</anchorfile>
       <anchor>gad5c9d4ba3dc37783a528b0925dc981a0</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="typedef">
+      <type>const char</type>
+      <name>cchar</name>
+      <anchorfile>group___osdep.html</anchorfile>
+      <anchor>ga0f128c3e0c83721af0220c00554e9c4e</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="typedef">
+      <type>const int</type>
+      <name>cint</name>
+      <anchorfile>group___osdep.html</anchorfile>
+      <anchor>ga1f6289ab1328cf3c7852d75c397838a2</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="typedef">
+      <type>const unsigned char</type>
+      <name>cuchar</name>
+      <anchorfile>group___osdep.html</anchorfile>
+      <anchor>gad5d9ae5e2ea7e75aa605e36485987fc2</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="typedef">
+      <type>const unsigned short</type>
+      <name>cushort</name>
+      <anchorfile>group___osdep.html</anchorfile>
+      <anchor>ga585ef5c0f4567945e1f3e7f32670accb</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="typedef">
+      <type>const void</type>
+      <name>cvoid</name>
+      <anchorfile>group___osdep.html</anchorfile>
+      <anchor>ga5272042f7e0f5c53e2fd4b49ff47d92d</anchor>
       <arglist></arglist>
     </member>
     <member kind="typedef">
@@ -142,41 +177,6 @@
       <name>wsize</name>
       <anchorfile>group___osdep.html</anchorfile>
       <anchor>ga05fe06d2dbadc7a0d43b9f0979417b67</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>const typedef char</type>
-      <name>cchar</name>
-      <anchorfile>group___osdep.html</anchorfile>
-      <anchor>ga4f52f6802d742ebd12c628e69a2bd162</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>const typedef int</type>
-      <name>cint</name>
-      <anchorfile>group___osdep.html</anchorfile>
-      <anchor>gabe3ec91dc528d14904872c24eaa81180</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>const typedef unsigned char</type>
-      <name>cuchar</name>
-      <anchorfile>group___osdep.html</anchorfile>
-      <anchor>ga666c2ef2306a723fab78ce6d9098c7fa</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>const typedef unsigned short</type>
-      <name>cushort</name>
-      <anchorfile>group___osdep.html</anchorfile>
-      <anchor>ga16e2c9c4d117de638479f8d48bd13664</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>const typedef void</type>
-      <name>cvoid</name>
-      <anchorfile>group___osdep.html</anchorfile>
-      <anchor>ga6e883c0b6ff36e912dc38634137dd68a</anchor>
       <arglist></arglist>
     </member>
   </compound>

@@ -699,7 +699,7 @@ PUBLIC int sniCallback(void *unused, mbedtls_ssl_context *ctx, cuchar *host, siz
     return 0;
 }
 
-
+#if DEPRECATE_JSON_STATE
 static void putCertToBuf(MprBuf *buf, cchar *key, const mbedtls_x509_name *dn)
 {
     const mbedtls_x509_name *np;
@@ -809,6 +809,113 @@ static char *getMbedState(MprSocket *sp)
     mprPutToBuf(buf, "}");
     return mprBufToString(buf);
 }
+#else
+
+
+static void putCertToBuf(MprBuf *buf, cchar *prefix, cchar *prefix2, const mbedtls_x509_name *dn)
+{
+    const mbedtls_x509_name *np;
+    cchar                   *name;
+    char                    value[MBEDTLS_X509_MAX_DN_NAME_SIZE];
+    ssize                   i;
+    uchar                   c;
+    int                     ret;
+
+    for (np = dn; np; np = np->next) {
+        if (!np->oid.p) {
+            np = np->next;
+            continue;
+        }
+        name = 0;
+        if ((ret = mbedtls_oid_get_attr_short_name(&np->oid, &name)) < 0) {
+            continue;
+        }
+        if (smatch(name, "emailAddress")) {
+            name = "EMAIL";
+        }
+        for(i = 0; i < np->val.len; i++) {
+            if (i >= sizeof(value) - 1) {
+                break;
+            }
+            c = np->val.p[i];
+            value[i] = (c < 32 || c == 127 || (c > 128 && c < 160)) ? '?' : c;
+        }
+        value[i] = '\0';
+        mprPutToBuf(buf, "%s%s%s=%s,", prefix, prefix2, name, value);
+    }
+}
+
+
+static void formatCert(MprBuf *buf, cchar *prefix, mbedtls_x509_crt *crt)
+{
+    char        text[1024];
+
+    mprPutToBuf(buf, "%sVERSION=%d,", prefix, crt->version);
+
+    mbedtls_x509_serial_gets(text, sizeof(text), &crt->serial);
+    mprPutToBuf(buf, "%sSERIAL=%s,", prefix, text);
+
+    putCertToBuf(buf, prefix, "I_", &crt->issuer);
+    putCertToBuf(buf, prefix, "S_", &crt->subject);
+
+    mprPutToBuf(buf, "%sISSUED=%04d-%02d-%02d %02d:%02d:%02d,", prefix,
+        crt->valid_from.year, crt->valid_from.mon,
+        crt->valid_from.day, crt->valid_from.hour, crt->valid_from.min, crt->valid_from.sec);
+
+    mprPutToBuf(buf, "%sEXPIRES=%04d-%02d-%02d %02d:%02d:%02d,", prefix,
+        crt->valid_to.year, crt->valid_to.mon,
+        crt->valid_to.day, crt->valid_to.hour, crt->valid_to.min, crt->valid_to.sec);
+
+    mbedtls_x509_sig_alg_gets(text, sizeof(text), &crt->sig_oid, crt->sig_pk, crt->sig_md, crt->sig_opts);
+    mprPutToBuf(buf, "%sSIGNED=%s,", prefix, text);
+
+    mprPutToBuf(buf, "%sKEYSIZE=%d,", prefix, (int) mbedtls_pk_get_bitlen(&crt->pk));
+
+    if (crt->ext_types & MBEDTLS_X509_EXT_BASIC_CONSTRAINTS) {
+        mprPutToBuf(buf, "%sCONSTRAINTS=CA=%s,", prefix, crt->ca_istrue ? "true" : "false");
+    }
+}
+
+
+/*
+    Called to log the MbedTLS socket / certificate state
+ */
+static char *getMbedState(MprSocket *sp)
+{
+    MbedSocket              *mb;
+    MbedConfig              *cfg;
+    mbedtls_ssl_context     *ctx;
+    mbedtls_ssl_session     *session;
+    MprBuf                  *buf;
+    char                    *prefix;
+
+    if ((mb = sp->sslSocket) == 0) {
+        return 0;
+    }
+    ctx = &mb->ctx;
+    if ((session = ctx->session) == 0) {
+        return 0;
+    }
+    cfg = sp->ssl->config;
+    buf = mprCreateBuf(0, 0);
+
+    mprPutToBuf(buf, "PROVIDER=openssl,CIPHER=%s,SESSION=%s,", 
+        mbedtls_ssl_get_ciphersuite(ctx), sp->session);
+    mprPutToBuf(buf, "PEER=%s,", sp->peerName ? sp->peerName : "");
+    
+    if (session->peer_cert) {
+        prefix = sp->acceptIp ? "CLIENT_" : "SERVER_";
+        formatCert(buf, prefix, session->peer_cert);
+    } else {
+        mprPutToBuf(buf, "%s=\"none\",", sp->acceptIp ? "CLIENT_CERT" : "SERVER_CERT");
+    }
+    if (cfg->conf.key_cert && cfg->conf.key_cert->cert) {
+        prefix = sp->acceptIp ? "SERVER_" : "CLIENT_";
+        formatCert(buf, prefix, cfg->conf.key_cert->cert);
+    }
+    return mprBufToString(buf);
+}
+#endif
 
 
 /*

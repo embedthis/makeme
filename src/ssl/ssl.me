@@ -11,6 +11,9 @@ Me.load({
             uses:      [ 'mbedtls', 'openssl' ],
             config: function (target) {
                 let provider
+                if (me.settings.tls == 'openssl' && me.platform.os == 'linux') {
+                    target.discovers = target.discovers.reverse()
+                }
                 for each (p in target.discovers) {
                     let ptarget = me.targets[p]
                     if (ptarget.explicit) {

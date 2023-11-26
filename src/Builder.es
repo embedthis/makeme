@@ -589,7 +589,7 @@ public class Builder {
             if (!me.targets[header]) {
                 /* Create a stub header target */
                 loader.createTarget({ name: header, enable: true, path: Path(header), home: target.home,
-                    type: 'header', goals: [target.name], includes: target.includes, generate: true, belongs: target.name })
+                    type: 'header', goals: [target.name], includes: target.includes, generate: true, belongs: target.name }, {rebase: false})
             }
             let h = me.targets[header]
             if (admit(h, 'depend')) {

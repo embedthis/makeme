@@ -702,14 +702,20 @@ Me.load({
                 } else {
                     why('Rebuild', exe + ' because ' + c + ' is newer')
                 }
-                strace('Build', 'me --chdir testme --file ' + mefile.basename + show)
-                let ropt = {error: true}
-                let result = Cmd.run('me --chdir testme --file ' + mefile.basename + show, ropt)
-                if (ropt.error !== true) {
-                    log.write(ropt.error)
-                }
-                if (options.show) {
-                    log.write(result)
+                let result, ropt
+                try {
+                    strace('Build', 'me --chdir testme --file ' + mefile.basename + show)
+                    ropt = {error: true}
+                    result = Cmd.run('me --chdir testme --file ' + mefile.basename + show, ropt)
+                } catch (err) {
+                    throw err
+                } finally {
+                    if (ropt.error !== true) {
+                        log.write(ropt.error)
+                    }
+                    if (options.show) {
+                        log.write(ropt.results)
+                    }
                 }
             } else {
                 why('Target', exe + ' is up to date')

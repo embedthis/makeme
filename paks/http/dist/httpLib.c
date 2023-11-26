@@ -13408,7 +13408,7 @@ PUBLIC void httpAddRouteMapping(HttpRoute *route, cchar *extensions, cchar *mapp
 {
     MprList     *mapList;
     cchar       *map;
-    char        *etok, *ext, *mtok;
+    char        *etok, *ext, *tok;
     ssize       len;
 
     if (extensions == 0) {
@@ -13432,7 +13432,7 @@ PUBLIC void httpAddRouteMapping(HttpRoute *route, cchar *extensions, cchar *mapp
             ext[len - 1] = '\0';
         }
         mapList = mprCreateList(0, MPR_LIST_STABLE);
-        for (map = stok(sclone(mappings), ", \t", &mtok); map; map = stok(NULL, ", \t", &mtok)) {
+        for (map = stok(sclone(mappings), ", \t", &tok); map; map = stok(NULL, ", \t", &tok)) {
             mprAddItem(mapList, sreplace(map, "${1}", ext));
         }
         mprAddKey(route->map, ext, mapList);
