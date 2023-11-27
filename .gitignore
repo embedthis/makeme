@@ -1,6 +1,5 @@
 /start.me
 .local.mk
-certs/
 **/*.guid
 .DS_Store
 .cdrc
