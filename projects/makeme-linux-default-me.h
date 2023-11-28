@@ -9,15 +9,6 @@
 #ifndef ME_AUTHOR
     #define ME_AUTHOR "Embedthis Software"
 #endif
-#ifndef ME_CERTS_BITS
-    #define ME_CERTS_BITS 2048
-#endif
-#ifndef ME_CERTS_DAYS
-    #define ME_CERTS_DAYS 3650
-#endif
-#ifndef ME_CERTS_GENDH
-    #define ME_CERTS_GENDH 0
-#endif
 #ifndef ME_COMPANY
     #define ME_COMPANY "embedthis"
 #endif
@@ -67,7 +58,7 @@
     #define ME_COMPILER_HAS_UNNAMED_UNIONS 1
 #endif
 #ifndef ME_COMPILER_WARN64TO32
-    #define ME_COMPILER_WARN64TO32 1
+    #define ME_COMPILER_WARN64TO32 0
 #endif
 #ifndef ME_COMPILER_WARN_UNUSED
     #define ME_COMPILER_WARN_UNUSED 1

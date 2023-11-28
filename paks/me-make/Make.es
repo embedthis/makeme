@@ -1042,8 +1042,10 @@ class Make {
             cmd = target.generate
         }
         if (target.generate === true && !cmd) {
-            if (target.scripts.build && target.scripts.build[0].interpreter == 'bash') {
+            if (target.scripts && target.scripts.build && target.scripts.build[0].interpreter == 'bash') {
                 cmd = target.scripts.build[0].script
+                cmd = cmd.replace(/^[ \t]*[\r\n]+/m, '')
+                cmd = cmd.replace(/^[ \t]*/mg, '').trim()
             } else {
                 genStartCapture(target)
                 builder.runTargetScript(target, 'build')

@@ -252,6 +252,7 @@ static DH       *dhcallback(SSL *ssl, int isExport, int keyLength);
 static void     disconnectOss(MprSocket *sp);
 static ssize    flushOss(MprSocket *sp);
 static DH       *getDhKey();
+static X509     *getPeerCert(SSL *handle);
 static char     *getOssSession(MprSocket *sp);
 static char     *getOssState(MprSocket *sp);
 static char     *getOssError(MprSocket *sp);
@@ -480,6 +481,9 @@ static int configOss(MprSsl *ssl, int flags, char **errorMsg)
     int             verifyMode;
 
     assert(ssl);
+    if (errorMsg) {
+        *errorMsg = 0;
+    }
     if (ssl->config && !ssl->changed) {
         return 0;
     }
@@ -492,6 +496,11 @@ static int configOss(MprSsl *ssl, int flags, char **errorMsg)
         mprLog("error openssl", 0, "Unable to create SSL context");
         return MPR_ERR_CANT_INITIALIZE;
     }
+#if MPR_HAS_CRYPTO_ENGINE
+    if (initEngine(ssl) < 0) {
+        // Continue without engine
+    }
+#endif
 #if OPENSSL_VERSION_NUMBER >= 0x10100000L
     SSL_CTX_set_ex_data(ctx, 0, (void*) ssl);
 #else
@@ -538,7 +547,7 @@ static int configOss(MprSsl *ssl, int flags, char **errorMsg)
             return MPR_ERR_CANT_INITIALIZE;
         }
     }
-    verifyMode = ssl->verifyPeer ? SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT : SSL_VERIFY_NONE;
+    verifyMode = !ssl->verifyPeer ? SSL_VERIFY_NONE : SSL_VERIFY_PEER;
     if (verifyMode != SSL_VERIFY_NONE) {
         if (!(ssl->caFile || ssl->caPath)) {
             *errorMsg = sclone("No defined certificate authority file");
@@ -721,7 +730,7 @@ static int configOss(MprSsl *ssl, int flags, char **errorMsg)
      */
 #if SSL_OP_SINGLE_ECDH_USE
     #ifdef SSL_CTX_set_ecdh_auto
-        /* This is supported in OpenSSL 1.0.2 */
+        // This is supported in OpenSSL 1.0.2
         SSL_CTX_set_ecdh_auto(ctx, 1);
     #else
         {
@@ -777,12 +786,6 @@ static int configOss(MprSsl *ssl, int flags, char **errorMsg)
         SSL_CTX_set_alpn_select_cb(ctx, selectAlpn, NULL);
     }
 #endif
-
-#if MPR_HAS_CRYPTO_ENGINE
-    if (ssl->device && initEngine(ssl) < 0) {
-        /* Continue without engine */
-    }
-#endif
     return 0;
 }
 
@@ -791,17 +794,20 @@ static int initEngine(MprSsl *ssl)
 {
     ENGINE  *engine;
 
-    if (!(engine = ENGINE_by_id(ssl->device))) {
-        mprLog("mpr ssl openssl error", 0, "Cannot find crypto device %s", ssl->device);
-        return MPR_ERR_CANT_FIND;
-    }
-    if (!ENGINE_set_default(engine, ENGINE_METHOD_ALL)) {
-        mprLog("mpr ssl openssl error", 0, "Cannot find crypto device %s", ssl->device);
+    if (ssl->device) {
+        mprLog("mpr ssl openssl info", 0, "Initializing engine %s", ssl->device);
+        if (!(engine = ENGINE_by_id(ssl->device))) {
+            mprLog("mpr ssl openssl error", 0, "Cannot find crypto device %s", ssl->device);
+            return MPR_ERR_CANT_FIND;
+        }
+        if (!ENGINE_set_default(engine, ENGINE_METHOD_ALL)) {
+            mprLog("mpr ssl openssl error", 0, "Cannot find crypto device %s", ssl->device);
+            ENGINE_free(engine);
+            return MPR_ERR_CANT_FIND;
+        }
+        mprLog("mpr ssl openssl info", 0, "Loaded crypto device %s", ssl->device);
         ENGINE_free(engine);
-        return MPR_ERR_CANT_FIND;
     }
-    mprLog("mpr ssl openssl info", 0, "Loaded crypto device %s", ssl->device);
-    ENGINE_free(engine);
     return 0;
 }
 #endif
@@ -968,6 +974,7 @@ static int upgradeOss(MprSocket *sp, MprSsl *ssl, cchar *requiredPeerName)
             X509_VERIFY_PARAM_set_hostflags(param, 0);
             X509_VERIFY_PARAM_set1_host(param, requiredPeerName, 0);
 #endif
+            SSL_set_tlsext_host_name(osp->handle, requiredPeerName);
         }
         /*
             Block while connecting
@@ -1070,13 +1077,19 @@ static ssize readOss(MprSocket *sp, void *buf, ssize len)
             sp->flags |= MPR_SOCKET_EOF | MPR_SOCKET_ERROR;
         }
     } else {
-        if (!(sp->flags & MPR_SOCKET_SERVER) && !sp->secured) {
-            if (checkPeerCertName(sp) < 0) {
+        if (!sp->secured) {
+            if (sp->flags & MPR_SOCKET_SERVER) {
+                if (sp->ssl && smatch(sp->ssl->verifyPeer, "require") && !sp->peerCert) {
+                    sp->errorMsg = sfmt("Required certificate not presented by client");
+                    sp->flags |= MPR_SOCKET_EOF | MPR_SOCKET_CERT_ERROR;
+                    return MPR_ERR_BAD_STATE;
+                }
+            } else if (checkPeerCertName(sp) < 0) {
                 sp->flags |= MPR_SOCKET_EOF | MPR_SOCKET_CERT_ERROR;
                 return MPR_ERR_BAD_STATE;
             }
+            setSecured(sp);
         }
-        setSecured(sp);
         mprHiddenSocketData(sp, SSL_pending(osp->handle), MPR_READABLE);
     }
     return rc;
@@ -1171,6 +1184,7 @@ static char *getOssSession(MprSocket *sp)
 }
 
 
+#if DEPRECATED_JSON_STATE
 /*
     Parse the cert info and write properties to the buffer. Modifies the info argument.
  */
@@ -1219,7 +1233,7 @@ static char *getOssState(MprSocket *sp)
     mprPutToBuf(buf, "\"peer\":\"%s\",", sp->peerName);
     mprPutToBuf(buf, "\"%s\":{", sp->acceptIp ? "client" : "server");
 
-    if ((cert = SSL_get_peer_certificate(osp->handle)) != 0) {
+    if ((cert = getPeerCert(osp->handle)) != 0) {
         X509_NAME_oneline(X509_get_issuer_name(cert), issuer, sizeof(issuer) -1);
         mprPutToBuf(buf, "\"issuer\": {");
         parseCertFields(buf, &issuer[1]);
@@ -1247,10 +1261,82 @@ static char *getOssState(MprSocket *sp)
     mprPutToBuf(buf, "}}");
     return mprBufToString(buf);
 }
+#else
+
+/*
+    Parse the cert info and write properties to the buffer. Modifies the info argument.
+ */
+static void parseCertFields(MprBuf *buf, cchar *prefix, cchar *prefix2, char *info)
+{
+    char    c, *cp, *term, *key, *value;
+
+    if (info) {
+        term = cp = info;
+        do {
+            c = *cp;
+            if (c == '/' || c == '\0') {
+                *cp = '\0';
+                key = ssplit(term, "=", &value);
+                if (smatch(key, "emailAddress")) {
+                    key = "EMAIL";
+                }
+                mprPutToBuf(buf, "%s%s%s=%s,", prefix, prefix2, key, value);
+                term = &cp[1];
+                *cp = c;
+            }
+        } while (*cp++ != '\0');
+    }
+}
+
+
+static char *getOssState(MprSocket *sp)
+{
+    OpenSocket      *osp;
+    MprBuf          *buf;
+    X509_NAME       *xSubject;
+    X509            *cert;
+    char            *prefix, subject[512], issuer[512], peer[512];
+
+    osp = sp->sslSocket;
+    buf = mprCreateBuf(0, 0);
+
+    mprPutToBuf(buf, "PROVIDER=openssl,CIPHER=%s,SESSION=%s,", SSL_get_cipher(osp->handle), sp->session);
+
+    if ((cert = getPeerCert(osp->handle)) == 0) {
+        mprPutToBuf(buf, "%s=none,", sp->acceptIp ? "CLIENT_CERT" : "SERVER_CERT");
+
+    } else {
+        xSubject = X509_get_subject_name(cert);
+        X509_NAME_get_text_by_NID(xSubject, NID_commonName, peer, sizeof(peer) - 1);
+        mprPutToBuf(buf, "PEER=%s,", peer);
+
+        prefix = sp->acceptIp ? "CLIENT_" : "SERVER_";
+        X509_NAME_oneline(X509_get_subject_name(cert), subject, sizeof(subject) -1);
+        parseCertFields(buf, prefix, "S_", &subject[1]);
+
+        X509_NAME_oneline(X509_get_issuer_name(cert), issuer, sizeof(issuer) -1);
+        parseCertFields(buf, prefix, "I_", &issuer[1]);
+        X509_free(cert);
+    }
+    if ((cert = SSL_get_certificate(osp->handle)) != 0) {
+        prefix =  sp->acceptIp ? "SERVER_" : "CLIENT_";
+        X509_NAME_oneline(X509_get_subject_name(cert), subject, sizeof(subject) -1);
+        parseCertFields(buf, prefix, "S_", &subject[1]);
+
+        X509_NAME_oneline(X509_get_issuer_name(cert), issuer, sizeof(issuer) -1);
+        parseCertFields(buf, prefix, "I_", &issuer[1]);
+        // Don't call X509_free on own cert 
+    }
+    mprAdjustBufEnd(buf, -1);
+    return mprGetBufStart(buf);
+}
+
+#endif // DEPRECATE_JSON_STATE
 
 
 /*
     Check the certificate peer name validates and matches the desired name
+    Used for client side
  */
 static int checkPeerCertName(MprSocket *sp)
 {
@@ -1261,7 +1347,7 @@ static int checkPeerCertName(MprSocket *sp)
 
     osp = (OpenSocket*) sp->sslSocket;
 
-    if ((cert = SSL_get_peer_certificate(osp->handle)) == 0) {
+    if ((cert = getPeerCert(osp->handle)) == 0) {
         peerName[0] = '\0';
     } else {
         xSubject = X509_get_subject_name(cert);
@@ -1445,6 +1531,49 @@ static int loadKey(SSL_CTX *ctx, cchar *buf, ssize len, int type, cchar *path)
 }
 
 
+#if MPR_HAS_CRYPTO_ENGINE
+/*  
+	Key path format is: engine:NAME:key
+ */
+static int loadEngineKey(SSL_CTX *ctx, cchar *path)
+{
+    ENGINE      *engine;
+    EVP_PKEY    *pkey;
+    char        *key, *name;
+    
+    stok(sclone(path), ":", &name);
+    stok(name, ":", &key);
+
+    engine = ENGINE_by_id(name);
+    if (!engine) {
+        mprLog("openssl error", 0, "Cannot find engine %s", name);
+        ENGINE_free(engine);
+        return MPR_ERR_CANT_FIND;
+    }
+    if (!ENGINE_set_default(engine, ENGINE_METHOD_ALL)) {
+        mprLog("mpr ssl openssl error", 0, "Cannot find crypto device %s", name);
+        ENGINE_free(engine);
+        return MPR_ERR_CANT_FIND;
+    }
+    if (!ENGINE_init(engine)) {
+        mprLog("openssl error", 0, "Cannot initialize engine %s", name);
+        ENGINE_free(engine);
+        return MPR_ERR_CANT_INITIALIZE;
+    }
+    if ((pkey = ENGINE_load_private_key(engine, key, 0, 0)) == 0) {
+        mprLog("openssl error", 0, "Cannot read private key %s", key);
+        ENGINE_finish(engine);
+        ENGINE_free(engine);
+        return MPR_ERR_CANT_READ;
+    }
+    SSL_CTX_use_PrivateKey(ctx, pkey);
+    ENGINE_finish(engine);
+    ENGINE_free(engine);
+    return 0;
+}
+#endif
+
+
 /*
     Load a key file in either PEM or DER format
  */
@@ -1464,6 +1593,10 @@ static int setKeyFile(SSL_CTX *ctx, cchar *keyFile)
 
     if (ctx == NULL || keyFile == NULL) {
         ;
+#if MPR_HAS_CRYPTO_ENGINE
+    } else if (sstarts(keyFile, "engine:")) {
+        loadEngineKey(ctx, keyFile);
+#endif
     } else if ((buf = mprReadPathContents(keyFile, &len)) == 0) {
         mprLog("error openssl", 0, "Unable to read key %s", keyFile);
         rc = MPR_ERR_CANT_READ;
@@ -1505,14 +1638,20 @@ static int verifyPeerCertificate(int ok, X509_STORE_CTX *xctx)
         sp->errorMsg = sclone("Cannot get subject name");
         ok = 0;
     }
+    sp->peerCert = sclone(subject);
+
     if (X509_NAME_oneline(X509_get_issuer_name(cert), issuer, sizeof(issuer) - 1) < 0) {
         sp->errorMsg = sclone("Cannot get issuer name");
         ok = 0;
     }
+    sp->peerCertIssuer = sclone(issuer);
+
     if (X509_NAME_get_text_by_NID(X509_get_subject_name(cert), NID_commonName, peerName, sizeof(peerName) - 1) == 0) {
         sp->errorMsg = sclone("Cannot get peer name");
         ok = 0;
     }
+    sp->peerName = sclone(peerName);
+    
     if (ok && ssl->verifyDepth < depth) {
         if (error == 0) {
             error = X509_V_ERR_CERT_CHAIN_TOO_LONG;
@@ -1637,6 +1776,16 @@ static char *getOssError(MprSocket *sp)
     ERR_error_string_n(error, ebuf, sizeof(ebuf) - 1);
     sp->errorMsg = sclone(ebuf);
     return sp->errorMsg;
+}
+
+
+static X509 *getPeerCert(SSL *handle)
+{
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+    return SSL_get1_peer_certificate(handle);
+#else
+    return SSL_get_peer_certificate(handle);
+#endif
 }
 
 

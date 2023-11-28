@@ -143,7 +143,7 @@ class InstallsInner {
                     if (item.from) {
                         copyFiles(item.from, item.to, item, '.')
                     } else if (item.perform) {
-                        item.prePerform && item.prePerform.call(me.dir.top, item.from, item.to, item)
+                        item.prePerform && item.prePerform.call(me.dir.top, item.from, to, item)
                         item.perform.call(me.dir.top, item.from, item.to, item)
                     }
                     if (item.write) {

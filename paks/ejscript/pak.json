@@ -43,7 +43,6 @@
     ],
     "import": true,
     "dependencies": {
-        "certs": "~1.0",
         "http": "~7",
         "mpr": "~9.0.3",
         "osdep": "~0.9",

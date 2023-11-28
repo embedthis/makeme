@@ -640,22 +640,28 @@ class Xcode {
                     }
                 }
                 cmd = cmd.replace(/^[ \t]*[\r\n]+/m, '')
-                cmd = cmd.replace(/^[ \t]*/mg, '').trim()
+                cmd = cmd.replace(/^[ \t]*/mg, '').trim() + '\n'
 
             } else if (target.generate === true) {
-                let cmdtmp = Path('me-xcode.tmp')
-                genOpen(cmdtmp)
-                if (target.files) {
-                    global.FILES = target.files.map(function(f) f.relativeTo(target.home).portable).join(' ')
+                if (target.scripts && target.scripts.build && target.scripts.build[0].interpreter == 'bash') {
+                    cmd = target.scripts.build[0].script
+                    cmd = cmd.replace(/^[ \t]*[\r\n]+/m, '')
+                    cmd = cmd.replace(/^[ \t]*/mg, '').trim() + '\n'
                 } else {
-                    global.FILES = ''
+                    let cmdtmp = Path('me-xcode.tmp')
+                    genOpen(cmdtmp)
+                    if (target.files) {
+                        global.FILES = target.files.map(function(f) f.relativeTo(target.home).portable).join(' ')
+                    } else {
+                        global.FILES = ''
+                    }
+                    me.globals.FILES = global.FILES
+                    builder.runTargetScript(target, 'build')
+                    genClose()
+                    let data = cmdtmp.readString()
+                    cmd += replacePath(data, me.dir.out.relativeTo(base), '$${OUT_DIR}')
+                    cmdtmp.remove()
                 }
-                me.globals.FILES = global.FILES
-                builder.runTargetScript(target, 'build')
-                genClose()
-                let data = cmdtmp.readString()
-                cmd += replacePath(data, me.dir.out.relativeTo(base), '$${OUT_DIR}')
-                cmdtmp.remove()
             }
             cmd = replacePath(cmd, me.dir.out.relativeTo(base), '$${OUT_DIR}')
 
@@ -672,6 +678,13 @@ class Xcode {
                     outputs = outputs.join(',\n')
                 }
                 target.vars.OUT = outputs
+            }
+            if (target.name == 'Prep') {
+                let path: Path = me.dir.inc.join('me.h')
+                outputs = path.relativeTo(me.dir.top.join('projects'))
+            }
+            if (outputs == '' && target.path) {
+                outputs = target.path.relativeTo(me.dir.top.join('projects'))
             }
             let sid = getid('ID_ShellScript:' + target.name)
             me.target = target

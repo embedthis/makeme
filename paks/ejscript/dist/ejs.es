@@ -2797,8 +2797,10 @@ module ejs {
             cmd.finalize()
             cmd.wait()
             /* Currently undocumented - return the error and results via options */
-            if (options.error && cmd.error) {
-                options.error = cmd.error
+            if (options.error) {
+                if (cmd.error) {
+                    options.error = cmd.error
+                }
                 options.results = results.toString()
             }
             if (cmd.status != 0 && options.exceptions !== false) {

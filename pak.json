@@ -27,7 +27,6 @@
         "url": "http://embedthis.com/licensing/"
     },
     "dependencies": {
-        "certs": "~1",
         "ejs.version": "~0.8",
         "ejscript": "~2.7",
         "http": "~7",

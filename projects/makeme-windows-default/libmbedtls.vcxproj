@@ -113,14 +113,6 @@
   </ItemGroup>
 
       <ItemGroup>
-    <ClInclude Include="$(IncDir)\embedtls.h" />
-  </ItemGroup>
-
-      <ItemGroup>
-    <ClInclude Include="$(IncDir)\mbedtls-config.h" />
-  </ItemGroup>
-
-      <ItemGroup>
     <ClInclude Include="$(IncDir)\mbedtls.h" />
   </ItemGroup>
 
@@ -135,8 +127,6 @@
       <CustomBuildStep>
         <Command>cd ..\..\src\mbedtls
 copy /Y /B config.h $(IncDir)
-copy /Y /B embedtls.h $(IncDir)
-copy /Y /B mbedtls-config.h $(IncDir)
 copy /Y /B mbedtls.h $(IncDir)
 cd ..\..\projects\makeme-windows-default</Command>
         <Outputs>$(BinDir)\libmbedtls.lib</Outputs>
