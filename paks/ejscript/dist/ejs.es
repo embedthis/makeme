@@ -9630,7 +9630,7 @@ module ejs {
                     if (srcHash[src]) {
                         continue
                     }
-                    if (src.same(dest) && operation != list) {
+                    if (src.same(dest) && operation != 'list') {
                         print("WARNING: src same as dest for", src)
                         continue
                     }

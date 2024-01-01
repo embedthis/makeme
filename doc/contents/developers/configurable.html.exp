@@ -331,7 +331,7 @@ configure -with php=/path/to/php</pre
 </p>
 <h3>The Probe API</h3>
 <p>
-  The <a href="../ref/api/global.html#probe">probe</a> function is useful to
+  The "probe" function is useful to
   search for a program on the local system. It searches for a named program and
   takes options for the search path (search), the default to return if the
   program cannot be found (default), and whether to return the full path or just

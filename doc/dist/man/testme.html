@@ -1,39 +1,182 @@
 <!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Embedthis MakeMe Documentation</title>
+    
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+    <meta name="description" content="MakeMe build tool">
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700|Open+Sans:300italic,400,300,700' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Julius+Sans+One' rel='stylesheet' type='text/css'>
+    
+    <link href="../images/favicon.ico" rel="shortcut icon">
+    <link href="../lib/semantic-ui/semantic.min.css" rel="stylesheet" type="text/css">
+    <link href="../css/all.min.css" rel="stylesheet" type="text/css">
+    <link href="../css/api.min.css" rel="stylesheet" type="text/css">
+    
+
+</head>
+<body class="show-sidebar">
+    <div class="sidebar">
+        <div class="ui large left vertical inverted labeled menu">
+            <div class="item">
+                <a href="../index.html" class="logo">MakeMe Docs</a>
+            </div>
+            <div class="item">
+                <a href="../index.html">
+                    <b>General</b>
+                </a>
+                <div class="menu">
+                    <a class="item" href="../index.html">MakeMe Overview</a>
+                    <a class="item" href="../users/features.html">MakeMe Features</a>
+                    
+                    <a class="item" href="../licensing/index.html">Licensing</a>
+                </div>
+            </div>
+            <div class="item">
+                <a href="../start/index.html">
+                    <b>Getting Started</b>
+                </a>
+                <div class="menu">
+                    <a class="item" href="../start/installing.html">Installing MakeMe</a>
+                    <a class="item" href="../start/releaseNotes.html">Release Notes</a>
+                </div>
+            </div>
+            <div class="item">
+                <a href="../users/index.html"><b>User's Guide</b></a>
+                <div class="menu">
+                    <a class="item" href="../users/using.html">Using MakeMe</a>
+                    <a class="item" href="../users/configuring.html">Running Configure</a>
+                    <a class="item" href="../users/debugging.html">Debugging a Build</a>
+                    <a class="item" href="../users/make.html">Using Generated Makefiles</a>
+                    <a class="item" href="../users/cross.html">Cross-Compiling</a>
+                </div>
+            </div>
+            <div class="item">
+                <a href="../developers/index.html">Developer's Guide</a>
+                <div class="menu">
+                    <a class="item" href="../developers/compiling.html">Compiling Sources</a>
+                    <a class="item" href="../developers/libraries.html">Creating Libraries</a>
+                    <a class="item" href="../developers/executables.html">Creating Executables</a>
+                    <a class="item" href="../developers/scripts.html">Build Scripts</a>
+                    <a class="item" href="../developers/copying.html">Copying Files</a>
+                    <a class="item" href="../developers/configurable.html">Configurable Projects</a>
+                    <a class="item" href="../developers/plugins.html">MakeMe Plugins</a>
+                    <a class="item" href="../developers/generating.html">Generating</a>
+                    <a class="item" href="../developers/samples.html">Samples</a>
+                </div>
+            </div>
+            <div class="item">
+                <a href="../ref/index.html">Reference Guide</a>
+                <div class="menu">
+                    <a class="item" href="../ref/syntax.html">File Syntax</a>
+                    <a class="item" href="../ref/dom.html">MakeMe DOM</a>
+
+                    <a class="item" href="../ref/processing.html">File Processing</a>
+                    <a class="item" href="../ref/commandline.html">Command Line</a>
+                    <a class="item" href="../ref/events.html">Events</a>
+                    <a class="item" href="../ref/targets.html">Targets</a>
+                    <a class="item" href="../man/me.html">Manual Page</a>
+                    <a class="item" href="https://www.embedthis.com/ejscript/doc/ref/api/ejscript/index.html">
+                        Language Reference</a>
+                    <a class="item" href="https://www.embedthis.com/ejscript/doc/index.html">Ejscript Documentation</a>
+                </div>
+            </div>
+            <div class="item">
+                <a href="../developers/project.html">Project Resources</a>
+                <div class="menu">
+                    <a class="item" href="https://www.embedthis.com/blog/categories/MakeMe/">Official MakeMe News</a>
+                    <a class="item" href="https://www.embedthis.com/makeme/">MakeMe Web Site</a>
+                    <a class="item" href="https://github.com/embedthis/me">Source Code Repository</a>
+                    <a class="item" href="https://github.com/embedthis/me/issues">Project Issue Database</a>
+                    <a class="item" href="https://github.com/embedthis/me/releases">Change Log</a>
+                    <a class="item" href="https://github.com/embedthis/me/milestones">Roadmap</a>
+                    
+                </div>
+            </div>
+            <div class="item">
+                <a href="../source/index.html">Built with MakeMe</a>
+                <div class="menu">
+                    <a class="item" href="../source/overview.html">Building Overview</a>
+                    <a class="item" href="../source/make.html">Building with Make</a>
+                    <a class="item" href="../source/me.html">Building with MakeMe</a>
+                    <a class="item" href="../source/ide.html">Building with an IDE</a>
+                </div>
+            </div>
+            <div class="item">
+                <b>Links</b>
+                <div class="menu">
+                    <a class="item" href="https://www.embedthis.com/">Embedthis Web Site</a>
+                    <a class="item" href="https://www.embedthis.com/blog/">Embedthis Blog</a>
+                    <a class="item" href="http://twitter.com/embedthat">Twitter</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+    <div class="ui inverted masthead">
+        <div class="ui fixed inverted menu">
+            <div class="ui sidebar-launch button">
+                <i class="icon list layout"></i>
+            </div>
+            <div class="right menu">
+                <a class="item" href="https://www.embedthis.com/">Embedthis</a>
+                    <a class="item" href="https://www.embedthis.com/makeme/">MakeMe Site</a>
+                    <span class="desktop-only">
+                        <a class="item" href="https://www.embedthis.com/blog/categories/MakeMe/">MakeMe News</a>
+                        <a class="item" href="https://github.com/embedthis/me">Repository</a>
+                        <a class="item" href="https://www.embedthis.com/blog/">Blog</a>
+                        <a class="item" href="https://twitter.com/embedthat">Twitter</a>
+                    </span>
+
+            </div>
+        </div>
+        
+        <iframe class="version desktop-only" src="../version.html"></iframe>
+
+    </div>
+    <div class="content">
+<!DOCTYPE html>
 <html lang="eng">
 <head>
 <title>Testme Man Page</title>
 </head>
-<HTML>
-<BODY>
-<PRE>
-<!-- Manpage converted by man2html 3.0.1 -->
 
-</PRE>
-<H2>SYNOPSIS</H2><PRE>
-       <B>testme</B>
-           <B>--chdir</B> <B>dir</B>
-           <B>--clean</B>
-           <B>--clobber</B>
-           <B>--compile</B>
-           <B>--continue</B>
-           <B>--debug</B>
-           <B>--depth</B> <B>level</B>
-           <B>--ide</B>
-           <B>--log</B> <B>logSpec</B>
-           <B>--noserver</B>
-           <B>--projects</B>
-           <B>--quiet</B>
-           <B>--rebuild</B>
-           <B>--show</B>
-           <B>--trace</B> <B>traceSpec</B>
-           <B>--version</B>
-           <B>--verbose</B>
-           <B>--why</B>
-           <B>[filters</B> <B>...]</B>
+<body>
+<pre>
 
 
-</PRE>
-<H2>DESCRIPTION</H2><PRE>
+</pre>
+<h2>SYNOPSIS</h2><pre>
+       <b>testme</b>
+           <b>--chdir</b> <b>dir</b>
+           <b>--clean</b>
+           <b>--clobber</b>
+           <b>--compile</b>
+           <b>--continue</b>
+           <b>--debug</b>
+           <b>--depth</b> <b>level</b>
+           <b>--ide</b>
+           <b>--log</b> <b>logSpec</b>
+           <b>--noserver</b>
+           <b>--projects</b>
+           <b>--quiet</b>
+           <b>--rebuild</b>
+           <b>--show</b>
+           <b>--trace</b> <b>traceSpec</b>
+           <b>--version</b>
+           <b>--verbose</b>
+           <b>--why</b>
+           <b>[filters</b> <b>...]</b>
+
+
+</pre>
+<h2>DESCRIPTION</h2><pre>
        TestMe is a dynamic unit test runner. It will traverse a directory tree
        and automatically build required unit tests and run them with output to
        the console.
@@ -60,8 +203,8 @@
 
 
 
-</PRE>
-<H2>OPERATION</H2><PRE>
+</pre>
+<h2>OPERATION</h2><pre>
        When TestMe is invoked, testme traverses the current directory tree
        looking for unit test files.  At each directory level, it first runs any
        setup test files that have a '*.set' extension. The purpose of setup
@@ -76,8 +219,8 @@
 
 
 
-</PRE>
-<H2>TEST ENVIRONMENT</H2><PRE>
+</pre>
+<h2>TEST ENVIRONMENT</h2><pre>
        TestMe communicates test parameters to unit tests via the environment.
 
              TM_INB      -- Set to the local binary directory.
@@ -94,8 +237,8 @@
             defines.
 
 
-</PRE>
-<H2>TEST OUTPUT</H2><PRE>
+</pre>
+<h2>TEST OUTPUT</h2><pre>
        A unit test should emit results to the standard out. The following
        commands are supported.
 
@@ -117,8 +260,8 @@
 
 
 
-</PRE>
-<H2>TESTME UNIT TEST C API</H2><PRE>
+</pre>
+<h2>TESTME UNIT TEST C API</h2><pre>
        The follow C API is supported for C unit tests.
 
              bool  ttrue(expression);
@@ -126,34 +269,34 @@
               Clean the contents of all generated 'testme' directories.
 
 
-       <B>--clobber</B>
+       <b>--clobber</b>
               Remove all generated 'testme' directories.
 
 
-       <B>--compile</B>
+       <b>--compile</b>
               Compile required C unit tests but do not run. Use --rebuild to
               force a recompile regardless of whether the unit test file has
               been updated or not.
 
 
-       <B>--continue</B>
+       <b>--continue</b>
               Continue to run tests despite any previous errors. Normal
               operation is to stop testing if any tests fail.
 
 
-       <B>--debug</B>
+       <b>--debug</b>
               Run in debug mode. Sets TM_DEBUG in the environment.
 
 
-       <B>--depth</B> <B>level</B>
+       <b>--depth</b> <b>level</b>
               Set the unit test depth level.
 
 
-       <B>--ide</B>  Run the specified test in an IDE debugger. Supported on Mac OSX
+       <b>--ide</b>  Run the specified test in an IDE debugger. Supported on Mac OSX
               only.
 
 
-       <B>--log</B> <B>logName[:logLevel]</B>
+       <b>--log</b> <b>logName[:logLevel]</b>
               Specify a file to log test messages. TestMe will normally display
               test output to the console. The --log option will redirect this
               output to the specified log file. The log level specifies the
@@ -161,55 +304,70 @@
               level 5 is the most.
 
 
-       <B>--noserver</B>
+       <b>--noserver</b>
               Do not run server side support code. This emits TM_NOSERVER into
               the environment for unit tests.
 
-              <B>--projects</B> Generate IDE projects for the specified unit tests. At
+              <b>--projects</b> Generate IDE projects for the specified unit tests. At
               least one test must be specified by name on the command line.  The
               IDE projects are generated in the 'testme' directory.
 
 
-       <B>--quiet</B>
+       <b>--quiet</b>
               Run in quiet mode without trace.
 
 
-       <B>--rebuild</B>
+       <b>--rebuild</b>
 
 
-       <B>--verbose</B>
+       <b>--verbose</b>
               Run in verbose mode with more trace about TestMe activities.
 
 
-       <B>--why</B>  Display why various tests were run or not and why actions were
+       <b>--why</b>  Display why various tests were run or not and why actions were
               taken.
 
 
 
-</PRE>
-<H2>REPORTING BUGS</H2><PRE>
+</pre>
+<h2>REPORTING BUGS</h2><pre>
        Report bugs to dev@embedthis.com.
 
 
-</PRE>
-<H2>COPYRIGHT</H2><PRE>
+</pre>
+<h2>COPYRIGHT</h2><pre>
        Copyright © Embedthis Software. TestMe and Ejscript are a trademarks of
        Embedthis Software.
 
 
-</PRE>
-<H2>SEE ALSO</H2><PRE>
+</pre>
+<h2>SEE ALSO</h2><pre>
        me pak
 
 
 
-testme                            January 2014                         <B>TESTME(1)</B>
-</PRE>
-<HR>
-<ADDRESS>
+testme                            January 2014                         <b>TESTME(1)</b>
+</pre>
+<hr>
+<address>
 Man(1) output converted with
 <a href="http://www.oac.uci.edu/indiv/ehood/man2html.html">man2html</a>
-</ADDRESS>
-</BODY>
-</HTML>
-</html>
+</address>
+
+
+
+    </div>
+    <div class="terms ui basic center aligned segment">
+        <p>&copy; Embedthis Software. All rights reserved.</p>
+    </div>
+
+    <script src="../lib/jquery/jquery.min.js"></script>
+    <script src="../lib/jquery/jquery.slim.min.js"></script>
+    <script src="../lib/semantic-ui/semantic.min.js"></script>
+     
+
+    
+
+
+
+

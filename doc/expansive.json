@@ -1,6 +1,6 @@
 {
   "meta": {
-    "site": "https://www.embedthis.com/esp/doc/"
+    "site": "https://www.embedthis.com/makeme/doc/"
   },
   "control": {
     "listen": "127.0.0.1:4000"

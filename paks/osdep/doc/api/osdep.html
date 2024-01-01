@@ -44,7 +44,7 @@
 </tr>
 <tr class="apiBrief"><td>&nbsp;</td><td>Big endian byte ordering.</td></tr>
 <tr class="apiDef">
-<td>#define</td><td><a href="#osdep_8h_1a2f0a736986e64f8420db89ca8e4b70cd" class="nameRef">ME_BUFSIZE</a>&nbsp;&nbsp;&nbsp;4096</td>
+<td>#define</td><td><a href="#osdep_8h_1a2f0a736986e64f8420db89ca8e4b70cd" class="nameRef">ME_BUFSIZE</a>&nbsp;&nbsp;&nbsp;8192</td>
 </tr>
 <tr class="apiBrief"><td>&nbsp;</td><td>Reasonable size for buffers.</td></tr>
 <tr class="apiDef">
@@ -52,35 +52,51 @@
 </tr>
 <tr class="apiBrief"><td>&nbsp;</td><td>Arm.</td></tr>
 <tr class="apiDef">
-<td>#define</td><td><a href="#osdep_8h_1ac339037b29b2fd949d7e62419793d12b" class="nameRef">ME_CPU_ITANIUM</a>&nbsp;&nbsp;&nbsp;2</td>
+<td>#define</td><td><a href="#osdep_8h_1acf5875009a8e123925d730e17911fa85" class="nameRef">ME_CPU_ARM64</a>&nbsp;&nbsp;&nbsp;2</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>Arm64.</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#osdep_8h_1ac339037b29b2fd949d7e62419793d12b" class="nameRef">ME_CPU_ITANIUM</a>&nbsp;&nbsp;&nbsp;3</td>
 </tr>
 <tr class="apiBrief"><td>&nbsp;</td><td>Intel Itanium.</td></tr>
 <tr class="apiDef">
-<td>#define</td><td><a href="#osdep_8h_1a1a583c909fba02ea516592a81773effd" class="nameRef">ME_CPU_MIPS</a>&nbsp;&nbsp;&nbsp;5</td>
+<td>#define</td><td><a href="#osdep_8h_1a1a583c909fba02ea516592a81773effd" class="nameRef">ME_CPU_MIPS</a>&nbsp;&nbsp;&nbsp;6</td>
 </tr>
 <tr class="apiBrief"><td>&nbsp;</td><td>Mips.</td></tr>
 <tr class="apiDef">
-<td>#define</td><td><a href="#osdep_8h_1a0d138a774a2c7d7a518f103589872ba7" class="nameRef">ME_CPU_PPC</a>&nbsp;&nbsp;&nbsp;6</td>
+<td>#define</td><td><a href="#osdep_8h_1a0d138a774a2c7d7a518f103589872ba7" class="nameRef">ME_CPU_PPC</a>&nbsp;&nbsp;&nbsp;7</td>
 </tr>
 <tr class="apiBrief"><td>&nbsp;</td><td>Power PC.</td></tr>
 <tr class="apiDef">
-<td>#define</td><td><a href="#osdep_8h_1a37fea4c5334adbdcc9756911d5dc3c69" class="nameRef">ME_CPU_SH</a>&nbsp;&nbsp;&nbsp;9</td>
+<td>#define</td><td><a href="#osdep_8h_1a780b745dcf74dba38cf3d2dcbb3dcb61" class="nameRef">ME_CPU_PPC64</a>&nbsp;&nbsp;&nbsp;8</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>Power PC 64.</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#osdep_8h_1ad975d8ac18329c4bf1d639dbd8b61245" class="nameRef">ME_CPU_RISCV</a>&nbsp;&nbsp;&nbsp;12</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>RiscV.</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#osdep_8h_1a895414554d7e81ffb874272c095dc0b4" class="nameRef">ME_CPU_RISCV64</a>&nbsp;&nbsp;&nbsp;13</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>RiscV64.</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#osdep_8h_1a37fea4c5334adbdcc9756911d5dc3c69" class="nameRef">ME_CPU_SH</a>&nbsp;&nbsp;&nbsp;11</td>
 </tr>
 <tr class="apiBrief"><td>&nbsp;</td><td>SuperH.</td></tr>
 <tr class="apiDef">
-<td>#define</td><td><a href="#osdep_8h_1a0d7a6b6d52476cde608ffd4095e65d85" class="nameRef">ME_CPU_SPARC</a>&nbsp;&nbsp;&nbsp;7</td>
+<td>#define</td><td><a href="#osdep_8h_1a0d7a6b6d52476cde608ffd4095e65d85" class="nameRef">ME_CPU_SPARC</a>&nbsp;&nbsp;&nbsp;9</td>
 </tr>
 <tr class="apiBrief"><td>&nbsp;</td><td>Sparc.</td></tr>
 <tr class="apiDef">
-<td>#define</td><td><a href="#osdep_8h_1a48107de6359e4eb347016f48bb4a3c3b" class="nameRef">ME_CPU_TIDSP</a>&nbsp;&nbsp;&nbsp;8</td>
+<td>#define</td><td><a href="#osdep_8h_1a48107de6359e4eb347016f48bb4a3c3b" class="nameRef">ME_CPU_TIDSP</a>&nbsp;&nbsp;&nbsp;10</td>
 </tr>
 <tr class="apiBrief"><td>&nbsp;</td><td>TI DSP.</td></tr>
 <tr class="apiDef">
-<td>#define</td><td><a href="#osdep_8h_1a5674b5b2a7b04cee2b46f74920d52d8f" class="nameRef">ME_CPU_X64</a>&nbsp;&nbsp;&nbsp;4</td>
+<td>#define</td><td><a href="#osdep_8h_1a5674b5b2a7b04cee2b46f74920d52d8f" class="nameRef">ME_CPU_X64</a>&nbsp;&nbsp;&nbsp;5</td>
 </tr>
 <tr class="apiBrief"><td>&nbsp;</td><td>AMD64 or EMT64.</td></tr>
 <tr class="apiDef">
-<td>#define</td><td><a href="#osdep_8h_1aaacaa5832d9cfa8111ca25864d0c12ee" class="nameRef">ME_CPU_X86</a>&nbsp;&nbsp;&nbsp;3</td>
+<td>#define</td><td><a href="#osdep_8h_1aaacaa5832d9cfa8111ca25864d0c12ee" class="nameRef">ME_CPU_X86</a>&nbsp;&nbsp;&nbsp;4</td>
 </tr>
 <tr class="apiBrief"><td>&nbsp;</td><td>X86.</td></tr>
 <tr class="apiDef">

@@ -12,7 +12,7 @@
     "author": {
         "name": "Embedthis Software",
         "email": "dev@embedthis.com",
-        "url": "http://embedthis.com"
+        "url": "https://www.embedthis.com"
     },
     "repository": {
         "type": "git",
@@ -24,7 +24,7 @@
     },
     "licenses": {
         "type": "Commercial",
-        "url": "http://embedthis.com/licensing/"
+        "url": "https://www.embedthis.com/licensing/"
     },
     "dependencies": {
         "ejs.version": "~0.8",

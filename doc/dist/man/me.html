@@ -1,65 +1,208 @@
 <!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Embedthis MakeMe Documentation</title>
+    
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+    <meta name="description" content="MakeMe build tool">
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700|Open+Sans:300italic,400,300,700' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Julius+Sans+One' rel='stylesheet' type='text/css'>
+    
+    <link href="../images/favicon.ico" rel="shortcut icon">
+    <link href="../lib/semantic-ui/semantic.min.css" rel="stylesheet" type="text/css">
+    <link href="../css/all.min.css" rel="stylesheet" type="text/css">
+    <link href="../css/api.min.css" rel="stylesheet" type="text/css">
+    
+
+</head>
+<body class="show-sidebar">
+    <div class="sidebar">
+        <div class="ui large left vertical inverted labeled menu">
+            <div class="item">
+                <a href="../index.html" class="logo">MakeMe Docs</a>
+            </div>
+            <div class="item">
+                <a href="../index.html">
+                    <b>General</b>
+                </a>
+                <div class="menu">
+                    <a class="item" href="../index.html">MakeMe Overview</a>
+                    <a class="item" href="../users/features.html">MakeMe Features</a>
+                    
+                    <a class="item" href="../licensing/index.html">Licensing</a>
+                </div>
+            </div>
+            <div class="item">
+                <a href="../start/index.html">
+                    <b>Getting Started</b>
+                </a>
+                <div class="menu">
+                    <a class="item" href="../start/installing.html">Installing MakeMe</a>
+                    <a class="item" href="../start/releaseNotes.html">Release Notes</a>
+                </div>
+            </div>
+            <div class="item">
+                <a href="../users/index.html"><b>User's Guide</b></a>
+                <div class="menu">
+                    <a class="item" href="../users/using.html">Using MakeMe</a>
+                    <a class="item" href="../users/configuring.html">Running Configure</a>
+                    <a class="item" href="../users/debugging.html">Debugging a Build</a>
+                    <a class="item" href="../users/make.html">Using Generated Makefiles</a>
+                    <a class="item" href="../users/cross.html">Cross-Compiling</a>
+                </div>
+            </div>
+            <div class="item">
+                <a href="../developers/index.html">Developer's Guide</a>
+                <div class="menu">
+                    <a class="item" href="../developers/compiling.html">Compiling Sources</a>
+                    <a class="item" href="../developers/libraries.html">Creating Libraries</a>
+                    <a class="item" href="../developers/executables.html">Creating Executables</a>
+                    <a class="item" href="../developers/scripts.html">Build Scripts</a>
+                    <a class="item" href="../developers/copying.html">Copying Files</a>
+                    <a class="item" href="../developers/configurable.html">Configurable Projects</a>
+                    <a class="item" href="../developers/plugins.html">MakeMe Plugins</a>
+                    <a class="item" href="../developers/generating.html">Generating</a>
+                    <a class="item" href="../developers/samples.html">Samples</a>
+                </div>
+            </div>
+            <div class="item">
+                <a href="../ref/index.html">Reference Guide</a>
+                <div class="menu">
+                    <a class="item" href="../ref/syntax.html">File Syntax</a>
+                    <a class="item" href="../ref/dom.html">MakeMe DOM</a>
+
+                    <a class="item" href="../ref/processing.html">File Processing</a>
+                    <a class="item" href="../ref/commandline.html">Command Line</a>
+                    <a class="item" href="../ref/events.html">Events</a>
+                    <a class="item" href="../ref/targets.html">Targets</a>
+                    <a class="item" href="../man/me.html">Manual Page</a>
+                    <a class="item" href="https://www.embedthis.com/ejscript/doc/ref/api/ejscript/index.html">
+                        Language Reference</a>
+                    <a class="item" href="https://www.embedthis.com/ejscript/doc/index.html">Ejscript Documentation</a>
+                </div>
+            </div>
+            <div class="item">
+                <a href="../developers/project.html">Project Resources</a>
+                <div class="menu">
+                    <a class="item" href="https://www.embedthis.com/blog/categories/MakeMe/">Official MakeMe News</a>
+                    <a class="item" href="https://www.embedthis.com/makeme/">MakeMe Web Site</a>
+                    <a class="item" href="https://github.com/embedthis/me">Source Code Repository</a>
+                    <a class="item" href="https://github.com/embedthis/me/issues">Project Issue Database</a>
+                    <a class="item" href="https://github.com/embedthis/me/releases">Change Log</a>
+                    <a class="item" href="https://github.com/embedthis/me/milestones">Roadmap</a>
+                    
+                </div>
+            </div>
+            <div class="item">
+                <a href="../source/index.html">Built with MakeMe</a>
+                <div class="menu">
+                    <a class="item" href="../source/overview.html">Building Overview</a>
+                    <a class="item" href="../source/make.html">Building with Make</a>
+                    <a class="item" href="../source/me.html">Building with MakeMe</a>
+                    <a class="item" href="../source/ide.html">Building with an IDE</a>
+                </div>
+            </div>
+            <div class="item">
+                <b>Links</b>
+                <div class="menu">
+                    <a class="item" href="https://www.embedthis.com/">Embedthis Web Site</a>
+                    <a class="item" href="https://www.embedthis.com/blog/">Embedthis Blog</a>
+                    <a class="item" href="http://twitter.com/embedthat">Twitter</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+    <div class="ui inverted masthead">
+        <div class="ui fixed inverted menu">
+            <div class="ui sidebar-launch button">
+                <i class="icon list layout"></i>
+            </div>
+            <div class="right menu">
+                <a class="item" href="https://www.embedthis.com/">Embedthis</a>
+                    <a class="item" href="https://www.embedthis.com/makeme/">MakeMe Site</a>
+                    <span class="desktop-only">
+                        <a class="item" href="https://www.embedthis.com/blog/categories/MakeMe/">MakeMe News</a>
+                        <a class="item" href="https://github.com/embedthis/me">Repository</a>
+                        <a class="item" href="https://www.embedthis.com/blog/">Blog</a>
+                        <a class="item" href="https://twitter.com/embedthat">Twitter</a>
+                    </span>
+
+            </div>
+        </div>
+        
+        <iframe class="version desktop-only" src="../version.html"></iframe>
+
+    </div>
+    <div class="content">
+<!DOCTYPE html>
 <html lang="eng">
 <head>
 <title>Me Man Page</title>
 </head>
-<HTML>
-<BODY>
-<PRE>
-<!-- Manpage converted by man2html 3.0.1 -->
 
-</PRE>
-<H2>SYNOPSIS</H2><PRE>
-       <B>me</B>
-           <B>--benchmark</B>
-           <B>--configuration</B>
-           <B>--configure</B> <B>/path/to/source</B>
-           <B>--continue</B>
-           <B>--debug</B>
-           <B>--deploy</B> <B>directory</B>
-           <B>--depth</B> <B>level</B>
-           <B>--diagnose</B>
-           <B>--dump</B>
-           <B>--endian</B> <B>[big|little]</B>
-           <B>--file</B> <B>file.me</B>
-           <B>--force</B>
-           <B>--gen</B> <B>[make|nmake|sh|vs|xcode|main|start]</B>
-           <B>--get</B> <B>field</B>
-           <B>--help</B>
-           <B>--import</B>
-           <B>--keep</B>
-           <B>--log</B> <B>logSpec</B>
-           <B>--nolocal</B>
-           <B>--nocross</B>
-           <B>--out</B> <B>path</B>
-           <B>--overwrite</B>
-           <B>--pre</B>
-           <B>--prefix</B> <B>dir=path</B>
-           <B>--prefixes</B> <B>[debian|embedthis|opt]</B>
-           <B>--profile</B> <B>[debug|release|...]</B>
-           <B>--quiet</B>
-           <B>--rebuild</B>
-           <B>--reconfigure</B>
-           <B>--release</B>
-           <B>--rom</B>
-           <B>--set</B> <B>[feature=value]</B>
-           <B>--sets</B> <B>[set,set,...]</B>
-           <B>--show</B>
-           <B>--static</B>
-           <B>--unicode</B>
-           <B>--unset</B> <B>feature</B>
-           <B>--version</B>
-           <B>--verbose</B>
-           <B>--watch</B> <B>msec]</B>
-           <B>--why]</B>
-           <B>--with</B> <B>PACK[=PATH]</B>
-           <B>--without</B> <B>PACK</B>
-           <B>[targets|actions]</B> <B>...</B>
+<body>
+<pre>
 
 
-</PRE>
-<H2>DESCRIPTION</H2><PRE>
-       MakeMe and its "<B>me</B>" command is modern replacement for the venerable make
+</pre>
+<h2>SYNOPSIS</h2><pre>
+       <b>me</b>
+           <b>--benchmark</b>
+           <b>--configuration</b>
+           <b>--configure</b> <b>/path/to/source</b>
+           <b>--continue</b>
+           <b>--debug</b>
+           <b>--deploy</b> <b>directory</b>
+           <b>--depth</b> <b>level</b>
+           <b>--diagnose</b>
+           <b>--dump</b>
+           <b>--endian</b> <b>[big|little]</b>
+           <b>--file</b> <b>file.me</b>
+           <b>--force</b>
+           <b>--gen</b> <b>[make|nmake|sh|vs|xcode|main|start]</b>
+           <b>--get</b> <b>field</b>
+           <b>--help</b>
+           <b>--import</b>
+           <b>--keep</b>
+           <b>--log</b> <b>logSpec</b>
+           <b>--nolocal</b>
+           <b>--nocross</b>
+           <b>--out</b> <b>path</b>
+           <b>--overwrite</b>
+           <b>--pre</b>
+           <b>--prefix</b> <b>dir=path</b>
+           <b>--prefixes</b> <b>[debian|embedthis|opt]</b>
+           <b>--profile</b> <b>[debug|release|...]</b>
+           <b>--quiet</b>
+           <b>--rebuild</b>
+           <b>--reconfigure</b>
+           <b>--release</b>
+           <b>--rom</b>
+           <b>--set</b> <b>[feature=value]</b>
+           <b>--sets</b> <b>[set,set,...]</b>
+           <b>--show</b>
+           <b>--static</b>
+           <b>--unicode</b>
+           <b>--unset</b> <b>feature</b>
+           <b>--version</b>
+           <b>--verbose</b>
+           <b>--watch</b> <b>msec]</b>
+           <b>--why]</b>
+           <b>--with</b> <b>PACK[=PATH]</b>
+           <b>--without</b> <b>PACK</b>
+           <b>[targets|actions]</b> <b>...</b>
+
+
+</pre>
+<h2>DESCRIPTION</h2><pre>
+       MakeMe and its "<b>me</b>" command is modern replacement for the venerable make
        and not so popular autoconf utilities.  MakeMe manages the building of
        programs and products by effectively determining which pieces have been
        updated and thus which components need to be rebuilt. It easily handles
@@ -90,8 +233,8 @@
            . Be hackable and extendable
 
 
-</PRE>
-<H2>FEATURES</H2><PRE>
+</pre>
+<h2>FEATURES</h2><pre>
        MakeMe has the following major features:
 
            . Configuration and component discovery (replaces autoconf)
@@ -111,8 +254,8 @@
            . Very fast configuration and building, even on windows
 
 
-</PRE>
-<H2>NICE BITS</H2><PRE>
+</pre>
+<h2>NICE BITS</h2><pre>
        While MakeMe has a strong feature set, there are some characteristics
        that make building with MakeMe especially nice:
 
@@ -132,12 +275,12 @@
 
        To build the rocket, enter:
 
-            <B>me</B> <B>rocket</B>
+            <b>me</b> <b>rocket</b>
 
 
 
-</PRE>
-<H2>INVOCATION</H2><PRE>
+</pre>
+<h2>INVOCATION</h2><pre>
        When 'me' is invoked, it searches for a 'start.me' file in the current
        directory. If one if not found, it searches up the parent directory chain
        for one. MakeMe then loads this 'start.me' file and commences processing
@@ -145,16 +288,16 @@
 
 
 
-</PRE>
-<H2>STANDALONE USES</H2><PRE>
+</pre>
+<h2>STANDALONE USES</h2><pre>
        A standalone start.me file may be used to express simple build targets
        that do not requiring any prior configuration step. The 'start.me' file
        contains targets that specify the recipies to build those targets.
 
 
 
-</PRE>
-<H2>CONFIGURED PRODUCTS</H2><PRE>
+</pre>
+<h2>CONFIGURED PRODUCTS</h2><pre>
        Some products require a configuration phase prior to building with
        MakeMe. Configuration involves discovering the tools and components
        available on the current system and the available compiler tool chain
@@ -165,18 +308,18 @@
 
 
 
-</PRE>
-<H2>TARGETS</H2><PRE>
+</pre>
+<h2>TARGETS</h2><pre>
        MakeMe is typically invoked with zero or more targets to build. If
        invoked with zero targets, MakeMe will build all the out-of-date targets.
        If a one or more targets are specified, only those targets will be
        brought up to date.
 
        To build all targets:
-            <B>me</B>
+            <b>me</b>
 
        To build several named targets:
-            <B>me</B> <B>libengine</B> <B>librocket</B> <B>space-program</B>
+            <b>me</b> <b>libengine</b> <b>librocket</b> <b>space-program</b>
 
        MakeMe pre-defines several targets:
 
@@ -201,15 +344,15 @@
 
 
 
-</PRE>
-<H2>CROSS COMPILING</H2><PRE>
+</pre>
+<h2>CROSS COMPILING</h2><pre>
        To build a product for platform different to that of the local system is
        called cross compiling. Sometimes this cross compiling is just for a
        different instruction set (say x64 instead of x86). Other times it is for
        a completely different operating system and/or CPU architecture. In such
        cases a cross-compiler may be required to build for the target platform.
 
-       MakeMe supports cross compiling via the 'me <B>-platform</B> <B>OS-ARCH</B> configure'
+       MakeMe supports cross compiling via the 'me <b>-platform</b> <b>OS-ARCH</b> configure'
        switch. This adds a platform to the list of platforms to be made when
        building. Multiple platforms may be specified and the 'local' platform
        alias may be used for the local development platform.
@@ -220,7 +363,7 @@
        automatically adds the local platform to the platforms list and is the
        same as adding '-platform local' on the command line when configuring.
 
-            <B>me</B> --platform windows-x64-debug -configure .
+            <b>me</b> --platform windows-x64-debug -configure .
 
        This will create a windows-x64-debug.me configuration file and a start.es
        that references it. The platform switch does not need to be respecified
@@ -228,8 +371,8 @@
 
 
 
-</PRE>
-<H2>PROJECT GENERATION</H2><PRE>
+</pre>
+<h2>PROJECT GENERATION</h2><pre>
        MakeMe can generate generate complete project files for building using:
        make, nmake, Visual Studio, Xcode or plain shell scripts. MakeMe uses the
        '--gen' switch to specify the projects to build. MakeMe is capable of
@@ -252,8 +395,8 @@
 
 
 
-</PRE>
-<H2>DEFAULTS</H2><PRE>
+</pre>
+<h2>DEFAULTS</h2><pre>
        Often targets need very similar configuration. MakeMe provides a
        'defaults' set of properties that are inherited by all targets. It also
        provides an 'internal' set of properties that are inherited by only the
@@ -270,8 +413,8 @@
 
 
 
-</PRE>
-<H2>OVERRIDING</H2><PRE>
+</pre>
+<h2>OVERRIDING</h2><pre>
        MakeMe has default command flags for the compiler, linker and other
        tools. These can be overridden by providing environment variables
        containing alternate flags to use. Use CFLAGS to provide compiler flags,
@@ -283,8 +426,8 @@
 
 
 
-</PRE>
-<H2>DEBUGGING</H2><PRE>
+</pre>
+<h2>DEBUGGING</h2><pre>
        With Make and other build tools, it is difficult to determine why a
        target is or is not being built. MakeMe provides a '--why' switch to
        diagnose problematic build sequences. This switch displays the reason why
@@ -293,12 +436,12 @@
        In a complex project containing many MakeMe files, it can be helpful to
        see the entire MakeMe configuration in one file. Use the '--dump' switch
        to save a copy of the entire configuration. In the dump, build defaults
-       <B>--configuration</B>
+       <b>--configuration</b>
               Display the current configuration. This displays the configuration
               for each package and the build settings.
 
 
-       <B>--configure</B> <B>/path/to/source/tree</B>
+       <b>--configure</b> <b>/path/to/source/tree</b>
               Configure the project to prepare for building. This configures
               MakeMe for building the project based on the instructions
               specified in a 'main.me' located in the specified path source
@@ -315,37 +458,37 @@
               definitions in the configuration MakeMe file for later use.
 
 
-       <B>--continue</B>
+       <b>--continue</b>
               Continue to build despite any build errors. Normal operation is to
               stop building if any build errors are encountered.
 
 
-       <B>--debug</B>
+       <b>--debug</b>
               Enable a debug build. This enables the settings.debug property
               which controls whether debug symbols will be created when
               compiling.
 
 
-       <B>--deploy</B> <B>directory</B>
+       <b>--deploy</b> <b>directory</b>
               Install the product to the deployment directory. This is useful to
               stage the required files to install on a system.  Use --sets to
               define the file sets to deploy.
 
 
-       <B>--depth</B> <B>level</B>
+       <b>--depth</b> <b>level</b>
               Set the unit test depth level.
 
 
-       <B>--diagnose</B>
+       <b>--diagnose</b>
               Run MakeMe with stack backtrace display on errors.
 
 
-       <B>--dump</B> Dump the aggregate MakeMe configuration into a single dump MakeMe
+       <b>--dump</b> Dump the aggregate MakeMe configuration into a single dump MakeMe
               file.
 
 
-       <B>--endian</B> <B>[big|little]</B>
-       <B>--gen</B> <B>[make|nmake|sh|vs|xcode|main|start]</B>
+       <b>--endian</b> <b>[big|little]</b>
+       <b>--gen</b> <b>[make|nmake|sh|vs|xcode|main|start]</b>
               Generate files. This option can be used to generate initial
               start.me or main.me files or IDE project and makefiles.  The --gen
               start, option can be used to create a stand-alone sample start.me
@@ -356,23 +499,23 @@
               typically need to also use -configure.
 
 
-       <B>--get</B> <B>field</B>
+       <b>--get</b> <b>field</b>
               Get a field from the MakeMe DOM. This can be used to display any
               MakeMe file value. Unlike --set, this applies to any MakeMe DOM
               value and not just to settings. For example: 'me --get
               settings.version'.
 
 
-       <B>--import</B>
+       <b>--import</b>
               Import the standard MakeMe configuration "makeme" directory into
               the local source tree.
 
 
-       <B>--keep</B> Keep some intermediate build files. This is currently used by some
+       <b>--keep</b> Keep some intermediate build files. This is currently used by some
               documentation generation targets.
 
 
-       <B>--log</B> <B>logName[:logLevel]</B>
+       <b>--log</b> <b>logName[:logLevel]</b>
               Specify a file to log internal execution messages. MakeMe will log
               execution related trace to the log file. The log level specifies
               the desired verbosity of output. Level 0 is the least verbose and
@@ -380,24 +523,24 @@
               stderr:2'.
 
 
-       <B>--nocross</B>
+       <b>--nocross</b>
               Don't cross-build. Build only for the local development system.
 
 
-       <B>--nolocal</B>
+       <b>--nolocal</b>
               Don't build for the local development system. Build only for the
               cross platforms.
 
 
-       <B>--out</B> <B>path</B>
+       <b>--out</b> <b>path</b>
               Save MakeMe trace output to a file instead of displaying to the
               console.
 
 
-       <B>--overwrite</B>
+       <b>--overwrite</b>
               Overwrite existing files.
 
-       <B>--prefix</B> <B>dir=path</B>
+       <b>--prefix</b> <b>dir=path</b>
               Set the installation directory prefix. Various products utilize
               different prefixes. Typical prefixes are: root, base, state, data,
               app, vapp, bin, etc, inc, log, spool, src, web.  For those
@@ -408,7 +551,7 @@
               --manualdir to man.
 
 
-       <B>--prefixes</B> <B>debian|embedthis|opt</B>
+       <b>--prefixes</b> <b>debian|embedthis|opt</b>
               Select an installation prefix package. Debian specifies the debian
               recommended installation locations. Embedthis products install by
               default with a prefix of /usr/local/lib/PRODUCT and symlink
@@ -416,103 +559,118 @@
               prefix of "/opt".
 
 
-       <B>--profile</B> <B>defaultProfile</B>
+       <b>--profile</b> <b>defaultProfile</b>
               Set the default profile if unspecified. Typical profiles are:
               'debug', 'dev', 'stage', 'prod' or 'release'.  The profile is used
               in constructing the build output directory. You may specify
               override properties in the main.me profiles[PROFILE] collection.
 
 
-       <B>--quiet</B>
+       <b>--quiet</b>
               Quiet operation. Suppresses output trace.
 
 
-       <B>--rebuild</B>
+       <b>--rebuild</b>
               Rebuild the specified targets. Can also use 'me rebuild'.
 
 
-       <B>--reconfigure</B>
+       <b>--reconfigure</b>
               Re-run configuration using the prior configuration settings.
 
 
-       <B>--release</B>
+       <b>--release</b>
               Enable a release build. This disables the settings.debug property
               and compiles without debug symbols.
 
 
-       <B>--rom</B>  Configure setting to build for systems without a file system. This
+       <b>--rom</b>  Configure setting to build for systems without a file system. This
               enables the ROM file system.  Use the makerom utility to process
               required files into C source code for building with the
               application.
 
 
-       <B>--set</B> <B>key=value</B>
+       <b>--set</b> <b>key=value</b>
               Set a settings property to a given value. For example: 'me -set
               version=1.0' will update the settings.version property.  Use this
               libraries. Same as --set static=true.
 
 
-       <B>--unicode</B>
+       <b>--unicode</b>
               Set the character size to wide.
 
 
-       <B>--unset</B> <B>key=value</B>
+       <b>--unset</b> <b>key=value</b>
               Clear a settings property.  Use this when running 'me configure'
               to persist your changes in the configuration MakeMe file.
 
 
-       <B>--version</B>
-              Print the <B>ejs</B> command version and exit.
+       <b>--version</b>
+              Print the <b>ejs</b> command version and exit.
 
 
-       <B>--verbose</B>
+       <b>--verbose</b>
               Run in verbose mode with more trace about MakeMe activities.
 
 
-       <B>--watch</B> <B>msec</B>
+       <b>--watch</b> <b>msec</b>
               Watch for changes and rebuild if required. This will sleep for the
               requested number of milliseconds between checking for changes.
               This can also be invoked as 'me watch' which will check every
               second for changes.
 
 
-       <B>--why</B>  Display why each target was or was not built.
+       <b>--why</b>  Display why each target was or was not built.
 
 
-       <B>--with</B> <B>PACK[=path]</B>
+       <b>--with</b> <b>PACK[=path]</b>
               Build with the named pack located at the optional path. If the
               path is ommitted, a search is performed for the pack at default
               locations. Packs must have a pack description file installed under
               'makeme/packs' in the MakeMe installation.
 
 
-       <B>--without</B> <B>PACK</B>
+       <b>--without</b> <b>PACK</b>
               Build without the named pack.
 
 
 
-</PRE>
-<H2>REPORTING BUGS</H2><PRE>
+</pre>
+<h2>REPORTING BUGS</h2><pre>
        Report bugs to dev@embedthis.com.
 
 
-</PRE>
-<H2>COPYRIGHT</H2><PRE>
+</pre>
+<h2>COPYRIGHT</h2><pre>
        Copyright © Embedthis Software. MakeMe and Ejscript are a trademarks of
        Embedthis Software.
 
 
-</PRE>
-<H2>SEE ALSO</H2><PRE>
+</pre>
+<h2>SEE ALSO</h2><pre>
        pak
 
 
-</PRE>
-<HR>
-<ADDRESS>
+</pre>
+<hr>
+<address>
 Man(1) output converted with
 <a href="http://www.oac.uci.edu/indiv/ehood/man2html.html">man2html</a>
-</ADDRESS>
-</BODY>
-</HTML>
-</html>
+</address>
+
+
+
+    </div>
+    <div class="terms ui basic center aligned segment">
+        <p>&copy; Embedthis Software. All rights reserved.</p>
+    </div>
+
+    <script src="../lib/jquery/jquery.min.js"></script>
+    <script src="../lib/jquery/jquery.slim.min.js"></script>
+    <script src="../lib/semantic-ui/semantic.min.js"></script>
+     
+
+    
+
+
+
+
