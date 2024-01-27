@@ -115,6 +115,7 @@ public class Builder {
             return
         }
         global.TARGET = me.target = target
+        vtrace('Building', target.name)
 
         if (target.files) {
             global.FILES = target.files.map(function(f) f.relativeTo(target.home).portable).join(' ')

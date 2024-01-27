@@ -361,6 +361,11 @@ class Configure {
         if (nme.settings) {
             Object.sortProperties(nme.settings)
         }
+        for each (target in nme.targets) {
+            if (target.scripts) {
+                target.scripts = {}
+            }
+        }
         loader.runScript('postconfig')
         if (makeme.options.configure) {
             let path: Path

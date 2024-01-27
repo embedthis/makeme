@@ -985,6 +985,7 @@ public class Loader {
         g.SHOBJ = ext.dotshobj
         g.SHLIB = ext.dotshlib
         g.ARLIB = ext.dotlib
+        g.LIB = me.settings.static ? ext.dotlib : ext.dotshobj
     }
 
     function makeItemGlobals(origin: Path?, home: Path?) {
@@ -1101,7 +1102,12 @@ public class Loader {
         }
         if (p.type == 'lib') {
             p.ownLibraries ||= []
-            p.ownLibraries += [p.name.replace(/^lib/, '')]
+            if (p.path) {
+                //  E.g. Remove ${BIN}/ prefix and ${ARLIB} suffix
+                p.ownLibraries += [p.path.replace(/.*lib/, '').replace(/\$.*/, '')]
+            } else {
+                p.ownLibraries += [p.name.replace(/^lib/, '')]
+            }
         }
         for (let [key,value] in p.defines) {
             p.defines[key] = value.trimStart('-D')
