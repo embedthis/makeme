@@ -50,6 +50,7 @@ module ejs.testme {
         tget(key) - 0
 
     //  Shown with verbose only
+    //  Would be better if tinfo was always output and tdebug was output in verbose mode
     function tinfo(...args) {
         print('info', ...args)
     }

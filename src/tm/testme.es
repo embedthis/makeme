@@ -557,12 +557,20 @@ enumerable class TestMe {
             if (Config.OS != 'windows') {
                 linker = "[ '-Wl,-rpath," + bin + "']"
             }
+            let libpaths = [ bin ]
+            if (env.libpaths) {
+                libpaths = libpaths.concat(env.libpaths)
+            }
+            if (Config.OS == 'macosx') {
+                libpaths.push('/opt/homebrew/lib')
+            }
+            libpaths = serialize(libpaths).replace(/"/g, "'")
             let instructions = `
 Me.load({
     defaults: {
         '+defines': [ 'BIN="` + bin + `"' ],
         '+includes': [ '` + cfg.join('inc').portable + `', '` + App.exeDir.parent.join('inc').portable + `', '..' ],
-        '+libpaths': [ '` + bin + `' ],
+        '+libpaths': ` + libpaths + `,
         '+libraries': ` + libraries + `,
         '+linker': ` + linker + `,
     },

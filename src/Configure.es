@@ -819,7 +819,7 @@ module embedthis.me.script {
         }
         if (me.platform.os == 'macosx') {
             if (Config.CPU == 'arm64') {
-                path = Path('/opt/homebrew/Cellar')
+                path = Path('/opt/homebrew')
             } else {
                 path = Path('/usr/local/Cellar')
             }
@@ -881,7 +881,7 @@ module embedthis.me.script {
             }
         }
         if (me.platform.os == 'macosx' && Config.CPU == 'arm64') {
-            search = [Path('/opt/homebrew/Cellar')] + search
+            search = search + [Path('/opt/homebrew')]
         }
         return search.transform(function(path) path.absolute)
     }
