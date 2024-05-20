@@ -593,7 +593,7 @@ public function touchFile(path: Path) {
         if (makeme.generating == 'nmake' || makeme.generating == 'vs') {
             genCmd('copy /Y /B nul+modified ' + path.windows + ' $(LOG)')
         } else {
-            genCmd('touch "' + path + '"')
+            genCmd('touch "' + path + '" 2>/dev/null')
         }
     }
 }
