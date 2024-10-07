@@ -397,9 +397,7 @@ class Configure {
         let path = me.dir.inc.join('me.h').relative
         trace('Create', path)
         let f = TextStream(File(path, 'w'))
-        f.writeLine('/*\n    me.h -- MakeMe Configure Header for ' + me.platform.name + '\n\n' +
-                '    This header is created by Me during configuration. To change settings, re-run\n' +
-                '    configure or define variables in your Makefile to override these default values.\n */')
+        f.writeLine('/*\n    me.h -- MakeMe Configure Header for ' + me.platform.name + '\n */')
         writeDefinitions(f)
         f.close()
     }

@@ -43522,8 +43522,8 @@ PUBLIC void ejsConfigurePathType(Ejs *ejs)
 
 /*********************************** Defines **********************************/
 
-#define CMP_QNAME(a,b) ((a)->name == (b)->name && (a)->space == (b)->space)
-#define CMP_NAME(a,b) ((a)->name == (b)->name)
+#define CMP_QNAME(a,b) (a && b && (a)->name == (b)->name && (a)->space == (b)->space)
+#define CMP_NAME(a,b) (a && b && (a)->name == (b)->name)
 
 /****************************** Forward Declarations **************************/
 

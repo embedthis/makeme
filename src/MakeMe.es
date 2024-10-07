@@ -17,8 +17,8 @@ require ejs.version
     @stability Prototype
   */
 public class MakeMe {
-    static const SupportedOS = ['freebsd', 'linux', 'macosx', 'solaris', 'vxworks', 'windows']
-    static const SupportedArch = ['arm', 'i64', 'mips', 'ppc', 'sparc', 'x64', 'x86']
+    static const SupportedOS = ['freebsd', 'linux', 'macosx', 'solaris', 'vxworks', 'windows', 'freertos']
+    static const SupportedArch = ['arm', 'arm64', 'mips', 'mips64', 'ppc', 'ppc64', 'riscv', 'riscv64', 'sh', 'sparc', 'x64', 'x86', 'xtensa']
     
     /** Singleton $Builder reference */
     public var builder: Builder
@@ -623,7 +623,7 @@ public class MakeMe {
         if (arch && !SupportedArch.find(function(a) {
             return arch.startsWith(a)
         })) {
-            throw 'Unsupported or unknown architecture: ' + arch + '. Select from: ' + SupportedArch.join(' ')
+            throw 'Unsupported or unknown architecture: "' + arch + '". Select from: ' + SupportedArch.join(' ')
         }
     }
 
