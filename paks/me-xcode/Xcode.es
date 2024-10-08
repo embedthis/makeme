@@ -915,18 +915,43 @@ class Xcode {
             if (!target.enable) {
                 continue
             }
+            let keys = {}
+            for each (item in target.defines) {
+                let parts = item.trim().split('=')
+                let key = parts[0]
+                let value = parts[1]
+                if (value) {
+                    if (!keys[key]) {
+                        value = value.trim('"')
+                        defs.push(key + ' = "' + value + '";\n')
+                    }
+                    keys[key] = true
+                }
+            }
             for each (item in target.includes) {
                 if (item.contains('$(')) {
                     let key = item.replace(/\$\(([^\)]*)\).*/, '$1')
-                    let value = (name.endsWith('-mine') ? App.getenv(key) : '') || ''
-                    defs.push(key + ' = "' + value + '";\n')
+                    if (!keys[key]) {
+                        let value = (name.endsWith('-mine') ? App.getenv(key) : '') || ''
+                        if (value) {
+                            value = value.trim('"')
+                            defs.push(key + ' = "' + value + '";\n')
+                            keys[key] = true
+                        }
+                    }
                 }
             }
             for each (item in target.libpaths) {
                 if (item.contains('$(')) {
                     let key = item.replace(/\$\(([^\)]*)\).*/, '$1')
-                    let value = (name.endsWith('-mine') ? App.getenv(key) : '') || ''
-                    defs.push(key + ' = "' + value + '";\n')
+                    if (!keys[key]) {
+                        let value = (name.endsWith('-mine') ? App.getenv(key) : '') || ''
+                        if (value) {
+                            value = value.trim('"')
+                            defs.push(key + ' = "' + value + '";\n')
+                            keys[key] = true
+                        }
+                    }
                 }
             }
         }
