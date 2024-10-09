@@ -739,8 +739,6 @@ Me.load({
         let mefile = tm.join(name).joinExt('me')
         trace('Generate', 'Projects ' + mefile.dirname.join(name))
         try {
-        //MOB
-            print('me --chdir ' + mefile.dirname + ' --file ' + mefile.basename + ' --name ' + name + ' generate')
             run('me --chdir ' + mefile.dirname + ' --file ' + mefile.basename + ' --name ' + name + ' generate')
         } catch (e) {
             trace('FAIL', topPath + ' cannot generate project for ' + topPath + '\n\n' + e.message)
