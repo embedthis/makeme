@@ -238,7 +238,7 @@ class Make {
         for (let [key,value] in obj) {
             key = (prefix ? prefix + '_' : '') + key.replace(/[A-Z]/g, '_$&').replace(/-/g, '_').toUpper()
             //  Debug handled separately
-            if (key == 'DEBUG') continue
+            if (key == 'OPTIMIZE') continue
             if (value is Number) {
                 def(f, key, value)
             } else if (value is Boolean) {
@@ -390,7 +390,6 @@ class Make {
         if (me.targets.lib) {
             genWriteLine('AR                    ?= ' + me.targets.lib.path)
         }
-        genWriteLine('CONFIG                ?= $(OS)-$(ARCH)-$(PROFILE)')
         genWriteLine('BUILD                 ?= ' + loader.BUILD + '/$(OS)-$(ARCH)-$(PROFILE)')
         genWriteLine('LBIN                  ?= $(BUILD)/bin')
         genWriteLine('PATH                  := $(LBIN):$(PATH)\n')
@@ -399,7 +398,7 @@ class Make {
         environment()
 
         let mappings = makeme.generate.mappings
-        let cflags = mappings.compiler
+        let cflags = mappings.compiler + ' '
         for each (word in minimalCflags) {
             cflags = cflags.replace(word + ' ', ' ')
         }
@@ -415,17 +414,18 @@ class Make {
         genWriteLine('LIBPATHS              += ' + repvar(mappings.libpaths))
         genWriteLine('LIBS                  += ' + mappings.libraries + '\n')
 
-        let debug = me.platform.profile == 'prod' ? false : true
-        genWriteLine('DEBUG                 ?= ' + (debug ? 'debug' : 'release'))
+        let dev = me.platform.profile == 'prod' ? false : true
+        // + (dev ? 'dev' : 'prod'))
+        genWriteLine('OPTIMIZE              ?= debug')
         genWriteLine('CFLAGS-debug          ?= -g')
         genWriteLine('DFLAGS-debug          ?= -DME_DEBUG=1')
         genWriteLine('LDFLAGS-debug         ?= -g')
         genWriteLine('DFLAGS-release        ?= ')
         genWriteLine('CFLAGS-release        ?= -O2')
         genWriteLine('LDFLAGS-release       ?= ')
-        genWriteLine('CFLAGS                += $(CFLAGS-$(DEBUG))')
-        genWriteLine('DFLAGS                += $(DFLAGS-$(DEBUG))')
-        genWriteLine('LDFLAGS               += $(LDFLAGS-$(DEBUG))\n')
+        genWriteLine('CFLAGS                += $(CFLAGS-$(OPTIMIZE))')
+        genWriteLine('DFLAGS                += $(DFLAGS-$(OPTIMIZE))')
+        genWriteLine('LDFLAGS               += $(LDFLAGS-$(OPTIMIZE))\n')
 
         let prefixes = mapPrefixes()
         for (let [name, value] in prefixes) {
@@ -438,7 +438,7 @@ class Make {
         loader.runScript('gencustom')
         genWriteLine('')
 
-        let pop = me.settings.name + '-' + me.platform.os + '-' + me.platform.profile
+        let pop = me.settings.name + '-' + me.platform.os + '-$(PROFILE)' // + me.platform.profile
         genTargets()
 
         genWriteLine('\nDEPEND := \$(strip $(wildcard ./projects/depend.mk))')
@@ -450,8 +450,7 @@ class Make {
         genWriteLine('ifndef SHOW\n.SILENT:\nendif\n')
         genWriteLine('all build compile: prep $(TARGETS)\n')
         genWriteLine('.PHONY: prep\n\nprep:')
-        genWriteLine('\t@echo "      [Info] Use "make SHOW=1" to trace executed commands."')
-        genWriteLine('\t@if [ "$(CONFIG)" = "" ] ; then echo WARNING: CONFIG not set ; exit 255 ; fi')
+        genWriteLine('\t@if [ "$(BUILD)" = "" ] ; then echo WARNING: BUILD not set ; exit 255 ; fi')
         if (me.prefixes.app) {
             genWriteLine('\t@if [ "$(ME_APP_PREFIX)" = "" ] ; then echo WARNING: ME_APP_PREFIX not set ; exit 255 ; fi')
         }
@@ -526,13 +525,8 @@ class Make {
             genWriteLine('ENTRY                 = _DllMainCRTStartup@12')
         genWriteLine('!ENDIF\n')
        
-
-        genWriteLine('!IF "$(CONFIG)" == ""')
-        genWriteLine('CONFIG                = $(OS)-$(ARCH)-$(PROFILE)')
-        genWriteLine('!ENDIF\n')
-
         genWriteLine('!IF "$(BUILD)" == ""')
-        genWriteLine('BUILD                 = ' + loader.BUILD + '\\$(CONFIG)')
+        genWriteLine('BUILD                 = ' + loader.BUILD + '\\$(OS)-$(ARCH)-$(PROFILE)')
         genWriteLine('!ENDIF\n')
 
         genWriteLine('LBIN                  = $(BUILD)\\bin\n')
@@ -606,8 +600,7 @@ class Make {
         genWriteLine('ARCH="' + me.platform.arch + '"')
         genWriteLine('ARCH="`uname -m | sed \'s/i.86/x86/;s/x86_64/x64/;s/arm.*/arm/;s/mips.*/mips/\'`"')
         genWriteLine('OS="' + me.platform.os + '"')
-        genWriteLine('CONFIG="${OS}-${ARCH}-${PROFILE}' + '"')
-        genWriteLine('BUILD="' + loader.BUILD + '/${CONFIG}')
+        genWriteLine('BUILD="' + loader.BUILD + '/${OS}-${ARCH}-${PROFILE}')
         genWriteLine('CC="' + me.targets.compiler.path + '"')
         if (me.targets.link) {
             genWriteLine('LD="' + me.targets.link.path + '"')
@@ -1172,7 +1165,14 @@ class Make {
         }
         if (target.type == 'lib') {
             if (target != base) {
-                libraries.push(target.libname || target.name)
+                if (target.libname) {
+                    libraries.push(target.libname)
+                } else if (target.path) {
+                    let lib = target.path.basename.trimExt().replace(/^lib/, '')
+                    libraries.push(lib)
+                } else {
+                    libraries.push(target.name)
+                }
             }
             if (target.libraries) {
                 libraries += target.libraries
