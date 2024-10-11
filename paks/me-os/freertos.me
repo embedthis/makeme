@@ -1,0 +1,34 @@
+/*
+    linux.me -- Linux Settings
+ */
+
+Me.load({
+    blend: [    
+        'unix.me',
+        'gcc.me',
+    ],
+
+    'debian-prefixes': {
+        root:       '/',
+        base:       '${prefixes.root}/usr',
+        data:       '${prefixes.root}',
+        state:      '${prefixes.data}/var',
+
+        bin:        '${prefixes.base}/bin',
+        inc:        '${prefixes.base}/include',
+        lib:        '${prefixes.base}/lib',
+        man:        '${prefixes.base}/share/man',
+        sbin:       '${prefixes.base}/sbin',
+
+        etc:        '${prefixes.data}/etc/${settings.name}',
+        web:        '${prefixes.data}/www/${settings.name}',
+
+        log:        '${prefixes.state}/log/${settings.name}',
+        spool:      '${prefixes.state}/spool/${settings.name}',
+        cache:      '${prefixes.state}/cache/${settings.name}',
+
+        app:        '${prefixes.lib}/${settings.name}',
+        vapp:       '${prefixes.app}',
+        src:        '${prefixes.base}/src/${settings.name}-${settings.version}',
+    },
+})
