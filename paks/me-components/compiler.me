@@ -425,6 +425,7 @@ function setCompilerOptions(results, settings) {
             results.libraries.push('dl')
         }
         results.compiler.push('-Wall')
+        results.compiler.push('-Wno-unknown-warning-option')
         results.libraries.push('pthread', 'm')
         if (me.settings.debug) {
             results.compiler.push('-g')
@@ -463,8 +464,9 @@ function setCompilerOptions(results, settings) {
                     '-Wl,-z,relro,-z,now',
                     '-Wl,--as-needed',
                     '-Wl,--no-copy-dt-needed-entries',
-                    '-Wl,-z,noexecstatck',
-                    '-Wl,-z,noexecheap'
+                    '-Wl,-z,noexecheap',
+                    '-Wl,-z,noexecstack',
+                    '-Wl,--no-warn-execstack'
                 )
                 if (me.settings.static) {
                     /*
@@ -491,6 +493,7 @@ function setCompilerOptions(results, settings) {
         /*
             results.compiler.push('-Wunreachable-code')
          */
+        results.linker.push('-Wl,-no_warn_duplicate_libraries')
         results.linker.push('-Wl,-rpath,@executable_path/', '-Wl,-rpath,@loader_path/')
 
     } else if (platform.os == 'solaris') {
