@@ -900,7 +900,7 @@ public function repvar(command: String): String {
 
 public function repvar2(command: String, home: Path? = null): String {
     let generating = makeme.generating
-    let mappings = makeme.generate.mappings
+    let mappings = makeme.generate ? makeme.generate.mappings : {}
     if (home) {
         command = command.replace(RegExp(me.dir.top, 'g'), me.dir.top.relativeTo(home))
     }

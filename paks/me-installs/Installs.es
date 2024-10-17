@@ -123,6 +123,10 @@ class InstallsInner {
                     continue
                 }
                 try {
+                    if (item.literal && makeme.generating) {
+                        genCmd(item.literal)
+                        continue
+                    }
                     if (!item.from && item.prePerform) {
                         item.prePerform.call(me.dir.top, item.from, item.to, item)
                     }
