@@ -227,6 +227,7 @@ class Configure {
              */
             loader.blendFile(loader.findPlugin('components'), true)
             checkMain()
+            loader.runScript('preconfig')
             findComponents()
             defineEnv()
             importComponentFiles()
