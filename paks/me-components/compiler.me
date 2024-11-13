@@ -380,6 +380,7 @@ function getCompilerSettings(cc) {
         settings.warnUnused = compile(cc, '-Wno-unused-result',
             '#include <stdio.h>\n#include <stdlib.h>\nint main() { realloc(0, 1024); return 0; }')
         settings.warn64to32 = compile(cc, '-Wshorten-64-to-32', 'int main() { return 0;}')
+        settings.noexecstack = compile(cc, '-z noexecstack', 'int main() { return 0;}')
     } else {
         settings = getDefaultSettings()
     }
@@ -410,6 +411,9 @@ function setCompilerOptions(results, settings) {
     }
     if (settings.warn64to32) {
         results.compiler.push('-Wshorten-64-to-32')
+    }
+    if (settings.noexecstack) {
+        results.linker.push('-z noexecstack')
     }
     if (settings.hasLibRt) {
         results.libraries.push('rt')
@@ -552,6 +556,7 @@ function setCompilerOptions(results, settings) {
         results.linker.push('-Wl,-r')
 
     } else if (platform.os == 'windows') {
+        results.defines.push('_CRT_SECURE_NO_WARNINGS=1')
         results.compiler.push('-nologo', '-GR-', '-W3')
         results.libraries.push('ws2_32.lib', 'advapi32.lib', 'user32.lib', 'kernel32.lib', 'oldnames.lib', 'shell32.lib')
         results.linker.push('-nologo', '-incremental:no', '-dynamicbase', '-nxcompat')
@@ -665,6 +670,7 @@ function getDefaultSettings() {
             hasSync64: true,
             hasSyncCas: true,
             hasUnnamedUnions: true,
+            noexecstack: true,
             warn64to32: false,
             warnUnused: true,
         }
@@ -684,6 +690,7 @@ function getDefaultSettings() {
             hasSync64: true,
             hasSyncCas: true,
             hasUnnamedUnions: true,
+            noexecstack: false,
             warn64to32: true,
             warnUnused: true,
         }
@@ -722,6 +729,7 @@ function getDefaultSettings() {
             hasSync64: false,
             hasSyncCas: false,
             hasUnnamedUnions: true,
+            noexecstack: false,
             warn64to32: false,
             warnUnused: false,
         }

@@ -805,7 +805,12 @@ public function repcmd(command: String): String {
         /* Twice because libraries are repeated and replace only changes the first occurrence */
         command = rep(command, mappings.libraries, '$(LIBS)')
         command = rep(command, mappings.libraries, '$(LIBS)')
-        command = rep(command, RegExp(mappings.build, 'g'), '$$(BUILD)')
+
+        if (generating == 'nmake') {
+            command = rep(command, RegExp(Path(mappings.build).windows, 'g'), '$$(BUILD)')
+        } else {
+            command = rep(command, RegExp(mappings.build, 'g'), '$$(BUILD)')
+        }
         command = rep(command, RegExp(mappings.configuration, 'g'), '$$(CONFIG)')
         if (me.targets.compiler) {
             command = repCmd(command, me.targets.compiler.path, '$(CC)')
@@ -880,7 +885,7 @@ public function repvar(command: String): String {
         command = command.replace(RegExp(mappings.build, 'g'), '$$(BUILD)')
         command = command.replace(RegExp(mappings.configuration, 'g'), '$$(CONFIG)')
     } else if (generating == 'nmake') {
-        command = command.replace(RegExp(mappings.build, 'g'), '$$(BUILD)')
+        command = command.replace(RegExp(Path(mappings.build).windows, 'g'), '$$(BUILD)')
         command = command.replace(RegExp(mappings.configuration, 'g'), '$$(CONFIG)')
     } else if (generating == 'sh') {
         command = command.replace(RegExp(mappings.configuration, 'g'), '$${CONFIG}')
@@ -912,9 +917,9 @@ public function repvar2(command: String, home: Path? = null): String {
         command = command.replace(RegExp(mappings.build, 'g'), '$$(BUILD)')
         command = command.replace(RegExp(mappings.configuration, 'g'), '$$(CONFIG)')
     } else if (generating == 'nmake') {
-        command = command.replace(RegExp(mappings.configuration + '\\\\bin/', 'g'), '$$(CONFIG)\\bin\\')
-        command = command.replace(RegExp(mappings.build, 'g'), '$$(BUILD)')
+        command = command.replace(RegExp(Path(mappings.build).windows, 'g'), '$$(BUILD)')
         command = command.replace(RegExp(mappings.configuration, 'g'), '$$(CONFIG)')
+        command = command.replace(RegExp(mappings.configuration + '\\\\bin/', 'g'), '$$(CONFIG)\\bin\\')
     } else if (generating == 'sh') {
         command = command.replace(RegExp(mappings.configuration, 'g'), '$${CONFIG}')
     }

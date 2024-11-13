@@ -391,6 +391,7 @@ class Make {
             genWriteLine('AR                    ?= ' + me.targets.lib.path)
         }
         genWriteLine('BUILD                 ?= ' + loader.BUILD + '/$(OS)-$(ARCH)-$(PROFILE)')
+        genWriteLine('CONFIG                ?= $(OS)-$(ARCH)-$(PROFILE)')
         genWriteLine('LBIN                  ?= $(BUILD)/bin')
         genWriteLine('PATH                  := $(LBIN):$(PATH)\n')
 
@@ -408,7 +409,8 @@ class Make {
             ' $(patsubst %,-D%,$(filter ME_%,$(MAKEFLAGS))) ' + dflags)
         genWriteLine('IFLAGS                += "' +
             repvar(me.targets.compiler.includes.map(function(path) '-I' + reppath(path.relative)).join(' ')) + '"')
-        let linker = me.targets.compiler.linker.map(function(s) "'" + s + "'").join(' ')
+        // let linker = me.targets.compiler.linker.map(function(s) "'" + s + "'").join(' ')
+        let linker = me.targets.compiler.linker.join(' ')
         let ldflags = repvar(linker).replace(/\$ORIGIN/g, '$$$$ORIGIN').replace(/'-g' */, '')
         genWriteLine('LDFLAGS               += ' + ldflags)
         genWriteLine('LIBPATHS              += ' + repvar(mappings.libpaths))
@@ -525,6 +527,9 @@ class Make {
             genWriteLine('ENTRY                 = _DllMainCRTStartup@12')
         genWriteLine('!ENDIF\n')
        
+        genWriteLine('!IF "$(CONFIG" == ""')
+        genWriteLine('CONFIG                = $(OS)-$(ARCH)-$(PROFILE)')
+        genWriteLine('!ENDIF\n')
         genWriteLine('!IF "$(BUILD)" == ""')
         genWriteLine('BUILD                 = ' + loader.BUILD + '\\$(OS)-$(ARCH)-$(PROFILE)')
         genWriteLine('!ENDIF\n')
