@@ -32,11 +32,7 @@
         "http": "~7",
         "me-win": "~1",
         "mpr": "~9",
-        "mpr-mbedtls": "~2",
         "ssl": "~1"
-    },
-    "optionalDependencies": {
-        "mpr-openssl": "~1"
     },
     "devDependencies": {
         "makeme": ">=1.0",

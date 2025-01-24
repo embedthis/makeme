@@ -46726,6 +46726,7 @@ static EjsString *replace(Ejs *ejs, EjsString *sp, int argc, EjsObj **argv)
                         result = buildString(ejs, result, &sp->value[matches[1]], sp->length - matches[1]);
                         break;
                     default:
+                        //  BUG should handle backquoted $
                         /* Insert the nth submatch */
                         if (isdigit((uchar) *cp)) {
                             submatch = (int) wtoi(cp);
@@ -57470,6 +57471,7 @@ static EjsAny *getRequestProperty(Ejs *ejs, EjsRequest *req, int slotNum)
             scriptName = getDefaultString(ejs, req->scriptName, "");
             if (conn) {
                 path = sjoin(scriptName, getDefaultString(ejs, req->pathInfo, conn->rx->uri), NULL);
+                path = mprUriEncode(path, MPR_ENCODE_JS_URI);
                 scheme = (conn->secure) ? "https" : "http";
                 req->uri = ejsCreateUriFromParts(ejs, 
                     getDefaultString(ejs, req->scheme, scheme),

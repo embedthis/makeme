@@ -11,13 +11,19 @@
 
 /********************************** Includes **********************************/
 
-#include "me.h"
-
 /**
     Operating system dependent layer that provides a portable cross-platform abstraction layer.
     @defgroup Osdep Osdep
     @stability Evolving
 */
+
+#ifndef OSDEP_USE_ME
+#define OSDEP_USE_ME 1
+#endif
+
+#if OSDEP_USE_ME
+#include "me.h"
+#endif
 
 /******************************* Default Features *****************************/
 /*
@@ -47,13 +53,15 @@
 #define ME_CPU_X86         4           /**< X86 */
 #define ME_CPU_X64         5           /**< AMD64 or EMT64 */
 #define ME_CPU_MIPS        6           /**< Mips */
-#define ME_CPU_PPC         7           /**< Power PC */
-#define ME_CPU_PPC64       8           /**< Power PC 64 */
-#define ME_CPU_SPARC       9           /**< Sparc */
-#define ME_CPU_TIDSP       10          /**< TI DSP */
-#define ME_CPU_SH          11          /**< SuperH */
-#define ME_CPU_RISCV       12          /**< RiscV */
-#define ME_CPU_RISCV64     13          /**< RiscV64 */
+#define ME_CPU_MIPS64      7           /**< Mips 64 */
+#define ME_CPU_PPC         8           /**< Power PC */
+#define ME_CPU_PPC64       9           /**< Power PC 64 */
+#define ME_CPU_SPARC       10          /**< Sparc */
+#define ME_CPU_TIDSP       11          /**< TI DSP */
+#define ME_CPU_SH          12          /**< SuperH */
+#define ME_CPU_RISCV       13          /**< RiscV */
+#define ME_CPU_RISCV64     14          /**< RiscV64 */
+#define ME_CPU_XTENSA      15          /**< Xtensa / ESP32 */
 
 /*
     Byte orderings
@@ -95,9 +103,14 @@
     #define ME_CPU_ARCH ME_CPU_ITANIUM
     #define CPU_ENDIAN ME_LITTLE_ENDIAN
 
-#elif defined(__mips__) || defined(__mips64)
+#elif defined(__mips__)
     #define ME_CPU "mips"
     #define ME_CPU_ARCH ME_CPU_MIPS
+    #define CPU_ENDIAN ME_BIG_ENDIAN
+
+#elif defined(__mips64)
+    #define ME_CPU "mips64"
+    #define ME_CPU_ARCH ME_CPU_MIPS64
     #define CPU_ENDIAN ME_BIG_ENDIAN
 
 #elif defined(__ppc__) || defined(__powerpc__) || defined(__ppc)
@@ -134,6 +147,11 @@
     #define ME_CPU "riscv64"
     #define ME_CPU_ARCH CPU_RISCV64
     #define ME_CPU_ENDIAN LITTLE_ENDIAN
+
+#elif defined(__XTENSA__)
+    #define ME_CPU "xtensa"
+    #define ME_CPU_ARCH CPU_XTENSA
+    #define ME_CPU_ENDIAN LITTLE_ENDIAN
 #else
     #error "Cannot determine CPU type in osdep.h"
 #endif
@@ -146,12 +164,13 @@
 #endif
 
 /*
-    Operating system defines. Use compiler standard defintions to sleuth. Works for all except VxWorks which does not
-    define any special symbol. NOTE: Support for SCOV Unix, LynxOS and UnixWare is deprecated.
+    Operating system defines. Use compiler standard defintions to sleuth. Works for all except 
+    VxWorks which does not define any special symbol (ugh). 
  */
 #if defined(__APPLE__)
     #define ME_OS "macosx"
     #define MACOSX 1
+    #define POSIX 1
     #define ME_UNIX_LIKE 1
     #define ME_WIN_LIKE 0
     #define ME_BSD_LIKE 1
@@ -161,28 +180,35 @@
 #elif defined(__linux__)
     #define ME_OS "linux"
     #define LINUX 1
+    #define POSIX 1
     #define ME_UNIX_LIKE 1
     #define ME_WIN_LIKE 0
+    #define PTHREADS 1
 
 #elif defined(__FreeBSD__)
     #define ME_OS "freebsd"
     #define FREEBSD 1
+    #define POSIX 1
     #define ME_UNIX_LIKE 1
     #define ME_WIN_LIKE 0
     #define ME_BSD_LIKE 1
     #define HAS_USHORT 1
     #define HAS_UINT 1
+    #define PTHREADS 1
 
 #elif defined(__OpenBSD__)
-    #define ME_OS "freebsd"
+    #define ME_OS "openbsd"
     #define OPENBSD 1
+    #define POSIX 1
     #define ME_UNIX_LIKE 1
     #define ME_WIN_LIKE 0
     #define ME_BSD_LIKE 1
+    #define PTHREADS 1
 
 #elif defined(_WIN32)
     #define ME_OS "windows"
     #define WINDOWS 1
+    #define POSIX 1
     #define ME_UNIX_LIKE 0
     #define ME_WIN_LIKE 1
 
@@ -207,34 +233,43 @@
 #elif defined(__bsdi__)
     #define ME_OS "bsdi"
     #define BSDI 1
+    #define POSIX 1
     #define ME_UNIX_LIKE 1
     #define ME_WIN_LIKE 0
     #define ME_BSD_LIKE 1
+    #define PTHREADS 1
 
 #elif defined(__NetBSD__)
     #define ME_OS "netbsd"
     #define NETBSD 1
+    #define POSIX 1
     #define ME_UNIX_LIKE 1
     #define ME_WIN_LIKE 0
     #define ME_BSD_LIKE 1
+    #define PTHREADS 1
 
 #elif defined(__QNX__)
     #define ME_OS "qnx"
     #define QNX 0
     #define ME_UNIX_LIKE 0
     #define ME_WIN_LIKE 0
+    #define PTHREADS 1
 
 #elif defined(__hpux)
     #define ME_OS "hpux"
     #define HPUX 1
+    #define POSIX 1
     #define ME_UNIX_LIKE 1
     #define ME_WIN_LIKE 0
+    #define PTHREADS 1
 
 #elif defined(_AIX)
     #define ME_OS "aix"
     #define AIX 1
+    #define POSIX 1
     #define ME_UNIX_LIKE 1
     #define ME_WIN_LIKE 0
+    #define PTHREADS 1
 
 #elif defined(__CYGWIN__)
     #define ME_OS "cygwin"
@@ -251,6 +286,7 @@
 #elif defined(VXWORKS)
     /* VxWorks does not have a pre-defined symbol */
     #define ME_OS "vxworks"
+    #define POSIX 1
     #define ME_UNIX_LIKE 0
     #define ME_WIN_LIKE 0
     #define HAS_USHORT 1
@@ -258,6 +294,7 @@
 #elif defined(ECOS)
     /* ECOS may not have a pre-defined symbol */
     #define ME_OS "ecos"
+    #define POSIX 1
     #define ME_UNIX_LIKE 0
     #define ME_WIN_LIKE 0
 
@@ -267,6 +304,34 @@
     #define ME_WIN_LIKE 0
     #define HAS_INT32 1
 
+#elif defined(ESP_PLATFORM)
+    #define ME_OS "freertos"
+    #define FREERTOS 1
+    #define ESP32 1
+    #define POSIX 1
+    #define ME_UNIX_LIKE 0
+    #define ME_WIN_LIKE 0
+    #define PLATFORM "esp"
+    #define PTHREADS 1
+    #define HAS_INT32 1
+
+#elif defined(INC_FREERTOS_H)
+    #define ME_OS "freertos"
+    #define FREERTOS 1
+    #define POSIX 1
+    #define ME_UNIX_LIKE 0
+    #define ME_WIN_LIKE 0
+    #define PTHREADS 1
+    #define HAS_INT32 1
+
+#elif defined(ARDUINO)
+    #define ME_OS "freertos"
+    #define FREERTOS 1
+    #define POSIX 1
+    #define ME_UNIX_LIKE 0
+    #define ME_WIN_LIKE 0
+    #define PTHREADS 1
+    #define HAS_INT32 1
 #endif
 
 #if __WORDSIZE == 64 || __amd64 || __x86_64 || __x86_64__ || _WIN64 || __mips64 || __arch64__ || __arm64__ || __aarch64__
@@ -525,13 +590,49 @@
     #include   <stdatomic.h>
 #endif
 
+#if FREERTOS
+#include <stddef.h>
+#include <string.h>
+#include "freertos/FreeRTOS.h"
+#include "freertos/event_groups.h"
+#include "freertos/task.h"
+#include "time.h"
+#endif
+
+#if ESP32
+#include "esp_system.h"
+#include "esp_log.h"
+#include "esp_heap_caps.h"
+#include "esp_err.h"
+#include "esp_event.h"
+#include "esp_log.h"
+#include "esp_system.h"
+#include "esp_heap_caps.h"
+#include "esp_psram.h"
+#include "esp_pthread.h"
+#include "esp_littlefs.h"
+#include "esp_crt_bundle.h"
+#include "esp_pthread.h"
+#include "esp_wifi.h"
+#include "esp_netif.h"
+#include "nvs_flash.h"
+#include "lwip/err.h"
+#include "lwip/sockets.h"
+#include "lwip/sys.h"
+#include "lwip/netdb.h"
+#endif
+
+#if PTHREADS
+#include <pthread.h>
+#endif
+
 /************************************** Types *********************************/
 /*
     Standard types
  */
 #ifndef HAS_BOOL
     #ifndef __cplusplus
-        #if !MACOSX
+        #if !MACOSX && !FREERTOS
             #define HAS_BOOL 1
             /**
                 Boolean data type.
@@ -715,11 +816,10 @@
             @stability Stable
          */
         typedef ssize_t ssize;
-    #elif TIDSP
-        typedef int ssize_t;
-        typedef ssize_t ssize;
-    #else
+    #elif ME_WIN_LIKE
         typedef SSIZE_T ssize;
+    #else
+        typedef ssize_t ssize;
     #endif
 #endif
 
@@ -1049,27 +1149,52 @@ typedef int64 Ticks;
         maxPath: 4096
     }
  */
-#ifndef ME_MAX_FNAME
-    #define ME_MAX_FNAME        256         /**< Reasonable filename size */
-#endif
-#ifndef ME_MAX_PATH
-    #define ME_MAX_PATH         1024        /**< Reasonable filename size */
-#endif
-#ifndef ME_BUFSIZE
-    #define ME_BUFSIZE          8192        /**< Reasonable size for buffers */
-#endif
-#ifndef ME_MAX_BUFFER
-    #define ME_MAX_BUFFER       ME_BUFSIZE  /* DEPRECATE */
-#endif
+#if ESP32 || FREERTOS || VXWORKS
+    //  Microcontrollers and smaller systems
+    #ifndef ME_MAX_FNAME
+        #define ME_MAX_FNAME        128         /**< Reasonable filename size */
+    #endif
+    #ifndef ME_MAX_PATH
+        #define ME_MAX_PATH         256        /**< Reasonable path size */
+    #endif
+    #ifndef ME_BUFSIZE
+        #define ME_BUFSIZE          1024        /**< Reasonable size for buffers */
+    #endif
+    #ifndef ME_MAX_BUFFER
+        #define ME_MAX_BUFFER       ME_BUFSIZE  /* DEPRECATE */
+    #endif
+    #ifndef ME_MAX_ARGC
+        #define ME_MAX_ARGC         16          /**< Maximum number of command line args if using MAIN()*/
+    #endif
+    #ifndef ME_DOUBLE_BUFFER
+        #define ME_DOUBLE_BUFFER    (DBL_MANT_DIG - DBL_MIN_EXP + 4)
+    #endif
+    #ifndef ME_MAX_IP
+        #define ME_MAX_IP           128
+    #endif
+#else
+    #ifndef ME_MAX_FNAME
+        #define ME_MAX_FNAME        256         /**< Reasonable filename size */
+    #endif
+    #ifndef ME_MAX_PATH
+        #define ME_MAX_PATH         1024        /**< Reasonable path size */
+    #endif
+    #ifndef ME_BUFSIZE
+        #define ME_BUFSIZE          8192        /**< Reasonable size for buffers */
+    #endif
+    #ifndef ME_MAX_BUFFER
+        #define ME_MAX_BUFFER       ME_BUFSIZE  /* DEPRECATE */
+    #endif
 
-#ifndef ME_MAX_ARGC
-    #define ME_MAX_ARGC         32          /**< Maximum number of command line args if using MAIN()*/
-#endif
-#ifndef ME_DOUBLE_BUFFER
-    #define ME_DOUBLE_BUFFER    (DBL_MANT_DIG - DBL_MIN_EXP + 4)
-#endif
-#ifndef ME_MAX_IP
-    #define ME_MAX_IP           1024
+    #ifndef ME_MAX_ARGC
+        #define ME_MAX_ARGC         32          /**< Maximum number of command line args if using MAIN()*/
+    #endif
+    #ifndef ME_DOUBLE_BUFFER
+        #define ME_DOUBLE_BUFFER    (DBL_MANT_DIG - DBL_MIN_EXP + 4)
+    #endif
+    #ifndef ME_MAX_IP
+        #define ME_MAX_IP           1024
+    #endif
 #endif
 
 
@@ -1360,6 +1485,11 @@ typedef int64 Ticks;
 
 #ifndef NBBY
     #define NBBY 8
+#endif
+
+#if FREERTOS
+typedef u32_t socklen_t;
+#define SOMAXCONN 5
 #endif
 
 /*********************************** Externs **********************************/

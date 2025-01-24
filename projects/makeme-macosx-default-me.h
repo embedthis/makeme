@@ -1,8 +1,5 @@
 /*
     me.h -- MakeMe Configure Header for macosx-x64-default
-
-    This header is created by Me during configuration. To change settings, re-run
-    configure or define variables in your Makefile to override these default values.
  */
 
 /* Settings */
@@ -56,6 +53,9 @@
 #endif
 #ifndef ME_COMPILER_HAS_UNNAMED_UNIONS
     #define ME_COMPILER_HAS_UNNAMED_UNIONS 1
+#endif
+#ifndef ME_COMPILER_NOEXECSTACK
+    #define ME_COMPILER_NOEXECSTACK 0
 #endif
 #ifndef ME_COMPILER_WARN64TO32
     #define ME_COMPILER_WARN64TO32 1
@@ -185,6 +185,9 @@
 #ifndef ME_LOG_PREFIX
     #define ME_LOG_PREFIX "/var/log/makeme"
 #endif
+#ifndef ME_VLIB_PREFIX
+    #define ME_VLIB_PREFIX "/var/lib/makeme"
+#endif
 #ifndef ME_SPOOL_PREFIX
     #define ME_SPOOL_PREFIX "/var/spool/makeme"
 #endif
@@ -254,13 +257,13 @@
     #define ME_COM_LIB 1
 #endif
 #ifndef ME_COM_MBEDTLS
-    #define ME_COM_MBEDTLS 1
+    #define ME_COM_MBEDTLS 0
 #endif
 #ifndef ME_COM_MPR
     #define ME_COM_MPR 1
 #endif
 #ifndef ME_COM_OPENSSL
-    #define ME_COM_OPENSSL 0
+    #define ME_COM_OPENSSL 1
 #endif
 #ifndef ME_COM_OSDEP
     #define ME_COM_OSDEP 1

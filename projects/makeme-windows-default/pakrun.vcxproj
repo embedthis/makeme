@@ -118,6 +118,20 @@ if exist $(BinDir)\rc.me del /Q $(BinDir)\rc.me
 copy /Y paks\me-components\rc.me $(BinDir)\rc.me
 if exist $(BinDir)\testme.me del /Q $(BinDir)\testme.me
 copy /Y paks\me-components\testme.me $(BinDir)\testme.me
+if exist $(BinDir)\dev.es del /Q $(BinDir)\dev.es
+copy /Y paks\me-dev\dev.es $(BinDir)\dev.es
+if exist $(BinDir)\dev.me del /Q $(BinDir)\dev.me
+copy /Y paks\me-dev\dev.me $(BinDir)\dev.me
+if exist $(BinDir)\pak.json del /Q $(BinDir)\pak.json
+copy /Y paks\me-dev\pak.json $(BinDir)\pak.json
+if exist $(BinDir)\doc.es del /Q $(BinDir)\doc.es
+copy /Y paks\me-doc\doc.es $(BinDir)\doc.es
+if exist $(BinDir)\doc.me del /Q $(BinDir)\doc.me
+copy /Y paks\me-doc\doc.me $(BinDir)\doc.me
+if exist $(BinDir)\gendoc.es del /Q $(BinDir)\gendoc.es
+copy /Y paks\me-doc\gendoc.es $(BinDir)\gendoc.es
+if exist $(BinDir)\pak.json del /Q $(BinDir)\pak.json
+copy /Y paks\me-doc\pak.json $(BinDir)\pak.json
 if exist $(BinDir)\Installs.es del /Q $(BinDir)\Installs.es
 copy /Y paks\me-installs\Installs.es $(BinDir)\Installs.es
 if exist $(BinDir)\installs.me del /Q $(BinDir)\installs.me
@@ -134,6 +148,8 @@ if exist $(BinDir)\pak.json del /Q $(BinDir)\pak.json
 copy /Y paks\me-make\pak.json $(BinDir)\pak.json
 if exist $(BinDir)\freebsd.me del /Q $(BinDir)\freebsd.me
 copy /Y paks\me-os\freebsd.me $(BinDir)\freebsd.me
+if exist $(BinDir)\freertos.me del /Q $(BinDir)\freertos.me
+copy /Y paks\me-os\freertos.me $(BinDir)\freertos.me
 if exist $(BinDir)\gcc.me del /Q $(BinDir)\gcc.me
 copy /Y paks\me-os\gcc.me $(BinDir)\gcc.me
 if exist $(BinDir)\linux.me del /Q $(BinDir)\linux.me

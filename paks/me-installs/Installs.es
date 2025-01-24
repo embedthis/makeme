@@ -193,7 +193,7 @@ class InstallsInner {
                 if (!makeme.generating) {
                     if (me.target.name != 'uninstall') {
                         let prefix = Path(prefixes[pname])
-                        if (pname == 'vapp' || pname == 'web' || pname == 'spool' || pname == 'src' || pname == 'staging') {
+                        if (pname == 'vapp' || pname == 'web' || pname == 'spool' || pname == 'src' || pname == 'staging' || pname == 'vlib') {
                             if (prefix.exists) {
                                 if (prefix.toString().contains(me.settings.name)) {
                                     safeRemove(prefix)
@@ -435,7 +435,7 @@ class InstallsInner {
             }
             let fileslog = prefixes.vapp ? prefixes.vapp.join('files.log') : prefixes.app.join('files.log')
             if (makeme.generating) {
-                for each (n in ['web', 'spool', 'cache', 'log']) {
+                for each (n in ['web', 'spool', 'cache', 'log', 'vlib']) {
                     if (package.prefixes.contains(n)) {
                         removeDir(me.prefixes[n])
                     }

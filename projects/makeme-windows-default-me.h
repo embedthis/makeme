@@ -1,8 +1,5 @@
 /*
     me.h -- MakeMe Configure Header for windows-x86-default
-
-    This header is created by Me during configuration. To change settings, re-run
-    configure or define variables in your Makefile to override these default values.
  */
 
 /* Settings */
@@ -245,13 +242,13 @@
     #define ME_COM_LINK 1
 #endif
 #ifndef ME_COM_MBEDTLS
-    #define ME_COM_MBEDTLS 1
+    #define ME_COM_MBEDTLS 0
 #endif
 #ifndef ME_COM_MPR
     #define ME_COM_MPR 1
 #endif
 #ifndef ME_COM_OPENSSL
-    #define ME_COM_OPENSSL 0
+    #define ME_COM_OPENSSL 1
 #endif
 #ifndef ME_COM_OSDEP
     #define ME_COM_OSDEP 1

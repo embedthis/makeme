@@ -21,14 +21,10 @@
     },
     "licenses": "Commercial",
     "dependencies": {
-        "mpr": "~9.0.3",
-        "mpr-mbedtls": "~3",
+        "mpr": "~9",
         "osdep": "~1",
         "pcre": "~1",
         "ssl": "~1"
-    },
-    "optionalDependencies": {
-        "mpr-openssl": "~1"
     },
     "devDependencies": {
         "makeme": ">=1.0",

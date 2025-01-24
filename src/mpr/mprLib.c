@@ -1,5 +1,5 @@
 /*
- * Embedthis MPR Library Source 9.0.3
+ * Embedthis MPR Library Source 9.0.5
  */
 
 #include "mpr.h"
@@ -151,7 +151,6 @@ static void dummyManager(void *ptr, int flags);
 static void freeBlock(MprMem *mp);
 static void getSystemInfo(void);
 static MprMem *growHeap(size_t size);
-static void invokeAllDestructors(void);
 static ME_INLINE size_t qtosize(int qindex);
 static ME_INLINE bool linkBlock(MprMem *mp);
 static ME_INLINE void linkSpareBlock(char *ptr, size_t size);
@@ -959,7 +958,6 @@ PUBLIC void mprStopGCService()
     for (i = 0; heap->sweeper && i < MPR_TIMEOUT_STOP; i++) {
         mprNap(1);
     }
-    invokeAllDestructors();
 }
 
 
@@ -1334,34 +1332,6 @@ static void invokeDestructors()
             }
         }
     }
-}
-
-
-static void invokeAllDestructors()
-{
-#if FUTURE
-    MprRegion   *region;
-    MprMem      *mp;
-    MprManager  mgr;
-
-    if (MPR->flags & MPR_NOT_ALL) {
-        return;
-    }
-    for (region = heap->regions; region; region = region->next) {
-        for (mp = region->start; mp < region->end; mp = GET_NEXT(mp)) {
-            if (!mp->free && mp->hasManager) {
-                mgr = GET_MANAGER(mp);
-                if (mgr) {
-                    (mgr)(GET_PTR(mp), MPR_MANAGE_FREE);
-                    /* Retest incase the manager routine revied the object */
-                    if (mp->mark != heap->mark) {
-                        mp->hasManager = 0;
-                    }
-                }
-            }
-        }
-    }
-#endif
 }
 
 
@@ -4019,9 +3989,6 @@ PUBLIC void mprAtomicBarrier(int model)
     #elif __GNUC__ && (ME_CPU_ARCH == ME_CPU_PPC) && !VXWORKS
         asm volatile ("sync" : : : "memory");
 
-    #elif __GNUC__ && (ME_CPU_ARCH == ME_CPU_ARM) && FUTURE
-        asm volatile ("isync" : : : "memory");
-
     #else
         if (mprTrySpinLock(atomicSpin)) {
             mprSpinUnlock(atomicSpin);
@@ -4064,8 +4031,6 @@ PUBLIC int mprAtomicCas(void * volatile *addr, void *expected, cvoid *value)
             : "r" (value), "m" (*addr),
               "0" (expected));
             return expected == prev;
-
-    #elif __GNUC__ && (ME_CPU_ARCH == ME_CPU_ARM) && FUTURE
 
     #else
         mprSpinLock(atomicSpin);
@@ -4145,30 +4110,6 @@ PUBLIC void mprAtomicAdd64(volatile int64 *ptr, int64 value)
 
     #endif
 }
-
-
-#if FUTURE
-PUBLIC void *mprAtomicExchange(void *volatile *addr, cvoid *value)
-{
-    #if ME_WIN_LIKE
-        return (void*) InterlockedExchange((volatile LONG*) addr, (LONG) value);
-
-    #elif ME_COMPILER_HAS_ATOMIC
-        __atomic_exchange_n(addr, value, __ATOMIC_SEQ_CST);
-
-    #elif ME_COMPILER_HAS_SYNC
-        return __sync_lock_test_and_set(addr, (void*) value);
-
-    #else
-        void    *old;
-        mprSpinLock(atomicSpin);
-        old = *(void**) addr;
-        *addr = (void*) value;
-        mprSpinUnlock(atomicSpin);
-        return old;
-    #endif
-}
-#endif
 
 
 /*
@@ -8622,33 +8563,6 @@ static void bencrypt(MprBlowfish *bp, uint *xl, uint *xr)
 }
 
 
-#if FUTURE
-static void bdecrypt(MprBlowfish *bp, uint *xl, uint *xr)
-{
-    uint    Xl, Xr, temp;
-    int     i;
-
-    Xl = *xl;
-    Xr = *xr;
-
-    for (i = BF_ROUNDS + 1; i > 1; --i) {
-        Xl = Xl ^ bp->P[i];
-        Xr = BF(bp, Xl) ^ Xr;
-        temp = Xl;
-        Xl = Xr;
-        Xr = temp;
-    }
-    temp = Xl;
-    Xl = Xr;
-    Xr = temp;
-    Xr = Xr ^ bp->P[1];
-    Xl = Xl ^ bp->P[0];
-    *xl = Xl;
-    *xr = Xr;
-}
-#endif
-
-
 static void binit(MprBlowfish *bp, uchar *key, ssize keylen)
 {
   uint  data, datal, datar;
@@ -9439,15 +9353,6 @@ static int disk_truncateFile(MprDiskFileSystem *fs, cchar *path, MprOff size)
 }
 #elif VXWORKS
 {
-#if FUTURE
-    int     fd;
-
-    fd = open(path, O_WRONLY, 0664);
-    if (fd < 0 || ftruncate(fd, size) < 0) {
-        return MPR_ERR_CANT_WRITE;
-    }
-    close(fd);
-#endif
     return MPR_ERR_CANT_WRITE;
 }
 #else
@@ -12352,21 +12257,10 @@ PUBLIC MprHash *mprCreateHash(int hashSize, int flags)
     } else {
         hash->mutex = 0;
     }
-#if ME_CHAR_LEN > 1 && FUTURE
-    if (hash->flags & MPR_HASH_UNICODE) {
-        if (hash->flags & MPR_HASH_CASELESS) {
-            hash->fn = (MprHashProc) whashlower;
-        } else {
-            hash->fn = (MprHashProc) whash;
-        }
-    } else
-#endif
-    {
-        if (hash->flags & MPR_HASH_CASELESS) {
-            hash->fn = (MprHashProc) shashlower;
-        } else {
-            hash->fn = (MprHashProc) shash;
-        }
+    if (hash->flags & MPR_HASH_CASELESS) {
+        hash->fn = (MprHashProc) shashlower;
+    } else {
+        hash->fn = (MprHashProc) shash;
     }
     return hash;
 }
@@ -12655,19 +12549,6 @@ static MprKey *lookupHash(int *bucketIndex, MprKey **prevSp, MprHash *hash, cvoi
     prev = 0;
 
     while (sp) {
-#if ME_CHAR_LEN > 1 && FUTURE
-        if (hash->flags & MPR_HASH_UNICODE) {
-            wchar *u1, *u2;
-            u1 = (wchar*) sp->key;
-            u2 = (wchar*) key;
-            rc = -1;
-            if (hash->flags & MPR_HASH_CASELESS) {
-                rc = wcasecmp(u1, u2);
-            } else {
-                rc = wcmp(u1, u2);
-            }
-        } else
-#endif
         if (hash->flags & MPR_HASH_CASELESS) {
             rc = scaselesscmp(sp->key, key);
         } else {
@@ -12741,12 +12622,7 @@ PUBLIC MprKey *mprGetNextKey(MprHash *hash, MprKey *last)
 
 static void *dupKey(MprHash *hash, cvoid *key)
 {
-#if ME_CHAR_LEN > 1 && FUTURE
-    if (hash->flags & MPR_HASH_UNICODE) {
-        return wclone((wchar*) key);
-    } else
-#endif
-        return sclone(key);
+    return sclone(key);
 }
 
 
@@ -16335,8 +16211,7 @@ static void backupLog()
         }
         mode = O_CREAT | O_WRONLY | O_TEXT;
         if ((file = mprOpenFile(MPR->logPath, mode, 0664)) == 0) {
-            mprLog("error mpr log", 0, "Cannot open log file %s, errno=%d", MPR->logPath, errno);
-            MPR->logSize = MAXINT;
+            mprPrintf("Cannot open log file %s, errno=%d", MPR->logPath, errno);
             unlock(MPR);
             return;
         }
@@ -16362,6 +16237,7 @@ PUBLIC void mprDefaultLogHandler(cchar *tags, int level, cchar *msg)
     }
     if (MPR->logBackup && MPR->logSize && length >= MPR->logSize) {
         backupLog();
+        length = 0;
     }
     if (tags && *tags) {
         if (MPR->flags & MPR_LOG_DETAILED) {
@@ -16670,6 +16546,1039 @@ PUBLIC int _cmp(char *s1, char *s2)
  */
 
 
+/********* Start of file src/mbedtls.c ************/
+
+/*
+    mbedtls.c - MbedTLS Interface to the MPR
+
+    Individual sockets are not thread-safe. Must only be used by a single thread.
+
+    To build MbedTLS, use:
+        git checkout RELEASE-TAG
+        cmake -DCMAKE_BUILD_TYPE=Debug .
+        make VERBOSE=1
+
+    Copyright (c) All Rights Reserved. See details at the end of the file.
+ */
+
+/********************************** Includes **********************************/
+
+
+
+#if ME_COM_MBEDTLS
+    /*
+        Indent to bypass MakeMe dependencies
+     */
+    #include "mbedtls/mbedtls_config.h"
+    #include "mbedtls/ssl.h"
+    #include "mbedtls/ssl_cache.h"
+    #include "mbedtls/ssl_ticket.h"
+    #include "mbedtls/ctr_drbg.h"
+    #include "mbedtls/net_sockets.h"
+    #include "mbedtls/oid.h"
+    #include "psa/crypto.h"
+    #include "mbedtls/debug.h"
+    #include "mbedtls/error.h"
+    #include "mbedtls/check_config.h"
+
+/************************************* Defines ********************************/
+/*
+    Per-route SSL configuration
+ */
+typedef struct MbedConfig {
+    mbedtls_x509_crt            ca;             /* Certificate authority bundle to verify peer */
+    mbedtls_x509_crt            cert;           /* Certificate (own) */
+    mbedtls_pk_context          key;            /* Private key */
+    mbedtls_x509_crl            revoke;         /* Certificate revoke list */
+    mbedtls_ssl_config          conf;           /* SSL configuration */
+    int                         *ciphers;       /* Set of acceptable ciphers - null terminated */
+} MbedConfig;
+
+
+typedef struct MbedGlobal {
+    mbedtls_ssl_cache_context   cache;          /* Session cache context */
+    mbedtls_ctr_drbg_context    ctr;            /* Counter random generator state */
+    mbedtls_ssl_ticket_context  tickets;        /* Session tickets */
+    mbedtls_entropy_context     mbedEntropy;    /* Entropy context */
+} MbedGlobal;
+
+typedef struct MbedSocket {
+    MbedConfig                  *cfg;           /* Configuration */
+    MprSocket                   *sock;          /* MPR socket object */
+    mbedtls_ssl_context         ctx;            /* SSL state */
+    int                         configured;     /* Set if SNI configuration has completed */
+} MbedSocket;
+
+static MbedGlobal               *mbedGlobal;    /* Global */
+static MprSocketProvider        *mbedProvider;  /* Mbedtls socket provider */
+static int                      mbedLogLevel;   /* MPR log level to start SSL tracing */
+
+/***************************** Forward Declarations ***************************/
+
+static void     closeMbed(MprSocket *sp, bool gracefully);
+static void     disconnectMbed(MprSocket *sp);
+static int      *getCipherSuite(MprSsl *ssl);
+static char     *getMbedState(MprSocket *sp);
+static int      getPeerCertInfo(MprSocket *sp);
+static int      handshakeMbed(MprSocket *sp);
+static void     manageMbedConfig(MbedConfig *cfg, int flags);
+static void     manageMbedGlobal(MbedGlobal *cfg, int flags);
+static void     manageMbedProvider(MprSocketProvider *provider, int flags);
+static void     manageMbedSocket(MbedSocket*ssp, int flags);
+static void     merror(int rc, cchar *fmt, ...);
+static int      parseCert(mbedtls_x509_crt *cert, cchar *file, char **errorMsg);
+static int      parseCrl(mbedtls_x509_crl *crl, cchar *path, char **errorMsg);
+static int      parseKey(mbedtls_pk_context *key, cchar *path, char **errorMsg);
+static int      preloadMbed(MprSsl *ssl, int flags);
+static ssize    readMbed(MprSocket *sp, void *buf, ssize len);
+static char     *replaceHyphen(char *cipher, char from, char to);
+PUBLIC int      sniCallback(void *unused, mbedtls_ssl_context *ctx, cuchar *hostname, size_t len);
+static void     traceMbed(void *context, int level, cchar *file, int line, cchar *str);
+static int      upgradeMbed(MprSocket *sp, MprSsl *ssl, cchar *peerName);
+static ssize    writeMbed(MprSocket *sp, cvoid *buf, ssize len);
+
+#if UNUSED
+static void     freeMbedLock(mbedtls_threading_mutex_t *tm);
+static void     initMbedLock(mbedtls_threading_mutex_t *tm);
+static int      mbedLock(mbedtls_threading_mutex_t *tm);
+static int      mbedUnlock(mbedtls_threading_mutex_t *tm);
+#endif
+/************************************* Code ***********************************/
+/*
+    Create the Mbedtls module. This is called only once
+ */
+PUBLIC int mprSslInit(void *unused, MprModule *module)
+{
+    MbedGlobal          *global;
+    cchar               *appName;
+    int                 rc;
+
+    if ((mbedProvider = mprAllocObj(MprSocketProvider, manageMbedProvider)) == NULL) {
+        return MPR_ERR_MEMORY;
+    }
+    mbedProvider->name = sclone("mbedtls");
+    mbedProvider->upgradeSocket = upgradeMbed;
+    mbedProvider->closeSocket = closeMbed;
+    mbedProvider->disconnectSocket = disconnectMbed;
+    mbedProvider->preload = preloadMbed;
+    mbedProvider->readSocket = readMbed;
+    mbedProvider->writeSocket = writeMbed;
+    mbedProvider->socketState = getMbedState;
+
+    mprSetSslProvider(mbedProvider);
+
+    if ((global = mprAllocObj(MbedGlobal, manageMbedGlobal)) == 0) {
+        return MPR_ERR_MEMORY;
+    }
+    mbedProvider->managed = mbedGlobal = global;
+
+    psa_crypto_init();
+    // mbedtls_threading_set_alt(initMbedLock, freeMbedLock, mbedLock, mbedUnlock);
+    mbedtls_ssl_cache_init(&global->cache);
+    mbedtls_ctr_drbg_init(&global->ctr);
+    mbedtls_ssl_ticket_init(&global->tickets);
+    mbedtls_entropy_init(&global->mbedEntropy);
+
+    appName = mprGetAppName();
+    if ((rc = mbedtls_ctr_drbg_seed(&global->ctr, mbedtls_entropy_func, &global->mbedEntropy,
+            (cuchar*) appName, slen(appName))) < 0) {
+        merror(rc, "Cannot seed rng");
+        return MPR_ERR_CANT_INITIALIZE;
+    }
+    if (ME_MPR_SSL_TICKET) {
+        if ((rc = mbedtls_ssl_ticket_setup(&global->tickets, mbedtls_ctr_drbg_random, &global->ctr,
+                MBEDTLS_CIPHER_AES_256_GCM, ME_MPR_SSL_TIMEOUT)) < 0) {
+            merror(rc, "Cannot setup ticketing sessions");
+            return MPR_ERR_CANT_INITIALIZE;
+        }
+    }
+    mbedtls_ssl_cache_set_max_entries(&global->cache, ME_MPR_SSL_CACHE);
+    mbedtls_ssl_cache_set_timeout(&global->cache, ME_MPR_SSL_TIMEOUT);
+    return 0;
+}
+
+
+static void manageMbedProvider(MprSocketProvider *provider, int flags)
+{
+    if (flags & MPR_MANAGE_MARK) {
+        mprMark(provider->name);
+        mprMark(provider->managed);
+    }
+}
+
+
+static void manageMbedGlobal(MbedGlobal *global, int flags)
+{
+    if (flags & MPR_MANAGE_FREE) {
+        mbedtls_ctr_drbg_free(&global->ctr);
+        mbedtls_ssl_cache_free(&global->cache);
+        mbedtls_ssl_ticket_free(&global->tickets);
+        mbedtls_entropy_free(&global->mbedEntropy);
+        mbedtls_psa_crypto_free();
+    }
+}
+
+
+static void manageMbedConfig(MbedConfig *cfg, int flags)
+{
+    if (flags & MPR_MANAGE_MARK) {
+        mprMark(cfg->ciphers);
+
+    } else if (flags & MPR_MANAGE_FREE) {
+        mbedtls_pk_free(&cfg->key);
+        mbedtls_x509_crt_free(&cfg->cert);
+        mbedtls_x509_crt_free(&cfg->ca);
+        mbedtls_x509_crl_free(&cfg->revoke);
+        mbedtls_ssl_config_free(&cfg->conf);
+    }
+}
+
+
+/*
+    Destructor for an MbedSocket object
+ */
+static void manageMbedSocket(MbedSocket *mb, int flags)
+{
+    if (flags & MPR_MANAGE_MARK) {
+        mprMark(mb->cfg);
+        mprMark(mb->sock);
+
+    } else if (flags & MPR_MANAGE_FREE) {
+        mbedtls_ssl_free(&mb->ctx);
+    }
+}
+
+
+static void closeMbed(MprSocket *sp, bool gracefully)
+{
+    MbedSocket      *mb;
+
+    mb = sp->sslSocket;
+    sp->service->standardProvider->closeSocket(sp, gracefully);
+    if (!(sp->flags & MPR_SOCKET_EOF)) {
+        mbedtls_ssl_close_notify(&mb->ctx);
+    }
+}
+
+
+static int configMbed(MprSsl *ssl, int flags, char **errorMsg)
+{
+    MbedConfig          *cfg;
+    mbedtls_ssl_config  *mconf;
+    cuchar              dhm_p[] = MBEDTLS_DHM_RFC3526_MODP_2048_P_BIN;
+    cuchar              dhm_g[] = MBEDTLS_DHM_RFC3526_MODP_2048_G_BIN;
+    int                 rc;
+
+    if (ssl->config && !ssl->changed) {
+        return 0;
+    }
+    if ((cfg = mprAllocObj(MbedConfig, manageMbedConfig)) == 0) {
+        return MPR_ERR_MEMORY;
+    }
+    ssl->config = cfg;
+    mconf = &cfg->conf;
+    mbedtls_ssl_config_init(mconf);
+    mbedtls_ssl_conf_dbg(mconf, traceMbed, NULL);
+    mbedLogLevel = ssl->logLevel;
+    if (MPR->logLevel >= mbedLogLevel) {
+        mbedtls_debug_set_threshold(MPR->logLevel - mbedLogLevel);
+    }
+    mbedtls_pk_init(&cfg->key);
+    mbedtls_x509_crt_init(&cfg->cert);
+
+    if (ssl->certFile) {
+        if (parseCert(&cfg->cert, ssl->certFile, errorMsg) != 0) {
+            return MPR_ERR_CANT_INITIALIZE;
+        }
+        if (!ssl->keyFile) {
+            /* Can include the private key with the cert file */
+            ssl->keyFile = ssl->certFile;
+        }
+    }
+    if (ssl->keyFile) {
+        /*
+            Load a decrypted PEM format private key
+            Last arg is password if you need to use an encrypted private key
+         */
+        if (parseKey(&cfg->key, ssl->keyFile, errorMsg) != 0) {
+            return MPR_ERR_CANT_INITIALIZE;
+        }
+    }
+    if (ssl->verifyPeer) {
+        if (!ssl->caFile) {
+            *errorMsg = sclone("No defined certificate authority file");
+            return MPR_ERR_CANT_INITIALIZE;
+        }
+        if (parseCert(&cfg->ca, ssl->caFile, errorMsg) != 0) {
+            return MPR_ERR_CANT_INITIALIZE;
+        }
+    }
+    if (ssl->revoke) {
+        /*
+            Load a PEM format certificate file
+         */
+        if (parseCrl(&cfg->revoke, ssl->revoke, errorMsg) != 0) {
+            return MPR_ERR_CANT_INITIALIZE;
+        }
+    }
+    if ((rc = mbedtls_ssl_config_defaults(mconf, 
+            flags & MPR_SOCKET_SERVER ? MBEDTLS_SSL_IS_SERVER : MBEDTLS_SSL_IS_CLIENT,
+            MBEDTLS_SSL_TRANSPORT_STREAM, MBEDTLS_SSL_PRESET_DEFAULT)) < 0) {
+        merror(rc, "Cannot set mbedtls defaults");
+        return MPR_ERR_CANT_INITIALIZE;
+    }
+    mbedtls_ssl_conf_rng(mconf, mbedtls_ctr_drbg_random, &mbedGlobal->ctr);
+
+    /*
+        Configure larger DH parameters
+     */
+    if ((rc = mbedtls_ssl_conf_dh_param_bin(mconf, dhm_p, sizeof(dhm_g), dhm_g, sizeof(dhm_g))) < 0) {
+        merror(rc, "Cannot set DH params");
+        return MPR_ERR_CANT_INITIALIZE;
+    }
+
+    if (flags & MPR_SOCKET_SERVER) {
+#if ME_MPR_SSL_TICKET
+        /*
+            Configure ticket-based sessions
+         */
+        if (ssl->ticket) {
+            mbedtls_ssl_conf_session_tickets_cb(mconf, mbedtls_ssl_ticket_write, mbedtls_ssl_ticket_parse,
+                &mbedGlobal->tickets);
+        }
+#endif
+#if ME_MPR_SSL_CACHE_SIZE > 0
+        /*
+            Configure server-side session cache
+         */
+        mbedtls_ssl_conf_session_cache(mconf, &mbedGlobal->cache, mbedtls_ssl_cache_get, mbedtls_ssl_cache_set);
+#endif
+    } else {
+        mbedtls_ssl_conf_session_tickets(mconf, 1);
+    }
+    /*
+        Set auth mode if peer cert should be verified
+     */
+    mbedtls_ssl_conf_authmode(mconf, ssl->verifyPeer ? MBEDTLS_SSL_VERIFY_OPTIONAL : MBEDTLS_SSL_VERIFY_NONE);
+
+    /*
+        Configure cert, key and CA.
+     */
+    if (ssl->keyFile && ssl->certFile) {
+        if ((rc = mbedtls_ssl_conf_own_cert(mconf, &cfg->cert, &cfg->key)) < 0) {
+            merror(rc, "Cannot define certificate and private key");
+            return MPR_ERR_CANT_INITIALIZE;
+        }
+    }
+    mbedtls_ssl_conf_ca_chain(mconf, ssl->caFile ? &cfg->ca : NULL, ssl->revoke ? &cfg->revoke : NULL);
+
+    if ((cfg->ciphers = getCipherSuite(ssl)) != 0) {
+        mbedtls_ssl_conf_ciphersuites(mconf, cfg->ciphers);
+    }
+#if ME_MPR_HAS_ALPN
+    if (ssl->alpn) {
+        mbedtls_ssl_conf_alpn_protocols(mconf, (cchar**) ssl->alpn->items);
+    }
+#endif
+    if (flags & MPR_SOCKET_SERVER && ssl->matchSsl) {
+        mbedtls_ssl_conf_sni(mconf, sniCallback, 0);
+    }
+    ssl->changed = 0;
+    return 0;
+}
+
+
+/*
+    Upgrade a socket to SSL.
+    On-demand processing of the SSL configuration when the first client connects.
+    Need to setup all possible (vhost) SSL configuration, then SNI will select the right certificate.
+ */
+static int upgradeMbed(MprSocket *sp, MprSsl *ssl, cchar *peerName)
+{
+    MbedSocket          *mb;
+    mbedtls_ssl_context *ctx;
+
+    assert(sp);
+
+    lock(ssl);
+    if (configMbed(ssl, sp->flags, &sp->errorMsg) < 0) {
+        unlock(ssl);
+        return MPR_ERR_CANT_INITIALIZE;
+    }
+    unlock(ssl);
+
+    sp->ssl = ssl;
+    assert(ssl->config);
+
+    if ((mb = (MbedSocket*) mprAllocObj(MbedSocket, manageMbedSocket)) == 0) {
+        return MPR_ERR_MEMORY;
+    }
+    sp->sslSocket = mb;
+    mb->sock = sp;
+    mb->cfg = ssl->config;
+
+    ctx = &mb->ctx;
+    mbedtls_ssl_init(ctx);
+    mbedtls_ssl_set_user_data_p(ctx, sp);
+    mbedtls_ssl_setup(ctx, &mb->cfg->conf);
+    mbedtls_ssl_set_bio(ctx, &sp->fd, mbedtls_net_send, mbedtls_net_recv, 0);
+
+    if (peerName && mbedtls_ssl_set_hostname(ctx, peerName) < 0) {
+        return MPR_ERR_BAD_ARGS;
+    }
+    if (handshakeMbed(sp) < 0) {
+        return MPR_ERR_CANT_INITIALIZE;
+    }
+    return 0;
+}
+
+
+static void disconnectMbed(MprSocket *sp)
+{
+    sp->service->standardProvider->disconnectSocket(sp);
+}
+
+
+/*
+    Initiate or continue SSL handshaking with the peer. This routine does not block.
+    Return -1 on errors, 0 incomplete and awaiting I/O, 1 if successful
+ */
+static int handshakeMbed(MprSocket *sp)
+{
+    MbedSocket  *mb;
+    int         rc, vrc;
+
+    mb = (MbedSocket*) sp->sslSocket;
+    sp->flags |= MPR_SOCKET_HANDSHAKING;
+
+    while ((rc = mbedtls_ssl_handshake(&mb->ctx)) != 0) {
+        if (rc == MBEDTLS_ERR_SSL_WANT_READ || rc == MBEDTLS_ERR_SSL_WANT_WRITE)  {
+            if (!mprGetSocketBlockingMode(sp)) {
+                return 0;
+            }
+            continue;
+        }
+        /* Error */
+        break;
+    }
+    sp->flags &= ~MPR_SOCKET_HANDSHAKING;
+
+    /*
+        Analyze the handshake result
+     */
+    if (rc < 0) {
+        if (rc == MBEDTLS_ERR_SSL_PRIVATE_KEY_REQUIRED && !(sp->ssl->keyFile || sp->ssl->certFile)) {
+            sp->errorMsg = sclone("Peer requires a certificate");
+            sp->flags |= MPR_SOCKET_CERT_ERROR;
+        } else if (rc == MBEDTLS_ERR_SSL_CA_CHAIN_REQUIRED) {
+            sp->errorMsg = sclone("Server requires a client certificate");
+            sp->flags |= MPR_SOCKET_CERT_ERROR;
+        } else {
+            char ebuf[256];
+            mbedtls_strerror(-rc, ebuf, sizeof(ebuf));
+            sp->errorMsg = sfmt("%s: error -0x%x", ebuf, -rc);
+        }
+        sp->flags |= MPR_SOCKET_EOF | MPR_SOCKET_ERROR;
+        errno = EPROTO;
+        return MPR_ERR_CANT_READ;
+    }
+    if ((vrc = mbedtls_ssl_get_verify_result(&mb->ctx)) != 0) {
+        if (vrc & MBEDTLS_X509_BADCERT_MISSING) {
+            sp->errorMsg = sclone("Certificate missing");
+            sp->flags |= MPR_SOCKET_CERT_ERROR;
+
+        } if (vrc & MBEDTLS_X509_BADCERT_EXPIRED) {
+            sp->errorMsg = sclone("Certificate expired");
+            sp->flags |= MPR_SOCKET_CERT_ERROR;
+
+        } else if (vrc & MBEDTLS_X509_BADCERT_REVOKED) {
+            sp->errorMsg = sclone("Certificate revoked");
+            sp->flags |= MPR_SOCKET_CERT_ERROR;
+
+        } else if (vrc & MBEDTLS_X509_BADCERT_CN_MISMATCH) {
+            sp->errorMsg = sclone("Certificate common name mismatch");
+            sp->flags |= MPR_SOCKET_CERT_ERROR;
+
+        } else if (vrc & MBEDTLS_X509_BADCERT_KEY_USAGE || vrc & MBEDTLS_X509_BADCERT_EXT_KEY_USAGE) {
+            sp->errorMsg = sclone("Unauthorized key use in certificate");
+            sp->flags |= MPR_SOCKET_CERT_ERROR;
+
+        } else if (vrc & MBEDTLS_X509_BADCERT_NOT_TRUSTED) {
+            sp->errorMsg = sclone("Certificate not trusted");
+            if (!sp->ssl->verifyIssuer) {
+                vrc = 0;
+            } else {
+                sp->flags |= MPR_SOCKET_CERT_ERROR;
+            }
+
+        } else if (vrc & MBEDTLS_X509_BADCERT_SKIP_VERIFY) {
+            /*
+                MBEDTLS_SSL_VERIFY_NONE requested, so ignore error
+             */
+            vrc = 0;
+
+        } else {
+            if (rc == MBEDTLS_ERR_NET_CONN_RESET) {
+                sp->errorMsg = sclone("Peer disconnected");
+                sp->flags |= MPR_SOCKET_ERROR;
+
+            } else {
+                char ebuf[256];
+                mbedtls_x509_crt_verify_info(ebuf, sizeof(ebuf), "", vrc);
+                strim(ebuf, "\n", 0);
+                sp->errorMsg = sfmt("Cannot handshake: %s, error -0x%x", ebuf, -rc);
+                sp->flags |= MPR_SOCKET_ERROR;
+            }
+        }
+    }
+    if (vrc != 0 && sp->ssl->verifyPeer) {
+        if (mbedtls_ssl_get_peer_cert(&mb->ctx) == 0) {
+            sp->errorMsg = sclone("Peer did not provide a certificate");
+        }
+        sp->flags |= MPR_SOCKET_EOF | MPR_SOCKET_CERT_ERROR;
+        errno = EPROTO;
+        return MPR_ERR_CANT_READ;
+    }
+    if (getPeerCertInfo(sp) < 0) {
+        return MPR_ERR_CANT_CONNECT;
+    }
+    sp->secured = 1;
+    return 1;
+}
+
+
+static int getPeerCertInfo(MprSocket *sp)
+{
+    MbedSocket              *mb;
+    MprBuf                  *buf;
+    mbedtls_ssl_context     *ctx;
+    mbedtls_ssl_session     *session;
+    const mbedtls_x509_crt  *peer;
+    char                    cbuf[5120], *cp, *end;
+    ssize                   len;
+    int                     i;
+
+    mb = (MbedSocket*) sp->sslSocket;
+    ctx = &mb->ctx;
+
+    /*
+        Get peer details
+     */
+    if ((peer = mbedtls_ssl_get_peer_cert(ctx)) != 0) {
+        mbedtls_x509_dn_gets(cbuf, sizeof(cbuf), &peer->subject);
+        sp->peerCert = sclone(cbuf);
+        /*
+            Extract the common name for the peer name
+         */
+        if ((cp = scontains(cbuf, "CN=")) != 0) {
+            cp += 3;
+            if ((end = schr(cp, ',')) != 0) {
+                sp->peerName = snclone(cp, end - cp);
+            } else {
+                sp->peerName = sclone(cp);
+            }
+        }
+        mbedtls_x509_dn_gets(cbuf, sizeof(cbuf), &peer->issuer);
+        sp->peerCertIssuer = sclone(cbuf);
+
+        if (mprGetLogLevel() >= 6) {
+            char buf[4096];
+            mbedtls_x509_crt_info(buf, sizeof(buf) - 1, "", peer);
+            mprLog("info mbedtls", mbedLogLevel, "Peer certificate\n%s", buf);
+        }
+    }
+    sp->cipher = replaceHyphen(sclone(mbedtls_ssl_get_ciphersuite(ctx)), '-', '_');
+    sp->protocol = sclone(mbedtls_ssl_get_version(ctx));
+
+    /*
+        Convert session into a string
+     */
+    session = ctx->MBEDTLS_PRIVATE(session);
+    len = session->MBEDTLS_PRIVATE(id_len);
+    if (len > 0) {
+        buf = mprCreateBuf(len, 0);
+        for (i = 0; i < len; i++) {
+            mprPutToBuf(buf, "%02X", (uchar) session->MBEDTLS_PRIVATE(id)[i]);
+        }
+        sp->session = mprBufToString(buf);
+    } else {
+        sp->session = sclone("ticket");
+    }
+    return 0;
+}
+
+
+static int preloadMbed(MprSsl *ssl, int flags)
+{
+    return 0;
+}
+
+/*
+    Return the number of bytes read. Return -1 on errors and EOF. Distinguish EOF via mprIsSocketEof.
+    If non-blocking, may return zero if no data or still handshaking.
+ */
+static ssize readMbed(MprSocket *sp, void *buf, ssize len)
+{
+    MbedSocket  *mb;
+    int         rc;
+
+    mb = (MbedSocket*) sp->sslSocket;
+    assert(mb);
+    assert(mb->cfg);
+
+    if (sp->fd == INVALID_SOCKET) {
+        return MPR_ERR_CANT_READ;
+    }
+    if (sp->flags & MPR_SOCKET_HANDSHAKING) {
+        if ((rc = handshakeMbed(sp)) <= 0) {
+            return rc;
+        }
+    }
+    while (1) {
+        rc = mbedtls_ssl_read(&mb->ctx, buf, (int) len);
+        mprDebug("debug mpr ssl mbedtls", mbedLogLevel, "readMbed read returned %d (0x%04x)", rc, rc);
+        if (rc < 0) {
+            if (rc == MBEDTLS_ERR_SSL_WANT_READ || 
+                rc == MBEDTLS_ERR_SSL_WANT_WRITE ||
+                rc == MBEDTLS_ERR_SSL_RECEIVED_NEW_SESSION_TICKET ||
+                rc == MBEDTLS_ERR_SSL_ASYNC_IN_PROGRESS ||
+                rc == MBEDTLS_ERR_SSL_CRYPTO_IN_PROGRESS)  {
+                rc = 0;
+                break;
+
+            } else if (rc == MBEDTLS_ERR_SSL_PEER_CLOSE_NOTIFY) {
+                mprDebug("debug mpr ssl mbedtls", mbedLogLevel, "connection was closed gracefully");
+                sp->flags |= MPR_SOCKET_EOF;
+                return MPR_ERR_CANT_READ;
+
+            } else {
+                mprDebug("debug mpr ssl mbedtls", 4, "readMbed: error -0x%x", -rc);
+                sp->flags |= MPR_SOCKET_EOF;
+                return MPR_ERR_CANT_READ;
+            }
+        } else if (rc == 0) {
+            sp->flags |= MPR_SOCKET_EOF;
+            return MPR_ERR_CANT_READ;
+        }
+        break;
+    }
+    mprHiddenSocketData(sp, mbedtls_ssl_get_bytes_avail(&mb->ctx), MPR_READABLE);
+    return rc;
+}
+
+
+/*
+    Write data. Return the number of bytes written or -1 on errors or socket closure.
+    If non-blocking, may return zero if no data or still handshaking.
+ */
+static ssize writeMbed(MprSocket *sp, cvoid *buf, ssize len)
+{
+    MbedSocket  *mb;
+    ssize       totalWritten;
+    int         rc;
+
+    mb = (MbedSocket*) sp->sslSocket;
+    if (len <= 0) {
+        return MPR_ERR_BAD_ARGS;
+    }
+    if (sp->flags & MPR_SOCKET_HANDSHAKING) {
+        if ((rc = handshakeMbed(sp)) <= 0) {
+            return rc;
+        }
+    }
+    totalWritten = 0;
+    rc = 0;
+    do {
+        rc = mbedtls_ssl_write(&mb->ctx, (uchar*) buf, (int) len);
+        mprDebug("debug mpr ssl mbedtls", mbedLogLevel, "mbedtls write: write returned %d (0x%04x), len %zd", rc, rc, len);
+        if (rc <= 0) {
+            if (rc == MBEDTLS_ERR_SSL_WANT_READ ||
+                rc == MBEDTLS_ERR_SSL_WANT_WRITE ||
+                rc == MBEDTLS_ERR_SSL_RECEIVED_NEW_SESSION_TICKET ||
+                rc == MBEDTLS_ERR_SSL_ASYNC_IN_PROGRESS ||
+                rc == MBEDTLS_ERR_SSL_CRYPTO_IN_PROGRESS)  {
+                break;
+            }
+            if (rc == MBEDTLS_ERR_NET_CONN_RESET) {
+                mprDebug("debug mpr ssl mbedtls", mbedLogLevel, "ssl_write peer closed connection");
+                return MPR_ERR_CANT_WRITE;
+            } else {
+                mprDebug("debug mpr ssl mbedtls", mbedLogLevel, "ssl_write failed rc -0x%x", -rc);
+                return MPR_ERR_CANT_WRITE;
+            }
+        } else {
+            totalWritten += rc;
+            buf = (void*) ((char*) buf + rc);
+            len -= rc;
+        }
+    } while (len > 0);
+
+    mprHiddenSocketData(sp, mb->ctx.MBEDTLS_PRIVATE(out_left), MPR_WRITABLE);
+
+    if (totalWritten == 0 && (rc == MBEDTLS_ERR_SSL_WANT_READ || rc == MBEDTLS_ERR_SSL_WANT_WRITE))  {
+        mprSetError(EAGAIN);
+        return MPR_ERR_CANT_WRITE;
+    }
+    return totalWritten;
+}
+
+
+/*
+    Invoked by mbedtls in response to SNI extensions in the client hello
+ */
+PUBLIC int sniCallback(void *unused, mbedtls_ssl_context *ctx, cuchar *host, size_t len)
+{
+    MprSocket   *sp;
+    MprSsl      *ssl;
+    MbedSocket  *mb;
+    MbedConfig  *cfg;
+    cchar       *hostname;
+    int         verify;
+
+    sp = mbedtls_ssl_get_user_data_p(ctx);
+    hostname = snclone((char*) host, len);
+
+    /*
+        Select the appropriate configuration for this hostname
+     */
+    if ((ssl = (sp->ssl->matchSsl)(sp, hostname)) == 0) {
+        return MPR_ERR_CANT_FIND;
+    }
+    lock(ssl);
+    if (configMbed(ssl, sp->flags, &sp->errorMsg) < 0) {
+        unlock(ssl);
+        return MPR_ERR_CANT_INITIALIZE;
+    }
+    unlock(ssl);
+    sp->ssl = ssl;
+    mb = sp->sslSocket;
+
+    if (!mb->configured) {
+        cfg = ssl->config;
+        mbedtls_ssl_set_hs_own_cert(ctx, &cfg->cert, &cfg->key);
+        if (ssl->caFile) {
+            verify = ssl->verifyPeer ? MBEDTLS_SSL_VERIFY_OPTIONAL : MBEDTLS_SSL_VERIFY_NONE;
+            mbedtls_ssl_set_hs_authmode(ctx, verify);
+            mbedtls_ssl_set_hs_ca_chain(ctx, &cfg->ca, &cfg->revoke);
+        }
+        if (cfg->ciphers) {
+            mbedtls_ssl_conf_ciphersuites(&cfg->conf, cfg->ciphers);
+        }
+        mb->configured = 1;
+    }
+    return 0;
+}
+
+static void putCertToBuf(MprBuf *buf, cchar *prefix, cchar *prefix2, const mbedtls_x509_name *dn)
+{
+    const mbedtls_x509_name *np;
+    cchar                   *name;
+    char                    value[MBEDTLS_X509_MAX_DN_NAME_SIZE];
+    ssize                   i;
+    uchar                   c;
+
+    for (np = dn; np; np = np->next) {
+        if (!np->oid.p) {
+            np = np->next;
+            continue;
+        }
+        name = 0;
+        if (mbedtls_oid_get_attr_short_name(&np->oid, &name) < 0) {
+            continue;
+        }
+        if (smatch(name, "emailAddress")) {
+            name = "EMAIL";
+        }
+        for(i = 0; i < np->val.len; i++) {
+            if (i >= sizeof(value) - 1) {
+                break;
+            }
+            c = np->val.p[i];
+            value[i] = (c < 32 || c == 127 || (c > 128 && c < 160)) ? '?' : c;
+        }
+        value[i] = '\0';
+        mprPutToBuf(buf, "%s%s%s=%s,", prefix, prefix2, name, value);
+    }
+}
+
+static void formatCert(MprBuf *buf, cchar *prefix, mbedtls_x509_crt *crt)
+{
+    char        text[1024];
+
+    mprPutToBuf(buf, "%sVERSION=%d,", prefix, crt->version);
+
+    mbedtls_x509_serial_gets(text, sizeof(text), &crt->serial);
+    mprPutToBuf(buf, "%sSERIAL=%s,", prefix, text);
+
+    putCertToBuf(buf, prefix, "I_", &crt->issuer);
+    putCertToBuf(buf, prefix, "S_", &crt->subject);
+
+    mprPutToBuf(buf, "%sISSUED=%04d-%02d-%02d %02d:%02d:%02d,", prefix,
+        crt->valid_from.year, crt->valid_from.mon,
+        crt->valid_from.day, crt->valid_from.hour, crt->valid_from.min, crt->valid_from.sec);
+
+    mprPutToBuf(buf, "%sEXPIRES=%04d-%02d-%02d %02d:%02d:%02d,", prefix,
+        crt->valid_to.year, crt->valid_to.mon,
+        crt->valid_to.day, crt->valid_to.hour, crt->valid_to.min, crt->valid_to.sec);
+
+    mprPutToBuf(buf, "%sKEYSIZE=%d,", prefix, (int) mbedtls_pk_get_bitlen(&crt->pk));
+
+#if KEEP
+    mbedtls_x509_sig_alg_gets(text, sizeof(text), &crt->sig_oid, crt->sig_pk, crt->sig_md, crt->sig_opts);
+    mprPutToBuf(buf, "%sSIGNED=%s,", prefix, text);
+
+    if (crt->ext_types & MBEDTLS_X509_EXT_BASIC_CONSTRAINTS) {
+        mprPutToBuf(buf, "%sCONSTRAINTS=CA=%s,", prefix, crt->ca_istrue ? "true" : "false");
+    }
+#endif
+}
+
+
+/*
+    Called to log the MbedTLS socket / certificate state
+ */
+static char *getMbedState(MprSocket *sp)
+{
+    MprBuf                  *buf;
+    MbedSocket              *mb;
+    MbedConfig              *cfg;
+    mbedtls_ssl_context     *ctx;
+    mbedtls_x509_crt        *peerCert;
+    char                    *prefix;
+
+    if ((mb = sp->sslSocket) == 0) {
+        return 0;
+    }
+    ctx = &mb->ctx;
+    cfg = sp->ssl->config;
+    buf = mprCreateBuf(0, 0);
+
+    mprPutToBuf(buf, "PROVIDER=openssl,CIPHER=%s,SESSION=%s,", 
+        mbedtls_ssl_get_ciphersuite(ctx), sp->session);
+    mprPutToBuf(buf, "PEER=%s,", sp->peerName ? sp->peerName : "");
+    
+    peerCert = (mbedtls_x509_crt*) mbedtls_ssl_get_peer_cert(ctx);
+    if (peerCert) {
+        prefix = sp->acceptIp ? "CLIENT_" : "SERVER_";
+        formatCert(buf, prefix, peerCert);
+    } else {
+        mprPutToBuf(buf, "%s=\"none\",", sp->acceptIp ? "CLIENT_CERT" : "SERVER_CERT");
+    }
+    if (sp->ssl->certFile) {
+        prefix = sp->acceptIp ? "SERVER_" : "CLIENT_";
+        formatCert(buf, prefix, &cfg->cert);
+    }
+    return mprBufToString(buf);
+}
+
+
+/*
+    Convert string of IANA ciphers into a list of cipher codes
+ */
+static int *getCipherSuite(MprSsl *ssl)
+{
+    cchar   *ciphers;
+    char    *cipher, *next, buf[128];
+    cint    *cp;
+    int     nciphers, i, *result, code;
+
+    result = 0;
+    ciphers = ssl->ciphers;
+    if (ciphers && *ciphers) {
+        /*
+            Report ciphers chosen by user
+         */
+        for (nciphers = 0, cp = mbedtls_cipher_list(); cp && *cp; cp++, nciphers++) { }
+        result = mprAlloc((nciphers + 1) * sizeof(int));
+
+        next = sclone(ciphers);
+        for (i = 0; (cipher = stok(next, ":, \t", &next)) != 0; ) {
+            replaceHyphen(cipher, '_', '-');
+            if ((code = mbedtls_ssl_get_ciphersuite_id(cipher)) <= 0) {
+                cipher = sreplace(cipher, "TLS", "TLS1-3");
+                if ((code = mbedtls_ssl_get_ciphersuite_id(cipher)) <= 0) {
+                    mprLog("error mpr", 0, "Unsupported cipher %s", cipher);
+                    continue;
+                }
+            }
+            result[i++] = code;
+        }
+        result[i] = 0;
+    }
+    if (mprGetLogLevel() >= 5) {
+        /*
+            Report all ciphers supported by MbedTLS
+         */
+        static int once = 0;
+        if (!once++) {
+            cp = (ciphers && *ciphers) ? result : mbedtls_ssl_list_ciphersuites();
+            mprLog("info mbedtls", mbedLogLevel, "\nCiphers:");
+            for (; *cp; cp++) {
+                scopy(buf, sizeof(buf), mbedtls_ssl_get_ciphersuite_name(*cp));
+                replaceHyphen(buf, '-', '_');
+                mprLog("info mbedtls", mbedLogLevel, "0x%04X %s", *cp, buf);
+            }
+        }
+    }
+    return result;
+}
+
+
+static int parseCert(mbedtls_x509_crt *cert, cchar *path, char **errorMsg)
+{
+    uchar   *buf;
+    ssize   len;
+
+    if ((buf = (uchar*) mprReadPathContents(path, &len)) == 0) {
+        if (errorMsg) {
+            *errorMsg = sfmt("Unable to read certificate %s", path);
+        }
+        return MPR_ERR_CANT_INITIALIZE;
+    }
+    if (scontains((char*) buf, "-----BEGIN ")) {
+        /* Looks PEM encoded so count the null in the length */
+        len++;
+    }
+    if (mbedtls_x509_crt_parse(cert, buf, len) != 0) {
+        memset(buf, 0, len);
+        if (errorMsg) {
+            *errorMsg = sfmt("Unable to parse certificate %s", path);
+        }
+        return MPR_ERR_CANT_INITIALIZE;
+    }
+    memset(buf, 0, len);
+    return 0;
+}
+
+
+static int parseKey(mbedtls_pk_context *key, cchar *path, char **errorMsg)
+{
+    uchar   *buf;
+    ssize   len;
+
+    if ((buf = (uchar*) mprReadPathContents(path, &len)) == 0) {
+        if (errorMsg) {
+            *errorMsg = sfmt("Unable to read key %s", path);
+        }
+        return MPR_ERR_CANT_INITIALIZE;
+    }
+    if (scontains((char*) buf, "-----BEGIN ")) {
+        len++;
+    }
+    if (mbedtls_pk_parse_key(key, buf, len, NULL, 0, mbedtls_ctr_drbg_random, NULL) != 0) {
+        memset(buf, 0, len);
+        if (errorMsg) {
+            *errorMsg = sfmt("Unable to parse key %s", path);
+        }
+        return MPR_ERR_CANT_INITIALIZE;
+    }
+    memset(buf, 0, len);
+    return 0;
+}
+
+
+static int parseCrl(mbedtls_x509_crl *crl, cchar *path, char **errorMsg)
+{
+    uchar   *buf;
+    ssize   len;
+
+    if ((buf = (uchar*) mprReadPathContents(path, &len)) == 0) {
+        if (errorMsg) {
+            *errorMsg = sfmt("Unable to read crl %s", path);
+        }
+        return MPR_ERR_CANT_INITIALIZE;
+    }
+    if (sstarts((char*) buf, "-----BEGIN ")) {
+        len++;
+    }
+    if (mbedtls_x509_crl_parse(crl, buf, len) != 0) {
+        memset(buf, 0, len);
+        if (errorMsg) {
+            *errorMsg = sfmt("Unable to parse crl %s", path);
+        }
+        return MPR_ERR_CANT_INITIALIZE;
+    }
+    memset(buf, 0, len);
+    return 0;
+}
+
+
+#if UNUSED
+static void initMbedLock(mbedtls_threading_mutex_t *tm)
+{
+    MprMutex    *lock;
+
+    lock = mprCreateLock();
+    mprHold(lock);
+    *tm = lock;
+}
+
+
+static void freeMbedLock(mbedtls_threading_mutex_t *tm)
+{
+    mprRelease(*tm);
+}
+
+
+static int mbedLock(mbedtls_threading_mutex_t *tm)
+{
+    mprLock(*tm);
+    return 0;
+}
+
+
+static int mbedUnlock(mbedtls_threading_mutex_t *tm)
+{
+    mprUnlock(*tm);
+    return 0;
+}
+#endif
+
+/*
+    Trace from within MbedTLS
+ */
+static void traceMbed(void *context, int level, cchar *file, int line, cchar *str)
+{
+    level += mbedLogLevel;
+    if (level <= MPR->logLevel) {
+        mprLog("info mbedtls", level, "%s", str);
+    }
+}
+
+
+static void merror(int rc, cchar *fmt, ...)
+{
+    va_list     ap;
+    char        ebuf[ME_BUFSIZE];
+
+    va_start(ap, fmt);
+    mbedtls_strerror(-rc, ebuf, sizeof(ebuf));
+    mprLog("error mbedtls ssl", 0, "mbedtls error: 0x%x %s %s", rc, sfmtv(fmt, ap), ebuf);
+    va_end(ap);
+}
+
+
+static char *replaceHyphen(char *cipher, char from, char to)
+{
+    char    *cp;
+
+    for (cp = cipher; *cp; cp++) {
+        if (*cp == from) {
+            *cp = to;
+        }
+    }
+    return cipher;
+}
+
+#endif /* ME_COM_MBEDTLS */
+
+/*
+    Copyright (c) Embedthis Software. All Rights Reserved.
+    This software is distributed under a commercial license. Consult the LICENSE.md
+    distributed with this software for full details and copyrights.
+ */
+
+
 /********* Start of file src/mime.c ************/
 
 /* 
@@ -16897,433 +17806,6 @@ PUBLIC cchar *mprLookupMime(MprHash *table, cchar *ext)
     return mt->type;
 }
 
-
-/*
-    Copyright (c) Embedthis Software. All Rights Reserved.
-    This software is distributed under a commercial license. Consult the LICENSE.md
-    distributed with this software for full details and copyrights.
- */
-
-
-/********* Start of file src/mixed.c ************/
-
-/**
-    mixed.c - Mixed mode strings. Unicode results with ascii args.
-
-    Copyright (c) All Rights Reserved. See details at the end of the file.
- */
-
-/********************************* Includes ***********************************/
-
-
-
-#if ME_CHAR_LEN > 1 && FUTURE
-/********************************** Forwards **********************************/
-
-PUBLIC int mcaselesscmp(wchar *str1, cchar *str2)
-{
-    return mncaselesscmp(str1, str2, -1);
-}
-
-
-PUBLIC int mcmp(wchar *s1, cchar *s2)
-{
-    return mncmp(s1, s2, -1);
-}
-
-
-PUBLIC wchar *mncontains(wchar *str, cchar *pattern, ssize limit)
-{
-    wchar   *cp, *s1;
-    cchar   *s2;
-    ssize   lim;
-
-    assert(0 <= limit && limit < MAXSSIZE);
-
-    if (limit < 0) {
-        limit = MAXINT;
-    }
-    if (str == 0) {
-        return 0;
-    }
-    if (pattern == 0 || *pattern == '\0') {
-        return (wchar*) str;
-    }
-    for (cp = str; *cp && limit > 0; cp++, limit--) {
-        s1 = cp;
-        s2 = pattern;
-        for (lim = limit; *s1 && *s2 && (*s1 == (uchar) *s2) && lim > 0; lim--) {
-            s1++;
-            s2++;
-        }
-        if (*s2 == '\0') {
-            return cp;
-        }
-    }
-    return 0;
-}
-
-
-PUBLIC wchar *mcontains(wchar *str, cchar *pattern)
-{
-    return mncontains(str, pattern, -1);
-}
-
-
-/*
-    destMax and len are character counts, not sizes in bytes
- */
-PUBLIC ssize mcopy(wchar *dest, ssize destMax, cchar *src)
-{
-    ssize       len;
-
-    assert(src);
-    assert(dest);
-    assert(0 < destMax && destMax < MAXINT);
-
-    len = slen(src);
-    if (destMax <= len) {
-        assert(!MPR_ERR_WONT_FIT);
-        return MPR_ERR_WONT_FIT;
-    }
-    return mtow(dest, len + 1, src, len);
-}
-
-
-PUBLIC int mends(wchar *str, cchar *suffix)
-{
-    wchar   *cp;
-    cchar   *sp;
-
-    if (str == NULL || suffix == NULL) {
-        return 0;
-    }
-    cp = &str[wlen(str) - 1];
-    sp = &suffix[slen(suffix)];
-    for (; cp > str && sp > suffix; ) {
-        if (*cp-- != *sp--) {
-            return 0;
-        }
-    }
-    if (sp > suffix) {
-        return 0;
-    }
-    return 1;
-}
-
-
-PUBLIC wchar *mfmt(cchar *fmt, ...)
-{
-    va_list     ap;
-    char        *mresult;
-
-    assert(fmt);
-
-    va_start(ap, fmt);
-    mresult = sfmtv(fmt, ap);
-    va_end(ap);
-    return amtow(mresult, NULL);
-}
-
-
-PUBLIC wchar *mfmtv(cchar *fmt, va_list arg)
-{
-    char    *mresult;
-
-    assert(fmt);
-    mresult = sfmtv(fmt, arg);
-    return amtow(mresult, NULL);
-}
-
-
-/*
-    Sep is ascii, args are wchar
- */
-PUBLIC wchar *mjoin(wchar *str, ...)
-{
-    wchar       *result;
-    va_list     ap;
-
-    assert(str);
-
-    va_start(ap, str);
-    result = mjoinv(str, ap);
-    va_end(ap);
-    return result;
-}
-
-
-PUBLIC wchar *mjoinv(wchar *buf, va_list args)
-{
-    va_list     ap;
-    wchar       *dest, *str, *dp;
-    int         required, len;
-
-    assert(buf);
-
-    va_copy(ap, args);
-    required = 1;
-    if (buf) {
-        required += wlen(buf);
-    }
-    str = va_arg(ap, wchar*);
-    while (str) {
-        required += wlen(str);
-        str = va_arg(ap, wchar*);
-    }
-    if ((dest = mprAlloc(required)) == 0) {
-        return 0;
-    }
-    dp = dest;
-    if (buf) {
-        wcopy(dp, -1, buf);
-        dp += wlen(buf);
-    }
-    va_copy(ap, args);
-    str = va_arg(ap, wchar*);
-    while (str) {
-        wcopy(dp, required, str);
-        len = wlen(str);
-        dp += len;
-        required -= len;
-        str = va_arg(ap, wchar*);
-    }
-    *dp = '\0';
-    return dest;
-}
-
-
-/*
-    Case insensitive string comparison. Limited by length
- */
-PUBLIC int mncaselesscmp(wchar *s1, cchar *s2, ssize n)
-{
-    int     rc;
-
-    assert(0 <= n && n < MAXSSIZE);
-
-    if (s1 == 0 || s2 == 0) {
-        return -1;
-    } else if (s1 == 0) {
-        return -1;
-    } else if (s2 == 0) {
-        return 1;
-    }
-    for (rc = 0; n > 0 && *s1 && rc == 0; s1++, s2++, n--) {
-        rc = tolower((uchar) *s1) - tolower((uchar) *s2);
-    }
-    if (rc) {
-        return (rc > 0) ? 1 : -1;
-    } else if (n == 0) {
-        return 0;
-    } else if (*s1 == '\0' && *s2 == '\0') {
-        return 0;
-    } else if (*s1 == '\0') {
-        return -1;
-    } else if (*s2 == '\0') {
-        return 1;
-    }
-    return 0;
-}
-
-
-
-PUBLIC int mncmp(wchar *s1, cchar *s2, ssize n)
-{
-    assert(0 <= n && n < MAXSSIZE);
-
-    if (s1 == 0 && s2 == 0) {
-        return 0;
-    } else if (s1 == 0) {
-        return -1;
-    } else if (s2 == 0) {
-        return 1;
-    }
-    for (rc = 0; n > 0 && *s1 && rc == 0; s1++, s2++, n--) {
-        rc = *s1 - (uchar) *s2;
-    }
-    if (rc) {
-        return (rc > 0) ? 1 : -1;
-    } else if (n == 0) {
-        return 0;
-    } else if (*s1 == '\0' && *s2 == '\0') {
-        return 0;
-    } else if (*s1 == '\0') {
-        return -1;
-    } else if (*s2 == '\0') {
-        return 1;
-    }
-    return 0;
-}
-
-
-PUBLIC ssize mncopy(wchar *dest, ssize destMax, cchar *src, ssize len)
-{
-    assert(0 <= len && len < MAXSSIZE);
-    assert(0 < destMax && destMax < MAXSSIZE);
-
-    return mtow(dest, destMax, src, len);
-}
-
-
-PUBLIC wchar *mpbrk(wchar *str, cchar *set)
-{
-    cchar   *sp;
-    int     count;
-
-    if (str == NULL || set == NULL) {
-        return 0;
-    }
-    for (count = 0; *str; count++, str++) {
-        for (sp = set; *sp; sp++) {
-            if (*str == *sp) {
-                return str;
-            }
-        }
-    }
-    return 0;
-}
-
-
-/*
-    Sep is ascii, args are wchar
- */
-PUBLIC wchar *mrejoin(wchar *buf, ...)
-{
-    va_list     ap;
-    wchar       *result;
-
-    va_start(ap, buf);
-    result = mrejoinv(buf, ap);
-    va_end(ap);
-    return result;
-}
-
-
-PUBLIC wchar *mrejoinv(wchar *buf, va_list args)
-{
-    va_list     ap;
-    wchar       *dest, *str, *dp;
-    int         required, len;
-
-    va_copy(ap, args);
-    required = 1;
-    if (buf) {
-        required += wlen(buf);
-    }
-    str = va_arg(ap, wchar*);
-    while (str) {
-        required += wlen(str);
-        str = va_arg(ap, wchar*);
-    }
-    if ((dest = mprRealloc(buf, required)) == 0) {
-        return 0;
-    }
-    dp = dest;
-    va_copy(ap, args);
-    str = va_arg(ap, wchar*);
-    while (str) {
-        wcopy(dp, required, str);
-        len = wlen(str);
-        dp += len;
-        required -= len;
-        str = va_arg(ap, wchar*);
-    }
-    *dp = '\0';
-    return dest;
-}
-
-
-PUBLIC ssize mspn(wchar *str, cchar *set)
-{
-    cchar   *sp;
-    int     count;
-
-    if (str == NULL || set == NULL) {
-        return 0;
-    }
-    for (count = 0; *str; count++, str++) {
-        for (sp = set; *sp; sp++) {
-            if (*str == *sp) {
-                return break;
-            }
-        }
-        if (*str != *sp) {
-            break;
-        }
-    }
-    return count;
-}
-
-
-PUBLIC int mstarts(wchar *str, cchar *prefix)
-{
-    if (str == NULL || prefix == NULL) {
-        return 0;
-    }
-    if (mncmp(str, prefix, slen(prefix)) == 0) {
-        return 1;
-    }
-    return 0;
-}
-
-
-PUBLIC wchar *mtok(wchar *str, cchar *delim, wchar **last)
-{
-    wchar   *start, *end;
-    ssize   i;
-
-    start = str ? str : *last;
-
-    if (start == 0) {
-        *last = 0;
-        return 0;
-    }
-    i = mspn(start, delim);
-    start += i;
-    if (*start == '\0') {
-        *last = 0;
-        return 0;
-    }
-    end = mpbrk(start, delim);
-    if (end) {
-        *end++ = '\0';
-        i = mspn(end, delim);
-        end += i;
-    }
-    *last = end;
-    return start;
-}
-
-
-PUBLIC wchar *mtrim(wchar *str, cchar *set, int where)
-{
-    wchar   s;
-    ssize   len, i;
-
-    if (str == NULL || set == NULL) {
-        return str;
-    }
-    s = wclone(str);
-    if (where & MPR_TRIM_START) {
-        i = mspn(s, set);
-    } else {
-        i = 0;
-    }
-    s += i;
-    if (where & MPR_TRIM_END) {
-        len = wlen(s);
-        while (len > 0 && mspn(&s[len - 1], set) > 0) {
-            s[len - 1] = '\0';
-            len--;
-        }
-    }
-    return s;
-}
-
-#else
-PUBLIC void dummyWide(void) {}
-#endif /* ME_CHAR_LEN > 1 */
 
 /*
     Copyright (c) Embedthis Software. All Rights Reserved.
@@ -17667,6 +18149,1917 @@ PUBLIC char *mprSearchForModule(cchar *filename)
     return 0;
 }
 
+
+/*
+    Copyright (c) Embedthis Software. All Rights Reserved.
+    This software is distributed under a commercial license. Consult the LICENSE.md
+    distributed with this software for full details and copyrights.
+ */
+
+
+/********* Start of file src/openssl.c ************/
+
+/*
+    openssl.c - Support for secure sockets via OpenSSL
+
+    This is the interface between the MPR Socket layer and the OpenSSL stack.
+    This code expects at least OpenSSL 1.1.1.
+
+    Copyright (c) All Rights Reserved. See details at the end of the file.
+ */
+
+/********************************** Includes **********************************/
+
+
+
+#if ME_COM_OPENSSL
+
+#if ME_UNIX_LIKE
+    /*
+        Mac OS X OpenSSL stack is deprecated. Suppress those warnings.
+     */
+    #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
+/* Clashes with WinCrypt.h */
+#undef OCSP_RESPONSE
+
+#ifndef  ME_MPR_SSL_HANDSHAKES
+    #define ME_MPR_SSL_HANDSHAKES 0     /* Defaults to infinite */
+#endif
+#ifndef  ME_MPR_SSL_RENEGOTIATE
+    #define ME_MPR_SSL_RENEGOTIATE 1
+#endif
+
+ /*
+    Indent includes to bypass MakeMe dependencies
+  */
+ #include    <openssl/opensslv.h>
+ #include    <openssl/ssl.h>
+ #include    <openssl/evp.h>
+ #include    <openssl/rand.h>
+ #include    <openssl/err.h>
+ #include    <openssl/dh.h>
+ #include    <openssl/rsa.h>
+ #include    <openssl/bio.h>
+
+#if OPENSSL_VERSION_NUMBER >= 0x10002000L
+    #include    <openssl/x509v3.h>
+#ifndef OPENSSL_NO_ENGINE
+    #include    <openssl/engine.h>
+    #define MPR_HAS_CRYPTO_ENGINE 1
+#endif
+#endif
+
+/************************************* Defines ********************************/
+/*
+    Default ciphers from Mozilla (https://wiki.mozilla.org/Security/Server_Side_TLS).
+    See cipher mappings at: https://wiki.mozilla.org/Security/Server_Side_TLS#Cipher_names_correspondence_table
+
+    Rationale:
+    * TLSv1.3 ciphers are preferred and listed first. 
+    * TLSv1 and v2 ciphers are legacy and only for backward compatibility with legacy systems.
+    * For TLSv2, AES256-GCM is prioritized above its 128 bits variant, and ChaCha20 because we assume that most modern
+      devices support AESNI instructions and thus benefit from fast and constant time AES.
+    * For TLSv2, We recommend ECDSA certificates with P256 as other curves may not be supported everywhere. RSA signatures
+      on ECDSA certificates are permitted because very few CAs sign with ECDSA at the moment.
+    * For TLSv2, DHE is removed entirely because it is slow in comparison with ECDHE, and all modern clients support
+      elliptic curve key exchanges.
+    * For TLSv2, SHA1 signature algorithm is removed in favor of SHA384 for AES256 and SHA256 for AES128.
+    * Recommended RSA and DH parameter size: 2048 bits.
+ */
+#define OPENSSL_TLSV3_DEFAULT_CIPHERS "TLS_AES_256_GCM_SHA384:TLS_CHACHA20_POLY1305_SHA256:TLS_AES_128_GCM_SHA256"
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+    #define OPENSSL_DEFAULT_CIPHERS OPENSSL_TLSV3_DEFAULT_CIPHERS ":ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256"
+#else
+    #define OPENSSL_DEFAULT_CIPHERS OPENSSL_TLSV3_DEFAULT_CIPHERS ":ECDHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES128-SHA256:ECDHE-RSA-AES256-SHA:ECDHE-RSA-AES128-SHA:DHE-RSA-AES256-SHA256:DHE-RSA-AES128-SHA256:DHE-RSA-AES256-SHA:DHE-RSA-AES128-SHA:ECDHE-RSA-DES-CBC3-SHA:EDH-RSA-DES-CBC3-SHA:AES256-GCM-SHA384:AES128-GCM-SHA256:AES256-SHA256:AES128-SHA256:AES256-SHA:AES128-SHA:DES-CBC3-SHA:HIGH:!aNULL:!eNULL:!EXPORT:!DES:!MD5:!PSK:!RC4:!SSLv3"
+#endif
+
+/*
+    Map Iana names to OpenSSL names
+ */
+typedef struct CipherMap {
+    int     code;
+    cchar   *name;
+    cchar   *ossName;
+} CipherMap;
+
+static CipherMap cipherMap[] = {
+    { 0x0004, "TLS_RSA_WITH_RC4_128_MD5", "RC4-MD5" },
+    { 0x0005, "TLS_RSA_WITH_RC4_128_SHA", "RC4-SHA" },
+    { 0x0007, "TLS_RSA_WITH_IDEA_CBC_SHA", "IDEA-CBC-SHA" },
+    { 0x0009, "TLS_RSA_WITH_DES_CBC_SHA", "DES-CBC-SHA" },
+    { 0x000A, "TLS_RSA_WITH_3DES_EDE_CBC_SHA", "DES-CBC3-SHA" },
+    { 0x000C, "TLS_DH_DSS_WITH_DES_CBC_SHA", "DH-DSS-DES-CBC-SHA" },
+    { 0x000D, "TLS_DH_DSS_WITH_3DES_EDE_CBC_SHA", "DH-DSS-DES-CBC3-SHA" },
+    { 0x000F, "TLS_DH_RSA_WITH_DES_CBC_SHA", "DH-RSA-DES-CBC-SHA" },
+    { 0x0010, "TLS_DH_RSA_WITH_3DES_EDE_CBC_SHA", "DH-RSA-DES-CBC3-SHA" },
+    { 0x0012, "TLS_DHE_DSS_WITH_DES_CBC_SHA", "EDH-DSS-DES-CBC-SHA" },
+    { 0x0013, "TLS_DHE_DSS_WITH_3DES_EDE_CBC_SHA", "EDH-DSS-DES-CBC3-SHA" },
+    { 0x0015, "TLS_DHE_RSA_WITH_DES_CBC_SHA", "EDH-RSA-DES-CBC-SHA" },
+    { 0x0016, "TLS_DHE_RSA_WITH_3DES_EDE_CBC_SHA", "EDH-RSA-DES-CBC3-SHA" },
+    { 0x002F, "TLS_RSA_WITH_AES_128_CBC_SHA", "AES128-SHA" },
+    { 0x0030, "TLS_DH_DSS_WITH_AES_128_CBC_SHA", "DH-DSS-AES128-SHA" },
+    { 0x0031, "TLS_DH_RSA_WITH_AES_128_CBC_SHA", "DH-RSA-AES128-SHA" },
+    { 0x0032, "TLS_DHE_DSS_WITH_AES_128_CBC_SHA", "DHE-DSS-AES128-SHA" },
+    { 0x0033, "TLS_DHE_RSA_WITH_AES_128_CBC_SHA", "DHE-RSA-AES128-SHA" },
+    { 0x0035, "TLS_RSA_WITH_AES_256_CBC_SHA", "AES256-SHA" },
+    { 0x0036, "TLS_DH_DSS_WITH_AES_256_CBC_SHA", "DH-DSS-AES256-SHA" },
+    { 0x0037, "TLS_DH_RSA_WITH_AES_256_CBC_SHA", "DH-RSA-AES256-SHA" },
+    { 0x0038, "TLS_DHE_DSS_WITH_AES_256_CBC_SHA", "DHE-DSS-AES256-SHA" },
+    { 0x0039, "TLS_DHE_RSA_WITH_AES_256_CBC_SHA", "DHE-RSA-AES256-SHA" },
+    { 0x003C, "TLS_RSA_WITH_AES_128_CBC_SHA256", "AES128-SHA256" },
+    { 0x003D, "TLS_RSA_WITH_AES_256_CBC_SHA256", "AES256-SHA256" },
+    { 0x003E, "TLS_DH_DSS_WITH_AES_128_CBC_SHA256", "DH-DSS-AES128-SHA256" },
+    { 0x003F, "TLS_DH_RSA_WITH_AES_128_CBC_SHA256", "DH-RSA-AES128-SHA256" },
+    { 0x0040, "TLS_DHE_DSS_WITH_AES_128_CBC_SHA256", "DHE-DSS-AES128-SHA256" },
+    { 0x0041, "TLS_RSA_WITH_CAMELLIA_128_CBC_SHA", "CAMELLIA128-SHA" },
+    { 0x0042, "TLS_DH_DSS_WITH_CAMELLIA_128_CBC_SHA", "DH-DSS-CAMELLIA128-SHA" },
+    { 0x0043, "TLS_DH_RSA_WITH_CAMELLIA_128_CBC_SHA", "DH-RSA-CAMELLIA128-SHA" },
+    { 0x0044, "TLS_DHE_DSS_WITH_CAMELLIA_128_CBC_SHA", "DHE-DSS-CAMELLIA128-SHA" },
+    { 0x0045, "TLS_DHE_RSA_WITH_CAMELLIA_128_CBC_SHA", "DHE-RSA-CAMELLIA128-SHA" },
+    { 0x0067, "TLS_DHE_RSA_WITH_AES_128_CBC_SHA256", "DHE-RSA-AES128-SHA256" },
+    { 0x0068, "TLS_DH_DSS_WITH_AES_256_CBC_SHA256", "DH-DSS-AES256-SHA256" },
+    { 0x0069, "TLS_DH_RSA_WITH_AES_256_CBC_SHA256", "DH-RSA-AES256-SHA256" },
+    { 0x006A, "TLS_DHE_DSS_WITH_AES_256_CBC_SHA256", "DHE-DSS-AES256-SHA256" },
+    { 0x006B, "TLS_DHE_RSA_WITH_AES_256_CBC_SHA256", "DHE-RSA-AES256-SHA256" },
+    { 0x0084, "TLS_RSA_WITH_CAMELLIA_256_CBC_SHA", "CAMELLIA256-SHA" },
+    { 0x0085, "TLS_DH_DSS_WITH_CAMELLIA_256_CBC_SHA", "DH-DSS-CAMELLIA256-SHA" },
+    { 0x0086, "TLS_DH_RSA_WITH_CAMELLIA_256_CBC_SHA", "DH-RSA-CAMELLIA256-SHA" },
+    { 0x0087, "TLS_DHE_DSS_WITH_CAMELLIA_256_CBC_SHA", "DHE-DSS-CAMELLIA256-SHA" },
+    { 0x0088, "TLS_DHE_RSA_WITH_CAMELLIA_256_CBC_SHA", "DHE-RSA-CAMELLIA256-SHA" },
+    { 0x008A, "TLS_PSK_WITH_RC4_128_SHA", "PSK-RC4-SHA" },
+    { 0x008B, "TLS_PSK_WITH_3DES_EDE_CBC_SHA", "PSK-3DES-EDE-CBC-SHA" },
+    { 0x008C, "TLS_PSK_WITH_AES_128_CBC_SHA", "PSK-AES128-CBC-SHA" },
+    { 0x008D, "TLS_PSK_WITH_AES_256_CBC_SHA", "PSK-AES256-CBC-SHA" },
+    { 0x0096, "TLS_RSA_WITH_SEED_CBC_SHA", "SEED-SHA" },
+    { 0x0097, "TLS_DH_DSS_WITH_SEED_CBC_SHA", "DH-DSS-SEED-SHA" },
+    { 0x0098, "TLS_DH_RSA_WITH_SEED_CBC_SHA", "DH-RSA-SEED-SHA" },
+    { 0x0099, "TLS_DHE_DSS_WITH_SEED_CBC_SHA", "DHE-DSS-SEED-SHA" },
+    { 0x009A, "TLS_DHE_RSA_WITH_SEED_CBC_SHA", "DHE-RSA-SEED-SHA" },
+    { 0x009C, "TLS_RSA_WITH_AES_128_GCM_SHA256", "AES128-GCM-SHA256" },
+    { 0x009D, "TLS_RSA_WITH_AES_256_GCM_SHA384", "AES256-GCM-SHA384" },
+    { 0x009E, "TLS_DHE_RSA_WITH_AES_128_GCM_SHA256", "DHE-RSA-AES128-GCM-SHA256" },
+    { 0x009F, "TLS_DHE_RSA_WITH_AES_256_GCM_SHA384", "DHE-RSA-AES256-GCM-SHA384" },
+    { 0x00A0, "TLS_DH_RSA_WITH_AES_128_GCM_SHA256", "DH-RSA-AES128-GCM-SHA256" },
+    { 0x00A1, "TLS_DH_RSA_WITH_AES_256_GCM_SHA384", "DH-RSA-AES256-GCM-SHA384" },
+    { 0x00A2, "TLS_DHE_DSS_WITH_AES_128_GCM_SHA256", "DHE-DSS-AES128-GCM-SHA256" },
+    { 0x00A3, "TLS_DHE_DSS_WITH_AES_256_GCM_SHA384", "DHE-DSS-AES256-GCM-SHA384" },
+    { 0x00A4, "TLS_DH_DSS_WITH_AES_128_GCM_SHA256", "DH-DSS-AES128-GCM-SHA256" },
+    { 0x00A5, "TLS_DH_DSS_WITH_AES_256_GCM_SHA384", "DH-DSS-AES256-GCM-SHA384" },
+    { 0xC002, "TLS_ECDH_ECDSA_WITH_RC4_128_SHA", "ECDH-ECDSA-RC4-SHA" },
+    { 0xC003, "TLS_ECDH_ECDSA_WITH_3DES_EDE_CBC_SHA", "ECDH-ECDSA-DES-CBC3-SHA" },
+    { 0xC004, "TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA", "ECDH-ECDSA-AES128-SHA" },
+    { 0xC005, "TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA", "ECDH-ECDSA-AES256-SHA" },
+    { 0xC007, "TLS_ECDHE_ECDSA_WITH_RC4_128_SHA", "ECDHE-ECDSA-RC4-SHA" },
+    { 0xC008, "TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA", "ECDHE-ECDSA-DES-CBC3-SHA" },
+    { 0xC009, "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA", "ECDHE-ECDSA-AES128-SHA" },
+    { 0xC00A, "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA", "ECDHE-ECDSA-AES256-SHA" },
+    { 0xC00C, "TLS_ECDH_RSA_WITH_RC4_128_SHA", "ECDH-RSA-RC4-SHA" },
+    { 0xC00D, "TLS_ECDH_RSA_WITH_3DES_EDE_CBC_SHA", "ECDH-RSA-DES-CBC3-SHA" },
+    { 0xC00E, "TLS_ECDH_RSA_WITH_AES_128_CBC_SHA", "ECDH-RSA-AES128-SHA" },
+    { 0xC00F, "TLS_ECDH_RSA_WITH_AES_256_CBC_SHA", "ECDH-RSA-AES256-SHA" },
+    { 0xC011, "TLS_ECDHE_RSA_WITH_RC4_128_SHA", "ECDHE-RSA-RC4-SHA" },
+    { 0xC012, "TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA", "ECDHE-RSA-DES-CBC3-SHA" },
+    { 0xC013, "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA", "ECDHE-RSA-AES128-SHA" },
+    { 0xC014, "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA", "ECDHE-RSA-AES256-SHA" },
+    { 0xC01A, "TLS_SRP_SHA_WITH_3DES_EDE_CBC_SHA", "SRP-3DES-EDE-CBC-SHA" },
+    { 0xC01B, "TLS_SRP_SHA_RSA_WITH_3DES_EDE_CBC_SHA", "SRP-RSA-3DES-EDE-CBC-SHA" },
+    { 0xC01C, "TLS_SRP_SHA_DSS_WITH_3DES_EDE_CBC_SHA", "SRP-DSS-3DES-EDE-CBC-SHA" },
+    { 0xC01D, "TLS_SRP_SHA_WITH_AES_128_CBC_SHA", "SRP-AES-128-CBC-SHA" },
+    { 0xC01E, "TLS_SRP_SHA_RSA_WITH_AES_128_CBC_SHA", "SRP-RSA-AES-128-CBC-SHA" },
+    { 0xC01F, "TLS_SRP_SHA_DSS_WITH_AES_128_CBC_SHA", "SRP-DSS-AES-128-CBC-SHA" },
+    { 0xC020, "TLS_SRP_SHA_WITH_AES_256_CBC_SHA", "SRP-AES-256-CBC-SHA" },
+    { 0xC021, "TLS_SRP_SHA_RSA_WITH_AES_256_CBC_SHA", "SRP-RSA-AES-256-CBC-SHA" },
+    { 0xC022, "TLS_SRP_SHA_DSS_WITH_AES_256_CBC_SHA", "SRP-DSS-AES-256-CBC-SHA" },
+    { 0xC023, "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256", "ECDHE-ECDSA-AES128-SHA256" },
+    { 0xC024, "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384", "ECDHE-ECDSA-AES256-SHA384" },
+    { 0xC025, "TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA256", "ECDH-ECDSA-AES128-SHA256" },
+    { 0xC026, "TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA384", "ECDH-ECDSA-AES256-SHA384" },
+    { 0xC027, "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256", "ECDHE-RSA-AES128-SHA256" },
+    { 0xC028, "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384", "ECDHE-RSA-AES256-SHA384" },
+    { 0xC029, "TLS_ECDH_RSA_WITH_AES_128_CBC_SHA256", "ECDH-RSA-AES128-SHA256" },
+    { 0xC02A, "TLS_ECDH_RSA_WITH_AES_256_CBC_SHA384", "ECDH-RSA-AES256-SHA384" },
+    { 0xC02B, "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256", "ECDHE-ECDSA-AES128-GCM-SHA256" },
+    { 0xC02C, "TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384", "ECDHE-ECDSA-AES256-GCM-SHA384" },
+    { 0xC02D, "TLS_ECDH_ECDSA_WITH_AES_128_GCM_SHA256", "ECDH-ECDSA-AES128-GCM-SHA256" },
+    { 0xC02E, "TLS_ECDH_ECDSA_WITH_AES_256_GCM_SHA384", "ECDH-ECDSA-AES256-GCM-SHA384" },
+    { 0xC02F, "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256", "ECDHE-RSA-AES128-GCM-SHA256" },
+    { 0xC030, "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384", "ECDHE-RSA-AES256-GCM-SHA384" },
+    { 0xC031, "TLS_ECDH_RSA_WITH_AES_128_GCM_SHA256", "ECDH-RSA-AES128-GCM-SHA256" },
+    { 0xC032, "TLS_ECDH_RSA_WITH_AES_256_GCM_SHA384", "ECDH-RSA-AES256-GCM-SHA384" },
+    { 0x0000, 0 },
+};
+
+/*
+    Configuration for a route/host
+ */
+typedef struct OpenConfig {
+    SSL_CTX         *ctx;
+    DH              *dhKey;
+    cchar           *alpn;
+    int             clearFlags;
+    int             maxHandshakes;
+    long            setFlags;
+} OpenConfig;
+
+typedef struct OpenSocket {
+    MprSocket       *sock;
+    OpenConfig      *cfg;
+    char            *requiredPeerName;
+    SSL             *handle;
+    BIO             *bio;
+    int             handshakes;
+} OpenSocket;
+
+typedef struct RandBuf {
+    MprTime     now;
+    int         pid;
+} RandBuf;
+
+static MprSocketProvider *openProvider;
+static OpenConfig *defaultOpenConfig;
+
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
+/*
+    OpenSSL 1.0 uses shared data and will crash if multithread locks are not used
+ */
+static int      numLocks;
+static MprMutex **olocks;
+
+struct CRYPTO_dynlock_value {
+    MprMutex    *mutex;
+};
+typedef struct CRYPTO_dynlock_value DynLock;
+#endif
+
+/*
+    Used for OpenSSL versions < 1.0.2
+ */
+#ifndef ME_MPR_SSL_CURVE
+    #define ME_MPR_SSL_CURVE "prime256v1"
+#endif
+
+/*
+    Certificate and key formats
+ */
+#define FORMAT_PEM 1
+#define FORMAT_DER 2
+
+/***************************** Forward Declarations ***************************/
+
+static void     closeOss(MprSocket *sp, bool gracefully);
+static int      checkPeerCertName(MprSocket *sp);
+static int      configOss(MprSsl *ssl, int flags, char **errorMsg);
+static DH       *dhcallback(SSL *ssl, int isExport, int keyLength);
+static void     disconnectOss(MprSocket *sp);
+static ssize    flushOss(MprSocket *sp);
+static DH       *getDhKey();
+static char     *getOssSession(MprSocket *sp);
+static char     *getOssState(MprSocket *sp);
+static char     *getOssError(MprSocket *sp);
+static X509     *getPeerCert(SSL *handle);
+static void     infoCallback(const SSL *ssl, int where, int rc);
+static void     manageOpenConfig(OpenConfig *cfg, int flags);
+static void     manageOpenProvider(MprSocketProvider *provider, int flags);
+static void     manageOpenSocket(OpenSocket *ssp, int flags);
+static cchar    *mapCipherNames(cchar *ciphers);
+static int      preloadOss(MprSsl *ssl, int flags);
+static ssize    readOss(MprSocket *sp, void *buf, ssize len);
+static void     setSecured(MprSocket *sp);
+static int      setCertFile(SSL_CTX *ctx, cchar *certFile);
+static int      setKeyFile(SSL_CTX *ctx, cchar *keyFile);
+static int      sniHostname(SSL *ssl, int *al, void *arg);
+static int      upgradeOss(MprSocket *sp, MprSsl *ssl, cchar *requiredPeerName);
+static int      verifyPeerCertificate(int ok, X509_STORE_CTX *xctx);
+static ssize    writeOss(MprSocket *sp, cvoid *buf, ssize len);
+
+#if ME_MPR_HAS_ALPN
+static cchar    *makeAlpn(MprSsl *ssl);
+static int      selectAlpn(SSL *ssl, cuchar **out, uchar *outlen, cuchar *in, uint inlen, void *arg);
+#endif
+
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
+static DynLock  *sslCreateDynLock(cchar *file, int line);
+static void     sslDynLock(int mode, DynLock *dl, cchar *file, int line);
+static void     sslDestroyDynLock(DynLock *dl, cchar *file, int line);
+static void     sslStaticLock(int mode, int n, cchar *file, int line);
+static ulong    sslThreadId(void);
+#endif
+
+#if MPR_HAS_CRYPTO_ENGINE
+static int initEngine(MprSsl *ssl);
+#endif
+
+/************************************* Code ***********************************/
+/*
+    Initialize the MPR SSL layer
+ */
+PUBLIC int mprSslInit(void *unused, MprModule *module)
+{
+    RandBuf     randBuf;
+
+    randBuf.now = mprGetTime();
+    randBuf.pid = getpid();
+    RAND_seed((void*) &randBuf, sizeof(randBuf));
+#if ME_UNIX_LIKE
+    RAND_load_file("/dev/urandom", 256);
+#endif
+
+    if ((openProvider = mprAllocObj(MprSocketProvider, manageOpenProvider)) == NULL) {
+        return MPR_ERR_MEMORY;
+    }
+    openProvider->name = sclone("openssl");
+    openProvider->preload = preloadOss;
+    openProvider->upgradeSocket = upgradeOss;
+    openProvider->closeSocket = closeOss;
+    openProvider->disconnectSocket = disconnectOss;
+    openProvider->flushSocket = flushOss;
+    openProvider->socketState = getOssState;
+    openProvider->readSocket = readOss;
+    openProvider->writeSocket = writeOss;
+    mprSetSslProvider(openProvider);
+
+    /*
+        Configure the SSL library. Use the crypto ID as a one-time test. This allows
+        users to configure the library and have their configuration used instead.
+     */
+    mprGlobalLock();
+    if (CRYPTO_get_id_callback() == 0) {
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
+        int     i;
+        numLocks = CRYPTO_num_locks();
+        if ((olocks = mprAlloc(numLocks * sizeof(MprMutex*))) == 0) {
+            return MPR_ERR_MEMORY;
+        }
+        for (i = 0; i < numLocks; i++) {
+            olocks[i] = mprCreateLock();
+        }
+        CRYPTO_set_id_callback(sslThreadId);
+        CRYPTO_set_locking_callback(sslStaticLock);
+        CRYPTO_set_dynlock_create_callback(sslCreateDynLock);
+        CRYPTO_set_dynlock_destroy_callback(sslDestroyDynLock);
+        CRYPTO_set_dynlock_lock_callback(sslDynLock);
+#endif
+
+#if !ME_WIN_LIKE
+        OpenSSL_add_all_algorithms();
+#endif
+        /*
+            WARNING: SSL_library_init() is not reentrant. Caller must ensure safety.
+         */
+        SSL_library_init();
+        SSL_load_error_strings();
+#if MPR_HAS_CRYPTO_ENGINE
+        ENGINE_load_builtin_engines();
+        ENGINE_add_conf_module();
+        CONF_modules_load_file(NULL, NULL, 0);
+#endif
+    }
+    mprGlobalUnlock();
+    return 0;
+}
+
+
+/*
+    MPR Garbage collector manager callback for OpenConfig. Called on each GC sweep.
+ */
+static void manageOpenConfig(OpenConfig *cfg, int flags)
+{
+    if (flags & MPR_MANAGE_MARK) {
+        mprMark(cfg->alpn);
+
+    } else if (flags & MPR_MANAGE_FREE) {
+        if (cfg->ctx != 0) {
+            SSL_CTX_free(cfg->ctx);
+            cfg->ctx = 0;
+        }
+        if (cfg == defaultOpenConfig) {
+            if (cfg->dhKey) {
+                DH_free(cfg->dhKey);
+                cfg->dhKey = 0;
+            }
+        }
+#if MPR_HAS_CRYPTO_ENGINE
+        ENGINE_cleanup();
+#endif
+    }
+}
+
+
+/*
+    MPR Garbage collector manager callback for MprSocketProvider. Called on each GC sweep.
+ */
+static void manageOpenProvider(MprSocketProvider *provider, int flags)
+{
+    if (flags & MPR_MANAGE_MARK) {
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
+        /* Mark global locks */
+        int     i;
+        if (olocks) {
+            mprMark(olocks);
+            for (i = 0; i < numLocks; i++) {
+                mprMark(olocks[i]);
+            }
+        }
+#endif
+        mprMark(defaultOpenConfig);
+        mprMark(provider->name);
+
+    } else if (flags & MPR_MANAGE_FREE) {
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
+        olocks = 0;
+#endif
+    }
+}
+
+
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
+
+static ulong sslThreadId()
+{
+    return (long) mprGetCurrentOsThread();
+}
+
+
+static void sslStaticLock(int mode, int n, cchar *file, int line)
+{
+    assert(0 <= n && n < numLocks);
+
+    if (olocks) {
+        if (mode & CRYPTO_LOCK) {
+            mprLock(olocks[n]);
+        } else {
+            mprUnlock(olocks[n]);
+        }
+    }
+}
+
+
+static DynLock *sslCreateDynLock(cchar *file, int line)
+{
+    DynLock     *dl;
+
+    dl = mprAllocZeroed(sizeof(DynLock));
+    dl->mutex = mprCreateLock();
+    mprHold(dl->mutex);
+    return dl;
+}
+
+
+static void sslDestroyDynLock(DynLock *dl, cchar *file, int line)
+{
+    MprMutex    *mutex;
+
+    if (dl->mutex) {
+        mutex = dl->mutex;
+        dl->mutex = 0;
+        mprRelease(mutex);
+    }
+}
+
+
+static void sslDynLock(int mode, DynLock *dl, cchar *file, int line)
+{
+    if (mode & CRYPTO_LOCK) {
+        mprLock(dl->mutex);
+    } else {
+        mprUnlock(dl->mutex);
+    }
+}
+#endif
+
+/*
+    Create and initialize an SSL configuration for a route. This configuration is used by all requests for
+    a given route. An application can have different SSL configurations for different routes. There is also
+    a default SSL configuration that is used when a route does not define a configuration and one for clients.
+ */
+static int configOss(MprSsl *ssl, int flags, char **errorMsg)
+{
+    OpenConfig      *cfg;
+    X509_STORE      *store;
+    SSL_CTX         *ctx;
+    cchar           *key;
+    uchar           resume[16];
+    int             rc, verifyMode;
+
+    assert(ssl);
+    if (errorMsg) {
+        *errorMsg = 0;
+    }
+    if (ssl->config && !ssl->changed) {
+        return 0;
+    }
+    if ((ssl->config = mprAllocObj(OpenConfig, manageOpenConfig)) == 0) {
+        return MPR_ERR_MEMORY;
+    }
+    cfg = ssl->config;
+
+    if ((ctx = SSL_CTX_new(SSLv23_method())) == 0) {
+        mprLog("error openssl", 0, "Unable to create SSL context");
+        return MPR_ERR_CANT_INITIALIZE;
+    }
+#if MPR_HAS_CRYPTO_ENGINE
+    if (initEngine(ssl) < 0) {
+        // Continue without engine
+    }
+#endif
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+    SSL_CTX_set_ex_data(ctx, 0, (void*) ssl);
+#else
+    SSL_CTX_set_app_data(ctx, (void*) ssl);
+#endif
+    if (ssl->verifyPeer && !(ssl->caFile || ssl->caPath)) {
+        *errorMsg = sfmt("Cannot verify peer due to undefined CA certificates");
+        SSL_CTX_free(ctx);
+        return MPR_ERR_CANT_INITIALIZE;
+    }
+
+    /*
+        Configure the certificates
+     */
+    if (ssl->certFile) {
+        if (setCertFile(ctx, ssl->certFile) < 0) {
+            SSL_CTX_free(ctx);
+            return MPR_ERR_CANT_INITIALIZE;
+        }
+        key = (ssl->keyFile == 0) ? ssl->certFile : ssl->keyFile;
+        if (key) {
+            if (setKeyFile(ctx, key) < 0) {
+                SSL_CTX_free(ctx);
+                return MPR_ERR_CANT_INITIALIZE;
+            }
+            if (!SSL_CTX_check_private_key(ctx)) {
+                mprLog("error openssl", 0, "Check of private key file failed: %s", key);
+                SSL_CTX_free(ctx);
+                return MPR_ERR_CANT_INITIALIZE;
+            }
+        }
+    }
+    if (ssl->ciphers) {
+        ssl->ciphers = mapCipherNames(ssl->ciphers);
+    }
+    if (!ssl->ciphers && (flags & MPR_SOCKET_SERVER)) {
+        ssl->ciphers = sclone(OPENSSL_DEFAULT_CIPHERS);
+    }
+    if (ssl->ciphers) {
+        mprLog("info openssl", 5, "Using SSL ciphers: %s", ssl->ciphers);
+#if OPENSSL_VERSION_NUMBER >= 0x1010100L
+        /*
+            Set TLSv1.3 ciphers and <1.2 ciphers via (cipher_list).
+            ciphersuites() fails if any cipher fails, cipher_list() fails if all ciphers fail.
+            This fails if we can't get any cipher configured.
+        */
+        rc = 1;
+        if (ssl->protocols & MPR_PROTO_TLSV1_3) {
+            // v1.3 required
+            if (SSL_CTX_set_ciphersuites(ctx, ssl->ciphers) != 1 && SSL_CTX_set_cipher_list(ctx, ssl->ciphers) != 1) {
+                //  Fail
+                rc = 0;
+            }
+        } else {
+            //  No v1.3
+            rc = SSL_CTX_set_cipher_list(ctx, ssl->ciphers);
+        }
+#else
+        //  Pre v1.3
+        rc = SSL_CTX_set_cipher_list(ctx, ssl->ciphers);
+#endif
+        if (rc != 1) {
+            *errorMsg = sfmt("Unable to set cipher list \"%s\"", ssl->ciphers);
+            SSL_CTX_free(ctx);
+            return MPR_ERR_CANT_INITIALIZE;
+        }
+    }
+    verifyMode = !ssl->verifyPeer ? SSL_VERIFY_NONE : SSL_VERIFY_PEER;
+    if (verifyMode != SSL_VERIFY_NONE) {
+        if (!(ssl->caFile || ssl->caPath)) {
+            *errorMsg = sclone("No defined certificate authority file");
+            SSL_CTX_free(ctx);
+            return MPR_ERR_CANT_INITIALIZE;
+        }
+        if ((!SSL_CTX_load_verify_locations(ctx, (char*) ssl->caFile, (char*) ssl->caPath)) ||
+                (!SSL_CTX_set_default_verify_paths(ctx))) {
+            *errorMsg = sfmt("Unable to set certificate locations: %s: %s", ssl->caFile, ssl->caPath);
+            SSL_CTX_free(ctx);
+            return MPR_ERR_CANT_INITIALIZE;
+        }
+        if (ssl->caFile) {
+            STACK_OF(X509_NAME) *certNames;
+            certNames = SSL_load_client_CA_file(ssl->caFile);
+            if (certNames) {
+                /*
+                    Define the list of CA certificates to send to the client
+                    before they send their client certificate for validation
+                 */
+                SSL_CTX_set_client_CA_list(ctx, certNames);
+            }
+        }
+        store = SSL_CTX_get_cert_store(ctx);
+        if (ssl->revoke && !X509_STORE_load_locations(store, ssl->revoke, 0)) {
+            mprLog("error openssl", 0, "Cannot load certificate revoke list: %s", ssl->revoke);
+            SSL_CTX_free(ctx);
+            return MPR_ERR_CANT_INITIALIZE;
+        }
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+        X509_STORE_set_ex_data(store, 0, (void*) ssl);
+#endif
+        if (flags & MPR_SOCKET_SERVER) {
+            SSL_CTX_set_verify_depth(ctx, ssl->verifyDepth);
+        }
+        SSL_CTX_set_verify(ctx, verifyMode, verifyPeerCertificate);
+    }
+
+    /*
+        Define callbacks
+     */
+    if (flags & MPR_SOCKET_SERVER) {
+        SSL_CTX_set_tlsext_servername_callback(ctx, sniHostname);
+    }
+
+    /*
+        Configure DH parameters
+     */
+    SSL_CTX_set_tmp_dh_callback(ctx, dhcallback);
+    cfg->dhKey = getDhKey();
+
+    /*
+        Define default OpenSSL options
+        Ensure we generate a new private key for each connection
+        Disable SSLv2, SSLv3 and TLSv1 by default -- they are insecure.
+     */
+    cfg->setFlags = SSL_OP_ALL | SSL_OP_SINGLE_DH_USE | SSL_OP_SINGLE_ECDH_USE | SSL_OP_NO_SSLv2 | SSL_OP_NO_SSLv3 | SSL_OP_NO_TLSv1;
+
+    /*
+        Configuration time controls
+     */
+#ifdef SSL_OP_NO_SSLv2
+    if (!(ssl->protocols & MPR_PROTO_SSLV2)) {
+        cfg->setFlags |= SSL_OP_NO_SSLv2;
+    }
+#endif
+#ifdef SSL_OP_NO_SSLv3
+    if (!(ssl->protocols & MPR_PROTO_SSLV3)) {
+        cfg->setFlags |= SSL_OP_NO_SSLv3;
+    }
+#endif
+#ifdef SSL_OP_NO_TLSv1
+    if (!(ssl->protocols & MPR_PROTO_TLSV1_0)) {
+        cfg->setFlags |= SSL_OP_NO_TLSv1;
+    }
+#endif
+#ifdef SSL_OP_NO_TLSv1_1
+    if (!(ssl->protocols & MPR_PROTO_TLSV1_1)) {
+        cfg->setFlags |= SSL_OP_NO_TLSv1_1;
+    }
+#endif
+#ifdef SSL_OP_NO_TLSv1_2
+    if (!(ssl->protocols & MPR_PROTO_TLSV1_2)) {
+        cfg->setFlags |= SSL_OP_NO_TLSv1_2;
+    }
+#endif
+#ifdef SSL_OP_NO_TLSv1_3
+    if (!(ssl->protocols & MPR_PROTO_TLSV1_3)) {
+        cfg->setFlags |= SSL_OP_NO_TLSv1_3;
+    }
+#endif
+#ifdef SSL_OP_MSIE_SSLV2_RSA_PADDING
+    cfg->setFlags |= SSL_OP_MSIE_SSLV2_RSA_PADDING;
+#endif
+#if defined(SSL_OP_NO_TICKET)
+    /*
+        Ticket based session reuse is enabled by default
+     */
+    #if defined(ME_MPR_SSL_TICKET)
+        if (ME_MPR_SSL_TICKET) {
+            cfg->clearFlags |= SSL_OP_NO_TICKET;
+        } else {
+            cfg->setFlags |= SSL_OP_NO_TICKET;
+        }
+    #else
+        cfg->clearFlags |= SSL_OP_NO_TICKET;
+    #endif
+#endif
+
+#if defined(SSL_OP_NO_COMPRESSION)
+    /*
+        CRIME attack targets compression
+     */
+    cfg->clearFlags |= SSL_OP_NO_COMPRESSION;
+#endif
+
+#if defined(SSL_OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION)
+    /*
+        Force a new session on renegotiation. Default to true.
+        This is required when using SNI and changing context during the SSL hello
+     */
+    #if defined(ME_MPR_SSL_RENEGOTIATE)
+        if (ME_MPR_SSL_RENEGOTIATE) {
+            cfg->clearFlags |= SSL_OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION;
+        } else {
+            cfg->setFlags |= SSL_OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION;
+        }
+    #else
+        cfg->setFlags |= SSL_OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION;
+    #endif
+#endif
+
+#if defined(ME_MPR_SSL_HANDSHAKES)
+    cfg->maxHandshakes = ME_MPR_SSL_HANDSHAKES;
+#endif
+
+#if defined(SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS)
+    /*
+        Disables a countermeasure against a SSL 3.0/TLS 1.0 protocol vulnerability affecting CBC ciphers.
+        Defaults to true.
+     */
+    #if defined(ME_MPR_SSL_EMPTY_FRAGMENTS)
+        if (ME_MPR_SSL_EMPTY_FRAGMENTS) {
+            /* SSL_OP_ALL disables empty fragments. Only needed for ancient browsers like IE-6 on SSL-3.0/TLS-1.0 */
+            cfg->clearFlags |= SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS;
+        } else {
+            cfg->setFlags |= SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS;
+        }
+    #else
+        cfg->setFlags |= SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS;
+    #endif
+#endif
+
+    /*
+        Define a session reuse context
+     */
+    RAND_bytes(resume, sizeof(resume));
+    SSL_CTX_set_session_id_context(ctx, resume, sizeof(resume));
+
+    /*
+        Elliptic Curve initialization
+     */
+#if SSL_OP_SINGLE_ECDH_USE
+    #ifdef SSL_CTX_set_ecdh_auto
+        // This is supported in OpenSSL 1.0.2
+        SSL_CTX_set_ecdh_auto(ctx, 1);
+    #else
+        {
+            EC_KEY  *ecdh;
+            cchar   *name;
+            int      nid;
+
+            name = ME_MPR_SSL_CURVE;
+            if ((nid = OBJ_sn2nid(name)) == 0) {
+                *errorMsg = sfmt("Unknown curve name \"%s\"", name);
+                SSL_CTX_free(ctx);
+                return MPR_ERR_CANT_INITIALIZE;
+            }
+            if ((ecdh = EC_KEY_new_by_curve_name(nid)) == 0) {
+                *errorMsg = sfmt("Unable to create curve \"%s\"", name);
+                SSL_CTX_free(ctx);
+                return MPR_ERR_CANT_INITIALIZE;
+            }
+            SSL_CTX_set_tmp_ecdh(ctx, ecdh);
+            EC_KEY_free(ecdh);
+        }
+    #endif
+#endif
+
+    SSL_CTX_set_mode(ctx, SSL_MODE_ENABLE_PARTIAL_WRITE | SSL_MODE_AUTO_RETRY | SSL_MODE_ACCEPT_MOVING_WRITE_BUFFER);
+#ifdef SSL_MODE_RELEASE_BUFFERS
+    SSL_CTX_set_mode(ctx, SSL_MODE_RELEASE_BUFFERS);
+#endif
+#ifdef SSL_OP_CIPHER_SERVER_PREFERENCE
+    SSL_CTX_set_mode(ctx, SSL_OP_CIPHER_SERVER_PREFERENCE);
+#endif
+
+#if defined(ME_MPR_SSL_CACHE)
+    /*
+        Set the number of sessions supported. Default in OpenSSL is 20K.
+     */
+    SSL_CTX_sess_set_cache_size(ctx, ME_MPR_SSL_CACHE);
+#else
+    SSL_CTX_sess_set_cache_size(ctx, 1024);
+#endif
+
+    SSL_CTX_set_options(ctx, cfg->setFlags);
+    SSL_CTX_clear_options(ctx, cfg->clearFlags);
+
+    cfg->ctx = ctx;
+    ssl->changed = 0;
+    ssl->config = cfg;
+
+#if ME_MPR_HAS_ALPN
+    if (ssl->alpn) {
+        cfg->alpn = makeAlpn(ssl);
+        SSL_CTX_set_alpn_protos(ctx, (cuchar*) cfg->alpn, (int) slen(cfg->alpn));
+        SSL_CTX_set_alpn_select_cb(ctx, selectAlpn, NULL);
+    }
+#endif
+    return 0;
+}
+
+#if MPR_HAS_CRYPTO_ENGINE
+static int initEngine(MprSsl *ssl)
+{
+    ENGINE  *engine;
+
+    if (ssl->device) {
+        mprLog("mpr ssl openssl info", 0, "Initializing engine %s", ssl->device);
+        if (!(engine = ENGINE_by_id(ssl->device))) {
+            mprLog("mpr ssl openssl error", 0, "Cannot find crypto device %s", ssl->device);
+            return MPR_ERR_CANT_FIND;
+        }
+        if (!ENGINE_set_default(engine, ENGINE_METHOD_ALL)) {
+            mprLog("mpr ssl openssl error", 0, "Cannot find crypto device %s", ssl->device);
+            ENGINE_free(engine);
+            return MPR_ERR_CANT_FIND;
+        }
+        mprLog("mpr ssl openssl info", 0, "Loaded crypto device %s", ssl->device);
+        ENGINE_free(engine);
+    }
+    return 0;
+}
+#endif
+
+
+#if ME_MPR_HAS_ALPN
+static int selectAlpn(SSL *ssl, cuchar **out, uchar *outlen, cuchar *in, uint inlen, void *arg)
+{
+    OpenSocket  *osp;
+    cchar       *alpn;
+
+    if ((osp = (OpenSocket*) SSL_get_app_data(ssl)) == 0) {
+        return SSL_TLSEXT_ERR_NOACK;
+    }
+    alpn = osp->cfg->alpn;
+    if (alpn == 0) {
+        return SSL_TLSEXT_ERR_NOACK;
+    }
+
+    /*
+        WARNING: this appalling API expects pbuf to be static / persistent and sets *out to refer to it.
+     */
+    if (SSL_select_next_proto((uchar **) out, outlen, (cuchar*) alpn, (int) slen(alpn), in, inlen) != OPENSSL_NPN_NEGOTIATED) {
+        return SSL_TLSEXT_ERR_NOACK;
+    }
+    return SSL_TLSEXT_ERR_OK;
+}
+#endif
+
+
+#if ME_MPR_HAS_ALPN
+static cchar *makeAlpn(MprSsl *ssl)
+{
+    cchar   *proto;
+    char    *dp, *pbuf;
+    ssize   len, plen;
+    int     next;
+
+    len = 1;
+    for (ITERATE_ITEMS(ssl->alpn, proto, next)) {
+        len += slen(proto) + 1;
+    }
+    pbuf = mprAlloc(len);
+    dp = pbuf;
+    for (ITERATE_ITEMS(ssl->alpn, proto, next)) {
+        plen = slen(proto);
+        *dp++ = (uchar) plen;
+        scopy((char*) dp, len - (dp - pbuf), proto);
+        dp += plen;
+    }
+    return pbuf;
+}
+#endif
+
+/*
+    MPR Garbage collector manager callback for OpenSocket. Called on each GC sweep.
+ */
+static void manageOpenSocket(OpenSocket *osp, int flags)
+{
+    if (flags & MPR_MANAGE_MARK) {
+        mprMark(osp->sock);
+        mprMark(osp->cfg);
+        mprMark(osp->requiredPeerName);
+
+    } else if (flags & MPR_MANAGE_FREE) {
+        if (osp->handle) {
+            SSL_set_shutdown(osp->handle, SSL_SENT_SHUTDOWN | SSL_RECEIVED_SHUTDOWN);
+            SSL_free(osp->handle);
+            osp->handle = 0;
+        }
+    }
+}
+
+
+static void closeOss(MprSocket *sp, bool gracefully)
+{
+    OpenSocket    *osp;
+
+    osp = sp->sslSocket;
+    if (osp->handle) {
+        SSL_shutdown(osp->handle);
+    }
+    sp->service->standardProvider->closeSocket(sp, gracefully);
+    if (osp->handle) {
+        SSL_free(osp->handle);
+        osp->handle = 0;
+    }
+}
+
+
+static int preloadOss(MprSsl *ssl, int flags)
+{
+    char    *errorMsg;
+
+    assert(ssl);
+
+    if (ssl == 0) {
+        ssl = mprCreateSsl(flags & MPR_SOCKET_SERVER);
+    }
+    lock(ssl);
+    if (configOss(ssl, flags, &errorMsg) < 0) {
+        mprLog("error mpr ssl openssl", 4, "Cannot configure SSL %s", errorMsg);
+        unlock(ssl);
+        return MPR_ERR_CANT_INITIALIZE;
+    }
+    unlock(ssl);
+    return 0;
+}
+
+
+/*
+    Upgrade a standard socket to use SSL/TLS. Used by both clients and servers to upgrade a socket for SSL.
+    If a client, this may block while connecting.
+ */
+static int upgradeOss(MprSocket *sp, MprSsl *ssl, cchar *requiredPeerName)
+{
+    OpenSocket      *osp;
+    OpenConfig      *cfg;
+    int             rc;
+
+    assert(sp);
+
+    if (ssl == 0) {
+        ssl = mprCreateSsl(sp->flags & MPR_SOCKET_SERVER);
+    }
+    if ((osp = (OpenSocket*) mprAllocObj(OpenSocket, manageOpenSocket)) == 0) {
+        return MPR_ERR_MEMORY;
+    }
+    osp->sock = sp;
+    sp->sslSocket = osp;
+    sp->ssl = ssl;
+
+    lock(ssl);
+    if (configOss(ssl, sp->flags, &sp->errorMsg) < 0) {
+        unlock(ssl);
+        return MPR_ERR_CANT_INITIALIZE;
+    }
+    unlock(ssl);
+
+    /*
+        Create and configure the SSL struct
+     */
+    cfg = osp->cfg = sp->ssl->config;
+    if ((osp->handle = (SSL*) SSL_new(cfg->ctx)) == 0) {
+        return MPR_ERR_BAD_STATE;
+    }
+    SSL_set_app_data(osp->handle, (void*) osp);
+
+    /*
+        Create a socket bio. We don't use the BIO except as storage for the fd
+     */
+    if ((osp->bio = BIO_new_socket((int) sp->fd, BIO_NOCLOSE)) == 0) {
+        return MPR_ERR_BAD_STATE;
+    }
+    SSL_set_bio(osp->handle, osp->bio, osp->bio);
+
+    if (sp->flags & MPR_SOCKET_SERVER) {
+        SSL_set_accept_state(osp->handle);
+    } else {
+        if (requiredPeerName) {
+            osp->requiredPeerName = sclone(requiredPeerName);
+#if OPENSSL_VERSION_NUMBER >= 0x10002000L
+            X509_VERIFY_PARAM *param = param = SSL_get0_param(osp->handle);
+            X509_VERIFY_PARAM_set_hostflags(param, 0);
+            X509_VERIFY_PARAM_set1_host(param, requiredPeerName, 0);
+#endif
+            SSL_set_tlsext_host_name(osp->handle, requiredPeerName);
+        }
+        /*
+            Block while connecting
+         */
+        mprSetSocketBlockingMode(sp, 1);
+        sp->errorMsg = 0;
+        if ((rc = SSL_connect(osp->handle)) < 1) {
+            if (sp->errorMsg) {
+                mprLog("info mpr ssl openssl", 4, "Connect failed: %s", sp->errorMsg);
+            } else {
+                mprLog("info mpr ssl openssl", 4, "Connect failed: error %s", getOssError(sp));
+            }
+            return MPR_ERR_CANT_CONNECT;
+        }
+        if (rc > 0 && checkPeerCertName(sp) < 0) {
+            return MPR_ERR_CANT_CONNECT;
+        }
+        setSecured(sp);
+        mprSetSocketBlockingMode(sp, 0);
+    }
+    if (ME_MPR_SSL_HANDSHAKES) {
+        SSL_CTX_set_info_callback(cfg->ctx, infoCallback);
+    }
+    return 0;
+}
+
+
+static void infoCallback(const SSL *ssl, int where, int rc)
+{
+    OpenSocket  *osp;
+
+    if (where & SSL_CB_HANDSHAKE_START) {
+        if ((osp = (OpenSocket*) SSL_get_app_data(ssl)) == 0) {
+            return;
+        }
+        osp->handshakes++;
+    }
+}
+
+
+static void disconnectOss(MprSocket *sp)
+{
+    sp->service->standardProvider->disconnectSocket(sp);
+}
+
+
+/*
+    Return the number of bytes read. Return -1 on errors and EOF. Distinguish EOF via mprIsSocketEof.
+    If non-blocking, may return zero if no data or still handshaking.
+ */
+static ssize readOss(MprSocket *sp, void *buf, ssize len)
+{
+    OpenSocket      *osp;
+    int             rc, error, retries, i;
+
+    osp = (OpenSocket*) sp->sslSocket;
+    assert(osp);
+
+    if (osp->handle == 0) {
+        return MPR_ERR_BAD_STATE;
+    }
+    /*
+        Limit retries on WANT_READ. If non-blocking and no data, then this could spin forever.
+     */
+    retries = 5;
+    for (i = 0; i < retries; i++) {
+        rc = SSL_read(osp->handle, buf, (int) len);
+        if (rc <= 0) {
+            error = SSL_get_error(osp->handle, rc);
+            if (error == SSL_ERROR_WANT_READ || error == SSL_ERROR_WANT_CONNECT || error == SSL_ERROR_WANT_ACCEPT) {
+                continue;
+            }
+            if (error != SSL_ERROR_ZERO_RETURN) {
+                mprLog("info mpr ssl openssl", 5, "SSL_read %s", getOssError(sp));
+                sp->flags |= MPR_SOCKET_ERROR;
+            }
+            sp->flags |= MPR_SOCKET_EOF;
+        }
+        break;
+    }
+    if (osp->cfg->maxHandshakes && osp->handshakes > osp->cfg->maxHandshakes) {
+        mprLog("error mpr ssl openssl", 4, "TLS renegotiation attack");
+        rc = -1;
+        sp->flags |= MPR_SOCKET_EOF | MPR_SOCKET_ERROR;
+        return MPR_ERR_BAD_STATE;
+    }
+    if (rc <= 0) {
+        error = SSL_get_error(osp->handle, rc);
+        if (error == SSL_ERROR_WANT_READ) {
+            rc = 0;
+        } else if (error == SSL_ERROR_WANT_WRITE) {
+            rc = 0;
+        } else if (error == SSL_ERROR_ZERO_RETURN) {
+            sp->flags |= MPR_SOCKET_EOF;
+            rc = -1;
+        } else if (error == SSL_ERROR_SYSCALL) {
+            sp->flags |= MPR_SOCKET_EOF | MPR_SOCKET_ERROR;
+            rc = -1;
+        } else if (error != SSL_ERROR_ZERO_RETURN) {
+            /* SSL_ERROR_SSL */
+            mprLog("info mpr ssl openssl", 4, "%s", getOssError(sp));
+            rc = -1;
+            sp->flags |= MPR_SOCKET_EOF | MPR_SOCKET_ERROR;
+        }
+    } else {
+        if (!sp->secured) {
+            if (sp->flags & MPR_SOCKET_SERVER) {
+                if (sp->ssl && smatch(sp->ssl->verifyPeer, "require") && !sp->peerCert) {
+                    sp->errorMsg = sfmt("Required certificate not presented by client");
+                    sp->flags |= MPR_SOCKET_EOF | MPR_SOCKET_CERT_ERROR;
+                    return MPR_ERR_BAD_STATE;
+                }
+            } else if (checkPeerCertName(sp) < 0) {
+                sp->flags |= MPR_SOCKET_EOF | MPR_SOCKET_CERT_ERROR;
+                return MPR_ERR_BAD_STATE;
+            }
+            setSecured(sp);
+        }
+        mprHiddenSocketData(sp, SSL_pending(osp->handle), MPR_READABLE);
+    }
+    return rc;
+}
+
+
+/*
+    Write data. Return the number of bytes written or -1 on errors.
+ */
+static ssize writeOss(MprSocket *sp, cvoid *buf, ssize len)
+{
+    OpenSocket  *osp;
+    ssize       totalWritten;
+    int         error, rc;
+
+    osp = (OpenSocket*) sp->sslSocket;
+
+    if (osp->bio == 0 || osp->handle == 0 || len <= 0) {
+        return MPR_ERR_BAD_STATE;
+    }
+    totalWritten = 0;
+    ERR_clear_error();
+    error = 0;
+
+    do {
+        rc = SSL_write(osp->handle, buf, (int) len);
+        mprLog("info mpr ssl openssl", 7, "Wrote %d, requested len %zd", rc, len);
+        if (rc <= 0) {
+            error = SSL_get_error(osp->handle, rc);
+            if (error == SSL_ERROR_WANT_WRITE) {
+                break;
+            }
+            return MPR_ERR_CANT_WRITE;
+        } else if (osp->cfg->maxHandshakes && osp->handshakes > osp->cfg->maxHandshakes) {
+            mprLog("error mpr ssl openssl", 4, "TLS renegotiation attack");
+            rc = -1;
+            sp->flags |= MPR_SOCKET_EOF;
+            return MPR_ERR_BAD_STATE;
+        }
+        totalWritten += rc;
+        buf = (void*) ((char*) buf + rc);
+        len -= rc;
+        mprLog("info mpr ssl openssl", 7, "write len %zd, written %d, total %zd", len, rc, totalWritten);
+    } while (len > 0);
+
+    if (totalWritten == 0 && error == SSL_ERROR_WANT_WRITE) {
+        mprSetError(EAGAIN);
+        return MPR_ERR_NOT_READY;
+    }
+    return totalWritten;
+}
+
+
+static ssize flushOss(MprSocket *sp)
+{
+    return 0;
+}
+
+
+static char *getOssSession(MprSocket *sp)
+{
+    SSL_SESSION     *sess;
+    OpenSocket      *osp;
+    MprBuf          *buf;
+    int             i;
+
+    osp = sp->sslSocket;
+
+    if ((sess = SSL_get0_session(osp->handle)) != 0) {
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+        uint len;
+        cuchar *id = SSL_SESSION_get_id(sess, &len);
+        if (len == 0) {
+            return sclone("ticket");
+        }
+        buf = mprCreateBuf((len * 2) + 1, 0);
+        for (i = 0; i < (int) len ; i++) {
+            mprPutToBuf(buf, "%02X", (uchar) id[i]);
+        }
+#else
+        if (sess->session_id_length == 0 && osp->handle->tlsext_ticket_expected) {
+            return sclone("ticket");
+        }
+        buf = mprCreateBuf((sess->session_id_length * 2) + 1, 0);
+        for (i = 0; i < (int) sess->session_id_length; i++) {
+            mprPutToBuf(buf, "%02X", (uchar) sess->session_id[i]);
+        }
+#endif
+        return mprBufToString(buf);
+    }
+    return 0;
+}
+
+
+#if DEPRECATED_JSON_STATE
+/*
+    Parse the cert info and write properties to the buffer. Modifies the info argument.
+ */
+static void parseCertFields(MprBuf *buf, char *info)
+{
+    char    c, *cp, *term, *key, *value;
+
+    if (info) {
+        key = 0;
+        term = cp = info;
+        do {
+            c = *cp;
+            if (c == '/' || c == '\0') {
+                *cp = '\0';
+                key = ssplit(term, "=", &value);
+                if (smatch(key, "emailAddress")) {
+                    key = "email";
+                }
+                mprPutToBuf(buf, "\"%s\":\"%s\",", key, value);
+                term = &cp[1];
+                *cp = c;
+            }
+        } while (*cp++ != '\0');
+        if (key) {
+            mprAdjustBufEnd(buf, -1);
+        }
+    }
+}
+
+
+/*
+    Get the SSL state of the socket in a buffer
+ */
+static char *getOssState(MprSocket *sp)
+{
+    OpenSocket      *osp;
+    MprBuf          *buf;
+    X509            *cert;
+    char            subject[512], issuer[512];
+
+    osp = sp->sslSocket;
+    buf = mprCreateBuf(0, 0);
+
+    mprPutToBuf(buf, "{\"provider\":\"openssl\",\"cipher\":\"%s\",\"session\":\"%s\",",
+        SSL_get_cipher(osp->handle), sp->session);
+    mprPutToBuf(buf, "\"peer\":\"%s\",", sp->peerName);
+    mprPutToBuf(buf, "\"%s\":{", sp->acceptIp ? "client" : "server");
+
+    if ((cert = getPeerCert(osp->handle)) != 0) {
+        X509_NAME_oneline(X509_get_issuer_name(cert), issuer, sizeof(issuer) -1);
+        mprPutToBuf(buf, "\"issuer\": {");
+        parseCertFields(buf, &issuer[1]);
+        mprPutToBuf(buf, "},");
+
+        X509_NAME_oneline(X509_get_subject_name(cert), subject, sizeof(subject) -1);
+        mprPutToBuf(buf, "\"subject\": {");
+        parseCertFields(buf, &subject[1]);
+        mprPutToBuf(buf, "},");
+        X509_free(cert);
+    }
+    if ((cert = SSL_get_certificate(osp->handle)) != 0) {
+        mprPutToBuf(buf, "\"issuer\": {");
+        X509_NAME_oneline(X509_get_issuer_name(cert), issuer, sizeof(issuer) -1);
+        parseCertFields(buf, &issuer[1]);
+        mprPutToBuf(buf, "},");
+
+        mprPutToBuf(buf, "\"subject\": {");
+        X509_NAME_oneline(X509_get_subject_name(cert), subject, sizeof(subject) -1);
+        parseCertFields(buf, &subject[1]);
+        mprPutToBuf(buf, "},");
+        /* Don't call X509_free on own cert */
+    }
+    mprAdjustBufEnd(buf, -1);
+    mprPutToBuf(buf, "}}");
+    return mprBufToString(buf);
+}
+#else
+
+/*
+    Parse the cert info and write properties to the buffer. Modifies the info argument.
+ */
+static void parseCertFields(MprBuf *buf, cchar *prefix, cchar *prefix2, char *info)
+{
+    char    c, *cp, *term, *key, *value;
+
+    if (info) {
+        term = cp = info;
+        do {
+            c = *cp;
+            if (c == '/' || c == '\0') {
+                *cp = '\0';
+                key = ssplit(term, "=", &value);
+                if (smatch(key, "emailAddress")) {
+                    key = "EMAIL";
+                }
+                mprPutToBuf(buf, "%s%s%s=%s,", prefix, prefix2, key, value);
+                term = &cp[1];
+                *cp = c;
+            }
+        } while (*cp++ != '\0');
+    }
+}
+
+
+static char *getOssState(MprSocket *sp)
+{
+    OpenSocket      *osp;
+    MprBuf          *buf;
+    X509_NAME       *xSubject;
+    X509            *cert;
+    char            *prefix, subject[512], issuer[512], peer[512];
+
+    osp = sp->sslSocket;
+    buf = mprCreateBuf(0, 0);
+
+    mprPutToBuf(buf, "PROVIDER=openssl,CIPHER=%s,SESSION=%s,", SSL_get_cipher(osp->handle), sp->session);
+
+    if ((cert = getPeerCert(osp->handle)) == 0) {
+        mprPutToBuf(buf, "%s=none,", sp->acceptIp ? "CLIENT_CERT" : "SERVER_CERT");
+
+    } else {
+        xSubject = X509_get_subject_name(cert);
+        X509_NAME_get_text_by_NID(xSubject, NID_commonName, peer, sizeof(peer) - 1);
+        mprPutToBuf(buf, "PEER=%s,", peer);
+
+        prefix = sp->acceptIp ? "CLIENT_" : "SERVER_";
+        X509_NAME_oneline(X509_get_subject_name(cert), subject, sizeof(subject) -1);
+        parseCertFields(buf, prefix, "S_", &subject[1]);
+
+        X509_NAME_oneline(X509_get_issuer_name(cert), issuer, sizeof(issuer) -1);
+        parseCertFields(buf, prefix, "I_", &issuer[1]);
+        X509_free(cert);
+    }
+    if ((cert = SSL_get_certificate(osp->handle)) != 0) {
+        prefix =  sp->acceptIp ? "SERVER_" : "CLIENT_";
+        X509_NAME_oneline(X509_get_subject_name(cert), subject, sizeof(subject) -1);
+        parseCertFields(buf, prefix, "S_", &subject[1]);
+
+        X509_NAME_oneline(X509_get_issuer_name(cert), issuer, sizeof(issuer) -1);
+        parseCertFields(buf, prefix, "I_", &issuer[1]);
+        // Don't call X509_free on own cert 
+    }
+    mprAdjustBufEnd(buf, -1);
+    return mprGetBufStart(buf);
+}
+
+#endif // DEPRECATE_JSON_STATE
+
+
+/*
+    Check the certificate peer name validates and matches the desired name
+    Used for client side
+ */
+static int checkPeerCertName(MprSocket *sp)
+{
+    OpenSocket  *osp;
+    X509        *cert;
+    X509_NAME   *xSubject;
+    char        subject[512], issuer[512], peerName[512];
+
+    osp = (OpenSocket*) sp->sslSocket;
+
+    if ((cert = getPeerCert(osp->handle)) == 0) {
+        peerName[0] = '\0';
+    } else {
+        xSubject = X509_get_subject_name(cert);
+        X509_NAME_oneline(xSubject, subject, sizeof(subject) -1);
+        X509_NAME_oneline(X509_get_issuer_name(cert), issuer, sizeof(issuer) -1);
+        X509_NAME_get_text_by_NID(xSubject, NID_commonName, peerName, sizeof(peerName) - 1);
+        sp->peerName = sclone(peerName);
+        sp->peerCert = sclone(subject);
+        sp->peerCertIssuer = sclone(issuer);
+        X509_free(cert);
+    }
+#if OPENSSL_VERSION_NUMBER < 0x10002000L
+    MprSsl  *ssl;
+
+    ssl = sp->ssl;
+    if (ssl->verifyPeer && osp->requiredPeerName) {
+        char    *target, *certName, *tp;
+
+        target = osp->requiredPeerName;
+        certName = peerName;
+
+        if (target == 0 || *target == '\0' || strchr(target, '.') == 0) {
+            sp->errorMsg = sfmt("Bad peer name");
+            sp->flags |= MPR_SOCKET_CERT_ERROR;
+            return MPR_ERR_BAD_VALUE;
+        }
+        if (!smatch(certName, "localhost")) {
+            if (strchr(certName, '.') == 0) {
+                sp->errorMsg = sfmt("Peer certificate must have a domain: \"%s\"", certName);
+                sp->flags |= MPR_SOCKET_CERT_ERROR;
+                return MPR_ERR_BAD_VALUE;
+            }
+            if (*certName == '*' && certName[1] == '.') {
+                /* Wildcard cert */
+                certName = &certName[2];
+                if (strchr(certName, '.') == 0) {
+                    /* Peer must be of the form *.domain.tld. i.e. *.com is not valid */
+                    sp->errorMsg = sfmt("Peer CN is not valid %s", peerName);
+                    sp->flags |= MPR_SOCKET_CERT_ERROR;
+                    return MPR_ERR_BAD_VALUE;
+                }
+                if ((tp = strchr(target, '.')) != 0 && strchr(&tp[1], '.')) {
+                    /* Strip host name if target has a host name */
+                    target = &tp[1];
+                }
+            }
+        }
+        if (!smatch(target, certName)) {
+            sp->errorMsg = sfmt("Certificate common name mismatch CN \"%s\" vs required \"%s\"", peerName,
+                osp->requiredPeerName);
+            sp->flags |= MPR_SOCKET_CERT_ERROR;
+            return MPR_ERR_BAD_VALUE;
+        }
+    }
+#endif
+    return 0;
+}
+
+
+/*
+    Load a certificate into the context from the supplied buffer. Type indicates the desired format. The path is only used for errors.
+ */
+static int loadCert(SSL_CTX *ctx, cchar *buf, ssize len, int type, cchar *path)
+{
+    X509    *cert;
+    BIO     *bio;
+    bool    loaded;
+
+    assert(ctx);
+    assert(buf);
+    assert(type);
+    assert(path && *path);
+
+    cert = 0;
+    loaded = 0;
+
+    if ((bio = BIO_new_mem_buf(buf, (int) len)) == 0) {
+        mprLog("error openssl", 0, "Unable to allocate memory for certificate %s", path);
+    } else {
+        if (type == FORMAT_PEM) {
+            if ((cert = PEM_read_bio_X509(bio, NULL, 0, NULL)) == 0) {
+                /* Error reported by caller if loading all formats fail */
+            }
+        } else if (type == FORMAT_DER) {
+            if ((cert = d2i_X509_bio(bio, NULL)) == 0) {
+                /* Error reported by caller */
+            }
+        }
+        if (cert) {
+            if (SSL_CTX_use_certificate(ctx, cert) != 1) {
+                mprLog("error openssl", 0, "Unable to use certificate %s", path);
+            } else {
+                loaded = 1;
+            }
+        }
+    }
+    if (bio) {
+        BIO_free(bio);
+    }
+    if (cert) {
+        X509_free(cert);
+    }
+    return loaded ? 0 : MPR_ERR_CANT_LOAD;
+}
+
+
+static X509 *getPeerCert(SSL *handle)
+{
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+    return SSL_get1_peer_certificate(handle);
+#else
+    return SSL_get_peer_certificate(handle);
+#endif
+}
+
+
+/*
+    Load a certificate file in either PEM or DER format
+ */
+static int setCertFile(SSL_CTX *ctx, cchar *certFile)
+{
+    cchar   *buf;
+    ssize   len;
+    int     rc;
+
+    assert(ctx);
+    assert(certFile);
+
+    rc = 0;
+
+    if (ctx == NULL || certFile == NULL) {
+        return rc;
+    }
+    if ((buf = mprReadPathContents(certFile, &len)) == 0) {
+        mprLog("error openssl", 0, "Unable to read certificate %s", certFile);
+        rc = MPR_ERR_CANT_READ;
+    } else {
+        if (loadCert(ctx, buf, len, FORMAT_PEM, certFile) < 0 && loadCert(ctx, buf, len, FORMAT_DER, certFile) < 0) {
+            mprLog("error openssl", 0, "Unable to load certificate %s", certFile);
+            rc = MPR_ERR_CANT_LOAD;
+        }
+    }
+    return rc;
+}
+
+
+/*
+    Load a key into the context from the supplied buffer. Type indicates the key format.  Path only used for diagnostics.
+ */
+static int loadKey(SSL_CTX *ctx, cchar *buf, ssize len, int type, cchar *path)
+{
+    RSA     *key;
+    BIO     *bio;
+    bool    loaded;
+
+    assert(ctx);
+    assert(buf);
+    assert(type);
+    assert(path && *path);
+
+    key = 0;
+    loaded = 0;
+
+    if ((bio = BIO_new_mem_buf(buf, (int) len)) == 0) {
+        mprLog("error openssl", 0, "Unable to allocate memory for key %s", path);
+    } else {
+        if (type == FORMAT_PEM) {
+            if ((key = PEM_read_bio_RSAPrivateKey(bio, NULL, 0, NULL)) == 0) {
+                /* Error reported by caller if loading all formats fail */
+            }
+        } else if (type == FORMAT_DER) {
+            if ((key = d2i_RSAPrivateKey_bio(bio, NULL)) == 0) {
+                /* Error reported by caller if loading all formats fail */
+            }
+        }
+    }
+    if (key) {
+        if (SSL_CTX_use_RSAPrivateKey(ctx, key) != 1) {
+            mprLog("error openssl", 0, "Unable to use key %s", path);
+        } else {
+            loaded = 1;
+        }
+    }
+    if (bio) {
+        BIO_free(bio);
+    }
+    if (key) {
+        RSA_free(key);
+    }
+    return loaded ? 0 : MPR_ERR_CANT_LOAD;
+}
+
+
+#if MPR_HAS_CRYPTO_ENGINE
+/*  
+	Key path format is: engine:NAME:key
+ */
+static int loadEngineKey(SSL_CTX *ctx, cchar *path)
+{
+    ENGINE      *engine;
+    EVP_PKEY    *pkey;
+    char        *key, *name;
+    
+    stok(sclone(path), ":", &name);
+    stok(name, ":", &key);
+
+    engine = ENGINE_by_id(name);
+    if (!engine) {
+        mprLog("openssl error", 0, "Cannot find engine %s", name);
+        ENGINE_free(engine);
+        return MPR_ERR_CANT_FIND;
+    }
+    if (!ENGINE_set_default(engine, ENGINE_METHOD_ALL)) {
+        mprLog("mpr ssl openssl error", 0, "Cannot find crypto device %s", name);
+        ENGINE_free(engine);
+        return MPR_ERR_CANT_FIND;
+    }
+    if (!ENGINE_init(engine)) {
+        mprLog("openssl error", 0, "Cannot initialize engine %s", name);
+        ENGINE_free(engine);
+        return MPR_ERR_CANT_INITIALIZE;
+    }
+    if ((pkey = ENGINE_load_private_key(engine, key, 0, 0)) == 0) {
+        mprLog("openssl error", 0, "Cannot read private key %s", key);
+        ENGINE_finish(engine);
+        ENGINE_free(engine);
+        return MPR_ERR_CANT_READ;
+    }
+    SSL_CTX_use_PrivateKey(ctx, pkey);
+    ENGINE_finish(engine);
+    ENGINE_free(engine);
+    return 0;
+}
+#endif
+
+
+/*
+    Load a key file in either PEM or DER format
+ */
+static int setKeyFile(SSL_CTX *ctx, cchar *keyFile)
+{
+    RSA     *key;
+    char    *buf;
+    ssize   len;
+    int     rc;
+
+    assert(ctx);
+    assert(keyFile);
+
+    key = 0;
+    buf = 0;
+    rc = 0;
+
+    if (ctx == NULL || keyFile == NULL) {
+        ;
+#if MPR_HAS_CRYPTO_ENGINE
+    } else if (sstarts(keyFile, "engine:")) {
+        loadEngineKey(ctx, keyFile);
+#endif
+    } else if ((buf = mprReadPathContents(keyFile, &len)) == 0) {
+        mprLog("error openssl", 0, "Unable to read key %s", keyFile);
+        rc = MPR_ERR_CANT_READ;
+    } else {
+        if (loadKey(ctx, buf, len, FORMAT_PEM, keyFile) < 0 && loadKey(ctx, buf, len, FORMAT_DER, keyFile) < 0) {
+            mprLog("error openssl", 0, "Unable to load key %s", keyFile);
+            rc = MPR_ERR_CANT_LOAD;
+        }
+    }
+    if (key) {
+        RSA_free(key);
+    }
+    return rc;
+}
+
+
+static int verifyPeerCertificate(int ok, X509_STORE_CTX *xctx)
+{
+    X509            *cert;
+    SSL             *handle;
+    OpenSocket      *osp;
+    MprSocket       *sp;
+    MprSsl          *ssl;
+    char            subject[512], issuer[512], peerName[512];
+    int             error, depth;
+
+    subject[0] = issuer[0] = '\0';
+    handle = (SSL*) X509_STORE_CTX_get_ex_data(xctx, SSL_get_ex_data_X509_STORE_CTX_idx());
+    osp = (OpenSocket*) SSL_get_app_data(handle);
+    sp = osp->sock;
+    ssl = sp->ssl;
+
+    cert = X509_STORE_CTX_get_current_cert(xctx);
+    depth = X509_STORE_CTX_get_error_depth(xctx);
+    error = X509_STORE_CTX_get_error(xctx);
+
+    ok = 1;
+    if (X509_NAME_oneline(X509_get_subject_name(cert), subject, sizeof(subject) - 1) < 0) {
+        sp->errorMsg = sclone("Cannot get subject name");
+        ok = 0;
+    }
+    sp->peerCert = sclone(subject);
+
+    if (X509_NAME_oneline(X509_get_issuer_name(cert), issuer, sizeof(issuer) - 1) < 0) {
+        sp->errorMsg = sclone("Cannot get issuer name");
+        ok = 0;
+    }
+    sp->peerCertIssuer = sclone(issuer);
+
+    if (X509_NAME_get_text_by_NID(X509_get_subject_name(cert), NID_commonName, peerName, sizeof(peerName) - 1) == 0) {
+        sp->errorMsg = sclone("Cannot get peer name");
+        ok = 0;
+    }
+    sp->peerName = sclone(peerName);
+    
+    if (ok && ssl->verifyDepth < depth) {
+        if (error == 0) {
+            error = X509_V_ERR_CERT_CHAIN_TOO_LONG;
+        }
+    }
+    switch (error) {
+    case X509_V_OK:
+        break;
+    case X509_V_ERR_DEPTH_ZERO_SELF_SIGNED_CERT:
+    case X509_V_ERR_SELF_SIGNED_CERT_IN_CHAIN:
+        /* Normal self signed certificate */
+        if (ssl->verifyIssuer) {
+            sp->errorMsg = sclone("Self-signed certificate");
+            ok = 0;
+        }
+        break;
+
+    case X509_V_ERR_CERT_UNTRUSTED:
+    case X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT_LOCALLY:
+        if (ssl->verifyIssuer) {
+            /* Issuer cannot be verified */
+            sp->errorMsg = sclone("Certificate not trusted");
+            ok = 0;
+        }
+        break;
+
+    case X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT:
+    case X509_V_ERR_UNABLE_TO_VERIFY_LEAF_SIGNATURE:
+        if (ssl->verifyIssuer) {
+            /* Issuer cannot be verified */
+            sp->errorMsg = sclone("Certificate not trusted");
+            ok = 0;
+        }
+        break;
+
+    case X509_V_ERR_CERT_HAS_EXPIRED:
+        sp->errorMsg = sfmt("Certificate has expired");
+        ok = 0;
+        break;
+
+#ifdef X509_V_ERR_HOSTNAME_MISMATCH
+    case X509_V_ERR_HOSTNAME_MISMATCH:
+        sp->errorMsg = sfmt("Certificate hostname mismatch. Expecting %s got %s", osp->requiredPeerName, peerName);
+        ok = 0;
+        break;
+#endif
+    case X509_V_ERR_CERT_CHAIN_TOO_LONG:
+    case X509_V_ERR_CERT_NOT_YET_VALID:
+    case X509_V_ERR_CERT_REJECTED:
+    case X509_V_ERR_CERT_SIGNATURE_FAILURE:
+    case X509_V_ERR_ERROR_IN_CERT_NOT_AFTER_FIELD:
+    case X509_V_ERR_ERROR_IN_CERT_NOT_BEFORE_FIELD:
+    case X509_V_ERR_INVALID_CA:
+    default:
+        sp->errorMsg = sfmt("Certificate verification error %d", error);
+        ok = 0;
+        break;
+    }
+    if (!ok) {
+        sp->flags |= MPR_SOCKET_CERT_ERROR;
+    }
+    return ok;
+}
+
+
+static int sniHostname(SSL *handle, int *ad, void *arg)
+{
+    MprSocket       *sp;
+    MprSsl          *ssl;
+    OpenSocket      *osp;
+    OpenConfig      *cfg;
+    SSL_CTX         *ctx;
+    cchar           *hostname;
+
+    if (!handle) {
+        return SSL_TLSEXT_ERR_NOACK;
+    }
+    osp = (OpenSocket*) SSL_get_app_data(handle);
+    sp = osp->sock;
+
+    hostname = SSL_get_servername(handle, TLSEXT_NAMETYPE_host_name);
+
+    /*
+        Select the appropriate SSL for this hostname
+     */
+    if ((ssl = (sp->ssl->matchSsl)(sp, hostname)) == 0) {
+        return SSL_TLSEXT_ERR_ALERT_FATAL;
+    }
+    lock(ssl);
+    if (configOss(ssl, sp->flags, &sp->errorMsg) < 0) {
+        unlock(ssl);
+        return SSL_TLSEXT_ERR_ALERT_FATAL;
+    }
+    unlock(ssl);
+
+    sp->ssl = ssl;
+    cfg = ssl->config;
+    ctx = cfg->ctx;
+    SSL_set_SSL_CTX(handle, ctx);
+
+    return SSL_TLSEXT_ERR_OK;
+}
+
+
+static void setSecured(MprSocket *sp)
+{
+    OpenSocket    *osp;
+
+    sp->secured = 1;
+    osp = sp->sslSocket;
+    sp->cipher = sclone(SSL_get_cipher(osp->handle));
+    sp->protocol = sclone(SSL_get_version(osp->handle));
+    sp->session = getOssSession(sp);
+}
+
+
+static char *getOssError(MprSocket *sp)
+{
+    char    ebuf[ME_BUFSIZE];
+    ulong   error;
+
+    error = ERR_get_error();
+    ERR_error_string_n(error, ebuf, sizeof(ebuf) - 1);
+    sp->errorMsg = sclone(ebuf);
+    return sp->errorMsg;
+}
+
+
+/*
+    Map iana names to OpenSSL names so users can provide IANA names as well as OpenSSL cipher names
+ */
+static cchar *mapCipherNames(cchar *ciphers)
+{
+    MprBuf      *buf;
+    CipherMap   *cp;
+    char        *cipher, *next;
+
+    if (!ciphers || *ciphers == 0) {
+        return 0;
+    }
+    buf = mprCreateBuf(0, 0);
+    for (next = sclone(ciphers); (cipher = stok(next, ":, \t", &next)) != 0; ) {
+        for (cp = cipherMap; cp->name; cp++) {
+            if (smatch(cp->name, cipher)) {
+                mprPutToBuf(buf, "%s:", cp->ossName);
+                break;
+            }
+        }
+        if (cp->name == 0) {
+            mprPutToBuf(buf, "%s:", cipher);
+        }
+    }
+    return mprBufToString(buf);
+}
+
+
+/*
+    DH Parameters from RFC3526
+    Alternatively, replace with your own DH params generated via:
+    openssl dhparam --out dh.c -C 2048
+ */
+
+static DH *getDhKey()
+{
+    static unsigned char dh2048_p[] = {
+        0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xC9, 0x0F, 0xDA, 0xA2, 0x21, 0x68, 0xC2, 0x34,
+        0xC4, 0xC6, 0x62, 0x8B, 0x80, 0xDC, 0x1C, 0xD1, 0x29, 0x02, 0x4E, 0x08, 0x8A, 0x67, 0xCC, 0x74,
+        0x02, 0x0B, 0xBE, 0xA6, 0x3B, 0x13, 0x9B, 0x22, 0x51, 0x4A, 0x08, 0x79, 0x8E, 0x34, 0x04, 0xDD,
+        0xEF, 0x95, 0x19, 0xB3, 0xCD, 0x3A, 0x43, 0x1B, 0x30, 0x2B, 0x0A, 0x6D, 0xF2, 0x5F, 0x14, 0x37,
+        0x4F, 0xE1, 0x35, 0x6D, 0x6D, 0x51, 0xC2, 0x45, 0xE4, 0x85, 0xB5, 0x76, 0x62, 0x5E, 0x7E, 0xC6,
+        0xF4, 0x4C, 0x42, 0xE9, 0xA6, 0x37, 0xED, 0x6B, 0x0B, 0xFF, 0x5C, 0xB6, 0xF4, 0x06, 0xB7, 0xED,
+        0xEE, 0x38, 0x6B, 0xFB, 0x5A, 0x89, 0x9F, 0xA5, 0xAE, 0x9F, 0x24, 0x11, 0x7C, 0x4B, 0x1F, 0xE6,
+        0x49, 0x28, 0x66, 0x51, 0xEC, 0xE4, 0x5B, 0x3D, 0xC2, 0x00, 0x7C, 0xB8, 0xA1, 0x63, 0xBF, 0x05,
+        0x98, 0xDA, 0x48, 0x36, 0x1C, 0x55, 0xD3, 0x9A, 0x69, 0x16, 0x3F, 0xA8, 0xFD, 0x24, 0xCF, 0x5F,
+        0x83, 0x65, 0x5D, 0x23, 0xDC, 0xA3, 0xAD, 0x96, 0x1C, 0x62, 0xF3, 0x56, 0x20, 0x85, 0x52, 0xBB,
+        0x9E, 0xD5, 0x29, 0x07, 0x70, 0x96, 0x96, 0x6D, 0x67, 0x0C, 0x35, 0x4E, 0x4A, 0xBC, 0x98, 0x04,
+        0xF1, 0x74, 0x6C, 0x08, 0xCA, 0x18, 0x21, 0x7C, 0x32, 0x90, 0x5E, 0x46, 0x2E, 0x36, 0xCE, 0x3B,
+        0xE3, 0x9E, 0x77, 0x2C, 0x18, 0x0E, 0x86, 0x03, 0x9B, 0x27, 0x83, 0xA2, 0xEC, 0x07, 0xA2, 0x8F,
+        0xB5, 0xC5, 0x5D, 0xF0, 0x6F, 0x4C, 0x52, 0xC9, 0xDE, 0x2B, 0xCB, 0xF6, 0x95, 0x58, 0x17, 0x18,
+        0x39, 0x95, 0x49, 0x7C, 0xEA, 0x95, 0x6A, 0xE5, 0x15, 0xD2, 0x26, 0x18, 0x98, 0xFA, 0x05, 0x10,
+        0x15, 0x72, 0x8E, 0x5A, 0x8A, 0xAC, 0xAA, 0x68, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+    };
+    static unsigned char dh2048_g[] = {
+        0x02,
+    };
+    DH      *dh;
+
+    if ((dh = DH_new()) == 0) {
+        return 0;
+    }
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+{
+    BIGNUM  *p, *g;
+    p = BN_bin2bn(dh2048_p, sizeof(dh2048_p), NULL);
+    g = BN_bin2bn(dh2048_g, sizeof(dh2048_g), NULL);
+    if (!DH_set0_pqg(dh, p, NULL, g)) {
+        BN_free(p);
+        BN_free(g);
+        DH_free(dh);
+        return 0;
+    }
+}
+#else
+    dh->p = BN_bin2bn(dh2048_p, sizeof(dh2048_p), NULL);
+    dh->g = BN_bin2bn(dh2048_g, sizeof(dh2048_g), NULL);
+    if ((dh->p == 0) || (dh->g == 0)) {
+        DH_free(dh);
+        return 0;
+    }
+#endif
+    return dh;
+}
+
+
+/*
+    Set the ephemeral DH key
+ */
+static DH *dhcallback(SSL *handle, int isExport, int keyLength)
+{
+    OpenSocket      *osp;
+    OpenConfig      *cfg;
+
+    osp = (OpenSocket*) SSL_get_app_data(handle);
+    cfg = osp->sock->ssl->config;
+    return cfg->dhKey;
+}
+
+
+#endif /* ME_COM_OPENSSL */
 
 /*
     Copyright (c) Embedthis Software. All Rights Reserved.
@@ -20136,9 +22529,6 @@ static int  growBuf(Format *fmt);
 PUBLIC char *mprPrintfCore(char *buf, ssize maxsize, cchar *fmt, va_list arg);
 static void outNum(Format *fmt, cchar *prefix, uint64 val);
 static void outString(Format *fmt, cchar *str, ssize len);
-#if ME_CHAR_LEN > 1 && FUTURE
-static void outWideString(Format *fmt, wchar *str, ssize len);
-#endif
 #if ME_FLOAT
 static void outFloat(Format *fmt, char specChar, double value);
 #endif
@@ -20404,17 +22794,10 @@ PUBLIC char *mprPrintfCore(char *buf, ssize maxsize, cchar *spec, va_list args)
                 /* Name */
                 qname = va_arg(args, MprEjsName);
                 if (qname.name) {
-#if ME_CHAR_LEN > 1 && FUTURE
-                    outWideString(&fmt, (wchar*) qname.space->value, qname.space->length);
-                    BPUT(&fmt, ':');
-                    BPUT(&fmt, ':');
-                    outWideString(&fmt, (wchar*) qname.name->value, qname.name->length);
-#else
                     outString(&fmt, (char*) qname.space->value, qname.space->length);
                     BPUT(&fmt, ':');
                     BPUT(&fmt, ':');
                     outString(&fmt, (char*) qname.name->value, qname.name->length);
-#endif
                 } else {
                     outString(&fmt, NULL, 0);
                 }
@@ -20422,28 +22805,15 @@ PUBLIC char *mprPrintfCore(char *buf, ssize maxsize, cchar *spec, va_list args)
 
             case 'S':
                 /* Safe string */
-#if ME_CHAR_LEN > 1 && FUTURE
-                if (fmt.flags & SPRINTF_LONG) {
-                    //  UNICODE - not right wchar
-                    safe = mprEscapeHtml(va_arg(args, wchar*));
-                    outWideString(&fmt, safe, -1);
-                } else
-#endif
-                {
-                    safe = mprEscapeHtml(va_arg(args, char*));
-                    outString(&fmt, safe, -1);
-                }
+                safe = mprEscapeHtml(va_arg(args, char*));
+                outString(&fmt, safe, -1);
                 break;
 
             case '@':
                 /* MprEjsString */
                 es = va_arg(args, MprEjsString*);
                 if (es) {
-#if ME_CHAR_LEN > 1 && FUTURE
-                    outWideString(&fmt, es->value, es->length);
-#else
                     outString(&fmt, (char*) es->value, es->length);
-#endif
                 } else {
                     outString(&fmt, NULL, 0);
                 }
@@ -20451,21 +22821,11 @@ PUBLIC char *mprPrintfCore(char *buf, ssize maxsize, cchar *spec, va_list args)
 
             case 'w':
                 /* Wide string of wchar characters (Same as %ls"). Null terminated. */
-#if ME_CHAR_LEN > 1 && FUTURE
-                outWideString(&fmt, va_arg(args, wchar*), -1);
-                break;
-#else
                 /* Fall through */
-#endif
 
             case 's':
                 /* Standard string */
-#if ME_CHAR_LEN > 1 && FUTURE
-                if (fmt.flags & SPRINTF_LONG) {
-                    outWideString(&fmt, va_arg(args, wchar*), -1);
-                } else
-#endif
-                    outString(&fmt, va_arg(args, char*), -1);
+                outString(&fmt, va_arg(args, char*), -1);
                 break;
 
             case 'i':
@@ -20608,47 +22968,6 @@ static void outString(Format *fmt, cchar *str, ssize len)
         }
     }
 }
-
-
-#if ME_CHAR_LEN > 1 && FUTURE
-static void outWideString(Format *fmt, wchar *str, ssize len)
-{
-    wchar     *cp;
-    int         i;
-
-    if (str == 0) {
-        BPUT(fmt, (char) 'n');
-        BPUT(fmt, (char) 'u');
-        BPUT(fmt, (char) 'l');
-        BPUT(fmt, (char) 'l');
-        return;
-    } else if (fmt->flags & SPRINTF_ALTERNATE) {
-        str++;
-        len = (ssize) *str;
-    } else if (fmt->precision >= 0) {
-        for (cp = str, len = 0; len < fmt->precision; len++) {
-            if (*cp++ == 0) {
-                break;
-            }
-        }
-    } else if (len < 0) {
-        for (cp = str, len = 0; *cp++ == 0; len++) ;
-    }
-    if (!(fmt->flags & SPRINTF_LEFT_ALIGN)) {
-        for (i = len; i < fmt->width; i++) {
-            BPUT(fmt, (char) ' ');
-        }
-    }
-    for (i = 0; i < len && *str; i++) {
-        BPUT(fmt, *str++);
-    }
-    if (fmt->flags & SPRINTF_LEFT_ALIGN) {
-        for (i = len; i < fmt->width; i++) {
-            BPUT(fmt, (char) ' ');
-        }
-    }
-}
-#endif
 
 
 static void outNum(Format *fmt, cchar *prefix, uint64 value)
@@ -22062,7 +24381,6 @@ PUBLIC MprSocketService *mprCreateSocketService()
     mprSetServerName(serverName);
     mprSetDomainName(domainName);
     mprSetHostName(hostName);
-    ss->secureSockets = mprCreateList(0, 0);
 
     if ((fd = socket(AF_INET6, SOCK_STREAM, 0)) != -1) {
         ss->hasIPv6 = 1;
@@ -22079,7 +24397,6 @@ static void manageSocketService(MprSocketService *ss, int flags)
     if (flags & MPR_MANAGE_MARK) {
         mprMark(ss->standardProvider);
         mprMark(ss->sslProvider);
-        mprMark(ss->secureSockets);
         mprMark(ss->mutex);
     }
 }
@@ -22192,6 +24509,7 @@ static void manageSocket(MprSocket *sp, int flags)
         mprMark(sp->peerName);
         mprMark(sp->peerCert);
         mprMark(sp->peerCertIssuer);
+        mprMark(sp->protocol);
         mprMark(sp->provider);
         mprMark(sp->ssl);
         mprMark(sp->sslSocket);
@@ -22296,7 +24614,9 @@ PUBLIC Socket mprListenOnSocket(MprSocket *sp, cchar *ip, int port, int flags)
     /*
         Children won't inherit this fd
      */
-    fcntl(sp->fd, F_SETFD, FD_CLOEXEC);
+    if (!(flags & MPR_SOCKET_INHERIT)) {
+        fcntl(sp->fd, F_SETFD, FD_CLOEXEC);
+    }
 #endif
 
     if (!(sp->flags & MPR_SOCKET_NOREUSE)) {
@@ -22532,7 +24852,9 @@ static int connectSocket(MprSocket *sp, cchar *ip, int port, int initialFlags)
     /*
         Children should not inherit this fd
      */
-    fcntl(sp->fd, F_SETFD, FD_CLOEXEC);
+    if (!(initialFlags & MPR_SOCKET_INHERIT)) {
+        fcntl(sp->fd, F_SETFD, FD_CLOEXEC);
+    }
 #endif
     if (broadcast) {
         int flag = 1;
@@ -22754,7 +25076,7 @@ PUBLIC MprSocket *mprAcceptSocket(MprSocket *listen)
     unlock(ss);
 
 #if !ME_WIN_LIKE && !VXWORKS
-    /* Prevent children inheriting this socket */
+    // Prevent children inheriting this socket
     fcntl(fd, F_SETFD, FD_CLOEXEC);
 #endif
 
@@ -25268,6 +27590,24 @@ PUBLIC void serase(char *str)
     }
 }
 
+#if UNUSED
+//  Legacy wide char adaption
+PUBLIC wchar *amtow(cchar *src, ssize *len)
+{
+    if (len) {
+        *len = slen(src);
+    }
+    return (wchar*) sclone(src);
+}
+
+PUBLIC char *awtom(wchar *src, ssize *len)
+{
+    if (len) {
+        *len = slen((char*) src);
+    }
+    return sclone((char*) src);
+}
+#endif
 
 /*
     Copyright (c) Embedthis Software. All Rights Reserved.
@@ -28765,7 +31105,7 @@ PUBLIC int mprDoWaitRecall(MprWaitService *ws)
 
 
 #if ME_CHAR_LEN > 1
-#if FUTURE
+#if KEEP
 /************************************ Code ************************************/
 /*
     Format a number as a string. Support radix 10 and 16.
@@ -29488,7 +31828,7 @@ PUBLIC char *wupper(wchar *str)
     }
     return str;
 }
-#endif /* FUTURE */
+#endif /* KEEP */
 
 /*********************************** Conversions *******************************/
 /*
@@ -29590,7 +31930,7 @@ PUBLIC wchar *amtow(cchar *src, ssize *lenp)
 }
 
 
-//  UNICODE - need a version that can supply a length
+//  KEEP UNICODE - need a version that can supply a length
 
 PUBLIC char *awtom(wchar *src, ssize *lenp)
 {
@@ -29611,13 +31951,15 @@ PUBLIC char *awtom(wchar *src, ssize *lenp)
 }
 
 
-#if FUTURE
+#if KEEP
+
 #define BOM_MSB_FIRST       0xFEFF
 #define BOM_LSB_FIRST       0xFFFE
 
 /*
     Surrogate area  (0xD800 <= x && x <= 0xDFFF) => mapped into 0x10000 ... 0x10FFFF
  */
+
 static int utf8Length(int c)
 {
     if (c & 0x80) {
@@ -29825,7 +32167,9 @@ PUBLIC ssize xwtom(char *dest, ssize destMax, wchar *src, ssize len)
     }
     return count;
 }
-#endif /* FUTURE */
+
+
+#endif /* KEEP */
 
 #else /* ME_CHAR_LEN == 1 */
 
@@ -29851,8 +32195,11 @@ PUBLIC char *awtom(wchar *src, ssize *len)
 
 /*
     Copyright (c) Embedthis Software. All Rights Reserved.
-    This software is distributed under a commercial license. Consult the LICENSE.md
-    distributed with this software for full details and copyrights.
+    This software is distributed under commercial and open source licenses.
+    You may use the Embedthis Open Source license or you may acquire a
+    commercial license from Embedthis Software. You agree to be fully bound
+    by the terms of either license. Consult the LICENSE.md distributed with
+    this software for full details and other copyrights.
  */
 
 

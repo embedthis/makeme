@@ -10,6 +10,3 @@ See LICENSE.md for details.
 
     pak install osdep
 
-Resources
----
-  - [osdep GitHub repository](http://github.com/embedthis/osdep)

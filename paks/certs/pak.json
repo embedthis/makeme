@@ -17,13 +17,11 @@
         "type": "git",
         "url": "git://github.com/embedthis/certs.git"
     },
-    "bugs": {
-        "url": "http://github.com/embedthis/certs/issues"
-    },
     "licenses": "MIT",
     "files": [
         "dist/"
     ],
+    "owner": "embedthis",
     "export": {
         "from": [
             "dist/**"

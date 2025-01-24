@@ -45,5 +45,3 @@ This will run appweb in the src/server directory using the src/server/appweb.con
 Resources
 ---
   - [Embedthis web site](https://www.embedthis.com/)
-  - [MPR GitHub repository](http://github.com/embedthis/mpr)
-  - [MakeMe GitHub repository](http://github.com/embedthis/makeme)

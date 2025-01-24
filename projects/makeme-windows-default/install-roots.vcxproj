@@ -92,17 +92,17 @@
         <CustomBuildBeforeTargets Condition="'$(Configuration)|$(Platform)'=='Release|x64'">PreBuildEvent</CustomBuildBeforeTargets>
   </PropertyGroup>
     <PropertyGroup>
-        <TargetName>bin</TargetName>
+        <TargetName></TargetName>
     </PropertyGroup>
 
       <ItemDefinitionGroup>
         
 
       <CustomBuildStep>
-        <Command>cd ..\..\src\certs
+        <Command>cd ..\..\certs
 if exist $(BinDir) del /Q $(BinDir)
-copy /Y samples\roots.crt $(BinDir)
-cd ..\..\projects\makeme-windows-default</Command>
+copy /Y roots.crt $(BinDir)
+cd ..\projects\makeme-windows-default</Command>
         <Outputs>$(BinDir)</Outputs>
       </CustomBuildStep>
   </ItemDefinitionGroup>

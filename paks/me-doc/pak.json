@@ -1,0 +1,32 @@
+{
+    "name": "me-doc",
+    "description": "Documentation Targets",
+    "version": "1.0.0",
+    "keywords": [
+        "me"
+    ],
+    "author": {
+        "name": "Embedthis Software",
+        "email": "dev@embedthis.com",
+        "url": "https://embedthis.com"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git://github.com/embedthis/me-doc.git"
+    },
+    "bugs": {
+        "url": "http://github.com/embedthis/me-doc/issues"
+    },
+    "licenses": "MIT",
+    "export": [
+        {
+            "from": "css/*.less",
+            "to": "doc/contents"
+        },
+        {
+            "from": "partials/**",
+            "to": "doc"
+        }
+    ],
+    "origin": "embedthis/me-doc"
+}

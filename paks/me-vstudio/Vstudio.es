@@ -95,7 +95,7 @@ if not exist "$(IncDir)" md "$(IncDir)"
         let list = []
         for each (name in target.depends) {
             let dep = builder.getDep(name) 
-            if (dep.enable) {
+            if (dep && dep.enable) {
                 list += getAllDeps(dep)
             }
         }

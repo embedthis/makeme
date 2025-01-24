@@ -6410,7 +6410,7 @@ typedef struct EcNode {
     uint                blockCreated      : 1;  /* Block object has been created */
     uint                createBlockObject : 1;  /* Create the block object to contain let scope variables */
     uint                enabled           : 1;  /* Node is enabled via conditional definitions */
-    int                 literalNamespace  : 1;  /* Namespace is a literal */
+    uint                literalNamespace  : 1;  /* Namespace is a literal */
     uint                needThis          : 1;  /* Need to push this object */
     uint                needDupObj        : 1;  /* Need to dup the object on stack (before) */
     uint                needDup           : 1;  /* Need to dup the result (after) */

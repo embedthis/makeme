@@ -2,7 +2,7 @@
     "name": "mpr",
     "description": "Embedthis Multithreaded Portable Runtime",
     "title": "Embedthis MPR",
-    "version": "9.0.3",
+    "version": "9.0.5",
     "keywords": [
         "mpr",
         "runtime"
@@ -11,10 +11,6 @@
         "name": "Embedthis Software",
         "email": "dev@embedthis.com",
         "url": "https://embedthis.com"
-    },
-    "repository": "embedthis/mpr",
-    "bugs": {
-        "url": "http://github.com/embedthis/mpr/issues"
     },
     "licenses": "Commercial",
     "devDependencies": {
@@ -26,5 +22,10 @@
         "doc/api/"
     ],
     "import": true,
+    "dependencies": {
+        "certs": "~1.0",
+        "osdep": "~1.0",
+        "ssl": "~1.0"
+    },
     "origin": "embedthis/mpr"
 }

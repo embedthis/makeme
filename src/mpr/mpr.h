@@ -228,6 +228,14 @@ struct  MprXml;
  */
 #define MPR_MIN_TIME_FOR_GC     2       /**< Wait till 2 milliseconds of idle time possible */
 
+#if UNUSED
+//  Legacy unicode 
+#define wide(s) (s)
+#define multi(s) (s)
+PUBLIC wchar *amtow(cchar *src, ssize *len);
+PUBLIC char  *awtom(wchar *src, ssize *len);
+#endif
+
 /************************************ Error Codes *****************************/
 
 /* Prevent collisions with 3rd party software */
@@ -713,7 +721,7 @@ PUBLIC void mprAtomicOpen(void);
     @param model Memory model. Set to MPR_ATOMIC_RELAXED, MPR_ATOMIC_CONSUME, MPR_ATOMIC_ACQUIRE,
         MPR_ATOMIC_RELEASE, MPR_ATOMIC_ACQREL, MPR_ATOMIC_SEQUENTIAL
     @ingroup MprSync
-    @stability Evolving.
+    @stability Stable.
  */
 PUBLIC void mprAtomicBarrier(int model);
 
@@ -1876,7 +1884,7 @@ PUBLIC int scaselesscmp(cchar *s1, cchar *s2);
     @param pattern String pattern to search for.
     @return Returns a reference to the start of the pattern in the string. If not found, returns NULL.
     @ingroup MprString
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC char *scaselesscontains(cchar *str, cchar *pattern);
 
@@ -2602,7 +2610,6 @@ PUBLIC wchar    *mtrim(wchar *str, cchar *set, int where);
 #define mtrim(str, set, where)          strim(str, set, where)
 
 #endif /* ME_CHAR_LEN <= 1 */
-
 /************************************ Formatting ******************************/
 /**
     Print a formatted message to the standard error channel
@@ -3123,7 +3130,7 @@ PUBLIC void mprSetBufRefillProc(MprBuf *buf, MprBufProc fn, void *arg);
 PUBLIC int mprSetBufSize(MprBuf *buf, ssize size, ssize maxSize);
 
 #if DOXYGEN || ME_CHAR_LEN > 1
-#if FUTURE
+#if KEEP
 /**
     Add a wide null character to the buffer contents.
     @description Add a null character but do not change the buffer content lengths. The null is added outside the
@@ -3131,7 +3138,7 @@ PUBLIC int mprSetBufSize(MprBuf *buf, ssize size, ssize maxSize);
         as a string pointer.
     @param buf Buffer created via mprCreateBuf
     @ingroup MprBuf
-    @stability Evolving
+    @stability Prototype
   */
 PUBLIC void mprAddNullToWideBuf(MprBuf *buf);
 
@@ -3169,13 +3176,13 @@ PUBLIC ssize mprPutStringToWideBuf(MprBuf *buf, cchar *str);
  */
 PUBLIC ssize mprPutFmtToWideBuf(MprBuf *buf, cchar *fmt, ...) PRINTF_ATTRIBUTE(2,3);
 
-#endif /* FUTURE */
+#endif /* KEEP */
 #else /* ME_CHAR_LEN == 1 */
 
 #define mprAddNullToWideBuf     mprAddNullToBuf
 #define mprPutCharToWideBuf     mprPutCharToBuf
 #define mprPutStringToWideBuf   mprPutStringToBuf
-#define mprPutFmtToWideBuf      mprPutToBuf
+#define mprPutFmtToWideBuf      mprPutFmtToBuf
 #endif
 
 /*
@@ -6152,7 +6159,7 @@ PUBLIC void mprSignalDispatcher(MprDispatcher *dispatcher);
     @return Returns the event object. If called from a foreign thread, note that the event may have already run and the event object
         may have been collected by the GC. May return NULL if the dispatcher has already been destroyed.
     @ingroup MprEvent
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC MprEvent *mprCreateEvent(MprDispatcher *dispatcher, cchar *name, MprTicks period, void *proc, void *data, int flags);
 
@@ -6497,7 +6504,7 @@ PUBLIC void mprXmlSetParserHandler(MprXml *xp, MprXmlHandler h);
 /**
     JSON Object
     @defgroup MprJson MprJson
-    @stability Evolving
+    @stability Stable
     @see mprBlendJson mprGetJsonObj mprGetJson mprGetJsonLength mprLoadJson mprParseJson mprSetJsonError
         mprParseJsonEx mprParseJsonInto mprQueryJson mprRemoveJson mprSetJsonObj mprSetJson mprJsonToString mprLogJson
         mprReadJson mprWriteJsonObj mprWriteJson mprWriteJsonObj
@@ -6737,7 +6744,7 @@ PUBLIC MprJson *mprHashToJson(MprHash *hash);
     @param list MprList to hold environment strings. Set to NULL and this routine will create a list.
     @return A list of environment strings
     @ingroup MprJson
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC MprList *mprJsonToEnv(MprJson *json, cchar *prefix, MprList *list);
 
@@ -6872,7 +6879,7 @@ PUBLIC MprJson *mprParseJsonInto(cchar *str, MprJson *obj);
         If setting properties, the original object is returned if the properties can be successfully defined. Otherwise,
         null is returned.
     @ingroup MprJson
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC MprJson *mprQueryJson(MprJson *obj, cchar *key, cchar *value, int type);
 
@@ -6887,7 +6894,7 @@ PUBLIC MprJson *mprQueryJson(MprJson *obj, cchar *key, cchar *value, int type);
     @return The matching JSON object. Returns NULL if a matching property is not found.
         Note this is a reference to the actaul JSON object and not a clone of the object.
     @ingroup MprJson
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC MprJson *mprReadJsonObj(MprJson *obj, cchar *name);
 
@@ -6901,7 +6908,7 @@ PUBLIC MprJson *mprReadJsonObj(MprJson *obj, cchar *name);
     @return The property value as a string. Returns NULL if a matching property is not found.
         Note this is a reference to the actaul JSON property value and not a clone of the value.
     @ingroup MprJson
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC cchar *mprReadJson(MprJson *obj, cchar *name);
 
@@ -6914,7 +6921,7 @@ PUBLIC cchar *mprReadJson(MprJson *obj, cchar *name);
     @param value Value to search for.
     @return The JSON object or null if not found.
     @ingroup MprJson
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC MprJson *mprReadJsonValue(MprJson *obj, cchar *value);
 
@@ -6937,7 +6944,7 @@ PUBLIC MprJson *mprRemoveJson(MprJson *obj, cchar *key);
     @param child JSON child to remove
     @return The removed child element.
     @ingroup MprJson
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC MprJson *mprRemoveJsonChild(MprJson *obj, MprJson *child);
 
@@ -6971,7 +6978,7 @@ PUBLIC char *mprSerialize(MprHash *hash, int flags);
     @param fmt Printf style format string
     @param ... Printf arguments
     @ingroup MprJson
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void mprSetJsonError(MprJsonParser *jp, cchar *fmt, ...) PRINTF_ATTRIBUTE(2,3);
 
@@ -6984,7 +6991,7 @@ PUBLIC void mprSetJsonError(MprJsonParser *jp, cchar *fmt, ...) PRINTF_ATTRIBUTE
     @param value Property value to set.
     @return Zero if updated successfully.
     @ingroup MprJson
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int mprSetJsonObj(MprJson *obj, cchar *key, MprJson *value);
 
@@ -6999,7 +7006,7 @@ PUBLIC int mprSetJsonObj(MprJson *obj, cchar *key, MprJson *value);
     @param type Set to MPR_JSON_FALSE, MPR_JSON_NULL, MPR_JSON_NUMBER, MPR_JSON_STRING, MPR_JSON_TRUE, MPR_JSON_UNDEFINED.
     @return Zero if updated successfully.
     @ingroup MprJson
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int mprSetJson(MprJson *obj, cchar *key, cchar *value, int type);
 
@@ -7011,7 +7018,7 @@ PUBLIC int mprSetJson(MprJson *obj, cchar *key, cchar *value, int type);
     @param value Property value to set.
     @return Zero if updated successfully.
     @ingroup MprJson
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int mprWriteJsonObj(MprJson *obj, cchar *key, MprJson *value);
 
@@ -7024,7 +7031,7 @@ PUBLIC int mprWriteJsonObj(MprJson *obj, cchar *key, MprJson *value);
     @param type Set to MPR_JSON_FALSE, MPR_JSON_NULL, MPR_JSON_NUMBER, MPR_JSON_STRING, MPR_JSON_TRUE, MPR_JSON_UNDEFINED.
     @return Zero if updated successfully.
     @ingroup MprJson
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int mprWriteJson(MprJson *obj, cchar *key, cchar *value, int type);
 
@@ -7172,7 +7179,7 @@ PUBLIC cchar *mprGetThreadName(MprThread *thread);
     @param tp Thread object returned by #mprCreateThread. Set to NULL for the current thread.
     @param on Set to true to enable yielding
     @ingroup MprThread
-    @stability Evolving
+    @stability Stable
 */
 PUBLIC bool mprSetThreadYield(MprThread *tp, bool on);
 
@@ -7538,7 +7545,7 @@ typedef struct MprSocketProvider {
         @param ssl SSL configurations to use.
         @param flags Set to MPR_SOCKET_SERVER for server side use.
         @returns Zero if successful, otherwise a negative MPR error code.
-        @stability Evolving
+        @stability Stable
      */
     int  (*preload)(struct MprSsl *ssl, int flags);
 
@@ -7606,7 +7613,6 @@ typedef struct MprSocketService {
     MprSocketProvider *standardProvider;        /**< Socket provider for non-SSL connections */
     MprSocketProvider *sslProvider;             /**< Socket provider for SSL connections */
     MprSocketPrebind prebind;                   /**< Prebind callback */
-    MprList         *secureSockets;             /**< List of secured (matrixssl) sockets */
     MprMutex        *mutex;                     /**< Multithread locking */
     int             maxAccept;                  /**< Maximum number of accepted client socket connections */
     int             numAccept;                  /**< Count of client socket connections */
@@ -7643,7 +7649,7 @@ PUBLIC int mprSetMaxSocketAccept(int max);
     Set the prebind callback for a socket
     @param callback Callback to invoke
     @ingroup MprSocket
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void mprSetSocketPrebindCallback(MprSocketPrebind callback);
 
@@ -7679,6 +7685,7 @@ PUBLIC void mprSetSocketPrebindCallback(MprSocketPrebind callback);
 #define MPR_SOCKET_CERT_ERROR       0x10000 /**< Error when validating peer certificate */
 #define MPR_SOCKET_ERROR            0x20000 /**< Hard error (not just eof) */
 #define MPR_SOCKET_REUSE_PORT       0x40000 /**< Set SO_REUSEPORT option */
+#define MPR_SOCKET_INHERIT          0x80000 /**< Allow children processes to inherit */
 
 /**
     Socket Service
@@ -7715,6 +7722,7 @@ typedef struct MprSocket {
     struct MprSocket *listenSock;       /**< Listening socket */
     void            *sslSocket;         /**< Extended SSL socket state */
     struct MprSsl   *ssl;               /**< Selected SSL configuration */
+    cchar           *protocol;          /**< Selected SSL protocol */
     cchar           *cipher;            /**< Selected SSL cipher */
     cchar           *session;           /**< SSL session ID (dependent on SSL provider) */
     cchar           *peerName;          /**< Peer common SSL name */
@@ -8236,7 +8244,7 @@ PUBLIC ssize mprWriteSocketVector(MprSocket *sp, MprIOVec *iovec, int count);
 /**
     Callback function for SNI connections.
     @ingroup MprSsl
-    @stability Evolving
+    @stability Stable
  */
 typedef struct MprSsl *(*MprMatchSsl)(MprSocket *sp, cchar *hostname);
 
@@ -8324,14 +8332,14 @@ PUBLIC int mprSslInit(void *unused, MprModule *module);
 /**
     Preload SSL configuration
     @ingroup MprSsl
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int mprPreloadSsl(struct MprSsl *ssl, int flags);
 
 /**
     Set the ALPN protocols for SSL
     @ingroup MprSsl
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void mprSetSslAlpn(struct MprSsl *ssl, cchar *protocols);
 
@@ -8414,7 +8422,7 @@ PUBLIC void mprSetSslLogLevel(struct MprSsl *ssl, int level);
     @param ssl SSL configuration instance
     @param match MprMatchSsl callback.
     @ingroup MprSsl
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void mprSetSslMatch(struct MprSsl *ssl, MprMatchSsl match);
 
@@ -8489,16 +8497,6 @@ PUBLIC void mprVerifySslIssuer(struct MprSsl *ssl, bool on);
  */
 PUBLIC void mprVerifySslPeer(struct MprSsl *ssl, cchar *mode);
 
-//  DEPRECATE EST, MATRIXSSL, NONOSSL
-#if ME_COM_EST
-    PUBLIC int mprCreateEstModule(void);
-#endif
-#if ME_COM_MATRIXSSL
-    PUBLIC int mprCreateMatrixSslModule(void);
-#endif
-#if ME_COM_NANOSSL
-    PUBLIC int mprCreateNanoSslModule(void);
-#endif
 #if ME_COM_OPENSSL
     PUBLIC int mprCreateOpenSslModule(void);
 #endif
@@ -9510,7 +9508,7 @@ PUBLIC ssize mprWriteCmdBlock(MprCmd *cmd, int channel, cchar *buf, ssize bufsiz
     @param data Cached item data
     @param event Event of interest.
     @ingroup MprCache
-    @stability Evolving
+    @stability Stable
  */
 typedef void (*MprCacheProc)(struct MprCache *cache, cchar *key, cchar *data, int event);
 
@@ -9541,7 +9539,7 @@ typedef struct MprCache {
     @param options Set of option flags. Use #MPR_CACHE_SHARED to select a global shared cache object.
     @return A cache instance object. On error, return null.
     @ingroup MprCache
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC MprCache *mprCreateCache(int options);
 
@@ -9556,7 +9554,7 @@ PUBLIC int mprCreateCacheService(void);
     Destroy a new cache object
     @param cache The cache instance object returned from #mprCreateCache.
     @ingroup MprCache
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void *mprDestroyCache(MprCache *cache);
 
@@ -9568,7 +9566,7 @@ PUBLIC void *mprDestroyCache(MprCache *cache);
     @return Zero if the expiry is successfully updated. Return MPR_ERR_CANT_FIND if the cache item is not present in the
         cache.
     @ingroup MprCache
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int mprExpireCacheItem(MprCache *cache, cchar *key, MprTicks expires);
 
@@ -9578,7 +9576,7 @@ PUBLIC int mprExpireCacheItem(MprCache *cache, cchar *key, MprTicks expires);
     @param numKeys Number of keys currently stored
     @param mem Memory in use to store keys
     @ingroup MprCache
-    @stability Evolving
+    @stability Stable
     @internal
  */
 PUBLIC void mprGetCacheStats(MprCache *cache, int *numKeys, ssize *mem);
@@ -9590,7 +9588,7 @@ PUBLIC void mprGetCacheStats(MprCache *cache, int *numKeys, ssize *mem);
     @param amount Numeric amount to increment the cache item. This may be a negative number to decrement the item.
     @return The new value for the cache item after incrementing.
     @ingroup MprCache
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int64 mprIncCache(MprCache *cache, cchar *key, int64 amount);
 
@@ -9605,7 +9603,7 @@ PUBLIC int64 mprIncCache(MprCache *cache, cchar *key, int64 amount);
         if not required. Cache items have a version number that is incremented every time the item is updated.
     @return The cache item value
     @ingroup MprCache
-    @stability Evolving
+    @stability Stable
   */
 PUBLIC char *mprLookupCache(MprCache *cache, cchar *key, MprTime *modified, int64 *version);
 
@@ -9614,7 +9612,7 @@ PUBLIC char *mprLookupCache(MprCache *cache, cchar *key, MprTime *modified, int6
     @description Prune the cache and discard all cached items
     @param cache The cache instance object returned from #mprCreateCache.
     @ingroup MprCache
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void mprPruneCache(MprCache *cache);
 
@@ -9628,7 +9626,7 @@ PUBLIC void mprPruneCache(MprCache *cache);
         if not required. Cache items have a version number that is incremented every time the item is updated.
     @return The cache item value
     @ingroup MprCache
-    @stability Evolving
+    @stability Stable
   */
 PUBLIC char *mprReadCache(MprCache *cache, cchar *key, MprTime *modified, int64 *version);
 
@@ -9638,7 +9636,7 @@ PUBLIC char *mprReadCache(MprCache *cache, cchar *key, MprTime *modified, int64 
     @param key Cache item key. If set to null, then remove all keys from the cache.
     @return True if the cache item was removed.
     @ingroup MprCache
-    @stability Evolving
+    @stability Stable
   */
 PUBLIC bool mprRemoveCache(MprCache *cache, cchar *key);
 
@@ -9652,7 +9650,7 @@ PUBLIC bool mprRemoveCache(MprCache *cache, cchar *key);
 
         (*MprCacheProc)(MprCache *cache, cchar *key, cchar *data, int event);
     @ingroup MprCache
-    @stability Evolving
+    @stability Stable
   */
 PUBLIC void mprSetCacheNotify(MprCache *cache, MprCacheProc notify);
 
@@ -9665,7 +9663,7 @@ PUBLIC void mprSetCacheNotify(MprCache *cache, MprCacheProc notify);
     @param resolution Set the cache item pruner resolution. This defines how frequently the cache manager will check
         items for expiration.
     @ingroup MprCache
-    @stability Evolving
+    @stability Stable
   */
 PUBLIC void mprSetCacheLimits(MprCache *cache, int64 keys, MprTicks lifespan, int64 memory, int resolution);
 
@@ -9675,7 +9673,7 @@ PUBLIC void mprSetCacheLimits(MprCache *cache, int64 keys, MprTicks lifespan, in
     @param key Cache item key to write
     @param link Managed memory reference. May be NULL.
     @ingroup MprCache
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int mprSetCacheLink(MprCache *cache, cchar *key, void *link);
 
@@ -9701,7 +9699,7 @@ PUBLIC int mprSetCacheLink(MprCache *cache, cchar *key, void *link);
         MPR error code is returned. #MPR_ERR_BAD_STATE will be returned if an invalid version number is supplied.
         #MPR_ERR_ALREADY_EXISTS will be returned if #MPR_CACHE_ADD is specified and the cache item already exists.
     @ingroup MprCache
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC ssize mprWriteCache(MprCache *cache, cchar *key, cchar *value, MprTime modified, MprTicks lifespan,
         int64 version, int options);

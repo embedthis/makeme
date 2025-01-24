@@ -2332,7 +2332,6 @@ module ejs {
             Update the cache cache resource limits. The supplied limit fields are updated.
             See the $limits property for limit field details.
             @param limits Object hash of limit fields and values
-            @see limits
          */
         function setLimits(limits: Object): Void
             adapter.setLimits(limits)
@@ -4985,7 +4984,7 @@ module ejs {
       */
     public var EJSCRIPT: Boolean = true
 
-    /** 
+    /*
         The "ejs" namespace used for the core library
         @spec ejs
      */
@@ -5912,7 +5911,7 @@ UNUSED
         native function setCredentials(username: String?, password: String?, type: String = null): Void
 
         /** 
-            Set a request header. Use setHeaders() to set all the headers. Use $getRequestHeaders() to retrieve and examine
+            Set a request header. Use $getRequestHeaders() to retrieve and examine
             the request header set.
             @param key The header keyword for the request, e.g. "accept".
             @param value The value to associate with the header, e.g. "yes"
@@ -5935,7 +5934,6 @@ UNUSED
             Update the request resource limits. The supplied limit fields are updated.
             See $limit for limit field details.
             @param limits Object hash of limit fields and values
-            @see limits
          */
         native function setLimits(limits: Object): Void
 
@@ -6992,7 +6990,6 @@ module ejs {
             Update the cache cache resource limits. The supplied limit fields are updated.
             See the $limits property for limit field details.
             @param limits Object hash of limit fields and values
-            @see limits
          */
         native function setLimits(limits: Object): Void
 
@@ -7972,7 +7969,6 @@ module ejs {
 
     /**
         Namespaces are used to qualify names into discrete spaces
-        @hide
         @stability prototype
      */
     final class Namespace { }
@@ -8883,7 +8879,7 @@ module ejs {
             FileSystem(this)
 
         /**
-            Get iterate over any files contained under this path (assuming it is a directory) 'for (v in files)'.
+            Iterate over any files contained under this path (assuming it is a directory) 'for (v in files)'.
                 This operates the same as getValues on a Path object.
             @return An iterator object.
             @example:
@@ -12226,7 +12222,6 @@ module ejs {
         The encode call replaces all characters except: alphabetic, decimal digits, "-", "_", ".", "!", "~", "*", 
         "'", "(", ")", "#",";", ",", "/", "?", ":", "@", "&", "=", "+", "$". Note that encocdeURI does not encode
         "&", "+" and "=". If you require these to be encoded, use encodeComponents. 
-        @see Uri.encode for RFC3986 compliant encoding.
         @param str String to encode
         @returns an encoded string
      */
@@ -12236,7 +12231,6 @@ module ejs {
         Encode a URI component using www-url encoding. This replaces special characters with encoded alternative sequence.
         The encode call replaces all characters except: alphabetic, decimal digits, "-", "_", ".", "!", "~", "*", 
         "'", "(", ")". Note that this call encodes "=" and "&" which are often used in URL query name/key pairs.
-        @see Uri.encodeComponent for RFC3986 compliant encoding.
         @param str String to encode
         @returns an encoded string
      */
@@ -13467,7 +13461,6 @@ module ejs {
     /**
         The XMLList class is a helper class for the XML class.
         @spec ejs
-        @hide
      */
     final class XMLList {
 
@@ -20100,7 +20093,6 @@ server.listen("127.0.0.1:7777")
             Update the server resource limits. The supplied limit fields are updated.
             See the $limits property for limit field details.
             @param limits Object hash of limit fields and values
-            @see limits
          */
         native function setLimits(limits: Object): Void
 
@@ -21376,7 +21368,6 @@ r.link({product: "candy", quantity: "10", template: "/cart/{product}/{quantity}}
             Update the request resource limits. The supplied limit fields are updated.
             See the $limits property for limit field details.
             @param limits Object hash of limit fields and values
-            @see limits
          */
         native function setLimits(limits: Object): Void
 

@@ -12,13 +12,6 @@
         "email": "dev@embedthis.com",
         "url": "https://embedthis.com"
     },
-    "repository": {
-        "type": "git",
-        "url": "git://github.com/embedthis/pcre.git"
-    },
-    "bugs": {
-        "url": "http://github.com/embedthis/pcre/issues"
-    },
     "licenses": "BSD",
     "files": [
         "dist/**"
