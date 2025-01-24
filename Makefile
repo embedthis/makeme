@@ -62,7 +62,8 @@ version:
 
 boot:
 	@rm -fr build/$(OS)-$(ARCH)-*
-	@export LD_LIBRARY_PATH="$(PWD)/build/$(BIN)" ; \
+	echo export LD_LIBRARY_PATH="$(PWD)/build/$(BIN)" ; \
+	export LD_LIBRARY_PATH="$(PWD)/build/$(BIN)" ; \
 	$(MAKE) -f projects/$(NAME)-$(OS)-$(PROFILE).$(EXT) compile ; \
 	build/$(OS)-$(ARCH)-$(PROFILE)/bin/me --release configure build
 
