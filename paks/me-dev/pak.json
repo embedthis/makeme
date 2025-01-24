@@ -1,0 +1,27 @@
+{
+    "name": "me-dev",
+    "description": "Embedthis Development Lifecycle Support",
+    "title": "Embedthis Development",
+    "version": "1.0.0",
+    "keywords": [
+        "me"
+    ],
+    "optionalDependencies": {
+        "me-project": "~0.8",
+        "me-doc": "~0.8"
+    },
+    "author": {
+        "name": "Embedthis Software",
+        "email": "dev@embedthis.com",
+        "url": "https://embedthis.com"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git://github.com/embedthis/me-dev.git"
+    },
+    "bugs": {
+        "url": "http://github.com/embedthis/me-dev/issues"
+    },
+    "licenses": "MIT",
+    "origin": "embedthis/me-dev"
+}

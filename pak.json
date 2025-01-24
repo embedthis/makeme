@@ -30,6 +30,8 @@
         "ejs.version": "~0.8",
         "ejscript": "~2.7",
         "http": "~7",
+        "me-dev": "~1.0",
+        "me-doc": "~1.0",
         "me-win": "~1",
         "mpr": "~9",
         "ssl": "~1"
