@@ -1,6 +1,8 @@
 /*
     testme.h -- Header for the MakeMe unit test library
 
+    This file provides a simple API for writing unit tests.
+
     Copyright (c) All Rights Reserved. See details at the end of the file.
  */
 
@@ -53,6 +55,11 @@ extern "C" {
     #define assert(E)          ttest(TM_LOC, #E, (E) != 0)
 #endif
 
+/**
+    Print a debug message.
+    @param fmt The format string.
+    @param ... The arguments to the format string.
+ */
 void tdebug(const char *fmt, ...)
 {
     va_list     ap;
@@ -64,7 +71,10 @@ void tdebug(const char *fmt, ...)
     printf("debug %s\n", buf);
 }
 
-
+/**
+    Get the depth of the test.
+    @return The depth of the test.
+ */
 int tdepth(void)
 {
     const char   *value;
@@ -76,6 +86,12 @@ int tdepth(void)
 }
 
 
+/**
+    Get an environment variable.
+    @param key The key to get.
+    @param def The default value.
+    @return The value of the environment variable.
+ */
 const char *tget(const char *key, const char *def)
 {
     const char   *value;
@@ -88,6 +104,12 @@ const char *tget(const char *key, const char *def)
 }
 
 
+/**
+    Get an environment variable as an integer.
+    @param key The key to get.
+    @param def The default value.
+    @return The value of the environment variable.
+ */
 int tgeti(const char *key, int def)
 {
     const char   *value;
@@ -99,13 +121,21 @@ int tgeti(const char *key, int def)
     }
 }
 
-
+/**
+    Check if an environment variable exists.
+    @param key The key to check.
+    @return 1 if the environment variable exists, 0 otherwise.
+ */
 int thas(const char *key)
 {
     return tgeti(key, 0);
 }
 
-
+/**
+    Print an info message.
+    @param fmt The format string.
+    @param ... The arguments to the format string.
+ */
 void tinfo(const char *fmt, ...)
 {
     va_list     ap;
@@ -117,7 +147,11 @@ void tinfo(const char *fmt, ...)
     printf("info %s\n", buf);
 }
 
-
+/**
+    Set an environment variable.
+    @param key The key to set.
+    @param value The value to set.
+ */
 void tset(const char *key, const char *value)
 {
 #if _WIN32
@@ -130,7 +164,11 @@ void tset(const char *key, const char *value)
     printf("set %s %s\n", key, value);
 }
 
-
+/**
+    Skip a test.
+    @param fmt The format string.
+    @param ... The arguments to the format string.
+ */
 void tskip(const char *fmt, ...)
 {
     va_list     ap;
@@ -143,6 +181,13 @@ void tskip(const char *fmt, ...)
     printf("skip %s\n", buf);
 }
 
+/**
+    Emit a pass/fail message based on the success of the test.
+    @param loc The location of the test.
+    @param expression The expression to test.
+    @param success The success of the test.
+    @return 1 if the test passed, 0 otherwise.
+ */
 int ttest(const char *loc, const char *expression, int success)
 {
     if (success) {
@@ -166,6 +211,15 @@ int ttest(const char *loc, const char *expression, int success)
     return success;
 }
 
+/**
+    Test if two integers are equal.
+    @param loc The location of the test.
+    @param expression The expression to test.
+    @param success The success of the test.
+    @param a The first integer.
+    @param b The second integer.
+    @return 1 if the test passed, 0 otherwise.
+ */
 int ttestEquals(const char *loc, const char *expression, int success, int a, int b)
 {
     ttest(loc, expression, success);
@@ -176,6 +230,15 @@ int ttestEquals(const char *loc, const char *expression, int success, int a, int
     return success;
 }
 
+/**
+    Test if a string contains a pattern.
+    @param loc The location of the test.
+    @param expression The expression to test.
+    @param success The success of the test.
+    @param str The string to test.
+    @param pattern The pattern to test for.
+    @return 1 if the test passed, 0 otherwise.
+ */
 int ttestContains(const char *loc, const char *expression, int success, const char *str, const char *pattern)
 {
     ttest(loc, expression, success);
@@ -186,6 +249,15 @@ int ttestContains(const char *loc, const char *expression, int success, const ch
     return success;
 }
 
+/**
+    Test if a string matches a pattern.
+    @param loc The location of the test.
+    @param expression The expression to test.
+    @param success The success of the test.
+    @param str The string to test.
+    @param pattern The pattern to test for.
+    @return 1 if the test passed, 0 otherwise.
+ */
 int ttestMatch(const char *loc, const char *expression, int success, const char *str, const char *pattern)
 {
     ttest(loc, expression, success);
@@ -196,6 +268,11 @@ int ttestMatch(const char *loc, const char *expression, int success, const char 
     return success;
 }
 
+/**
+    Print a verbose message.
+    @param fmt The format string.
+    @param ... The arguments to the format string.
+ */
 void tverbose(const char *fmt, ...)
 {
     va_list     ap;
@@ -207,7 +284,11 @@ void tverbose(const char *fmt, ...)
     printf("verbose %s\n", buf);
 }
 
-
+/**
+    Write a message.
+    @param fmt The format string.
+    @param ... The arguments to the format string.
+ */
 void twrite(const char *fmt, ...)
 {
     va_list     ap;
