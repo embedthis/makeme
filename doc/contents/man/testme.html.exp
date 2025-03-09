@@ -1,14 +1,4 @@
-<!DOCTYPE html>
-<html lang="eng">
-<head>
-<title>Testme Man Page</title>
-</head>
-<HTML>
-<BODY>
-<PRE>
-<!-- Manpage converted by man2html 3.0.1 -->
 
-</PRE>
 <H2>SYNOPSIS</H2><PRE>
        <B>testme</B>
            <B>--chdir</B> <B>dir</B>
@@ -210,6 +200,3 @@ testme                            January 2014                         <B>TESTME
 Man(1) output converted with
 <a href="http://www.oac.uci.edu/indiv/ehood/man2html.html">man2html</a>
 </ADDRESS>
-</BODY>
-</HTML>
-</html>
