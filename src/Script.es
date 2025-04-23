@@ -272,8 +272,12 @@ public function copyFiles(from, to: Path, topOptions = {}, base = null) {
                     makeDirectory(from, control)
                 }
             } else {
-                from = from.relativeTo(me.dir.top)
-                copyFile(from, to, control)
+                if (from.exists) {
+                    from = from.relativeTo(me.dir.top)
+                    copyFile(from, to, control)
+                } else {
+                    strace('No files matching pattern', from)
+                }
             }
             if (control.symlink && me.platform.like == 'unix') {
                 linkFile(to, Path(makeme.loader.expand(control.symlink)).join(to.basename),
