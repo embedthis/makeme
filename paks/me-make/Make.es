@@ -527,7 +527,7 @@ class Make {
             genWriteLine('ENTRY                 = _DllMainCRTStartup@12')
         genWriteLine('!ENDIF\n')
        
-        genWriteLine('!IF "$(CONFIG" == ""')
+        genWriteLine('!IF "$(CONFIG)" == ""')
         genWriteLine('CONFIG                = $(OS)-$(ARCH)-$(PROFILE)')
         genWriteLine('!ENDIF\n')
         genWriteLine('!IF "$(BUILD)" == ""')

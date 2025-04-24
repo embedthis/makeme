@@ -2849,15 +2849,13 @@ PUBLIC void mprShutdown(int how, int exitStatus, MprTicks timeout)
     }
     MPR->shutdownStarted = mprGetTicks();
 
-    if (how & MPR_EXIT_ABORT) {
-        if (how & MPR_EXIT_RESTART) {
-            mprLog("info mpr", 3, "Abort with restart.");
-            mprRestart();
-        } else {
-            mprLog("info mpr", 3, "Abortive exit.");
-            exit(exitStatus);
-        }
+    if (how & MPR_EXIT_RESTART) {
+        mprLog("info mpr", 3, "Abort with restart.");
+        mprRestart();
         /* No continue */
+    } else if (how & MPR_EXIT_ABORT) {
+        mprLog("info mpr", 3, "Abortive exit.");
+        exit(exitStatus);
     }
 
     if (!mprIsIdle(0)) {

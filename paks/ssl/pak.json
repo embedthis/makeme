@@ -7,10 +7,6 @@
         "me",
         "ssl"
     ],
-    "author": {
-        "name": "Michael O'Brien",
-        "email": "mob@embedthis.com"
-    },
     "files": [
         "dist/",
         "doc/api/"

@@ -218,6 +218,7 @@ module embedthis.doc {
         str = str.replace(/<entry thead="no">/g, "<td>")
         str = str.replace(/<table rows=[^>]*>/g, "<table class='info'>")
         str = str.replace(/<\/entry>/g, "</td>")
+        str = str.replace(/external=".*"/g, "")
         str = str.trim().trim(".").trim().trim(".")
         str = str.replace(/--/g, "&mdash;")
         return str

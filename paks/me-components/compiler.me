@@ -429,7 +429,9 @@ function setCompilerOptions(results, settings) {
             results.libraries.push('dl')
         }
         results.compiler.push('-Wall')
-        results.compiler.push('-Wno-unknown-warning-option')
+        if (platform.os == 'macosx') {
+            results.compiler.push('-Wno-unknown-warning-option')
+        }
         results.libraries.push('pthread', 'm')
         if (me.settings.debug) {
             results.compiler.push('-g')
