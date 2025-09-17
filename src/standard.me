@@ -9,6 +9,9 @@ Me.load({
                 builtin('cleanTargets')
                 safeRemove('${REL}')
                 safeRemove('${PKG}')
+                if (Path('${TOP}/test/testme').exists) {
+                    Cmd.sh('testme --clean', {dir: '${TOP}'})
+                }
             `,
         },
 
