@@ -8,3 +8,4 @@
 build/
 .expansive-lastgen
 projects/*-mine*
+.promoted

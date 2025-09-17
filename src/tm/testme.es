@@ -424,21 +424,24 @@ enumerable class TestMe {
                     assert(event == "readable")
                     cmd.read(data, -1)
                 })
-
                 cmd.start(command, blend({detach: true}, options))
                 cmd.finalize()
                 cmd.wait(TIMEOUT)
+
                 if (cmd.status != 0) {
-                    trace('FAIL', topPath + ' with bad exit status ' + cmd.status)
                     if (cmd.error) {
                         trace('Stderr', '\n' + cmd.error)
                     }
                     if (data) {
-                        trace('Stdout', '\n' + data.toString())
+                        // For some reason, App.log fails with large amounts of data, so print directly
+                        // trace('Stdout', '\n' + data.toString())
+                        print(data.toString())
+                        App.log.flush()
                     }
                     if (cmd.response) {
                         trace('Stdout', '\n' + cmd.response)
                     }
+                    trace('FAIL', topPath + ' with bad exit status ' + cmd.status)
                     this.failedCount++
                 } else {
                     parseOutput(phase, topPath, file, data.toString(), env)
