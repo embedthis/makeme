@@ -89,19 +89,26 @@ class Generate {
 
     function prepProject() {
         let cpack = me.targets.compiler
+        /*
         let cflags = cpack.compiler.join(' ')
         for each (word in minimalCflags) {
             cflags = cflags.replace(word + ' ', ' ')
         }
-        cflags = cflags.replace(/^ */, '')
+        */
+        // cflags = cflags.replace(/^ */, '')
+        /*
+            Mappings are the top level compiler definitions that are common to all target
+            They have -D, -I, -libpath prefixes but are not quoted
+            Keep in arrays where relevant
+         */
         mappings = {
             configuration:  me.platform.name
-            compiler:       cflags,
-            defines :       cpack.defines.map(function(e) '-D' + e.replace(/"/, '\\"')).join(' '),
-            includes:       cpack.includes.map(function(e) '-I' + e).join(' '),
-            linker:         cpack.linker.join(' '),
+            compiler:       cpack.compiler,
+            defines :       cpack.defines.map(function(e) '-D' + e.replace(/"/, '\\"')).sort(),
+            includes:       cpack.includes.map(function(e) '-I' + e).sort(),
+            linker:         cpack.linker,
             libpaths:       builder.mapLibPaths(cpack.libpaths),
-            libraries:      builder.mapLibs(null, cpack.libraries).join(' '),
+            libraries:      builder.mapLibs(null, cpack.libraries),
             build:          loader.BUILD + '/' + me.platform.name,
             lbin:           me.globals.LBIN ? me.globals.LBIN.relative : me.globals.BIN,
         }

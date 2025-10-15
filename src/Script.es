@@ -103,11 +103,11 @@ public function builtin(cmd: String, actionOptions: Object = {}) {
                     let path: Path = target.modify || target.path
                     path = (makeme.generating) ? reppath(path) : path
                     if (sysdirs[path]) {
-                        // App.log.error("prevent removal of", path)
+                        // App.log.error('prevent removal of', path)
                         continue
                     }
                     if (!path.childOf(me.dir.bld) && !makeme.generating) {
-                        // App.log.error("prevent removal of", path)
+                        // App.log.error('prevent removal of', path)
                         continue
                     }
                     if (path.exists) {
@@ -139,7 +139,7 @@ public function changeDir(path: Path) {
     try {
         App.chdir(path)
     } catch (e) {
-        throw new Error("Cannot change directory to " + path)
+        throw new Error('Cannot change directory to ' + path)
     }
 }
 
@@ -202,14 +202,14 @@ public function copyFile(src: Path, dest: Path, options = {}) {
                 genCmd('[ `id -u` = 0 ] && chown ' + options.user + ':' + options.group + ' "' + dest + '"; true')
             }
             if (options.permissions) {
-                genCmd('chmod ' + "%0o".format([options.permissions]) + ' "' + dest + '"')
+                genCmd('chmod ' + '%0o'.format([options.permissions]) + ' "' + dest + '"')
             }
         }
     }
 }
 
 public function copy(from, to: Path, options = {}) {
-    print("WARNING: Using deprecated copy()", from, to)
+    print('WARNING: Using deprecated copy()', from, to)
     return copyFiles(from, to, options)
 }
 
@@ -359,12 +359,11 @@ public function makeDirectory(path: Path, options = {}) {
                 try {
                     strace('Create', 'mkdir ' + path)
                     if (!path.makeDir()) {
-                        throw "Cannot make directory" + path
+                        throw 'Cannot make directory' + path
                     }
                 } catch (e) {
                     print(e)
-                    print("CANNOT MAKE DIR", path)
-                    throw "Cannot make directory" + path
+                    throw 'Cannot make directory' + path
                 }
             }
             if ((options.user || options.group || options.uid || options.gid) && App.uid == 0) {
@@ -413,7 +412,7 @@ public function removeFile(path: Path, options = {}) {
         strace('Remove', 'rm -f', path)
         if (!options.dry) {
             if (!path.remove()) {
-                throw "Cannot remove " + path
+                throw 'Cannot remove ' + path
             }
         }
     } else {
@@ -524,7 +523,7 @@ public function sh(command, copt = {}): String
     makeme.builder.sh(command, copt)
 
 /**
-    Safely copy a file. This protects against overwriting the target unless the "overwrite" command line
+    Safely copy a file. This protects against overwriting the target unless the 'overwrite' command line
     option was specified. Copies are traced to the console.
  */
 public function safeCopy(from: Path, to: Path) {
@@ -551,7 +550,7 @@ public function safeCopy(from: Path, to: Path) {
  */
 public function safeRemove(path: Path) {
     if (sysdirs[path]) {
-        App.log.error("Prevent removal of", path)
+        App.log.error('Prevent removal of', path)
         return
     }
     if (path.isDir) {
@@ -562,7 +561,7 @@ public function safeRemove(path: Path) {
 }
 
 /**
-    Emit "show" trace
+    Emit 'show' trace
     This is trace that is displayed if me --show is invoked.
     @param tag Informational tag emitted before the message
     @param args Message args to display
@@ -718,7 +717,7 @@ public function genScript(str: String) {
     @param args Message args to display
  */
 public function genTrace(tag: String, ...args): Void {
-    let msg = args.join(" ")
+    let msg = args.join(' ')
     if (makeme.generating == 'nmake') {
         msg = '\t@echo ' + '.'.times(9 - tag.length) + ' [' + tag + '] ' + msg + '\n'
     } else {
@@ -775,41 +774,42 @@ internal function repCmd(s: String, pattern, replacement): String {
     return s
 }
 
+public function repQuote(list): String {
+    list = list.map(function(e) {
+        if (! e.startsWith('$(')) /*)*/ {
+            return '"' + e + '"'
+        } else {
+            return e
+        }
+    })
+    return list.join(' ')
+}
+
+public function repWinPath(list): String {
+    list = list.map(function(e) {
+        e = repvar(e).replace(/\//g, '\\')
+        if (! e.startsWith('$(')) /*)*/ {
+            return '"' + e + '"'
+        } else {
+            return e
+        }
+    })
+    return list.join(' ')
+}
+
 /**
     Replace default defines, includes, libraries etc with token equivalents. This allows
     Makefiles and script to be use variables to control various flag settings.
     @hide
  */
 public function repcmd(command: String): String {
-    //  generator.settings == gen
     let mappings = makeme.generate.mappings
     let generating = makeme.generating
     let minimalCflags = makeme.generate.minimalCflags
     if (generating == 'make' || generating == 'nmake') {
-        if (mappings.linker != '') {
-            /* Linker has -g which is also in minimal C flags */
-            command = rep(command, mappings.linker, '$(LDFLAGS)')
-        }
-        if (mappings.defines != '') {
-            command = rep(command, mappings.defines, '$(DFLAGS)')
-        } else {
-            command = rep(command, ' -c ', ' -c $(DFLAGS) ')
-        }
-        if (mappings.compiler != '') {
-            command = rep(command, mappings.compiler, '$(CFLAGS)')
-        } else {
-            command = rep(command, ' -c ', ' -c $(CFLAGS) ')
-        }
         for each (word in minimalCflags) {
             command = rep(command, word + ' ', ' ')
         }
-        command = rep(command, mappings.libpaths, '$(LIBPATHS)')
-        command = rep(command, mappings.includes, '$(IFLAGS)')
-        command = rep(command, '"$(IFLAGS)"', '$(IFLAGS)')
-        /* Twice because libraries are repeated and replace only changes the first occurrence */
-        command = rep(command, mappings.libraries, '$(LIBS)')
-        command = rep(command, mappings.libraries, '$(LIBS)')
-
         if (generating == 'nmake') {
             command = rep(command, RegExp(Path(mappings.build).windows, 'g'), '$$(BUILD)')
         } else {
@@ -836,24 +836,6 @@ public function repcmd(command: String): String {
         for each (word in minimalCflags) {
             command = rep(command, word + ' ', ' ')
         }
-        if (mappings.defines != '') {
-            command = rep(command, mappings.defines, '${DFLAGS}')
-        } else {
-            command = rep(command, ' -c ', ' -c ${DFLAGS} ')
-        }
-        if (mappings.compiler != '') {
-            command = rep(command, mappings.compiler, '${CFLAGS}')
-        } else {
-            command = rep(command, ' -c ', ' -c ${CFLAGS} ')
-        }
-        if (mappings.linker != '') {
-            command = rep(command, mappings.linker, '${LDFLAGS}')
-        }
-        command = rep(command, mappings.libpaths, '${LIBPATHS}')
-        command = rep(command, mappings.includes, '${IFLAGS}')
-        /* Twice because libraries are repeated and replace only changes the first occurrence */
-        command = rep(command, mappings.libraries, '${LIBS}')
-        command = rep(command, mappings.libraries, '${LIBS}')
         command = rep(command, RegExp(mappings.build, 'g'), '$${BUILD}')
         command = rep(command, RegExp(mappings.configuration, 'g'), '$${CONFIG}')
         if (me.targets.compiler) {
@@ -889,6 +871,7 @@ public function repvar(command: String): String {
         command = command.replace(RegExp(mappings.build, 'g'), '$$(BUILD)')
         command = command.replace(RegExp(mappings.configuration, 'g'), '$$(CONFIG)')
     } else if (generating == 'nmake') {
+        command = command.replace(RegExp(mappings.build, 'g'), '$$(BUILD)')
         command = command.replace(RegExp(Path(mappings.build).windows, 'g'), '$$(BUILD)')
         command = command.replace(RegExp(mappings.configuration, 'g'), '$$(CONFIG)')
     } else if (generating == 'sh') {
@@ -921,6 +904,7 @@ public function repvar2(command: String, home: Path? = null): String {
         command = command.replace(RegExp(mappings.build, 'g'), '$$(BUILD)')
         command = command.replace(RegExp(mappings.configuration, 'g'), '$$(CONFIG)')
     } else if (generating == 'nmake') {
+        command = command.replace(RegExp(mappings.build, 'g'), '$$(BUILD)')
         command = command.replace(RegExp(Path(mappings.build).windows, 'g'), '$$(BUILD)')
         command = command.replace(RegExp(mappings.configuration, 'g'), '$$(CONFIG)')
         command = command.replace(RegExp(mappings.configuration + '\\\\bin/', 'g'), '$$(CONFIG)\\bin\\')

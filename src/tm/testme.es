@@ -635,6 +635,7 @@ Me.load({
         Build the test and return the command to run
         For *.es, return a command with 'ejs' prepended
         For *.c, create a testme directory with *.me file
+        For *.sh, run with a shell
         For *.es.com, use 'ejsc' to precompile.
 
         Commands run from the directory containing the test.
@@ -731,6 +732,8 @@ Me.load({
             } else {
                 why('Target', exe + ' is up to date')
             }
+        } else if (ext == 'sh') {
+            command = 'bash ' + file
         }
         return command
     }

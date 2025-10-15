@@ -305,7 +305,7 @@ class Configure {
                 blend(me.env, env, {combine: true})
             }
             if (target.scripts && target.scripts.generate) {
-                print("WARNING: generate scripts are deprecated: ", target.name)
+                print('WARNING: generate scripts are deprecated: ', target.name)
             }
             if (target.path) {
                 target.path = Path(target.path)
@@ -507,7 +507,7 @@ class Configure {
             components += configure.extras
         }
         /*
-            Add pre-loaded configurable targets. If these are in "extras" only load if generating
+            Add pre-loaded configurable targets. If these are in 'extras' only load if generating
          */
         for each (target in me.targets) {
             if (target.configurable && !components.contains(target.name)) {
@@ -795,6 +795,7 @@ class Configure {
             } else if (Object.getOwnPropertyCount(value) > 0 && !(value is Array)) {
                 writeSettings(f, key, value)
             } else if (typeOf(value) != 'Object') {
+                //MOB - still quoting here
                 def(f, key, '"' + value + '"')
             }
         }

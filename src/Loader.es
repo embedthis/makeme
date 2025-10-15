@@ -29,7 +29,7 @@ public class Loader {
 
     function Loader() {
         options = makeme.options
-        let profile = options.profile || (options.release ? 'release' : 'debug')
+        let profile = options.profile || App.env.PROFILE || (options.release ? 'release' : 'debug')
         localPlatform = options.local || (Config.OS + '-' + Config.CPU + '-' + profile)
         reset()
     }

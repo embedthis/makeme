@@ -137,7 +137,7 @@ public class Builder {
                     }
                 }
                 if (options.diagnose) {
-                    App.log.debug(3, "Target => " +
+                    App.log.debug(3, 'Target => ' +
                         serialize(target, {pretty: true, commas: true, indent: 4, quotes: false}))
                 }
                 runTargetScript(target, 'prebuild')
@@ -237,7 +237,7 @@ public class Builder {
 
         let ext = target.path.extension
         for each (file in target.files) {
-            target.vars.INPUT = file.relative
+            target.vars.INPUT = [file.relative]
             let transition = file.extension + '->' + target.path.extension
             if (options.pre) {
                 transition = 'c->c'
@@ -264,7 +264,7 @@ public class Builder {
     function buildResource(target) {
         let ext = target.path.extension
         for each (file in target.files) {
-            target.vars.INPUT = file.relative
+            target.vars.INPUT = [file.relative]
             let transition = file.extension + '->' + target.path.extension
             let rule = target.rule || me.rules[transition]
             if (!rule) {
@@ -339,7 +339,7 @@ public class Builder {
         if (!rule) {
             return
         }
-        target.vars.INPUT = target.files.join(' ')
+        target.vars.INPUT = target.files
         let command = expandRule(target, rule)
         let data = run(command, {noshow: true})
         let result = []
@@ -349,7 +349,7 @@ public class Builder {
             if (l.contains('??')) continue
             let sym
             if (me.platform.arch == 'x64') {
-                /* Win64 does not have "_" */
+                /* Win64 does not have '_' */
                 sym = l.replace(/.*\| */, '').replace(/\r$/,'')
             } else {
                 sym = l.replace(/.*\| _/, '').replace(/\r$/,'')
@@ -420,7 +420,56 @@ public class Builder {
      */
     public function expandRule(target, rule) {
         setRuleVars(target)
-        return loader.expand(rule).expand(target.vars, {missing: ''})
+        if (makeme.generate && makeme.generate.mappings) {
+            let tv = target.vars
+            let gm = makeme.generate.mappings
+            let base = {
+                CFLAGS: gm.compiler,
+                DEFINES: gm.defines,
+                INCLUDES: gm.includes,
+                LDFLAGS: gm.linker,
+                LIBPATHS: gm.libpaths,
+                LIBS: gm.libraries,
+            }
+            for each (f in ['CFLAGS', 'DEFINES', 'INCLUDES', 'INPUT', 'LDFLAGS', 'LIBPATHS', 'LIBS']) {
+                let items = tv[f] || []
+                if (items.length > 0) {
+                    // Test if the target vars includes all the standard values. If so, can tokenize those.
+                    let omitted = base[f].clone() - items
+                    let tname = f
+                    if (f == 'INCLUDES') {
+                        tname = 'IFLAGS'
+                    } else if (f == 'DEFINES') {
+                        tname = 'DFLAGS'
+                    }
+                    let list 
+                    if (omitted.length == 0) {
+                        list = ['$(' + tname + ')']
+                        let remaining = items.clone() - base[f]
+                        if (remaining.length) {
+                            list.push(...remaining)
+                        }
+                        items = list
+                    } else {
+                        items.unshift('$(' + tname + ')')
+                    }
+                }
+                tv[f] = items.map(function(e) {
+                    if (e[0] != '$' && e[1] != '(') /*)*/{
+                        return '"' + e + '"'
+                    }
+                    return e
+                })
+            }
+            if (tv.OUTPUT) {
+                tv.OUTPUT = '"' + tv.OUTPUT + '"'
+            }
+            if (tv.PDB) {
+                tv.PDB = '"' + tv.PDB + '"'
+            }
+        }
+        let command = loader.expand(rule).expand(target.vars, {missing: ''})
+        return command
     }
 
     /*
@@ -612,16 +661,17 @@ public class Builder {
         @param base Base directory from which the paths should be resolved. Defaults to the current directory.
         @return Linker library search path options
      */
-    public function mapLibPaths(libpaths: Array, base: Path = App.dir): String {
+    public function mapLibPaths(libpaths: Array, base: Path = App.dir): Array {
         if (me.platform.os == 'windows') {
-            return libpaths.map(function(p) '"-libpath:' + p.compact(base).portable + '"').join(' ')
+            return libpaths.map(function(p) '-libpath:' + p.compact(base).portable)
         } else {
-            return libpaths.map(function(p) '-L' + p.compact(base).portable).join(' ')
+            return libpaths.map(function(p) '-L' + p.compact(base).portable)
         }
     }
 
     /**
         Map libraries into the appropriate O/S dependant format
+        NOTE: this really should not test exists as if generating a project libs wont exist
         @hide
      */
     public function mapLibs(target, libs: Array, static = null): Array {
@@ -630,8 +680,10 @@ public class Builder {
             libs = libs.clone()
             for (let [i,name] in libs) {
                 let libname = Path('lib' + name).joinExt(me.ext.shlib, true)
-                if (me.targets['lib' + name] || me.dir.bin.join(libname).exists) {
+                if (me.targets['lib' + name]) {
                     libs[i] = libname
+                } else if (me.targets[name]) {
+                    libs[i] = Path(name).joinExt(me.ext.shlib, true)
                 } else {
                     let libpaths = target ? target.libpaths : me.targets.compiler.libpaths
                     for each (dir in libpaths) {
@@ -645,7 +697,7 @@ public class Builder {
         } else if (me.platform.os == 'vxworks') {
             libs = libs.clone()
             /*
-                Remove "*.out" libraries as they are resolved at load time only
+                Remove *.out libraries as they are resolved at load time only
              */
             for (i = 0; i < libs.length; i++) {
                 let name = libs[i]
@@ -659,7 +711,7 @@ public class Builder {
                 }
             }
             for (i in libs) {
-                let llib = me.dir.bin.join("lib" + libs[i]).joinExt(me.ext.shlib).relative
+                let llib = me.dir.bin.join('lib' + libs[i]).joinExt(me.ext.shlib).relative
                 if (llib.exists) {
                     libs[i] = llib
                 } else {
@@ -676,11 +728,12 @@ public class Builder {
             }
             libs = mapped
         }
+        /* MOB
         for (let [i, lib] in libs) {
             if (lib.contains(' ')) {
                 libs[i] = '"' + lib + '"'
             }
-        }
+        } */
         return libs
     }
 
@@ -939,8 +992,8 @@ public class Builder {
         if (copt.env) {
             cmd.env = blend(cmd.env, copt.env)
         }
-        App.log.debug(2, "Command " + command)
-        App.log.debug(3, "Env " + serialize(cmd.env, {pretty: true, indent: 4, commas: true, quotes: false}))
+        App.log.debug(2, 'Command ' + command)
+        App.log.debug(3, 'Env ' + serialize(cmd.env, {pretty: true, indent: 4, commas: true, quotes: false}))
 
         let results = new ByteArray
         cmd.on('readable', function(event, cmd) {
@@ -981,7 +1034,7 @@ public class Builder {
             if (!copt.noshow) {
                 if (copt.filter !== true) {
                     if (!(copt.filter is RegExp)) {
-                        copt.filter = RegExp(copt.filter, "g")
+                        copt.filter = RegExp(copt.filter, 'g')
                     }
                     if (response && !copt.filter.test(response)) {
                         prints(response)
@@ -1040,7 +1093,7 @@ public class Builder {
                     } else {
                         App.log.error('Error with target: ' + target.name + '\n\n' + e + '\n')
                     }
-                    throw "Exiting"
+                    throw 'Exiting'
                 }
             } finally {
                 changeDir(pwd)
@@ -1159,6 +1212,7 @@ public class Builder {
      */
     public function setRuleVars(target, base: Path = App.dir) {
         let tv = target.vars || {}
+        tv.CFLAGS ||= tv.CFLAGS || []
         if (target.home) {
             tv.HOME = Path(target.home).relativeTo(base)
         }
@@ -1182,45 +1236,43 @@ public class Builder {
             if (!target.files) {
                 throw 'Target ' + target.name + ' has no input files or sources'
             }
-            tv.INPUT = target.files.map(function(p) '"' + p.compact(base).portable + '"').join(' ')
+            tv.INPUT = [target.files.map(function(p) p.compact(base).portable)]
             tv.LIBS = mapLibs(target, target.libraries, target.static)
-            tv.LDFLAGS = (target.linker) ? target.linker.join(' ') : ''
+            tv.LDFLAGS = target.linker
 
         } else if (target.type == 'lib') {
             if (!target.files) {
                 throw 'Target ' + target.name + ' has no input files or sources'
             }
-            tv.INPUT = target.files.map(function(p) '"' + p.compact(base).portable + '"').join(' ')
+            tv.INPUT = target.files.map(function(p) p.compact(base).portable)
             tv.LIBNAME = target.path.basename
             tv.DEF = Path(target.path.compact(base).portable.toString().replace(/dll$/, 'def'))
             tv.LIBS = mapLibs(target, target.libraries, target.static)
-            tv.LDFLAGS = (target.linker) ? target.linker.join(' ') : ''
+            tv.LDFLAGS = target.linker
 
         } else if (target.type == 'obj') {
-            tv.CFLAGS = (target.compiler) ? target.compiler.join(' ') : ''
+            tv.CFLAGS = target.compiler
             if (makeme.generating) {
                 /*
                     Back quote quotes
-                    Use abs paths to reppath can substitute as much as possible
                  */
-                tv.DEFINES = target.defines.map(function(e) '-D' + e.replace(/"/g, '\\"')).join(' ')
-                tv.INCLUDES = (target.includes) ? target.includes.map(function(p) '"-I' + p + '"') : ''
+                tv.DEFINES = target.defines.map(function(e) '-D' + e.replace(/"/g, '\\"'))
+                tv.INCLUDES = (target.includes) ? target.includes.map(function(p) '-I' + p) : ''
             } else {
-                /* Use relative paths to shorten trace output */
-                tv.DEFINES = target.defines.map(function(e) '-D' + e).join(' ')
-                tv.INCLUDES = (target.includes) ? target.includes.map(function(p) '"-I' + p.compact(base).portable + '"') : ''
+                tv.DEFINES = target.defines.map(function(e) '-D' + e)
+                tv.INCLUDES = (target.includes) ? target.includes.map(function(p) '-I' + p.compact(base).portable) : ''
             }
             tv.PDB = tv.OUTPUT.replaceExt('pdb')
             let home = App.home.portable.absolute
             if (home.join('.embedthis').exists && !makeme.generating) {
-                tv.CFLAGS += ' -DEMBEDTHIS=1'
+                tv.CFLAGS.push('-DEMBEDTHIS=1')
             }
 
         } else if (target.type == 'resource') {
             tv.OUTPUT = target.path.relative
-            tv.CFLAGS = (target.compiler) ? target.compiler.join(' ') : ''
-            tv.DEFINES = target.defines.map(function(e) '-D' + e).join(' ')
-            tv.INCLUDES = (target.includes) ? target.includes.map(function(path) '"-I' + path.relative + '"') : ''
+            tv.CFLAGS = target.compiler
+            tv.DEFINES = target.defines.map(function(e) '-D' + e)
+            tv.INCLUDES = (target.includes) ? target.includes.map(function(path) '-I' + path.relative) : ''
         }
         target.vars = tv
     }
@@ -1244,8 +1296,8 @@ public class Builder {
         if (me.settings.configure && !options.verbose) {
             trace('Config', me.settings.configure)
         } else {
-            print("// Configuration for Platform: " + me.platform.name)
-            print("\nConfigurable Components:")
+            print('// Configuration for Platform: ' + me.platform.name)
+            print('\nConfigurable Components:')
             let configurable = []
             for each (target in me.targets) {
                 if (target.configurable) {
@@ -1253,7 +1305,7 @@ public class Builder {
                 }
             }
             print(serialize(configurable, {pretty: true, quotes: false}))
-            print("\nsettings:")
+            print('\nsettings:')
             print(serialize(me.settings, {pretty: true, quotes: false}))
         }
     }
