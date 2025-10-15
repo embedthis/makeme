@@ -78,6 +78,13 @@ if not exist "$(IncDir)" md "$(IncDir)"
                 }
             }
         }
+        let prep = me.targets.prep
+        if (prep) {
+            let command = prep['generate-' + me.platform.os] || prep['generate-vs']
+            if (command && command != true) {
+                code += '\n' + command
+            }
+        }
         prepTarget.custom = code
 
         projBuild(projects, base, prepTarget)
@@ -306,12 +313,18 @@ if not exist "$(IncDir)" md "$(IncDir)"
     <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
       <ImportGroup Label="PropertySheets" />
       <PropertyGroup Label="UserMacros">
+        <APP>' + me.settings.app + '</APP>
         <CfgDir>..\\..\\build\\windows-' + arch + '-$(Cfg)</CfgDir>
         <IncDir>$([System.IO.Path]::GetFullPath($(ProjectDir)\\$(CfgDir)\\inc))</IncDir>
         <ObjDir>$([System.IO.Path]::GetFullPath($(ProjectDir)\\$(CfgDir)\\obj))</ObjDir>
         <BinDir>$([System.IO.Path]::GetFullPath($(ProjectDir)\\$(CfgDir)\\bin))</BinDir>
+        <BuildInParallel>false</BuildInParallel>
       </PropertyGroup>
       <ItemGroup>
+        <BuildMacro Include="APP">
+          <Value>$(APP)</Value>
+          <EnvironmentVariable>true</EnvironmentVariable>
+        </BuildMacro>
         <BuildMacro Include="CfgDir">
           <Value>$(CfgDir)</Value>
           <EnvironmentVariable>true</EnvironmentVariable>
@@ -620,6 +633,9 @@ if not exist "$(IncDir)" md "$(IncDir)"
             command += data.replace(/^[ \t]*/mg, '').trim().replace(/^-md /m, 'md ').replace(/^-rd /m, 'rd ')
             cmdtmp.remove()
 
+        } else if (target['generate-windows']) {
+            command += target['generate-windows']
+
         } else if (target['generate-vs']) {
             command += target['generate-vs']
 
@@ -703,7 +719,19 @@ if not exist "$(IncDir)" md "$(IncDir)"
 
     function projFooter(base, target) {
         output('\n  <Import Project="${VTOK}\Microsoft.Cpp.targets" />')
-        output('  <ImportGroup Label="ExtensionTargets">\n  </ImportGroup>\n\n</Project>')
+        output('  <ImportGroup Label="ExtensionTargets">\n  </ImportGroup>\n')
+        let command = target['clean-' + me.platform.os] || target['clean-vs'] || target['clean']
+        if (command) {
+            output('<Target Name="AfterClean">')
+            if (!(command is Array)) {
+                command = [command]
+            }
+            for each (c in command) {
+                output('  <Exec WorkingDirectory="$(ProjectDir)\\..\\.." Command="' + c + '" />')
+            }
+            output('</Target>')
+        }
+        output('\n</Project>')
     }
 
     function output(line: String) {

@@ -12,6 +12,10 @@
         "email": "dev@embedthis.com",
         "url": "https://embedthis.com"
     },
+    "repository": {
+        "type": "git",
+        "url": "git://github.com/embedthis/mpr.git"
+    },
     "licenses": "Commercial",
     "devDependencies": {
         "makeme": ">=0.9.0",

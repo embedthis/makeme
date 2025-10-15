@@ -9,7 +9,7 @@ Me.load({
             description: 'OpenSSL Support',
             config: function (target) {
                 let os = me.platform.os
-                let version = (me.settings.openssl || {}).version || '1.0'
+                let version = (me.settings.openssl || {}).version || '3.5'
                 if (me.options.gen) {
                     let result = {
                         includes: [ me.dir.inc ],
@@ -31,15 +31,15 @@ Me.load({
                         result.libraries = [ 'ssl', 'crypto' ]
 
                     } else if (Version(version).acceptable('<1.1')) {
-                        result.defines = ['ME_COM_OPENSSL_PATH=/path/to/openssl']
-                        result.includes.push('$(ME_COM_OPENSSL_PATH)/include')
-                        result.libpaths = ['$(ME_COM_OPENSSL_PATH)/lib']
+                        result.defines = ['ME_COM_OPENSSL_PATH=$(USERPROFILE)/vcpkg/installed/x64-windows']
+                        result.includes.push('$(ME_COM_OPENSSL_PATH)\\include')
+                        result.libpaths = ['$(ME_COM_OPENSSL_PATH)\\lib']
                         result.libraries = ['libcrypto.lib', 'libssl.lib']
 
                     } else {
-                        result.defines = ['ME_COM_OPENSSL_PATH=/path/to/openssl']
-                        result.includes.push('$(ME_COM_OPENSSL_PATH)/include')
-                        result.libpaths = ['$(ME_COM_OPENSSL_PATH)', '$(ME_COM_OPENSSL_PATH)/lib']
+                        result.defines = ['ME_COM_OPENSSL_PATH=$(USERPROFILE)/vcpkg/installed/x64-windows']
+                        result.includes.push('$(ME_COM_OPENSSL_PATH)\\include')
+                        result.libpaths = ['$(ME_COM_OPENSSL_PATH)', '$(ME_COM_OPENSSL_PATH)\\lib']
                         result.libraries = [ 'libssl', 'libcrypto' ]
                     }
                     return result

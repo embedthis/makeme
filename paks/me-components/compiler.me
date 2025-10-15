@@ -412,9 +412,10 @@ function setCompilerOptions(results, settings) {
     if (settings.warn64to32) {
         results.compiler.push('-Wshorten-64-to-32')
     }
+/* Not needed
     if (settings.noexecstack) {
         results.linker.push('-z noexecstack')
-    }
+    } */
     if (settings.hasLibRt) {
         results.libraries.push('rt')
     }
@@ -463,7 +464,9 @@ function setCompilerOptions(results, settings) {
             }
             results.compiler.push(
                 '-Wformat',
-                '-Wformat-security'
+                '-Wformat-security',
+                '-Wsign-compare',
+                '-Wsign-conversion'
             )
             if (platform.os != 'macosx') {
                 results.compiler.push(
@@ -471,7 +474,6 @@ function setCompilerOptions(results, settings) {
                     '-Wl,--as-needed',
                     '-Wl,--no-copy-dt-needed-entries',
                     '-Wl,-z,noexecheap',
-                    '-Wl,-z,noexecstack',
                     '-Wl,--no-warn-execstack'
                 )
                 if (me.settings.static) {
@@ -559,7 +561,7 @@ function setCompilerOptions(results, settings) {
 
     } else if (platform.os == 'windows') {
         results.defines.push('_CRT_SECURE_NO_WARNINGS=1')
-        results.compiler.push('-nologo', '-GR-', '-W3')
+        results.compiler.push('-nologo', '-GR-', '-W3', '-FS')
         results.libraries.push('ws2_32.lib', 'advapi32.lib', 'user32.lib', 'kernel32.lib', 'oldnames.lib', 'shell32.lib')
         results.linker.push('-nologo', '-incremental:no', '-dynamicbase', '-nxcompat')
         if (me.settings.single) {

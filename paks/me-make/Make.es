@@ -93,7 +93,7 @@ class Make {
             if (needed[name]) {
                 let enable = target.enable
                 if (me.platform.os == 'windows' ) {
-                    genWriteLine('!IF "$(ME_COM_' + name.toUpper() + ')" == ""')
+                    genWriteLine('!IFNDEF ME_COM_' + name.toUpper())
                     genWriteLine('%-21s = %s'.format(['ME_COM_' + name.toUpper(), enable ? 1 : 0]))
                     genWriteLine('!ENDIF')
                 } else {
@@ -119,11 +119,11 @@ class Make {
                     value ||= ''
                     if (!defined[key]) {
                         if (me.platform.os == 'windows' ) {
-                            genWriteLine('!IF "$(' + key.toUpper() + ')" == ""')
-                            genWriteLine('%-21s = %s'.format([key, '"' + value + '"']))
+                            genWriteLine('!IFNDEF ' + key.toUpper())
+                            genWriteLine('%-21s = %s'.format([key, value]))
                             genWriteLine('!ENDIF')
                         } else {
-                            genWriteLine('%-21s ?= %s'.format([key, '"' + value + '"']))
+                            genWriteLine('%-21s ?= %s'.format([key, value]))
                         }
                         defined[key] = true
                     }
@@ -166,11 +166,11 @@ class Make {
             if (needed[name] && target.depends && !emitted[name]) {
                 emitted[name] = true
                 let seenItem = false
-                if (me.platform.os == 'windows' ) {
+                if (me.platform.os == 'windows') {
                     for each (r in target.depends) {
                         if (me.targets[r] && me.targets[r].configurable) {
                             if (!seenItem) {
-                                genWriteLine('!IF "$(ME_COM_' + r.toUpper() + ')" == ""')
+                                genWriteLine('!IFNDEF ME_COM_' + r.toUpper())
                                 seenItem = true
                             }
                             genWriteLine('%-21s = 1'.format(['ME_COM_' + r.toUpper()]))
@@ -203,12 +203,13 @@ class Make {
 
         /*
             Compute the dflags
+            These must be included regardless of whether the target is enabled incase the user enables at run time.
          */
         let dflags = ''
         for (let [name, target] in me.targets) {
             if (!target.configurable) continue
             if (needed[name]) {
-                dflags += '-DME_COM_' + name.toUpper() + '=$(ME_COM_' + name.toUpper() + ') '
+                dflags += '"-DME_COM_' + name.toUpper() + '=$(ME_COM_' + name.toUpper() + ')" '
             }
         }
         for (let [name, value] in me.settings) {
@@ -216,7 +217,7 @@ class Make {
             if (Object.getOwnPropertyCount(value) > 0 && !(value is Array)) {
                 for (let [k, v] in value) {
                     let prop = 'ME_' + name.toUpper() + '_' + k.toUpper()
-                    dflags += '-D' + prop + '=$(' + prop + ') '
+                    dflags += '"-D' + prop + '=$(' + prop + ')" '
                 }
             }
         }
@@ -225,7 +226,7 @@ class Make {
 
     function def(f: TextStream, key, value) {
         if (me.platform.os == 'windows' ) {
-            f.writeLine('!IF "$(ME_' + key.toUpper() + ')" == ""')
+            f.writeLine('!IFNDEF ME_' + key.toUpper())
             f.writeLine('%-21s = %s'.format(['ME_' + key.toUpper(), value]))
             f.writeLine('!ENDIF')
         } else {
@@ -368,13 +369,15 @@ class Make {
     public function generateMakeProject(base: Path) {
         trace('Generate', 'project file: ' + base.relative + '.mk')
         let path = base.joinExt('mk')
+        let project = me.settings.name + '-' + me.platform.os + '-default'
         genOpen(path)
         genWriteLine('#\n#   ' + path.basename + ' -- Makefile to build ' +
             me.settings.title + ' for ' + me.platform.os + '\n#\n')
         loader.runScript('pregen')
         genWriteLine('NAME                  := ' + me.settings.name)
         genWriteLine('VERSION               := ' + me.settings.version)
-        genWriteLine('PROFILE               ?= ' + me.platform.profile)
+        genWriteLine('PROJECT               := ' + project)
+        genWriteLine('PROFILE               ?= ' + 'dev')
         if (me.platform.os == 'vxworks') {
             genWriteLine("ARCH                  ?= $(shell echo $(WIND_HOST_TYPE) | sed 's/-.*//')")
             genWriteLine("CPU                   ?= $(subst X86,PENTIUM,$(shell echo $(ARCH) | tr a-z A-Z))")
@@ -390,7 +393,11 @@ class Make {
         if (me.targets.lib) {
             genWriteLine('AR                    ?= ' + me.targets.lib.path)
         }
-        genWriteLine('BUILD                 ?= ' + loader.BUILD + '/$(OS)-$(ARCH)-$(PROFILE)')
+        if (me.settings.build) {
+            genWriteLine('BUILD                 ?= ' + loader.BUILD)
+        } else {
+            genWriteLine('BUILD                 ?= ' + loader.BUILD + '/$(OS)-$(ARCH)-$(PROFILE)')
+        }
         genWriteLine('CONFIG                ?= $(OS)-$(ARCH)-$(PROFILE)')
         genWriteLine('LBIN                  ?= $(BUILD)/bin')
         genWriteLine('PATH                  := $(LBIN):$(PATH)\n')
@@ -399,22 +406,19 @@ class Make {
         environment()
 
         let mappings = makeme.generate.mappings
-        let cflags = mappings.compiler + ' '
-        for each (word in minimalCflags) {
-            cflags = cflags.replace(word + ' ', ' ')
-        }
-        cflags += ' -w'
-        genWriteLine('CFLAGS                += ' + cflags.trim())
-        genWriteLine('DFLAGS                += ' + mappings.defines.replace(/-DME_DEBUG=. */, '') +
+        genWriteLine('CFLAGS                += ' + mappings.compiler.join(' ').trim())
+
+        genWriteLine('DFLAGS                += ' + mappings.defines.join(' ').replace(/-DME_DEBUG=. */, '') +
             ' $(patsubst %,-D%,$(filter ME_%,$(MAKEFLAGS))) ' + dflags)
-        genWriteLine('IFLAGS                += "' +
-            repvar(me.targets.compiler.includes.map(function(path) '-I' + reppath(path.relative)).join(' ')) + '"')
-        // let linker = me.targets.compiler.linker.map(function(s) "'" + s + "'").join(' ')
-        let linker = me.targets.compiler.linker.join(' ')
-        let ldflags = repvar(linker).replace(/\$ORIGIN/g, '$$$$ORIGIN').replace(/'-g' */, '')
+
+        genWriteLine('IFLAGS                += ' + repQuote(mappings.includes))
+
+        // Fix for $ORIGIN which is difficult to get through make + shell
+        let ldflags = repQuote(mappings.linker).replace(/\$ORIGIN/g, '\\$$$$ORIGIN').replace(/'-g' */, '')
         genWriteLine('LDFLAGS               += ' + ldflags)
-        genWriteLine('LIBPATHS              += ' + repvar(mappings.libpaths))
-        genWriteLine('LIBS                  += ' + mappings.libraries + '\n')
+
+        genWriteLine('LIBPATHS              += ' + repQuote(mappings.libpaths))
+        genWriteLine('LIBS                  += ' + repQuote(mappings.libraries) + '\n')
 
         let dev = me.platform.profile == 'prod' ? false : true
         // + (dev ? 'dev' : 'prod'))
@@ -440,7 +444,6 @@ class Make {
         loader.runScript('gencustom')
         genWriteLine('')
 
-        let pop = me.settings.name + '-' + me.platform.os + '-$(PROFILE)' // + me.platform.profile
         genTargets()
 
         genWriteLine('\nDEPEND := \$(strip $(wildcard ./projects/depend.mk))')
@@ -465,11 +468,20 @@ class Make {
         genWriteLine('\t@[ ! -x $(BUILD)/inc ] && ' + 'mkdir -p $(BUILD)/inc; true')
         genWriteLine('\t@[ ! -x $(BUILD)/obj ] && ' + 'mkdir -p $(BUILD)/obj; true')
         if (me.dir.inc.join('me.h').exists) {
-            genWriteLine('\t@[ ! -f $(BUILD)/inc/me.h ] && ' + 'cp projects/' + pop + '-me.h $(BUILD)/inc/me.h ; true')
-            genWriteLine('\t@if ! diff $(BUILD)/inc/me.h projects/' + pop + '-me.h >/dev/null ; then\\')
-            genWriteLine('\t\tcp projects/' + pop + '-me.h $(BUILD)/inc/me.h  ; \\')
+            genWriteLine('\t@[ ! -f $(BUILD)/inc/me.h ] && ' + 'cp projects/$(PROJECT)-me.h $(BUILD)/inc/me.h ; true')
+            genWriteLine('\t@if ! diff $(BUILD)/inc/me.h projects/$(PROJECT)-me.h >/dev/null ; then\\')
+            genWriteLine('\t\tcp projects/$(PROJECT)-me.h $(BUILD)/inc/me.h  ; \\')
             genWriteLine('\tfi; true')
         }
+        let prep = me.targets.prep
+        if (prep) {
+            let command = prep['generate-' + me.platform.os] || prep['generate-make'] || prep['generate']
+            if (command != true) {
+                genWriteLine('\t' + command + ';')
+            }
+        }
+
+        /*
         genWriteLine('\t@if [ -f "$(BUILD)/.makeflags" ] ; then \\')
         genWriteLine('\t\tif [ "$(MAKEFLAGS)" != "`cat $(BUILD)/.makeflags`" ] ; then \\')
         genWriteLine('\t\t\techo "   [Warning] Make flags have changed since the last build" ; \\')
@@ -477,9 +489,21 @@ class Make {
         genWriteLine('\t\tfi ; \\')
         genWriteLine('\tfi')
         genWriteLine('\t@echo "$(MAKEFLAGS)" >$(BUILD)/.makeflags\n')
+        */
 
-        genWriteLine('clean:')
+        genWriteLine('\nclean:')
         builtin('cleanTargets')
+        for each (target in me.targets) {
+            let command = target['clean-' + me.platform.os] || target['clean-make'] || target['clean']
+            if (command) {
+                if (!(command is Array)) {
+                    command = [command]
+                }
+                for each (c in command) {
+                    genWriteLine('\t' + command)
+                }
+            }
+        }
         genWriteLine('\nclobber: clean\n\trm -fr ./$(BUILD)\n')
         builder.build(['gen'])
 
@@ -495,18 +519,26 @@ class Make {
         trace('Generate', 'project file: ' + base.relative + '.nmake')
         let mappings = makeme.generate.mappings
         let path = base.joinExt('nmake')
+        let project = me.settings.name + '-' + me.platform.os + '-default'
+
         genOpen(path)
         genWriteLine('#\n#   ' + path.basename + ' -- Makefile to build ' + me.settings.title +
             ' for ' + me.platform.os + '\n#\n')
         loader.runScript('pregen')
+
         genWriteLine('NAME                  = ' + me.settings.name)
         genWriteLine('VERSION               = ' + me.settings.version + '\n')
         genWriteLine('OS                    = ' + me.platform.os)
+
+        /*
+            In nmake, this is set correctly and we don't need to use PROCESSOR_ARCHITEW6432
+         */
         genWriteLine('PA                    = $(PROCESSOR_ARCHITECTURE)')
 
-        genWriteLine('!IF "$(PROFILE)" == ""')
-        genWriteLine('PROFILE               = ' + me.platform.profile)
-        genWriteLine('!ENDIF\n')
+        genWriteLine('PROJECT               = ' + project)
+        genWriteLine('\n!IFNDEF PROFILE')
+        genWriteLine('PROFILE               = ' + 'dev')
+        genWriteLine('!ENDIF')
 
         genWriteLine('')
         genWriteLine('!IF "$(PA)" == "AMD64"')
@@ -521,33 +553,89 @@ class Make {
             genWriteLine('ARCH                  = arm')
             genWriteLine('CC_ARCH               = arm')
             genWriteLine('ENTRY                 = _DllMainCRTStartup@12')
-        genWriteLine('!ELSE')
+        genWriteLine('!ELSEIF "$(PA)" == "X86"')
             genWriteLine('ARCH                  = x86')
             genWriteLine('CC_ARCH               = i686')
             genWriteLine('ENTRY                 = _DllMainCRTStartup@12')
+        genWriteLine('!ELSE')
+            genWriteLine('ARCH                  = x64')
+            genWriteLine('CC_ARCH               = x86_64')
+            genWriteLine('ENTRY                 = _DllMainCRTStartup')
         genWriteLine('!ENDIF\n')
        
-        genWriteLine('!IF "$(CONFIG)" == ""')
+        genWriteLine('!IFNDEF CONFIG')
         genWriteLine('CONFIG                = $(OS)-$(ARCH)-$(PROFILE)')
         genWriteLine('!ENDIF\n')
-        genWriteLine('!IF "$(BUILD)" == ""')
-        genWriteLine('BUILD                 = ' + loader.BUILD + '\\$(OS)-$(ARCH)-$(PROFILE)')
+
+        genWriteLine('!IFNDEF BUILD')
+        if (me.settings.build) {
+            genWriteLine('BUILD                 = ' + loader.BUILD)
+        } else {
+            genWriteLine('BUILD                 = ' + loader.BUILD + '\\$(OS)-$(ARCH)-$(PROFILE)')
+        }
         genWriteLine('!ENDIF\n')
 
+        genWriteLine('!IFNDEF LBIN')
         genWriteLine('LBIN                  = $(BUILD)\\bin\n')
+        genWriteLine('!ENDIF\n')
 
         let dflags = componentDefs()
+        genWriteLine('!IFNDEF CC')
         genWriteLine('CC                    = cl')
+        genWriteLine('!ENDIF\n')
+
+        genWriteLine('!IFNDEF LD')
         genWriteLine('LD                    = link')
+        genWriteLine('!ENDIF\n')
+        
+        genWriteLine('!IFNDEF AR')
         genWriteLine('AR                    = lib')
+        genWriteLine('!ENDIF\n')
+        
+        genWriteLine('!IFNDEF RC')
         genWriteLine('RC                    = rc')
-        genWriteLine('CFLAGS                = ' + mappings.compiler)
-        genWriteLine('DFLAGS                = ' + mappings.defines + ' ' + dflags)
-        genWriteLine('IFLAGS                = ' +
-            repvar(me.targets.compiler.includes.map(function(path) '-I' + reppath(path)).join(' ')))
-        genWriteLine('LDFLAGS               = ' + repvar(mappings.linker).replace(/-machine:x86/, '-machine:$$(ARCH)'))
-        genWriteLine('LIBPATHS              = ' + repvar(mappings.libpaths).replace(/\//g, '\\'))
-        genWriteLine('LIBS                  = ' + mappings.libraries + '\n')
+        genWriteLine('!ENDIF\n')
+        
+        genWriteLine('!IFNDEF CFLAGS')
+        genWriteLine('CFLAGS                = ' + mappings.compiler.join(' ').trim())
+        genWriteLine('!ELSE')
+        genWriteLine('CFLAGS                = $(CFLAGS) ' + mappings.compiler.join(' ').trim())
+        genWriteLine('!ENDIF\n')
+        
+        genWriteLine('!IFNDEF DFLAGS')
+        genWriteLine('DFLAGS                = ' + mappings.defines.join(' ') + ' ' + dflags)
+        genWriteLine('!ELSE')
+        genWriteLine('DFLAGS                = $(DFLAGS) ' + mappings.defines.join(' ') + ' ' + dflags)
+        genWriteLine('!ENDIF\n')
+        
+print('includes', mappings.includes, typeOf(mappings.includes))
+print('libpaths', mappings.libpaths, typeOf(mappings.libpaths))
+
+        genWriteLine('!IFNDEF IFLAGS')
+        // genWriteLine('IFLAGS                = ' + repvar(me.targets.compiler.includes.map(function(path) '-I' + reppath(path)).join(' ')))
+        genWriteLine('IFLAGS                = ' + repWinPath(mappings.includes))
+        genWriteLine('!ELSE')
+        genWriteLine('IFLAGS                = $(IFLAGS) ' + repWinPath(mappings.includes))
+        genWriteLine('!ENDIF\n')
+        
+        genWriteLine('!IFNDEF LDFLAGS')
+        genWriteLine('LDFLAGS               = ' + mappings.linker.join(' ').replace(/-machine:x86/, '-machine:$$(ARCH)'))
+        genWriteLine('!ELSE')
+        genWriteLine('LDFLAGS               = $(LDFLAGS) ' + mappings.linker.join(' ').replace(/-machine:x86/, '-machine:$$(ARCH)'))
+        genWriteLine('!ENDIF\n')
+        
+        genWriteLine('!IFNDEF LIBPATHS')
+        genWriteLine('LIBPATHS              = ' + repWinPath(mappings.libpaths))
+        genWriteLine('!ELSE')
+        genWriteLine('LIBPATHS              = $(LIBPATHS) ' + repWinPath(mappings.libpaths))
+        genWriteLine('!ENDIF\n')
+        
+        genWriteLine('!IFNDEF LIBS')
+        genWriteLine('LIBS                  = ' + mappings.libraries.join(' '))
+        genWriteLine('!ELSE')
+        genWriteLine('LIBS                  = $(LIBS) ' + mappings.libraries.join(' '))
+        genWriteLine('!ENDIF\n')
+        
 
         let prefixes = mapPrefixes()
         for (let [name, value] in prefixes) {
@@ -565,20 +653,32 @@ class Make {
         genWriteLine('')
 
         genTargets()
-        let pop = me.settings.name + '-' + me.platform.os + '-' + me.platform.profile
         genWriteLine('!IFNDEF SHOW\n.SILENT:\n!ENDIF\n')
         genWriteLine('all build compile: prep $(TARGETS)\n')
         genWriteLine('.PHONY: prep\n\nprep:')
-        genWriteLine('!IF "$(VSINSTALLDIR)" == ""\n\techo "Visual Studio vars not set. Run vcvars.bat."\n\texit 255\n!ENDIF')
+        genWriteLine('!IFNDEF VSINSTALLDIR\n\techo "Visual Studio vars not set. Run vcvars.bat."\n\texit 255\n!ENDIF')
         if (me.prefixes.app) {
-            genWriteLine('!IF "$(ME_APP_PREFIX)" == ""\n\techo "ME_APP_PREFIX not set."\n\texit 255\n!ENDIF')
+            genWriteLine('!IFNDEF ME_APP_PREFIX\n\techo "ME_APP_PREFIX not set."\n\texit 255\n!ENDIF')
         }
+        genWriteLine('\t@echo Building for $(CC_ARCH)')
         genWriteLine('\t@if not exist $(BUILD)\\bin md $(BUILD)\\bin')
         genWriteLine('\t@if not exist $(BUILD)\\inc md $(BUILD)\\inc')
         genWriteLine('\t@if not exist $(BUILD)\\obj md $(BUILD)\\obj')
         if (me.dir.inc.join('me.h').exists) {
-            genWriteLine('\t@if not exist $(BUILD)\\inc\\me.h ' + 'copy projects\\' + pop + '-me.h $(BUILD)\\inc\\me.h\n')
+            genWriteLine('\t@if not exist $(BUILD)\\inc\\me.h ' + 'copy projects\\$(PROJECT)-me.h $(BUILD)\\inc\\me.h')
         }
+
+        let pfile = Path('projects/prep.nmake')
+        if (pfile.exists) {
+            genWrite(pfile.readString() + '\n')
+        }
+
+        let prep = me.targets.prep
+        if (prep) {
+            let command = prep['generate-' + me.platform.os] || prep['generate-nmake'] || prep['generate']
+            genWriteLine('\t' + command + ';')
+        }
+        
         genWriteLine('!IF "$(SHOW)" != ""')
         genTrace('Info', 'Use "make SHOW=1" to trace executed commands and errors.')
         genWriteLine('LOG =')
@@ -586,8 +686,28 @@ class Make {
         genWriteLine('LOG = >nul')
         genWriteLine('!ENDIF\n')
 
+        let pfile = Path('projects/targets.nmake')
+        if (pfile.exists) {
+            genWrite(pfile.readString() + '\n')
+        }
+
         genWriteLine('clean:')
         builtin('cleanTargets')
+        for each (target in me.targets) {
+            let command = target['clean-' + me.platform.os] || target['clean-make'] || target['clean']
+            if (command) {
+                if (!(command is Array)) {
+                    command = [command]
+                }
+                for each (c in command) {
+                    if (me.platform.os == 'windows') {
+                        genWriteLine('\t' + repWinPath(command))
+                    } else {
+                        genWriteLine('\t' + command)
+                    }
+                }
+            }
+        }
         genWriteLine('')
         builder.build(['gen'])
         genClose()
@@ -787,8 +907,12 @@ class Make {
         let topTargets = builder.topTargets
 
         let all = []
+
         for each (target in topTargets) {
             let path = target.modify || target.path
+            if (!path && target.always) {
+                path = target.name
+            }
             if (path && target.enable && target.generate) {
                 if (target.ifdef) {
                     for each (pname in target.ifdef) {
@@ -890,7 +1014,7 @@ class Make {
 
         let ext = target.path.extension
         for each (file in target.files) {
-            target.vars.INPUT = file.relative
+            target.vars.INPUT = [file.relative]
             let transition = file.extension + '->' + target.path.extension
             let rule = target.rule || me.rules[transition]
             if (!rule) {
@@ -931,7 +1055,7 @@ class Make {
     function generateResource(target) {
         let ext = target.path.extension
         for each (file in target.files) {
-            target.vars.INPUT = file.relative
+            target.vars.INPUT = [file.relative]
             let transition = file.extension + '->' + target.path.extension
             let rule = target.rule || me.rules[transition]
             if (!rule) {
@@ -1034,8 +1158,8 @@ class Make {
         if (generating == 'make' | generating == 'sh' || generating == 'xcode') {
             sh = target['generate-sh']
         }
-        cmd = target['generate-' + kind + '-' + me.platform.os] || target['generate-' + kind] ||
-            target['generate-make-' + me.platform.os] || target['generate-make'] || sh || ''
+        cmd = target['generate-' + me.platform.os] || target['generate-' + kind + '-' + me.platform.os] || 
+            target['generate-' + kind] || target['generate-make-' + me.platform.os] || target['generate-make'] || sh || ''
         if (!cmd && target.generate is String) {
             cmd = target.generate
         }
@@ -1268,7 +1392,7 @@ class Make {
                         if (component) {
                             for each (path in component.libpaths) {
                                 if (path != me.dir.bin) {
-                                    genWriteLine('LIBPATHS_' + nextID + ' = $(LIBPATHS_' + nextID + ') -libpath:' + path)
+                                    genWriteLine('LIBPATHS_' + nextID + ' = $(LIBPATHS_' + nextID + ') "-libpath:' + path + '"')
                                     command = command.replace('"-libpath:' + path.windows + '"', '')
                                 }
                             }
@@ -1279,7 +1403,7 @@ class Make {
                             for each (path in component.libpaths) {
                                 if (path != me.dir.bin) {
                                     genWriteLine(indent + 'LIBPATHS_' + nextID + ' += -L"' + path + '"')
-                                    command = command.replace('-L' + path, '')
+                                    command = command.replace('"-L' + path + '"', '')
                                 }
                             }
                         }
@@ -1309,18 +1433,18 @@ class Make {
                 }
                 found = true
                 if (me.platform.os == 'windows') {
-                    command = command.replace(RegExp(' lib' + lib + '.lib ', 'g'), ' ')
-                    command = command.replace(RegExp(' ' + lib + '.lib ', 'g'), ' ')
-                    command = command.replace(RegExp(' ' + lib + ' ', 'g'), ' ')
+                    command = command.replace(RegExp(' "lib' + lib + '.lib" ', 'g'), ' ')
+                    command = command.replace(RegExp(' "' + lib + '.lib" ', 'g'), ' ')
+                    command = command.replace(RegExp(' "' + lib + '" ', 'g'), ' ')
                 } else {
-                    command = command.replace(RegExp(' -l' + lib + ' ', 'g'), ' ')
+                    command = command.replace(RegExp(' "-l' + lib + '" ', 'g'), ' ')
                 }
             } else {
                 if (me.platform.os == 'windows') {
-                    command = command.replace(RegExp(' lib' + lib + '.lib ', 'g'), ' ')
+                    command = command.replace(RegExp(' "lib' + lib + '.lib" ', 'g'), ' ')
                 } else {
-                    /* Leave as is */
-                    // command = command.replace(RegExp(' -l' + lib + ' ', 'g'), ' ')
+                    // Leave as is
+                    // command = command.replace(RegExp(' "-l' + lib + '" ', 'g'), ' ')
                 }
             }
         }
@@ -1342,7 +1466,7 @@ class Make {
                 }
             }
         }
-        return command
+        return command.replace(/  */g, ' ')
     }
 
     function getDepsVar(target)  {

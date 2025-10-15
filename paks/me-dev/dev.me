@@ -83,16 +83,21 @@ Me.load({
             home: '${TOP}',
             action: `
                 if (!me.targets.test) {
-                    let testme = Cmd.locate('testme')
-                    if (!testme) {
-                        testme = Cmd.locate('testme', [App.exeDir, me.dir.bin])
+                    let testme
+                    if (Path('test/testme.json5').exists) {
+                        testme = Cmd.locate('tm')
+                    } else if (Path('test').exists) {
+                        testme = Cmd.locate('testme')
+                        if (!testme) {
+                            testme = Cmd.locate('testme', [App.exeDir, me.dir.bin])
+                        }
                     }
                     if (testme) {
-                        if (me.dir.top.join('src').exists) {
-                            run([testme, '--depth', me.settings.depth])
+                        if (me.dir.top.join('test').exists) {
+                            run([testme, '--depth', me.settings.depth], {dir: 'test'})
                         }
                     } else {
-                        trace('Test', 'The testme program cannot be located')
+                        // trace('Test', 'The testme program cannot be located')
                     }
                 }
             `,

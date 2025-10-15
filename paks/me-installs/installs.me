@@ -232,7 +232,7 @@ Me.load({
                 let name = package.packageName()
                 let depth = makeme.options.depth || App.getenv('BUILD_DEPTH') || me.settings.depth || 0
                 if (!name || !name.exists) {
-                    trace('Test', 'testPackage -- SKIPPED (No package to install)')
+                    // trace('Test', 'testPackage -- SKIPPED (No package to install)')
                 } else if (depth < 2) {
                     trace('Test', 'testPackage -- SKIPPED (Runs at depth 2 on windows or macosx)')
                 } else {
